@@ -1,0 +1,19 @@
+{
+  "name": "@hmcts/rpx-xui-core-lib",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Shared EXUI core library: repository foundation for selective browser loading and Node services.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hmcts/rpx-xui-core-lib.git"
+  },
+  "engines": {
+    "node": ">=24.22.1 <25"
+  },
+  "packageManager": "yarn@4.5.3",
+  "scripts": {
+    "lint": "node --check scripts/check-repository.mjs",
+    "test": "node scripts/check-repository.mjs"
+  }
+}
