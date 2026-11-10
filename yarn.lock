@@ -413,6 +413,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@axe-core/playwright@npm:4.14.0":
+  version: 4.14.0
+  resolution: "@axe-core/playwright@npm:4.14.0"
+  dependencies:
+    axe-core: "npm:~4.14.0"
+  peerDependencies:
+    playwright-core: ">= 1.0.0"
+  checksum: 10c0/a42bca2305bbb80a374be9ff6642cac7b45f5f0aef1be9170ae42617c3423501ab1a33c8581641a71554a0c6a69f6ca512a5cc6e320ed197339a9ac4edfa713c
+  languageName: node
+  linkType: hard
+
 "@babel/code-frame@npm:^7.0.0, @babel/code-frame@npm:^7.27.1, @babel/code-frame@npm:^7.29.7":
   version: 7.29.7
   resolution: "@babel/code-frame@npm:7.29.7"
@@ -1507,6 +1518,7 @@ __metadata:
     "@angular/core": "npm:20.3.31"
     "@angular/forms": "npm:20.3.31"
     "@angular/platform-browser": "npm:20.3.31"
+    "@axe-core/playwright": "npm:4.14.0"
     "@playwright/test": "npm:1.65.0"
     "@types/jasmine": "npm:5.1.0"
     "@types/jest": "npm:30.0.0"
@@ -1523,6 +1535,7 @@ __metadata:
     karma-junit-reporter: "npm:2.0.1"
     luxon: "npm:2.5.2"
     ng-packagr: "npm:20.3.2"
+    playwright-core: "npm:1.65.0"
     rpx-xui-translation: "npm:1.2.18"
     rxjs: "npm:7.8.2"
     tslib: "npm:2.8.1"
@@ -4075,6 +4088,13 @@ __metadata:
   version: 1.0.0
   resolution: "async-generator-function@npm:1.0.0"
   checksum: 10c0/2c50ef856c543ad500d8d8777d347e3c1ba623b93e99c9263ecc5f965c1b12d2a140e2ab6e43c3d0b85366110696f28114649411cbcd10b452a92a2318394186
+  languageName: node
+  linkType: hard
+
+"axe-core@npm:~4.14.0":
+  version: 4.14.0
+  resolution: "axe-core@npm:4.14.0"
+  checksum: 10c0/8aaa0bf748e0dcf202e8f837951a37b28b4b62d639bed58c07a6890bf035ed6a11ede9f4006db9ca8041db821dc80476c27cff08fd70afa9195ee58fb995a958
   languageName: node
   linkType: hard
 

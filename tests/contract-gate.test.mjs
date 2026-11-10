@@ -100,6 +100,13 @@ const i18nNames = [
 const i18nJourneys = ['a late Welsh response preserves English and is reused after switching back', 'locale switches reuse persisted translations across English and page reloads', 'a translation HTTP failure returns and caches the original phrase', 'local gallery translates through its own synthetic service', 'local gallery demonstrates a synthetic service failure', 'local translation endpoint validates requests'];
 const cacheJourneys = ['legacy to core preserves valid cached translation', 'core to legacy preserves valid cached translation', 'core replaces an expired cache row written by published legacy'];
 const journey = 'keyboard checkbox toggles update real FormGroup validity and submitted errors';
+const validationJourneys = [
+  'validation keyboard traversal toggles roles and submits with Enter and Space',
+  'validation initial exposes accessible roles and passes axe',
+  'validation invalid-submit exposes accessible roles and passes axe',
+  'validation valid exposes accessible roles and passes axe',
+  'validation axe detects the label rule when a checkbox label is removed',
+];
 const packageIds = [
   'package.physical-secondary-declaration', 'package.strict-node', 'package.strict-bundler',
   'package.installed-runtime', 'package.missing-declaration-fault', 'package.restored-node',
@@ -114,7 +121,7 @@ function reports() {
     'validation.tap': `TAP version 13\n${unitNames.map((name, index) => `ok ${index + 1} - ${name}`).join('\n')}\n1..7\n# tests 7\n# pass 7\n# fail 0\n`,
     'node-jest.json': { success: true, numTotalTests: 9, numPassedTests: 9, numFailedTests: 0, numPendingTests: 0, numTodoTests: 0, testResults: [{ status: 'passed', assertionResults: nodeNames.map((fullName) => ({ fullName, status: 'passed' })) }] },
     'i18n/junit.xml': `<?xml version="1.0"?><testsuite name="Chrome Headless" tests="69" errors="0" failures="0">${i18nNames.map((name) => `<testcase name="${name.replaceAll('&', '&amp;').replaceAll('\"', '&quot;')}"/>`).join('')}</testsuite>`,
-    'browser.json': { errors: [], suites: [{ specs: [journey, ...i18nJourneys].map((title) => ({ title, tests: [{ projectName: 'chromium', expectedStatus: 'passed', status: 'expected', results: [{ status: 'passed' }] }] })) }] },
+    'browser.json': { errors: [], suites: [{ specs: [journey, ...validationJourneys, ...i18nJourneys].map((title) => ({ title, tests: [{ projectName: 'chromium', expectedStatus: 'passed', status: 'expected', results: [{ status: 'passed' }] }] })) }] },
     'cache-upgrade-report.json': { errors: [], suites: [{ specs: cacheJourneys.map((title) => ({ title, tests: [{ projectName: 'chromium', expectedStatus: 'passed', status: 'expected', results: [{ status: 'passed' }] }] })) }] },
     'package.json': { schemaVersion: 1, package: { sha256: 'a'.repeat(64) }, tests: packageIds.map((id) => ({ id, status: 'passed' })) },
   };
@@ -132,7 +139,7 @@ function checkFixture(t, files) {
 }
 
 test('accepts all independently required successful contracts', (t) => {
-  assert.equal(checkFixture(t, reports())(), 108);
+  assert.equal(checkFixture(t, reports())(), 113);
 });
 
 for (const file of ['validation.tap', 'browser.json', 'cache-upgrade-report.json', 'package.json', 'node-jest.json', 'i18n/junit.xml']) {
@@ -200,6 +207,19 @@ for (const title of i18nJourneys.slice(-3)) {
   });
 }
 
+for (const title of validationJourneys) {
+  test(`rejects a missing validation browser contract: ${title}`, (t) => {
+    const files = reports();
+    files['browser.json'].suites[0].specs = files['browser.json'].suites[0].specs.filter((spec) => spec.title !== title);
+    assert.throws(checkFixture(t, files), /missing|required/i);
+  });
+  test(`rejects a skipped validation browser contract: ${title}`, (t) => {
+    const files = reports();
+    files['browser.json'].suites[0].specs.find((spec) => spec.title === title).tests[0].results[0].status = 'skipped';
+    assert.throws(checkFixture(t, files), /pass|contract/i);
+  });
+}
+
 test('rejects expected browser failure and empty attempts', (t) => {
   for (const change of [{ expectedStatus: 'failed' }, { results: [] }]) {
     const files = reports();
@@ -254,7 +274,7 @@ test('accepts a real native node:test TAP stream', (t) => {
   assert.equal(result.status, 0, result.stderr);
   const files = reports();
   files['validation.tap'] = result.stdout;
-  assert.equal(checkFixture(t, files)(), 108);
+  assert.equal(checkFixture(t, files)(), 113);
 });
 
 for (const file of ['browser.json', 'package.json']) {

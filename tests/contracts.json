@@ -20,6 +20,26 @@
       },
       {
         "projectName": "chromium",
+        "title": "validation keyboard traversal toggles roles and submits with Enter and Space"
+      },
+      {
+        "projectName": "chromium",
+        "title": "validation initial exposes accessible roles and passes axe"
+      },
+      {
+        "projectName": "chromium",
+        "title": "validation invalid-submit exposes accessible roles and passes axe"
+      },
+      {
+        "projectName": "chromium",
+        "title": "validation valid exposes accessible roles and passes axe"
+      },
+      {
+        "projectName": "chromium",
+        "title": "validation axe detects the label rule when a checkbox label is removed"
+      },
+      {
+        "projectName": "chromium",
         "title": "locale switches reuse persisted translations across English and page reloads"
       },
       {
