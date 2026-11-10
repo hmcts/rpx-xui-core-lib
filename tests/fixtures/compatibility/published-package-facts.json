@@ -1,0 +1,299 @@
+[
+  {
+    "name": "@hmcts/rpx-xui-common-lib",
+    "version": "3.2.28",
+    "gitHead": "f23288743831ef13a55b4348f757db74c1a189c8",
+    "dependencies": {
+      "tslib": "^2.0.0",
+      "govuk-frontend": "5.13.0"
+    },
+    "peerDependencies": {
+      "rxjs": "^7.8.1",
+      "zone.js": "~0.15.1",
+      "@angular/cdk": "^20.2.14",
+      "@angular/core": "^20.3.18",
+      "@ng-idle/core": "^16.0.0",
+      "@angular/forms": "^20.3.18",
+      "ngx-pagination": "^3.2.1",
+      "@angular/common": "^20.3.18",
+      "@angular/router": "^20.3.18",
+      "@angular/compiler": "^20.3.18",
+      "@angular/localize": "^20.3.18",
+      "@angular/material": "^20.2.14",
+      "@ng-idle/keepalive": "^16.0.0",
+      "@angular/animations": "^20.3.18",
+      "rpx-xui-translation": "1.2.14",
+      "@angular/platform-browser": "^20.3.18",
+      "launchdarkly-js-client-sdk": "^3.3.0",
+      "@angular/platform-browser-dynamic": "^20.3.18"
+    },
+    "dist": {
+      "shasum": "f85d2b8c52e2c6cb34b73a86e3ffaa958508310a",
+      "tarball": "https://registry.npmjs.org/@hmcts/rpx-xui-common-lib/-/rpx-xui-common-lib-3.2.28.tgz",
+      "fileCount": 5,
+      "integrity": "sha512-pqdv7CyYXovbEEggvijXuwGtrIgp5GqZnr14eumazTlWJpIoTDqCL5ajBDta2srqz0NZ7fnYwQiEu5QmnmMEsQ==",
+      "signatures": [
+        {
+          "sig": "MEUCIQDwS3ii3JoJsvOWHSUztWa4VDsOPH1ZGzCufT7FtQ1O7QIgWOYEKDUwkAGKp9EZ0ahXvLOrRsekoqpL4GMXFeTkNnY=",
+          "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+        },
+        {
+          "sig": "MEUCIQDc1mzlUwfokjwdjnYevmY2/dU355h+Cbq2CJFgRJK92QIgORnV6xDmbVjjs8uQhv3EJ+aHMnPEupwvlIjTRR9i6do=",
+          "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+        }
+      ],
+      "unpackedSize": 1655255
+    }
+  },
+  {
+    "name": "@hmcts/ccd-case-ui-toolkit",
+    "version": "7.4.26",
+    "gitHead": "8f8defa763648f9414e9c7baba8c7849ea3a9fc4",
+    "dependencies": {
+      "peggy": "^5.1.0",
+      "tslib": "^2.3.0",
+      "yargs": "17.7.2",
+      "marked": "^18.0.5",
+      "lz-string": "^1.5.0",
+      "@edium/fsm": "^3.0.2",
+      "file-saver": "^2.0.5",
+      "yargs-parser": "^21.1.1",
+      "govuk-frontend": "5.13.0",
+      "@hmcts/media-viewer": "4.2.48",
+      "@hmcts/ccpay-web-component": "6.5.28"
+    },
+    "peerDependencies": {
+      "rxjs": "^7.8.1",
+      "lodash": "^4.17.22",
+      "moment": "^2.31.0",
+      "zone.js": "^0.15.1",
+      "ngx-chips": "^3.0.0",
+      "ngx-editor": "19.0.0-beta.1",
+      "underscore": "^1.9.1",
+      "@ngrx/store": "^20.1.0",
+      "rxjs-compat": "^6.6.7",
+      "@angular/cdk": "^20.2.14",
+      "ngx-markdown": "^20.1.0",
+      "@angular/core": "^20.3.27",
+      "@ngrx/effects": "^20.1.0",
+      "@angular/forms": "^20.3.27",
+      "ngx-pagination": "6.0.3",
+      "@angular/common": "^20.3.27",
+      "@angular/router": "^20.3.27",
+      "moment-timezone": "^0.5.31",
+      "@angular/upgrade": "^20.3.27",
+      "@angular/compiler": "^20.3.27",
+      "@angular/localize": "^20.3.27",
+      "@angular/material": "^20.2.14",
+      "class-transformer": "^0.5.1",
+      "prosemirror-model": "1.25.11",
+      "@angular/animations": "^20.3.27",
+      "prosemirror-history": "1.5.0",
+      "rpx-xui-translation": "1.2.14",
+      "prosemirror-commands": "1.7.1",
+      "@ngxmc/datetime-picker": "20.1.0",
+      "prosemirror-schema-list": "1.5.1",
+      "@angular/platform-browser": "^20.3.27",
+      "@angular/material-moment-adapter": "^20.0.0",
+      "@angular/platform-browser-dynamic": "^20.3.27"
+    },
+    "dist": {
+      "shasum": "70003149967b6922c7fb098017894694da02d17d",
+      "tarball": "https://registry.npmjs.org/@hmcts/ccd-case-ui-toolkit/-/ccd-case-ui-toolkit-7.4.26.tgz",
+      "fileCount": 6,
+      "integrity": "sha512-2ZTJ8mTFEkPyBOaqdQ/vqgD8br6jG1jofNRO9oO/TpB3G2AbIawlR5djp57Al8yCb24BjrmZZ575OaWn/WTyXg==",
+      "signatures": [
+        {
+          "sig": "MEYCIQC3FMLEmR32Sp29/Sqo2rV6LJGXldQ6tLRdckp1ZQgabAIhAKSqP1787pR9K2rskujOir9FS3HwC8+Ev+tNcZiH7fkp",
+          "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+        },
+        {
+          "sig": "MEQCIEl9O3dyF+jID3+59ZBqIlXWe9yJ6VOA8cjJDPSuCM74AiAC9FAwfTv9B+DcS1PuMVWczEAqlO1pgrJJlU4vDG/WcQ==",
+          "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+        }
+      ],
+      "attestations": {
+        "url": "https://registry.npmjs.org/-/npm/v1/attestations/@hmcts%2fccd-case-ui-toolkit@7.4.26",
+        "provenance": {
+          "predicateType": "https://slsa.dev/provenance/v1"
+        }
+      },
+      "unpackedSize": 8163637
+    }
+  },
+  {
+    "name": "rpx-xui-translation",
+    "version": "1.2.18",
+    "gitHead": "c64cbe88f3f84a2d32ca9006f75c48a71a6dfc3b",
+    "dependencies": {
+      "dexie": "^4.4.4",
+      "luxon": "^2.5.2",
+      "tslib": "^2.0.0"
+    },
+    "peerDependencies": {
+      "rxjs": "^7.8.0",
+      "@angular/core": "^20.3.27",
+      "@angular/common": "^20.3.27"
+    },
+    "dist": {
+      "shasum": "df8e11c49f7ca214a90db193afaefaaa5561cf2d",
+      "tarball": "https://registry.npmjs.org/rpx-xui-translation/-/rpx-xui-translation-1.2.18.tgz",
+      "fileCount": 5,
+      "integrity": "sha512-oon+OIGFB9mVwkQLRXUh9PIAGgZP1PHR+Txf0hX5aL0/FfSlb0aSrFs5KimyFuZQLQb7ygOng4kcPLPQgCS7lg==",
+      "signatures": [
+        {
+          "sig": "MEQCIAtKUyiuvbCRxPxym4xaqvfUUkaltfeWXN6osY0/3m7KAiAM+U82nf0REaCpEtzPhNiBp+ek7wLXRYfodDx6OcwLFw==",
+          "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+        },
+        {
+          "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U",
+          "sig": "MEQCIHe2vGtjJsv9nFHOTJTxrmm9st9oc74Er8SS0nUVH/M4AiBA3IBGSoZhP8LRorlX4LmpvwmswlTRxrt6oCJXYmJEYQ=="
+        }
+      ],
+      "attestations": {
+        "url": "https://registry.npmjs.org/-/npm/v1/attestations/rpx-xui-translation@1.2.18",
+        "provenance": {
+          "predicateType": "https://slsa.dev/provenance/v1"
+        }
+      },
+      "unpackedSize": 49271
+    }
+  },
+  {
+    "name": "@hmcts/rpx-xui-node-lib",
+    "version": "2.30.35",
+    "gitHead": "133bfdf4c82f0fb1885932845dba24174edd45d0",
+    "dependencies": {
+      "joi": "^18.3.0",
+      "axios": "^1.20.0",
+      "debug": "^4.4.3",
+      "redis": "^6.1.0",
+      "otplib": "^13.4.0",
+      "express": "^5.2.1",
+      "passport": "^0.7.0",
+      "deepmerge": "^4.3.1",
+      "jwt-decode": "^4.0.0",
+      "connect-redis": "^9.0.0",
+      "openid-client": "^5.7.1",
+      "express-session": "^1.19.0",
+      "passport-oauth2": "^1.8.0",
+      "@dr.pogodin/csurf": "^1.17.1",
+      "session-file-store": "^1.5.0"
+    },
+    "peerDependencies": {
+      "helmet": "^7.0.0"
+    },
+    "dist": {
+      "shasum": "64c7c09b1b7dd3cf8f7be7559194f26f726340d7",
+      "tarball": "https://registry.npmjs.org/@hmcts/rpx-xui-node-lib/-/rpx-xui-node-lib-2.30.35.tgz",
+      "fileCount": 203,
+      "integrity": "sha512-dTcJTNDip05wEsIJVsi9uDFT1pbO2UwEtmBaY66cjF2H3+dWOoc5c3FmNy+MNlSzw1bpzwOxCyylAbItsynlKw==",
+      "signatures": [
+        {
+          "sig": "MEQCIGCUXP7kZC0vFpmM9d+LHs0zwKg0fLsTJR99sL9OJDgQAiBZ5kmFEITK46Q+zItFW9+ZX38mDcWw4AP/ZeA+B5+2OQ==",
+          "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+        },
+        {
+          "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U",
+          "sig": "MEUCIEE2L5VYJUb/O07grP8gMHfNSHqJNXjOF3i4RB+0MN1eAiEA6zuA4A/skxLGj28dv/geE5UzU/iXsDDq2T/lNemOcVw="
+        }
+      ],
+      "attestations": {
+        "url": "https://registry.npmjs.org/-/npm/v1/attestations/@hmcts%2frpx-xui-node-lib@2.30.35",
+        "provenance": {
+          "predicateType": "https://slsa.dev/provenance/v1"
+        }
+      },
+      "unpackedSize": 225944
+    }
+  },
+  {
+    "name": "@hmcts/media-viewer",
+    "version": "4.2.48",
+    "gitHead": "89cdcbb9d0dc9d0a9552d1d9bfea57ea3e85ee9e",
+    "dependencies": {
+      "uuid": "^11.1.1",
+      "tslib": "^2.3.0",
+      "pdfjs-dist": "^4.10.38",
+      "mutable-div": "^2.0.0",
+      "moment-timezone": "^0.6.2",
+      "socket.io-client": "^4.8.0",
+      "@swimlane/ngx-datatable": "^23.0.1"
+    },
+    "peerDependencies": {
+      "rxjs": "^7.8.2",
+      "ngx-chips": "3.0.0",
+      "@ngrx/store": "^20",
+      "@angular/cdk": "^20.0.0",
+      "@angular/core": "^20.0.0",
+      "@ngrx/effects": "^20",
+      "@angular/forms": "^20.0.0",
+      "@angular/common": "^20.0.0",
+      "@angular/router": "^20.0.0",
+      "@angular/animations": "^20.0.0",
+      "rpx-xui-translation": "1.2.18",
+      "@ngrx/store-devtools": "^20",
+      "@angular/platform-browser": "^20.0.0"
+    },
+    "dist": {
+      "shasum": "b7b9dd053b6e2a6e824f04b59df29024f419f5c9",
+      "tarball": "https://registry.npmjs.org/@hmcts/media-viewer/-/media-viewer-4.2.48.tgz",
+      "fileCount": 248,
+      "integrity": "sha512-ebEvEXm9OJrBNPGyT7TdUTjvUf0XN6X5upg5R/2MPAOgFkpW3pQpwAHMaw2xJktlkjjcf44BTn7D5aqLjQLmmg==",
+      "signatures": [
+        {
+          "sig": "MEQCIGFBa0JjzxnQJIq4jcGyxw3SKWLg7P8YlQiQwrL+Q2m+AiAnCUWeu/JMXTnx6yEn/2RJ5H7nNoe8gHRGEEOipWs5tw==",
+          "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+        },
+        {
+          "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U",
+          "sig": "MEYCIQCCznrf/yj4fsoiUYu64AO1h3pDMNpQTI/CwmFcXlFeKwIhANFNaueC99osjOc5A0c7YXHBCP4Q2KbwEXdObaw7R9/O"
+        }
+      ],
+      "attestations": {
+        "url": "https://registry.npmjs.org/-/npm/v1/attestations/@hmcts%2fmedia-viewer@4.2.48",
+        "provenance": {
+          "predicateType": "https://slsa.dev/provenance/v1"
+        }
+      },
+      "unpackedSize": 46928992
+    }
+  },
+  {
+    "name": "@hmcts/ccpay-web-component",
+    "version": "6.5.28",
+    "gitHead": "fce049ffab53a07054707f55f151c82744d60f96",
+    "dependencies": {
+      "tslib": "^2.3.0",
+      "exceljs": "^4.4.0",
+      "file-saver": "^2.0.2"
+    },
+    "peerDependencies": {
+      "@angular/core": "~20.3.1",
+      "@angular/common": "^20.3.1"
+    },
+    "dist": {
+      "shasum": "2053742e63528bd623211227efdbe46d23569314",
+      "tarball": "https://registry.npmjs.org/@hmcts/ccpay-web-component/-/ccpay-web-component-6.5.28.tgz",
+      "fileCount": 5,
+      "integrity": "sha512-heZAyYnkSjOXG1YkKzc0Ev2dhYewvwWF/hEZ0dVyHVIdg1t/DainlI24xEd48phB9iUAYGb9XMdm5U7plWiDkA==",
+      "signatures": [
+        {
+          "sig": "MEUCIQDgDC/YKKM8nldI9O+F0snIK1ksXUrM3wgcfHKuDx/XrAIgYh9rZaFoRSnjHurBmvnLpbJpzKp+++bnIzFtyoFMHfo=",
+          "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+        },
+        {
+          "sig": "MEUCIQDBvw4apvGuqOFO5SUmTKB+HzRdIjmw6UE5cYdIufRJ7AIge6Cb9QMW8zvYzYv1iZbXxWoUPpW1vITBM9nVW03/yQA=",
+          "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+        }
+      ],
+      "attestations": {
+        "url": "https://registry.npmjs.org/-/npm/v1/attestations/@hmcts%2fccpay-web-component@6.5.28",
+        "provenance": {
+          "predicateType": "https://slsa.dev/provenance/v1"
+        }
+      },
+      "unpackedSize": 2228154
+    }
+  }
+]

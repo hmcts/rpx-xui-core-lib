@@ -1,0 +1,2265 @@
+{
+  "schemaVersion": 1,
+  "status": "proposed / blocked until native graph and counterpart proofs",
+  "sources": [
+    {
+      "name": "@hmcts/rpx-xui-common-lib",
+      "version": "3.2.28",
+      "gitHead": "f23288743831ef13a55b4348f757db74c1a189c8"
+    },
+    {
+      "name": "@hmcts/ccd-case-ui-toolkit",
+      "version": "7.4.26",
+      "gitHead": "8f8defa763648f9414e9c7baba8c7849ea3a9fc4"
+    },
+    {
+      "name": "rpx-xui-translation",
+      "version": "1.2.18",
+      "gitHead": "c64cbe88f3f84a2d32ca9006f75c48a71a6dfc3b"
+    },
+    {
+      "name": "@hmcts/rpx-xui-node-lib",
+      "version": "2.30.35",
+      "gitHead": "133bfdf4c82f0fb1885932845dba24174edd45d0"
+    },
+    {
+      "name": "@hmcts/media-viewer",
+      "version": "4.2.48",
+      "gitHead": "89cdcbb9d0dc9d0a9552d1d9bfea57ea3e85ee9e"
+    },
+    {
+      "name": "@hmcts/ccpay-web-component",
+      "version": "6.5.28",
+      "gitHead": "fce049ffab53a07054707f55f151c82744d60f96"
+    }
+  ],
+  "modules": [
+    {
+      "name": "@angular/animations",
+      "declared_by": [
+        {
+          "package": "@hmcts/rpx-xui-common-lib",
+          "kind": "peerDependencies",
+          "range": "^20.3.18"
+        },
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "peerDependencies",
+          "range": "^20.3.27"
+        },
+        {
+          "package": "@hmcts/media-viewer",
+          "kind": "peerDependencies",
+          "range": "^20.0.0"
+        }
+      ],
+      "emitted_by": [],
+      "classification": "peerDependency",
+      "selection": "20.3.31",
+      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+    },
+    {
+      "name": "@angular/cdk",
+      "declared_by": [
+        {
+          "package": "@hmcts/rpx-xui-common-lib",
+          "kind": "peerDependencies",
+          "range": "^20.2.14"
+        },
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "peerDependencies",
+          "range": "^20.2.14"
+        },
+        {
+          "package": "@hmcts/media-viewer",
+          "kind": "peerDependencies",
+          "range": "^20.0.0"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "runtime_files": [
+            "fesm2022/hmcts-ccd-case-ui-toolkit.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        },
+        {
+          "package": "@hmcts/media-viewer",
+          "runtime_files": [
+            "fesm2022/hmcts-media-viewer.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        }
+      ],
+      "classification": "peerDependency",
+      "selection": "20.2.14",
+      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+    },
+    {
+      "name": "@angular/common",
+      "declared_by": [
+        {
+          "package": "@hmcts/rpx-xui-common-lib",
+          "kind": "peerDependencies",
+          "range": "^20.3.18"
+        },
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "peerDependencies",
+          "range": "^20.3.27"
+        },
+        {
+          "package": "rpx-xui-translation",
+          "kind": "peerDependencies",
+          "range": "^20.3.27"
+        },
+        {
+          "package": "@hmcts/media-viewer",
+          "kind": "peerDependencies",
+          "range": "^20.0.0"
+        },
+        {
+          "package": "@hmcts/ccpay-web-component",
+          "kind": "peerDependencies",
+          "range": "^20.3.1"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/rpx-xui-common-lib",
+          "runtime_files": [
+            "fesm2022/hmcts-rpx-xui-common-lib.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        },
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "runtime_files": [
+            "fesm2022/hmcts-ccd-case-ui-toolkit.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        },
+        {
+          "package": "rpx-xui-translation",
+          "runtime_files": [
+            "fesm2022/rpx-xui-translation.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        },
+        {
+          "package": "@hmcts/media-viewer",
+          "runtime_files": [
+            "fesm2022/hmcts-media-viewer.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        },
+        {
+          "package": "@hmcts/ccpay-web-component",
+          "runtime_files": [
+            "fesm2022/hmcts-ccpay-web-component.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        }
+      ],
+      "classification": "peerDependency",
+      "selection": "20.3.31",
+      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+    },
+    {
+      "name": "@angular/compiler",
+      "declared_by": [
+        {
+          "package": "@hmcts/rpx-xui-common-lib",
+          "kind": "peerDependencies",
+          "range": "^20.3.18"
+        },
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "peerDependencies",
+          "range": "^20.3.27"
+        }
+      ],
+      "emitted_by": [],
+      "classification": "peerDependency",
+      "selection": "20.3.31",
+      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+    },
+    {
+      "name": "@angular/core",
+      "declared_by": [
+        {
+          "package": "@hmcts/rpx-xui-common-lib",
+          "kind": "peerDependencies",
+          "range": "^20.3.18"
+        },
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "peerDependencies",
+          "range": "^20.3.27"
+        },
+        {
+          "package": "rpx-xui-translation",
+          "kind": "peerDependencies",
+          "range": "^20.3.27"
+        },
+        {
+          "package": "@hmcts/media-viewer",
+          "kind": "peerDependencies",
+          "range": "^20.0.0"
+        },
+        {
+          "package": "@hmcts/ccpay-web-component",
+          "kind": "peerDependencies",
+          "range": "~20.3.1"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/rpx-xui-common-lib",
+          "runtime_files": [
+            "fesm2022/hmcts-rpx-xui-common-lib.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        },
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "runtime_files": [
+            "fesm2022/hmcts-ccd-case-ui-toolkit.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        },
+        {
+          "package": "rpx-xui-translation",
+          "runtime_files": [
+            "fesm2022/rpx-xui-translation.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        },
+        {
+          "package": "@hmcts/media-viewer",
+          "runtime_files": [
+            "fesm2022/hmcts-media-viewer.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        },
+        {
+          "package": "@hmcts/ccpay-web-component",
+          "runtime_files": [
+            "fesm2022/hmcts-ccpay-web-component.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        }
+      ],
+      "classification": "peerDependency",
+      "selection": "20.3.31",
+      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+    },
+    {
+      "name": "@angular/forms",
+      "declared_by": [
+        {
+          "package": "@hmcts/rpx-xui-common-lib",
+          "kind": "peerDependencies",
+          "range": "^20.3.18"
+        },
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "peerDependencies",
+          "range": "^20.3.27"
+        },
+        {
+          "package": "@hmcts/media-viewer",
+          "kind": "peerDependencies",
+          "range": "^20.0.0"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/rpx-xui-common-lib",
+          "runtime_files": [
+            "fesm2022/hmcts-rpx-xui-common-lib.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        },
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "runtime_files": [
+            "fesm2022/hmcts-ccd-case-ui-toolkit.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        },
+        {
+          "package": "@hmcts/media-viewer",
+          "runtime_files": [
+            "fesm2022/hmcts-media-viewer.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        },
+        {
+          "package": "@hmcts/ccpay-web-component",
+          "runtime_files": [
+            "fesm2022/hmcts-ccpay-web-component.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        }
+      ],
+      "classification": "peerDependency",
+      "selection": "20.3.31",
+      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+    },
+    {
+      "name": "@angular/localize",
+      "declared_by": [
+        {
+          "package": "@hmcts/rpx-xui-common-lib",
+          "kind": "peerDependencies",
+          "range": "^20.3.18"
+        },
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "peerDependencies",
+          "range": "^20.3.27"
+        }
+      ],
+      "emitted_by": [],
+      "classification": "peerDependency",
+      "selection": "20.3.31",
+      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+    },
+    {
+      "name": "@angular/material",
+      "declared_by": [
+        {
+          "package": "@hmcts/rpx-xui-common-lib",
+          "kind": "peerDependencies",
+          "range": "^20.2.14"
+        },
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "peerDependencies",
+          "range": "^20.2.14"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/rpx-xui-common-lib",
+          "runtime_files": [
+            "fesm2022/hmcts-rpx-xui-common-lib.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        },
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "runtime_files": [
+            "fesm2022/hmcts-ccd-case-ui-toolkit.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        },
+        {
+          "package": "@hmcts/ccpay-web-component",
+          "runtime_files": [
+            "fesm2022/hmcts-ccpay-web-component.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        }
+      ],
+      "classification": "peerDependency",
+      "selection": "20.2.14",
+      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+    },
+    {
+      "name": "@angular/material-moment-adapter",
+      "declared_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "peerDependencies",
+          "range": "^20.0.0"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "runtime_files": [
+            "fesm2022/hmcts-ccd-case-ui-toolkit.mjs"
+          ],
+          "declaration_files": []
+        }
+      ],
+      "classification": "peerDependency",
+      "selection": "20.2.14",
+      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+    },
+    {
+      "name": "@angular/platform-browser",
+      "declared_by": [
+        {
+          "package": "@hmcts/rpx-xui-common-lib",
+          "kind": "peerDependencies",
+          "range": "^20.3.18"
+        },
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "peerDependencies",
+          "range": "^20.3.27"
+        },
+        {
+          "package": "@hmcts/media-viewer",
+          "kind": "peerDependencies",
+          "range": "^20.0.0"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/rpx-xui-common-lib",
+          "runtime_files": [
+            "fesm2022/hmcts-rpx-xui-common-lib.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        },
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "runtime_files": [
+            "fesm2022/hmcts-ccd-case-ui-toolkit.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        },
+        {
+          "package": "@hmcts/ccpay-web-component",
+          "runtime_files": [
+            "fesm2022/hmcts-ccpay-web-component.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        }
+      ],
+      "classification": "peerDependency",
+      "selection": "20.3.31",
+      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+    },
+    {
+      "name": "@angular/platform-browser-dynamic",
+      "declared_by": [
+        {
+          "package": "@hmcts/rpx-xui-common-lib",
+          "kind": "peerDependencies",
+          "range": "^20.3.18"
+        },
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "peerDependencies",
+          "range": "^20.3.27"
+        }
+      ],
+      "emitted_by": [],
+      "classification": "peerDependency",
+      "selection": "20.3.31",
+      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+    },
+    {
+      "name": "@angular/router",
+      "declared_by": [
+        {
+          "package": "@hmcts/rpx-xui-common-lib",
+          "kind": "peerDependencies",
+          "range": "^20.3.18"
+        },
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "peerDependencies",
+          "range": "^20.3.27"
+        },
+        {
+          "package": "@hmcts/media-viewer",
+          "kind": "peerDependencies",
+          "range": "^20.0.0"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/rpx-xui-common-lib",
+          "runtime_files": [
+            "fesm2022/hmcts-rpx-xui-common-lib.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        },
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "runtime_files": [
+            "fesm2022/hmcts-ccd-case-ui-toolkit.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        },
+        {
+          "package": "@hmcts/media-viewer",
+          "runtime_files": [
+            "fesm2022/hmcts-media-viewer.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        },
+        {
+          "package": "@hmcts/ccpay-web-component",
+          "runtime_files": [
+            "fesm2022/hmcts-ccpay-web-component.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        }
+      ],
+      "classification": "peerDependency",
+      "selection": "20.3.31",
+      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+    },
+    {
+      "name": "@angular/upgrade",
+      "declared_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "peerDependencies",
+          "range": "^20.3.27"
+        }
+      ],
+      "emitted_by": [],
+      "classification": "peerDependency",
+      "selection": "20.3.31",
+      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+    },
+    {
+      "name": "@dr.pogodin/csurf",
+      "declared_by": [
+        {
+          "package": "@hmcts/rpx-xui-node-lib",
+          "kind": "dependencies",
+          "range": "^1.17.1"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/rpx-xui-node-lib",
+          "runtime_files": [
+            "dist/auth/models/strategy.class.js"
+          ],
+          "declaration_files": []
+        }
+      ],
+      "classification": "dependency",
+      "selection": "1.17.1",
+      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+    },
+    {
+      "name": "@edium/fsm",
+      "declared_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "dependencies",
+          "range": "^3.0.2"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "runtime_files": [
+            "fesm2022/hmcts-ccd-case-ui-toolkit.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        }
+      ],
+      "classification": "dependency",
+      "selection": "3.0.2",
+      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+    },
+    {
+      "name": "@golevelup/ts-jest",
+      "declared_by": [],
+      "emitted_by": [
+        {
+          "package": "@hmcts/rpx-xui-node-lib",
+          "runtime_files": [
+            "dist/common/models/test/passportRequest.mock.js"
+          ],
+          "declaration_files": []
+        }
+      ],
+      "classification": "excluded unreachable shipped test helper",
+      "selection": null,
+      "decision": "not reachable from published Node root runtime/types; do not add test tooling to production"
+    },
+    {
+      "name": "@hmcts/ccpay-web-component",
+      "declared_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "dependencies",
+          "range": "6.5.28"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "runtime_files": [
+            "fesm2022/hmcts-ccd-case-ui-toolkit.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        }
+      ],
+      "classification": "peerDependency",
+      "selection": "6.5.28",
+      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+    },
+    {
+      "name": "@hmcts/media-viewer",
+      "declared_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "dependencies",
+          "range": "4.2.48"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "runtime_files": [
+            "fesm2022/hmcts-ccd-case-ui-toolkit.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        }
+      ],
+      "classification": "peerDependency",
+      "selection": "4.2.48",
+      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+    },
+    {
+      "name": "@napi-rs/canvas",
+      "declared_by": [],
+      "emitted_by": [
+        {
+          "package": "@hmcts/media-viewer",
+          "runtime_files": [
+            "assets/build/pdf.mjs"
+          ],
+          "declaration_files": []
+        }
+      ],
+      "classification": "external vendor asset optional Node import",
+      "selection": null,
+      "decision": "viewer ships pdf.mjs asset Node fallback; not core root/FESM import; external ownership/optional closure must be validated"
+    },
+    {
+      "name": "@ng-idle/core",
+      "declared_by": [
+        {
+          "package": "@hmcts/rpx-xui-common-lib",
+          "kind": "peerDependencies",
+          "range": "^16.0.0"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/rpx-xui-common-lib",
+          "runtime_files": [
+            "fesm2022/hmcts-rpx-xui-common-lib.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        }
+      ],
+      "classification": "peerDependency",
+      "selection": "16.0.0",
+      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+    },
+    {
+      "name": "@ng-idle/keepalive",
+      "declared_by": [
+        {
+          "package": "@hmcts/rpx-xui-common-lib",
+          "kind": "peerDependencies",
+          "range": "^16.0.0"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/rpx-xui-common-lib",
+          "runtime_files": [
+            "fesm2022/hmcts-rpx-xui-common-lib.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        }
+      ],
+      "classification": "peerDependency",
+      "selection": "16.0.0",
+      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+    },
+    {
+      "name": "@ngrx/effects",
+      "declared_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "peerDependencies",
+          "range": "^20.1.0"
+        },
+        {
+          "package": "@hmcts/media-viewer",
+          "kind": "peerDependencies",
+          "range": "^20"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/media-viewer",
+          "runtime_files": [
+            "fesm2022/hmcts-media-viewer.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        }
+      ],
+      "classification": "peerDependency",
+      "selection": "20.1.0",
+      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+    },
+    {
+      "name": "@ngrx/store",
+      "declared_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "peerDependencies",
+          "range": "^20.1.0"
+        },
+        {
+          "package": "@hmcts/media-viewer",
+          "kind": "peerDependencies",
+          "range": "^20"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/media-viewer",
+          "runtime_files": [
+            "fesm2022/hmcts-media-viewer.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        }
+      ],
+      "classification": "peerDependency",
+      "selection": "20.1.0",
+      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+    },
+    {
+      "name": "@ngrx/store-devtools",
+      "declared_by": [
+        {
+          "package": "@hmcts/media-viewer",
+          "kind": "peerDependencies",
+          "range": "^20"
+        }
+      ],
+      "emitted_by": [],
+      "classification": "peerDependency",
+      "selection": "20.1.0",
+      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+    },
+    {
+      "name": "@ngxmc/datetime-picker",
+      "declared_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "peerDependencies",
+          "range": "20.1.0"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "runtime_files": [
+            "fesm2022/hmcts-ccd-case-ui-toolkit.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        }
+      ],
+      "classification": "peerDependency",
+      "selection": "20.1.0",
+      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+    },
+    {
+      "name": "@swimlane/ngx-datatable",
+      "declared_by": [
+        {
+          "package": "@hmcts/media-viewer",
+          "kind": "dependencies",
+          "range": "^23.0.1"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/media-viewer",
+          "runtime_files": [
+            "fesm2022/hmcts-media-viewer.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        }
+      ],
+      "classification": "retained external-owned transitive dependency",
+      "selection": null,
+      "decision": "provided by retained viewer/payment declared dependencies; not copied into core; verify external metadata where emitted imports are undeclared"
+    },
+    {
+      "name": "@types/express",
+      "declared_by": [],
+      "emitted_by": [],
+      "classification": "dependency",
+      "selection": "5.0.6",
+      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+    },
+    {
+      "name": "@types/express-serve-static-core",
+      "declared_by": [],
+      "emitted_by": [],
+      "classification": "dependency",
+      "selection": "5.1.1",
+      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+    },
+    {
+      "name": "@types/express-session",
+      "declared_by": [],
+      "emitted_by": [],
+      "classification": "dependency",
+      "selection": "1.17.10",
+      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+    },
+    {
+      "name": "@types/node",
+      "declared_by": [],
+      "emitted_by": [],
+      "classification": "dependency",
+      "selection": "24.19.2",
+      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+    },
+    {
+      "name": "@types/passport",
+      "declared_by": [],
+      "emitted_by": [],
+      "classification": "dependency",
+      "selection": "1.0.15",
+      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+    },
+    {
+      "name": "@types/passport-oauth2",
+      "declared_by": [],
+      "emitted_by": [],
+      "classification": "dependency",
+      "selection": "1.4.15",
+      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+    },
+    {
+      "name": "axios",
+      "declared_by": [
+        {
+          "package": "@hmcts/rpx-xui-node-lib",
+          "kind": "dependencies",
+          "range": "^1.20.0"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/rpx-xui-node-lib",
+          "runtime_files": [
+            "dist/common/http/http.js"
+          ],
+          "declaration_files": [
+            "dist/auth/oauth2/models/XUIOAuth2Strategy.class.d.ts",
+            "dist/common/http/http.d.ts"
+          ]
+        }
+      ],
+      "classification": "dependency",
+      "selection": "1.20.0",
+      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+    },
+    {
+      "name": "class-transformer",
+      "declared_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "peerDependencies",
+          "range": "^0.5.1"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "runtime_files": [
+            "fesm2022/hmcts-ccd-case-ui-toolkit.mjs"
+          ],
+          "declaration_files": []
+        }
+      ],
+      "classification": "dependency",
+      "selection": "0.5.1",
+      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+    },
+    {
+      "name": "connect-redis",
+      "declared_by": [
+        {
+          "package": "@hmcts/rpx-xui-node-lib",
+          "kind": "dependencies",
+          "range": "^9.0.0"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/rpx-xui-node-lib",
+          "runtime_files": [
+            "dist/session/models/redisSessionStore.class.js"
+          ],
+          "declaration_files": [
+            "dist/session/models/redisSessionStore.class.d.ts"
+          ]
+        }
+      ],
+      "classification": "dependency",
+      "selection": "9.0.0",
+      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+    },
+    {
+      "name": "debug",
+      "declared_by": [
+        {
+          "package": "@hmcts/rpx-xui-node-lib",
+          "kind": "dependencies",
+          "range": "^4.4.3"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/rpx-xui-node-lib",
+          "runtime_files": [
+            "dist/common/util/debug.logger.js"
+          ],
+          "declaration_files": []
+        }
+      ],
+      "classification": "dependency",
+      "selection": "4.4.3",
+      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+    },
+    {
+      "name": "deepmerge",
+      "declared_by": [
+        {
+          "package": "@hmcts/rpx-xui-node-lib",
+          "kind": "dependencies",
+          "range": "^4.3.1"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/rpx-xui-node-lib",
+          "runtime_files": [
+            "dist/common/util/csp.js"
+          ],
+          "declaration_files": []
+        }
+      ],
+      "classification": "dependency",
+      "selection": "4.3.1",
+      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+    },
+    {
+      "name": "dexie",
+      "declared_by": [
+        {
+          "package": "rpx-xui-translation",
+          "kind": "dependencies",
+          "range": "^4.4.4"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "rpx-xui-translation",
+          "runtime_files": [
+            "fesm2022/rpx-xui-translation.mjs"
+          ],
+          "declaration_files": []
+        }
+      ],
+      "classification": "dependency",
+      "selection": "4.4.4",
+      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+    },
+    {
+      "name": "events",
+      "declared_by": [],
+      "emitted_by": [
+        {
+          "package": "@hmcts/rpx-xui-node-lib",
+          "runtime_files": [
+            "dist/auth/models/strategy.class.js",
+            "dist/auth/s2s/s2s.class.js",
+            "dist/common/models/xuiNode.class.js",
+            "dist/session/models/sessionStore.class.js"
+          ],
+          "declaration_files": [
+            "dist/auth/models/strategy.class.d.ts",
+            "dist/auth/s2s/s2s.class.d.ts",
+            "dist/common/models/xuiNode.class.d.ts",
+            "dist/common/models/xuiNodeMiddleware.interface.d.ts",
+            "dist/session/models/sessionStore.class.d.ts"
+          ]
+        }
+      ],
+      "classification": "Node builtin",
+      "selection": null,
+      "decision": "provided by pinned Node24 and explicit public @types/node"
+    },
+    {
+      "name": "exceljs",
+      "declared_by": [
+        {
+          "package": "@hmcts/ccpay-web-component",
+          "kind": "dependencies",
+          "range": "^4.4.0"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/ccpay-web-component",
+          "runtime_files": [
+            "fesm2022/hmcts-ccpay-web-component.mjs"
+          ],
+          "declaration_files": []
+        }
+      ],
+      "classification": "retained external-owned transitive dependency",
+      "selection": null,
+      "decision": "provided by retained viewer/payment declared dependencies; not copied into core; verify external metadata where emitted imports are undeclared"
+    },
+    {
+      "name": "express",
+      "declared_by": [
+        {
+          "package": "@hmcts/rpx-xui-node-lib",
+          "kind": "dependencies",
+          "range": "^5.2.1"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/rpx-xui-node-lib",
+          "runtime_files": [
+            "dist/auth/oauth2/models/oauth2.class.js",
+            "dist/auth/oidc/models/openid.class.js",
+            "dist/auth/s2s/s2s.class.js",
+            "dist/common/models/xuiNode.class.js",
+            "dist/session/models/fileSessionStore.class.js",
+            "dist/session/models/redisSessionStore.class.js"
+          ],
+          "declaration_files": [
+            "dist/auth/models/strategy.class.d.ts",
+            "dist/auth/oidc/models/openid.class.d.ts",
+            "dist/auth/s2s/s2s.class.d.ts",
+            "dist/common/models/test/passportRequest.mock.d.ts",
+            "dist/common/models/xuiNode.class.d.ts",
+            "dist/common/util/csp.d.ts",
+            "dist/session/models/sessionStore.class.d.ts"
+          ]
+        }
+      ],
+      "classification": "peerDependency",
+      "selection": "5.2.1",
+      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+    },
+    {
+      "name": "express-serve-static-core",
+      "declared_by": [],
+      "emitted_by": [
+        {
+          "package": "@hmcts/rpx-xui-node-lib",
+          "runtime_files": [],
+          "declaration_files": [
+            "dist/auth/oauth2/models/oauth2.class.d.ts",
+            "dist/auth/s2s/s2s.class.d.ts",
+            "dist/session/models/fileSessionStore.class.d.ts",
+            "dist/session/models/redisSessionStore.class.d.ts"
+          ]
+        }
+      ],
+      "classification": "type-only module from explicit declaration-provider dependency",
+      "selection": "5.1.1",
+      "decision": "Root-reachable inferred import types, not an external-owned transitive fallback",
+      "provider": "@types/express-serve-static-core"
+    },
+    {
+      "name": "express-session",
+      "declared_by": [
+        {
+          "package": "@hmcts/rpx-xui-node-lib",
+          "kind": "dependencies",
+          "range": "^1.19.0"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/rpx-xui-node-lib",
+          "runtime_files": [
+            "dist/session/models/fileSessionStore.class.js",
+            "dist/session/models/sessionStore.class.js"
+          ],
+          "declaration_files": [
+            "dist/auth/models/sessionData.interface.d.ts",
+            "dist/session/models/fileSessionStore.class.d.ts",
+            "dist/session/models/sessionStore.class.d.ts"
+          ]
+        }
+      ],
+      "classification": "peerDependency",
+      "selection": "1.19.0",
+      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+    },
+    {
+      "name": "file-saver",
+      "declared_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "dependencies",
+          "range": "^2.0.5"
+        },
+        {
+          "package": "@hmcts/ccpay-web-component",
+          "kind": "dependencies",
+          "range": "^2.0.2"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/ccpay-web-component",
+          "runtime_files": [
+            "fesm2022/hmcts-ccpay-web-component.mjs"
+          ],
+          "declaration_files": []
+        }
+      ],
+      "classification": "dependency",
+      "selection": "2.0.5",
+      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+    },
+    {
+      "name": "govuk-frontend",
+      "declared_by": [
+        {
+          "package": "@hmcts/rpx-xui-common-lib",
+          "kind": "dependencies",
+          "range": "5.13.0"
+        },
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "dependencies",
+          "range": "5.13.0"
+        }
+      ],
+      "emitted_by": [],
+      "classification": "dependency",
+      "selection": "5.13.0",
+      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+    },
+    {
+      "name": "helmet",
+      "declared_by": [
+        {
+          "package": "@hmcts/rpx-xui-node-lib",
+          "kind": "peerDependencies",
+          "range": "^7.0.0"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/rpx-xui-node-lib",
+          "runtime_files": [
+            "dist/common/util/csp.js"
+          ],
+          "declaration_files": []
+        }
+      ],
+      "classification": "peerDependency",
+      "selection": "8.1.0",
+      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+    },
+    {
+      "name": "joi",
+      "declared_by": [
+        {
+          "package": "@hmcts/rpx-xui-node-lib",
+          "kind": "dependencies",
+          "range": "^18.3.0"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/rpx-xui-node-lib",
+          "runtime_files": [
+            "dist/auth/models/strategy.class.js"
+          ],
+          "declaration_files": []
+        }
+      ],
+      "classification": "dependency",
+      "selection": "18.3.0",
+      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+    },
+    {
+      "name": "jwt-decode",
+      "declared_by": [
+        {
+          "package": "@hmcts/rpx-xui-node-lib",
+          "kind": "dependencies",
+          "range": "^4.0.0"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/rpx-xui-node-lib",
+          "runtime_files": [
+            "dist/auth/models/strategy.class.js",
+            "dist/auth/s2s/s2s.class.js"
+          ],
+          "declaration_files": []
+        }
+      ],
+      "classification": "dependency",
+      "selection": "4.0.0",
+      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+    },
+    {
+      "name": "launchdarkly-js-client-sdk",
+      "declared_by": [
+        {
+          "package": "@hmcts/rpx-xui-common-lib",
+          "kind": "peerDependencies",
+          "range": "^3.3.0"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/rpx-xui-common-lib",
+          "runtime_files": [
+            "fesm2022/hmcts-rpx-xui-common-lib.mjs"
+          ],
+          "declaration_files": []
+        }
+      ],
+      "classification": "peerDependency",
+      "selection": "3.9.6",
+      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+    },
+    {
+      "name": "lodash",
+      "declared_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "peerDependencies",
+          "range": "^4.17.22"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "runtime_files": [
+            "fesm2022/hmcts-ccd-case-ui-toolkit.mjs"
+          ],
+          "declaration_files": []
+        },
+        {
+          "package": "@hmcts/media-viewer",
+          "runtime_files": [
+            "fesm2022/hmcts-media-viewer.mjs"
+          ],
+          "declaration_files": []
+        }
+      ],
+      "classification": "dependency",
+      "selection": "4.18.1",
+      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+    },
+    {
+      "name": "luxon",
+      "declared_by": [
+        {
+          "package": "rpx-xui-translation",
+          "kind": "dependencies",
+          "range": "^2.5.2"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "rpx-xui-translation",
+          "runtime_files": [
+            "fesm2022/rpx-xui-translation.mjs"
+          ],
+          "declaration_files": []
+        }
+      ],
+      "classification": "dependency",
+      "selection": "2.5.2",
+      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+    },
+    {
+      "name": "lz-string",
+      "declared_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "dependencies",
+          "range": "^1.5.0"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "runtime_files": [
+            "fesm2022/hmcts-ccd-case-ui-toolkit.mjs"
+          ],
+          "declaration_files": []
+        }
+      ],
+      "classification": "dependency",
+      "selection": "1.5.0",
+      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+    },
+    {
+      "name": "marked",
+      "declared_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "dependencies",
+          "range": "^18.0.5"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "runtime_files": [
+            "fesm2022/hmcts-ccd-case-ui-toolkit.mjs"
+          ],
+          "declaration_files": []
+        }
+      ],
+      "classification": "dependency",
+      "selection": "18.0.5",
+      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+    },
+    {
+      "name": "moment",
+      "declared_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "peerDependencies",
+          "range": "^2.31.0"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "runtime_files": [
+            "fesm2022/hmcts-ccd-case-ui-toolkit.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        }
+      ],
+      "classification": "peerDependency",
+      "selection": "2.31.0",
+      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+    },
+    {
+      "name": "moment-timezone",
+      "declared_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "peerDependencies",
+          "range": "^0.5.31"
+        },
+        {
+          "package": "@hmcts/media-viewer",
+          "kind": "dependencies",
+          "range": "^0.6.2"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/media-viewer",
+          "runtime_files": [
+            "fesm2022/hmcts-media-viewer.mjs"
+          ],
+          "declaration_files": []
+        }
+      ],
+      "classification": "peerDependency",
+      "selection": "0.6.2",
+      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+    },
+    {
+      "name": "mutable-div",
+      "declared_by": [
+        {
+          "package": "@hmcts/media-viewer",
+          "kind": "dependencies",
+          "range": "^2.0.0"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/media-viewer",
+          "runtime_files": [
+            "fesm2022/hmcts-media-viewer.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        }
+      ],
+      "classification": "retained external-owned transitive dependency",
+      "selection": null,
+      "decision": "provided by retained viewer/payment declared dependencies; not copied into core; verify external metadata where emitted imports are undeclared"
+    },
+    {
+      "name": "ngx-chips",
+      "declared_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "peerDependencies",
+          "range": "^3.0.0"
+        },
+        {
+          "package": "@hmcts/media-viewer",
+          "kind": "peerDependencies",
+          "range": "3.0.0"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/media-viewer",
+          "runtime_files": [
+            "fesm2022/hmcts-media-viewer.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        }
+      ],
+      "classification": "peerDependency",
+      "selection": "3.0.0",
+      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+    },
+    {
+      "name": "ngx-editor",
+      "declared_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "peerDependencies",
+          "range": "19.0.0-beta.1"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "runtime_files": [
+            "fesm2022/hmcts-ccd-case-ui-toolkit.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        }
+      ],
+      "classification": "peerDependency",
+      "selection": "19.0.0-beta.1",
+      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+    },
+    {
+      "name": "ngx-markdown",
+      "declared_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "peerDependencies",
+          "range": "^20.1.0"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "runtime_files": [
+            "fesm2022/hmcts-ccd-case-ui-toolkit.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        }
+      ],
+      "classification": "peerDependency",
+      "selection": "20.1.0",
+      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+    },
+    {
+      "name": "ngx-pagination",
+      "declared_by": [
+        {
+          "package": "@hmcts/rpx-xui-common-lib",
+          "kind": "peerDependencies",
+          "range": "^3.2.1"
+        },
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "peerDependencies",
+          "range": "6.0.3"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/rpx-xui-common-lib",
+          "runtime_files": [
+            "fesm2022/hmcts-rpx-xui-common-lib.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        },
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "runtime_files": [
+            "fesm2022/hmcts-ccd-case-ui-toolkit.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        }
+      ],
+      "classification": "peerDependency",
+      "selection": "6.0.3",
+      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+    },
+    {
+      "name": "node:crypto",
+      "declared_by": [],
+      "emitted_by": [
+        {
+          "package": "@hmcts/rpx-xui-node-lib",
+          "runtime_files": [
+            "dist/common/util/csp.js"
+          ],
+          "declaration_files": []
+        }
+      ],
+      "classification": "Node builtin",
+      "selection": null,
+      "decision": "provided by pinned Node24 and explicit public @types/node"
+    },
+    {
+      "name": "openid-client",
+      "declared_by": [
+        {
+          "package": "@hmcts/rpx-xui-node-lib",
+          "kind": "dependencies",
+          "range": "^5.7.1"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/rpx-xui-node-lib",
+          "runtime_files": [
+            "dist/auth/models/strategy.class.js",
+            "dist/auth/oidc/models/openid.class.js"
+          ],
+          "declaration_files": [
+            "dist/auth/oidc/models/OpenIDMetadata.interface.d.ts",
+            "dist/auth/oidc/models/openid.class.d.ts"
+          ]
+        }
+      ],
+      "classification": "dependency",
+      "selection": "5.7.1",
+      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+    },
+    {
+      "name": "otplib",
+      "declared_by": [
+        {
+          "package": "@hmcts/rpx-xui-node-lib",
+          "kind": "dependencies",
+          "range": "^13.4.0"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/rpx-xui-node-lib",
+          "runtime_files": [
+            "dist/auth/s2s/s2s.class.js"
+          ],
+          "declaration_files": []
+        }
+      ],
+      "classification": "dependency",
+      "selection": "13.4.0",
+      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+    },
+    {
+      "name": "passport",
+      "declared_by": [
+        {
+          "package": "@hmcts/rpx-xui-node-lib",
+          "kind": "dependencies",
+          "range": "^0.7.0"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/rpx-xui-node-lib",
+          "runtime_files": [
+            "dist/auth/models/strategy.class.js",
+            "dist/auth/oauth2/models/oauth2.class.js",
+            "dist/auth/oidc/models/openid.class.js"
+          ],
+          "declaration_files": []
+        }
+      ],
+      "classification": "peerDependency",
+      "selection": "0.7.0",
+      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+    },
+    {
+      "name": "passport-oauth2",
+      "declared_by": [
+        {
+          "package": "@hmcts/rpx-xui-node-lib",
+          "kind": "dependencies",
+          "range": "^1.8.0"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/rpx-xui-node-lib",
+          "runtime_files": [
+            "dist/auth/oauth2/models/XUIOAuth2Strategy.class.js"
+          ],
+          "declaration_files": [
+            "dist/auth/oauth2/models/OAuth2Metadata.interface.d.ts",
+            "dist/auth/oauth2/models/XUIOAuth2Strategy.class.d.ts",
+            "dist/auth/oauth2/models/oauth2.class.d.ts"
+          ]
+        }
+      ],
+      "classification": "dependency",
+      "selection": "1.8.0",
+      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+    },
+    {
+      "name": "pdfjs-dist",
+      "declared_by": [
+        {
+          "package": "@hmcts/media-viewer",
+          "kind": "dependencies",
+          "range": "^4.10.38"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/media-viewer",
+          "runtime_files": [
+            "fesm2022/hmcts-media-viewer.mjs"
+          ],
+          "declaration_files": []
+        }
+      ],
+      "classification": "retained external-owned transitive dependency",
+      "selection": null,
+      "decision": "provided by retained viewer/payment declared dependencies; not copied into core; verify external metadata where emitted imports are undeclared"
+    },
+    {
+      "name": "peggy",
+      "declared_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "dependencies",
+          "range": "^5.1.0"
+        }
+      ],
+      "emitted_by": [],
+      "classification": "dependency",
+      "selection": "5.1.0",
+      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+    },
+    {
+      "name": "prosemirror-commands",
+      "declared_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "peerDependencies",
+          "range": "1.7.1"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "runtime_files": [
+            "fesm2022/hmcts-ccd-case-ui-toolkit.mjs"
+          ],
+          "declaration_files": []
+        }
+      ],
+      "classification": "dependency",
+      "selection": "1.7.1",
+      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+    },
+    {
+      "name": "prosemirror-history",
+      "declared_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "peerDependencies",
+          "range": "1.5.0"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "runtime_files": [
+            "fesm2022/hmcts-ccd-case-ui-toolkit.mjs"
+          ],
+          "declaration_files": []
+        }
+      ],
+      "classification": "dependency",
+      "selection": "1.5.0",
+      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+    },
+    {
+      "name": "prosemirror-model",
+      "declared_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "peerDependencies",
+          "range": "1.25.11"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "runtime_files": [
+            "fesm2022/hmcts-ccd-case-ui-toolkit.mjs"
+          ],
+          "declaration_files": []
+        }
+      ],
+      "classification": "dependency",
+      "selection": "1.25.11",
+      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+    },
+    {
+      "name": "prosemirror-schema-list",
+      "declared_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "peerDependencies",
+          "range": "1.5.1"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "runtime_files": [
+            "fesm2022/hmcts-ccd-case-ui-toolkit.mjs"
+          ],
+          "declaration_files": []
+        }
+      ],
+      "classification": "dependency",
+      "selection": "1.5.1",
+      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+    },
+    {
+      "name": "prosemirror-state",
+      "declared_by": [],
+      "emitted_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "runtime_files": [
+            "fesm2022/hmcts-ccd-case-ui-toolkit.mjs"
+          ],
+          "declaration_files": []
+        }
+      ],
+      "classification": "dependency",
+      "selection": "1.4.4",
+      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+    },
+    {
+      "name": "redis",
+      "declared_by": [
+        {
+          "package": "@hmcts/rpx-xui-node-lib",
+          "kind": "dependencies",
+          "range": "^6.1.0"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/rpx-xui-node-lib",
+          "runtime_files": [
+            "dist/session/models/redisSessionStore.class.js"
+          ],
+          "declaration_files": [
+            "dist/session/models/redisSessionStore.class.d.ts"
+          ]
+        }
+      ],
+      "classification": "dependency",
+      "selection": "6.1.0",
+      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+    },
+    {
+      "name": "reflect-metadata",
+      "declared_by": [],
+      "emitted_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "runtime_files": [
+            "fesm2022/hmcts-ccd-case-ui-toolkit.mjs"
+          ],
+          "declaration_files": []
+        }
+      ],
+      "classification": "dependency",
+      "selection": "0.2.2",
+      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+    },
+    {
+      "name": "rpx-xui-translation",
+      "declared_by": [
+        {
+          "package": "@hmcts/rpx-xui-common-lib",
+          "kind": "peerDependencies",
+          "range": "1.2.14"
+        },
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "peerDependencies",
+          "range": "1.2.14"
+        },
+        {
+          "package": "@hmcts/media-viewer",
+          "kind": "peerDependencies",
+          "range": "1.2.18"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/rpx-xui-common-lib",
+          "runtime_files": [
+            "fesm2022/hmcts-rpx-xui-common-lib.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        },
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "runtime_files": [
+            "fesm2022/hmcts-ccd-case-ui-toolkit.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        },
+        {
+          "package": "@hmcts/media-viewer",
+          "runtime_files": [
+            "fesm2022/hmcts-media-viewer.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        },
+        {
+          "package": "@hmcts/ccpay-web-component",
+          "runtime_files": [
+            "fesm2022/hmcts-ccpay-web-component.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        }
+      ],
+      "classification": "consolidated implementation / no core dependency",
+      "selection": null,
+      "decision": "canonical source plus supported external facade; actual registry counterparts pending"
+    },
+    {
+      "name": "rxjs",
+      "declared_by": [
+        {
+          "package": "@hmcts/rpx-xui-common-lib",
+          "kind": "peerDependencies",
+          "range": "^7.8.1"
+        },
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "peerDependencies",
+          "range": "^7.8.1"
+        },
+        {
+          "package": "rpx-xui-translation",
+          "kind": "peerDependencies",
+          "range": "^7.8.0"
+        },
+        {
+          "package": "@hmcts/media-viewer",
+          "kind": "peerDependencies",
+          "range": "^7.8.2"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/rpx-xui-common-lib",
+          "runtime_files": [
+            "fesm2022/hmcts-rpx-xui-common-lib.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        },
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "runtime_files": [
+            "fesm2022/hmcts-ccd-case-ui-toolkit.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        },
+        {
+          "package": "rpx-xui-translation",
+          "runtime_files": [
+            "fesm2022/rpx-xui-translation.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        },
+        {
+          "package": "@hmcts/media-viewer",
+          "runtime_files": [
+            "fesm2022/hmcts-media-viewer.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        },
+        {
+          "package": "@hmcts/ccpay-web-component",
+          "runtime_files": [
+            "fesm2022/hmcts-ccpay-web-component.mjs"
+          ],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        }
+      ],
+      "classification": "peerDependency",
+      "selection": "7.8.2",
+      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+    },
+    {
+      "name": "rxjs-compat",
+      "declared_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "peerDependencies",
+          "range": "^6.6.7"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "runtime_files": [],
+          "declaration_files": [
+            "index.d.ts"
+          ]
+        }
+      ],
+      "classification": "peerDependency",
+      "selection": "6.6.7",
+      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+    },
+    {
+      "name": "session-file-store",
+      "declared_by": [
+        {
+          "package": "@hmcts/rpx-xui-node-lib",
+          "kind": "dependencies",
+          "range": "^1.5.0"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/rpx-xui-node-lib",
+          "runtime_files": [
+            "dist/session/models/fileSessionStore.class.js"
+          ],
+          "declaration_files": []
+        }
+      ],
+      "classification": "dependency",
+      "selection": "1.5.0",
+      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+    },
+    {
+      "name": "socket.io-client",
+      "declared_by": [
+        {
+          "package": "@hmcts/media-viewer",
+          "kind": "dependencies",
+          "range": "^4.8.0"
+        }
+      ],
+      "emitted_by": [],
+      "classification": "retained external-owned transitive dependency",
+      "selection": null,
+      "decision": "provided by retained viewer/payment declared dependencies; not copied into core; verify external metadata where emitted imports are undeclared"
+    },
+    {
+      "name": "tslib",
+      "declared_by": [
+        {
+          "package": "@hmcts/rpx-xui-common-lib",
+          "kind": "dependencies",
+          "range": "^2.0.0"
+        },
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "dependencies",
+          "range": "^2.3.0"
+        },
+        {
+          "package": "rpx-xui-translation",
+          "kind": "dependencies",
+          "range": "^2.0.0"
+        },
+        {
+          "package": "@hmcts/media-viewer",
+          "kind": "dependencies",
+          "range": "^2.3.0"
+        },
+        {
+          "package": "@hmcts/ccpay-web-component",
+          "kind": "dependencies",
+          "range": "^2.3.0"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "runtime_files": [
+            "fesm2022/hmcts-ccd-case-ui-toolkit.mjs"
+          ],
+          "declaration_files": []
+        }
+      ],
+      "classification": "dependency",
+      "selection": "2.8.1",
+      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+    },
+    {
+      "name": "underscore",
+      "declared_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "peerDependencies",
+          "range": "^1.9.1"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "runtime_files": [
+            "fesm2022/hmcts-ccd-case-ui-toolkit.mjs"
+          ],
+          "declaration_files": []
+        }
+      ],
+      "classification": "dependency",
+      "selection": "1.13.7",
+      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+    },
+    {
+      "name": "url",
+      "declared_by": [],
+      "emitted_by": [
+        {
+          "package": "@hmcts/rpx-xui-node-lib",
+          "runtime_files": [
+            "dist/auth/models/strategy.class.js"
+          ],
+          "declaration_files": []
+        }
+      ],
+      "classification": "Node builtin",
+      "selection": null,
+      "decision": "provided by pinned Node24 and explicit public @types/node"
+    },
+    {
+      "name": "uuid",
+      "declared_by": [
+        {
+          "package": "@hmcts/media-viewer",
+          "kind": "dependencies",
+          "range": "^11.1.1"
+        }
+      ],
+      "emitted_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "runtime_files": [
+            "fesm2022/hmcts-ccd-case-ui-toolkit.mjs"
+          ],
+          "declaration_files": []
+        },
+        {
+          "package": "@hmcts/media-viewer",
+          "runtime_files": [
+            "fesm2022/hmcts-media-viewer.mjs"
+          ],
+          "declaration_files": []
+        }
+      ],
+      "classification": "dependency",
+      "selection": "11.1.1",
+      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+    },
+    {
+      "name": "yargs",
+      "declared_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "dependencies",
+          "range": "17.7.2"
+        }
+      ],
+      "emitted_by": [],
+      "classification": "dependency",
+      "selection": "17.7.2",
+      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+    },
+    {
+      "name": "yargs-parser",
+      "declared_by": [
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "dependencies",
+          "range": "^21.1.1"
+        }
+      ],
+      "emitted_by": [],
+      "classification": "dependency",
+      "selection": "21.1.1",
+      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+    },
+    {
+      "name": "zone.js",
+      "declared_by": [
+        {
+          "package": "@hmcts/rpx-xui-common-lib",
+          "kind": "peerDependencies",
+          "range": "~0.15.1"
+        },
+        {
+          "package": "@hmcts/ccd-case-ui-toolkit",
+          "kind": "peerDependencies",
+          "range": "^0.15.1"
+        }
+      ],
+      "emitted_by": [],
+      "classification": "peerDependency",
+      "selection": "0.15.1",
+      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+    },
+    {
+      "name": "@angular/compiler-cli",
+      "classification": "peerDependency",
+      "selection": "20.3.31",
+      "declared_by": [
+        {
+          "package": "@angular/localize20.3.31",
+          "kind": "peerDependencies",
+          "range": "20.3.31"
+        }
+      ],
+      "emitted_by": [],
+      "decision": "Required compiler companion of the existing framework/localize peer, supplied by actual host toolchain"
+    }
+  ]
+}
