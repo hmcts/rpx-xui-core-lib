@@ -1,0 +1,13 @@
+{
+  "name": "@hmcts/rpx-xui-core-lib",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "sideEffects": false,
+  "peerDependencies": {
+    "@angular/common": "20.3.31",
+    "@angular/core": "20.3.31",
+    "@angular/forms": "20.3.31",
+    "rxjs": "7.8.2"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
+  "dest": "../../dist/core-lib",
+  "lib": {
+    "entryFile": "public-api.ts"
+  },
+  "assets": [
+    {
+      "input": "forms/validation",
+      "glob": "LICENCE",
+      "output": "forms/validation"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "unit": {
+    "report": "test-results/validation.tap",
+    "required": [
+      "rejects an empty group with the default minimum",
+      "rejects unchecked controls",
+      "accepts one actual true by default",
+      "rejects truthy non-boolean values",
+      "rejects fewer than the configured minimum",
+      "accepts the exact configured minimum",
+      "accepts zero when zero is explicitly required"
+    ]
+  },
+  "browser": {
+    "report": "test-results/browser.json",
+    "required": [
+      {
+        "projectName": "chromium",
+        "title": "keyboard checkbox toggles update real FormGroup validity and submitted errors"
+      }
+    ]
+  },
+  "package": {
+    "report": "test-results/package.json",
+    "required": [
+      "package.physical-secondary-declaration",
+      "package.strict-node",
+      "package.strict-bundler",
+      "package.installed-runtime",
+      "package.missing-declaration-fault",
+      "package.restored-node"
+    ]
+  }
+}
