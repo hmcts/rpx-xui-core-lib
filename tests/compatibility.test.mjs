@@ -49,6 +49,12 @@ function completeReport() {
 }
 test('all five complete native profiles and accepted decisions are required', () => {
   checkMatrixReport(completeReport());
+  const reordered = completeReport();
+  reordered.profiles.reverse();
+  checkMatrixReport(reordered);
+  const duplicated = completeReport();
+  duplicated.profiles[1] = duplicated.profiles[0];
+  assert.throws(() => checkMatrixReport(duplicated), /profile/);
   const missing = completeReport();
   missing.profiles.splice(1, 1);
   assert.throws(() => checkMatrixReport(missing), /profile/);

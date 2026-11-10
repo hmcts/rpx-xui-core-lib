@@ -72,7 +72,7 @@ export function checkLockedTelemetry(lock, expected) {
     versions[name] ??= [];
     if (!versions[name].includes(version)) versions[name].push(version);
   }
-  assert.deepEqual(versions['@opentelemetry/core']?.sort(), expected['@opentelemetry/core'], 'Missing or changed OpenTelemetry core descriptors');
+  assert.deepEqual(versions['@opentelemetry/core']?.sort((left, right) => left.localeCompare(right)), expected['@opentelemetry/core'], 'Missing or changed OpenTelemetry core descriptors');
   return versions;
 }
 
@@ -90,7 +90,11 @@ export function hostManifest(manifest, profile, peerProviders = {}) {
 
 export function checkMatrixReport(report) {
   assert.match(report.artifactSha256, /^[a-f0-9]{64}$/, 'Missing candidate artifact hash');
-  assert.deepEqual(report.profiles.map((entry) => entry.id).sort(), ['core', 'rpx-xui-webapp', 'rpx-xui-manage-organisations', 'rpx-xui-approve-org', 'mc-api-standalone'].sort(), 'Missing or duplicated required profile');
+  assert.deepEqual(
+    report.profiles.map((entry) => entry.id).sort((left, right) => left.localeCompare(right)),
+    ['core', 'rpx-xui-webapp', 'rpx-xui-manage-organisations', 'rpx-xui-approve-org', 'mc-api-standalone'].sort((left, right) => left.localeCompare(right)),
+    'Missing or duplicated required profile'
+  );
   assert.equal(report.unresolvedDecisions.length, 0, 'Unresolved compatibility decision blocks support');
   for (const profile of report.profiles) {
     assert.ok(profile.nativeStatus === 0 && profile.immutableNativeStatus === 0 && profile.cleanInstall && profile.immutableInstall, `${profile.id} native peer/install acceptance failed`);
