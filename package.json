@@ -9,7 +9,7 @@
     "url": "https://github.com/hmcts/rpx-xui-core-lib.git"
   },
   "engines": {
-    "node": ">=24.22.1 <25"
+    "node": ">=24.22.1 <27"
   },
   "packageManager": "yarn@4.5.3",
   "scripts": {
@@ -34,7 +34,7 @@
     "@angular/forms": "20.3.31",
     "@angular/platform-browser": "20.3.31",
     "@playwright/test": "1.65.0",
-    "@types/node": "24.10.1",
+    "@types/node": "26.6.6",
     "eslint": "9.39.1",
     "ng-packagr": "20.3.2",
     "rxjs": "7.8.2",
