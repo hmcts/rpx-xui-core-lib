@@ -137,5 +137,22 @@
       "translation provider lifecycle stops a language change when its subscriber destroys the owner",
       "translation provider lifecycle stops observing cached translations when its owner is destroyed"
     ]
+  },
+  "cacheBrowser": {
+    "report": "test-results/cache-upgrade-report.json",
+    "required": [
+      {
+        "projectName": "chromium",
+        "title": "legacy to core preserves valid cached translation"
+      },
+      {
+        "projectName": "chromium",
+        "title": "core to legacy preserves valid cached translation"
+      },
+      {
+        "projectName": "chromium",
+        "title": "core replaces an expired cache row written by published legacy"
+      }
+    ]
   }
 }

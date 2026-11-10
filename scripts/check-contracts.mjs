@@ -79,7 +79,7 @@ function packageOutcomes(report) {
 }
 
 export function checkContracts(reportRoot = root) {
-  const parsers = { i18nUnit: karmaOutcomes, nodeUnit: (text) => jestOutcomes(JSON.parse(text)), unit: unitOutcomes, browser: (text) => browserOutcomes(JSON.parse(text)), package: (text) => packageOutcomes(JSON.parse(text)) };
+  const parsers = { i18nUnit: karmaOutcomes, nodeUnit: (text) => jestOutcomes(JSON.parse(text)), unit: unitOutcomes, browser: (text) => browserOutcomes(JSON.parse(text)), cacheBrowser: (text) => browserOutcomes(JSON.parse(text)), package: (text) => packageOutcomes(JSON.parse(text)) };
   let count = 0;
   for (const [kind, inventory] of Object.entries(contracts)) {
     const outcomes = parsers[kind](readFileSync(resolve(reportRoot, inventory.report), 'utf8'));
