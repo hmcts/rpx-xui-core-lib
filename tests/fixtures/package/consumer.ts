@@ -1,3 +1,5 @@
+// The structural APF root must resolve without exposing runtime capabilities.
+export type RootDeclarations = typeof import('@hmcts/rpx-xui-core-lib');
 import { FormControl, FormGroup, type ValidatorFn } from '@angular/forms';
 import { checkboxesBeCheckedValidator } from '@hmcts/rpx-xui-core-lib/forms/validation';
 

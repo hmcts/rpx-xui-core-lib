@@ -20,6 +20,8 @@
   "type": "module",
   "files": [
     "**/*",
+    "index.d.ts",
+    "index.d.ts.map",
     "node/package.json"
   ],
   "dependencies": {
