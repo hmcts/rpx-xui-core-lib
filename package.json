@@ -11,7 +11,7 @@
   "engines": {
     "node": ">=24.22.1 <25"
   },
-  "packageManager": "yarn@4.5.3",
+  "packageManager": "yarn@4.18.1",
   "scripts": {
     "lint": "node --check scripts/check-repository.mjs",
     "test": "node scripts/check-repository.mjs"
