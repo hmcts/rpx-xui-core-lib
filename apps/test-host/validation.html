@@ -1,0 +1,17 @@
+<main>
+  <h1>Validation diagnostic pilot</h1>
+  <p>Angular 20 form using the built validation entry point.</p>
+  <form [formGroup]="form" (ngSubmit)="submitted = true">
+    <fieldset>
+      <legend>Select at least one role</legend>
+      <label><input type="checkbox" formControlName="first"> First role</label>
+      <label><input type="checkbox" formControlName="second"> Second role</label>
+    </fieldset>
+    @if (submitted && form.hasError('requireOneCheckboxToBeChecked')) {
+      <p role="alert">Select at least one role</p>
+    }
+    <p data-testid="validity">{{ form.valid ? 'Valid' : 'Invalid' }}</p>
+    <p data-testid="values">First: {{ form.controls.first.value }}; Second: {{ form.controls.second.value }}</p>
+    <button type="submit">Submit</button>
+  </form>
+</main>
