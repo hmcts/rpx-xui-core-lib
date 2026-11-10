@@ -11,7 +11,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const output = join(root, 'test-results');
 const evidence = join(output, 'package-evidence');
 const report = { schemaVersion: 1, package: {}, tests: [] };
-const yarn = join(root, '.yarn/releases/yarn-4.5.3.cjs');
+const yarn = join(root, '.yarn/releases/yarn-4.18.1.cjs');
 let current = 'package.setup';
 let scratch;
 
@@ -46,7 +46,7 @@ async function check(id, action) {
 }
 
 try {
-  assert.equal(process.versions.node, '24.22.1', 'Run with the pinned Node 24.22.1');
+  assert.equal(process.versions.node, '24.22.2', 'Run with the pinned Node 24.22.2');
   scratch = await realpath(await mkdtemp(join(tmpdir(), 'core-lib-package-')));
   env.YARN_GLOBAL_FOLDER = join(scratch, 'yarn-global');
   env.YARN_CACHE_FOLDER = join(scratch, 'cache');
@@ -82,7 +82,7 @@ try {
   report.package = {
     sha256: createHash('sha256').update(await readFile(candidate)).digest('hex'),
     node: process.versions.node,
-    yarn: '4.5.3',
+    yarn: '4.18.1',
     angular: '20.3.31',
     typescript: '5.9.3',
   };

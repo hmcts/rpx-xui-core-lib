@@ -22,8 +22,8 @@ export class RpxTranslationService {
   private currentLanguage: RpxLanguage = 'en';
   private languageKey = 'exui-preferred-language';
 
-  private phrases: { [phrase: string]: BehaviorSubject<TranslatedData> } = {};
-  private observables: { [phrase: string]: Observable<TranslatedData> } = {};
+  private phrases: { [phrase: string]: BehaviorSubject<TranslatedData> } = Object.create(null);
+  private observables: { [phrase: string]: Observable<TranslatedData> } = Object.create(null);
   private cacheSubscriptions: { [phrase: string]: Subscription } = Object.create(null);
   private requesting: { [lang: string]: string[] } = {};
   private inFlight: { [lang: string]: Set<string> } = {};
@@ -90,7 +90,7 @@ export class RpxTranslationService {
   }
 
   private getTranslatedData(phrase: string): Observable<TranslatedData> {
-    if (this.observables.hasOwnProperty(phrase)) {
+    if (Object.hasOwn(this.observables, phrase)) {
       return this.observables[phrase];
     }
 
@@ -112,7 +112,7 @@ export class RpxTranslationService {
     // A phrase has one cache observer, belonging to its currently selected language.
     this.cacheSubscriptions[phrase]?.unsubscribe();
     delete this.cacheSubscriptions[phrase];
-    if (!this.phrases.hasOwnProperty(phrase)) {
+    if (!Object.hasOwn(this.phrases, phrase)) {
       this.phrases[phrase] = new BehaviorSubject<TranslatedData>({ translation: phrase });
       this.observables[phrase] = this.phrases[phrase].asObservable();
     }
@@ -206,7 +206,7 @@ export class RpxTranslationService {
         .pipe(
           map((t) => t.translations),
           map((translations) => {
-            const translatedData: { [from: string]: TranslatedData } = {};
+            const translatedData: { [from: string]: TranslatedData } = Object.create(null);
 
             Object.keys(translations).forEach((p) => {
               if (typeof(translations[p]) === 'string') {
@@ -219,7 +219,7 @@ export class RpxTranslationService {
             return translatedData;
           }),
           catchError(() => {
-            const translations: { [from: string]: TranslatedData } = {};
+            const translations: { [from: string]: TranslatedData } = Object.create(null);
             phrases.forEach((p) => (
               translations[p] = this.config.testMode ? { translation: `[Test translation for ${p}]` } : { translation: p })
             );

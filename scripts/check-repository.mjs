@@ -11,7 +11,7 @@ assert.equal(manifest.name, '@hmcts/rpx-xui-core-lib');
 assert.equal(manifest.private, true, 'Package publication must remain disabled during bootstrap');
 assert.equal(manifest.engines.node, `>=${nodeVersion} <25`);
 assert.equal(process.versions.node, nodeVersion, 'Run checks with the Node version in .nvmrc');
-assert.equal(manifest.packageManager, 'yarn@4.5.3');
+assert.equal(manifest.packageManager, 'yarn@4.18.1');
 assert.match(read('.yarnrc.yml'), /^nodeLinker: node-modules$/m);
 assert.ok(read('.yarnrc.yml').includes(`yarnPath: .yarn/releases/yarn-${yarnVersion}.cjs`));
 assert.ok(read(`.yarn/releases/yarn-${yarnVersion}.cjs`).length > 0);

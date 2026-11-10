@@ -24,11 +24,11 @@ jobs:
           node-version-file: .nvmrc
           package-manager-cache: false
       - name: Install with the checked-in Yarn release
-        run: node .yarn/releases/yarn-4.5.3.cjs install --immutable
+        run: node .yarn/releases/yarn-4.18.1.cjs install --immutable
       - name: Install Chromium
-        run: node .yarn/releases/yarn-4.5.3.cjs playwright install --with-deps chromium
+        run: node .yarn/releases/yarn-4.18.1.cjs playwright install --with-deps chromium
       - name: Build and verify required contracts
-        run: node .yarn/releases/yarn-4.5.3.cjs test:all
+        run: node .yarn/releases/yarn-4.18.1.cjs test:all
       - name: Retain test evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

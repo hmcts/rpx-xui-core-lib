@@ -120,7 +120,11 @@
       "RpxTranslationService overlapping batches keeps a queued second batch after an in-flight success",
       "RpxTranslationService overlapping batches keeps a queued second batch after an in-flight failure",
       "RpxTranslationService overlapping batches keeps dispatched batches independent when the second finishes before the first success",
-      "RpxTranslationService overlapping batches keeps dispatched batches independent when the second finishes before the first failure"
+      "RpxTranslationService overlapping batches keeps dispatched batches independent when the second finishes before the first failure",
+      "RpxTranslationService phrase dictionary keys keeps hasOwnProperty and subsequent phrases working across a language change and HTTP success",
+      "RpxTranslationService phrase dictionary keys keeps hasOwnProperty and subsequent phrases working across a language change and HTTP failure",
+      "RpxTranslationService phrase dictionary keys keeps __proto__ and subsequent phrases working across a language change and HTTP success",
+      "RpxTranslationService phrase dictionary keys keeps __proto__ and subsequent phrases working across a language change and HTTP failure"
     ]
   }
 }
