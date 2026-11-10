@@ -25,6 +25,10 @@
       {
         "projectName": "chromium",
         "title": "a translation HTTP failure returns and caches the original phrase"
+      },
+      {
+        "projectName": "chromium",
+        "title": "a late Welsh response preserves English and is reused after switching back"
       }
     ]
   },
@@ -103,7 +107,16 @@
       "RpxTranslationService Null/Undefined handling should handle getTranslationWithReplacements$ with empty replacements",
       "canonical translation provider scope forChild inherits the root service and configuration identities",
       "canonical translation provider scope a child injector can override configuration without replacing the root service",
-      "canonical translation provider scope renders the real public pipe through the root module"
+      "canonical translation provider scope renders the real public pipe through the root module",
+      "RpxTranslationService language changes retires a pending cache lookup on English selection and can reuse Welsh cache later",
+      "RpxTranslationService language changes caches a late Welsh response without overwriting English",
+      "RpxTranslationService language changes does not replace English with a stale failed-request fallback",
+      "RpxTranslationService language changes returns English for phrases matching inherited Object property names",
+      "RpxTranslationService public API composition translates only static fragments and preserves repeated numeric replacements and spacing",
+      "RpxTranslationService public API composition selects Yes/No metadata and matches each input\u2019s initial letter case from one request",
+      "RpxTranslationService public API composition restores original Yes/No inputs after a successful response without answer metadata",
+      "RpxTranslationService request lifecycle batches distinct phrases and deduplicates repeated subscriptions and normalized aliases",
+      "RpxTranslationService request lifecycle uses source fallback in production mode and allows a subsequent phrase to translate"
     ]
   }
 }

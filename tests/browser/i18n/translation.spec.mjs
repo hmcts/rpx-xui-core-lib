@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { cachedTranslations } from './cache.mjs';
+import { holdWelshTranslation } from './translation-api.mjs';
 
 test('locale switches reuse persisted translations across English and page reloads', async ({ page, context }) => {
   const requests = [];
@@ -35,4 +36,25 @@ test('a translation HTTP failure returns and caches the original phrase', async 
     expect.objectContaining({ phrase: 'Hello world', lang: 'cy', translation: { translation: 'Hello world' } }),
   ]);
   await expect(page.getByTestId('translation')).toHaveText('Hello world');
+});
+
+test('a late Welsh response preserves English and is reused after switching back', async ({ page }) => {
+  const held = await holdWelshTranslation(page);
+  await page.goto('/translation');
+  await expect(page.getByTestId('translation')).toHaveText('Hello world');
+  const requested = page.waitForRequest('**/translations/cy');
+  await page.getByRole('button', { name: 'Cymraeg' }).click();
+  await requested;
+  await expect(page.getByTestId('language')).toHaveText('cy');
+  await page.getByRole('button', { name: 'English' }).click();
+  await expect(page.getByTestId('translation')).toHaveText('Hello world');
+  held.release();
+  await expect.poll(() => cachedTranslations(page)).toEqual([
+    expect.objectContaining({ phrase: 'Hello world', lang: 'cy', translation: { translation: 'Helo byd' } }),
+  ]);
+  await expect(page.getByTestId('language')).toHaveText('en');
+  await expect(page.getByTestId('translation')).toHaveText('Hello world');
+  await page.getByRole('button', { name: 'Cymraeg' }).click();
+  await expect(page.getByTestId('translation')).toHaveText('Helo byd');
+  expect(held.requests).toEqual([{ phrases: ['Hello world'] }]);
 });
