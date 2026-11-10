@@ -1,3 +1,6 @@
+import { createHash } from 'node:crypto';
+import sax from 'sax';
+import { currentIdentity } from './evidence-identity.mjs';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -46,18 +49,35 @@ function browserOutcomes(report) {
 }
 
 function karmaOutcomes(text) {
-  const suites = [...text.matchAll(/<testsuite\b([^>]*)>/g)];
-  const attributes = (value) => Object.fromEntries([...value.matchAll(/\s([\w.-]+)="([^"]*)"/g)].map((match) => [match[1], match[2]]));
-  if (suites.length !== 1 || !text.trimEnd().endsWith('</testsuite>')) throw new Error('Incomplete native Karma report');
-  const suite = attributes(` ${suites[0][1]}`);
-  const cases = [...text.matchAll(/<testcase\b([^>]*?)(?:\/>|>([\s\S]*?)<\/testcase>)/g)];
-  if (!suite.name?.startsWith('Chrome Headless') || suite.errors !== '0' || suite.failures !== '0' ||
-    !cases.length || Number(suite.tests) !== cases.length) throw new Error('Unsuccessful or inconsistent native Karma report');
-  const entities = { quot: '"', apos: "'", amp: '&', lt: '<', gt: '>' };
-  return cases.map((entry) => ({
-    id: attributes(` ${entry[1]}`).name?.replace(/&(quot|apos|amp|lt|gt);/g, (_, key) => entities[key]),
-    passed: !/<(?:failure|error|skipped)\b/.test(entry[2] ?? ''),
-  }));
+  const parser = sax.parser(true);
+  const stack = [];
+  const outcomes = [];
+  const state = { suite: /** @type {Record<string, string> | undefined} */ (undefined) };
+  let roots = 0;
+  const invalid = () => { throw new Error('Malformed or unsuccessful native Karma report'); };
+  parser.ondoctype = invalid;
+  parser.onerror = invalid;
+  parser.onopentag = ({ name, attributes }) => {
+    const parent = stack.at(-1);
+    if (!parent && name === 'testsuite' && ++roots === 1) state.suite = /** @type {Record<string, string>} */ (attributes);
+    else if (parent === 'testsuite' && name === 'testcase') {
+      if (typeof attributes.name !== 'string' || !attributes.name.trim()) invalid();
+      outcomes.push({ id: attributes.name, passed: true });
+    } else if (!(parent === 'testsuite' && ['properties', 'system-out', 'system-err'].includes(name)) &&
+      !(parent === 'properties' && name === 'property')) invalid();
+    stack.push(name);
+  };
+  parser.onclosetag = () => { stack.pop(); };
+  parser.ontext = (value) => {
+    if (value.trim() && !['system-out', 'system-err'].includes(stack.at(-1))) invalid();
+  };
+  parser.oncdata = parser.ontext;
+  parser.write(text).close();
+  const suite = state.suite;
+  if (roots !== 1 || stack.length || !suite?.name?.startsWith('Chrome Headless') ||
+    !/^(0|[1-9]\d*)$/.test(suite.tests ?? '') || suite.errors !== '0' || suite.failures !== '0' ||
+    !outcomes.length || Number(suite.tests) !== outcomes.length || new Set(outcomes.map(({ id }) => id)).size !== outcomes.length) invalid();
+  return outcomes;
 }
 
 function jestOutcomes(report) {
@@ -71,15 +91,21 @@ function jestOutcomes(report) {
   return outcomes;
 }
 
-function packageOutcomes(report) {
-  if (report.schemaVersion !== 1 || !/^[a-f0-9]{64}$/.test(report.package?.sha256 ?? '') || !Array.isArray(report.tests)) {
-    throw new Error('Malformed package contract report or missing artifact hash');
+function packageOutcomes(report, reportRoot, expectedIdentity) {
+  const pkg = report.package;
+  if (report.schemaVersion !== 1 || !/^[a-f0-9]{64}$/.test(pkg?.sha256 ?? '') ||
+    typeof pkg.dirty !== 'boolean' || !Array.isArray(report.tests) ||
+    ['sourceSha', 'runId', 'attempt'].some((key) => typeof pkg[key] !== 'string' || !pkg[key] || pkg[key] !== expectedIdentity[key])) {
+    throw new Error('Malformed package contract report or mismatched identity');
   }
+  const candidate = readFileSync(resolve(reportRoot, 'test-results/package-evidence/candidate.tgz'));
+  if (createHash('sha256').update(candidate).digest('hex') !== pkg.sha256) throw new Error('Package artifact hash mismatch');
   return report.tests.map((test) => ({ id: test.id, passed: test.status === 'passed' }));
 }
 
-export function checkContracts(reportRoot = root) {
-  const parsers = { i18nUnit: karmaOutcomes, nodeUnit: (text) => jestOutcomes(JSON.parse(text)), unit: unitOutcomes, browser: (text) => browserOutcomes(JSON.parse(text)), cacheBrowser: (text) => browserOutcomes(JSON.parse(text)), package: (text) => packageOutcomes(JSON.parse(text)) };
+export function checkContracts(reportRoot = root, expectedIdentity) {
+  if (!expectedIdentity || ['sourceSha', 'runId', 'attempt'].some((key) => typeof expectedIdentity[key] !== 'string' || !expectedIdentity[key])) throw new Error('Expected run identity is required');
+  const parsers = { i18nUnit: karmaOutcomes, nodeUnit: (text) => jestOutcomes(JSON.parse(text)), unit: unitOutcomes, browser: (text) => browserOutcomes(JSON.parse(text)), cacheBrowser: (text) => browserOutcomes(JSON.parse(text)), package: (text) => packageOutcomes(JSON.parse(text), reportRoot, expectedIdentity) };
   let count = 0;
   for (const [kind, inventory] of Object.entries(contracts)) {
     const outcomes = parsers[kind](readFileSync(resolve(reportRoot, inventory.report), 'utf8'));
@@ -98,7 +124,17 @@ export function checkContracts(reportRoot = root) {
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   try {
-    console.log(`Required contracts passed: ${checkContracts()}`);
+    const args = process.argv.slice(2);
+    const options = {};
+    const names = ['--report-root', '--source-sha', '--run-id', '--attempt'];
+    for (let index = 0; index < args.length; index += 2) {
+      const key = args[index];
+      if (!names.includes(key) || Object.hasOwn(options, key) || !args[index + 1] || args[index + 1].startsWith('--')) throw new Error('Invalid replay arguments');
+      options[key] = args[index + 1];
+    }
+    if (args.length && (args.length !== 8 || names.some((key) => !options[key]))) throw new Error('Replay requires --report-root, --source-sha, --run-id and --attempt');
+    const expected = args.length ? { sourceSha: options['--source-sha'], runId: options['--run-id'], attempt: options['--attempt'] } : currentIdentity(root);
+    console.log(`Required contracts passed: ${checkContracts(options['--report-root'] ?? root, expected)}`);
   } catch (error) {
     console.error(`Required-contract gate failed: ${error.message}`);
     process.exitCode = 1;

@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { currentIdentity } from '../../scripts/evidence-identity.mjs';
 import { buildSync } from 'esbuild';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
@@ -81,6 +82,7 @@ try {
   await run('pack', [yarn, 'pack', '--out', candidate], staged);
   report.package = {
     sha256: createHash('sha256').update(await readFile(candidate)).digest('hex'),
+    ...currentIdentity(root),
     node: process.versions.node,
     yarn: '4.18.1',
     angular: '20.3.31',

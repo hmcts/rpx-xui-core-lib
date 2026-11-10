@@ -1,10 +1,14 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { test } from 'node:test';
 import { checkContracts } from '../scripts/check-contracts.mjs';
+
+const identity = { sourceSha: 'a'.repeat(40), runId: 'fixture', attempt: '1' };
+const candidate = Buffer.from('candidate bytes');
 
 const unitNames = [
   'rejects an empty group with the default minimum',
@@ -123,7 +127,7 @@ function reports() {
     'i18n/junit.xml': `<?xml version="1.0"?><testsuite name="Chrome Headless" tests="69" errors="0" failures="0">${i18nNames.map((name) => `<testcase name="${name.replaceAll('&', '&amp;').replaceAll('\"', '&quot;')}"/>`).join('')}</testsuite>`,
     'browser.json': { errors: [], suites: [{ specs: [journey, ...validationJourneys, ...i18nJourneys].map((title) => ({ title, tests: [{ projectName: 'chromium', expectedStatus: 'passed', status: 'expected', results: [{ status: 'passed' }] }] })) }] },
     'cache-upgrade-report.json': { errors: [], suites: [{ specs: cacheJourneys.map((title) => ({ title, tests: [{ projectName: 'chromium', expectedStatus: 'passed', status: 'expected', results: [{ status: 'passed' }] }] })) }] },
-    'package.json': { schemaVersion: 1, package: { sha256: 'a'.repeat(64) }, tests: packageIds.map((id) => ({ id, status: 'passed' })) },
+    'package.json': { schemaVersion: 1, package: { sha256: createHash('sha256').update(candidate).digest('hex'), ...identity, dirty: false }, tests: packageIds.map((id) => ({ id, status: 'passed' })) },
   };
 }
 
@@ -135,7 +139,11 @@ function checkFixture(t, files) {
     mkdirSync(dirname(join(root, 'test-results', file)), { recursive: true });
     writeFileSync(join(root, 'test-results', file), typeof report === 'string' ? report : JSON.stringify(report));
   }
-  return () => checkContracts(root);
+  mkdirSync(join(root, 'test-results/package-evidence'), { recursive: true });
+  writeFileSync(join(root, 'test-results/package-evidence/candidate.tgz'), candidate);
+  const check = (expected = identity) => checkContracts(root, expected);
+  check.root = root;
+  return check;
 }
 
 test('accepts all independently required successful contracts', (t) => {
@@ -372,3 +380,79 @@ for (const name of cacheJourneys) {
     assert.throws(checkFixture(t, files), /missing|required/i);
   });
 }
+
+
+test('rejects XML comments, malformed documents, DTDs and unknown structure', (t) => {
+  for (const mutate of [
+    xml => xml.replace(/(<testcase[^>]*\/>)/g, '<!--$1-->'),
+    xml => xml.replace('</testsuite>', ''),
+    xml => xml.replace('<testsuite', '<!DOCTYPE testsuite><testsuite'),
+    xml => xml.replace('</testsuite>', '<unexpected/></testsuite>'),
+    xml => xml.replace('</testsuite>', '<testcase name="duplicate"/><testcase name="duplicate"/></testsuite>').replace('tests="69"', 'tests="71"'),
+  ]) {
+    const files = reports();
+    files['i18n/junit.xml'] = mutate(files['i18n/junit.xml']);
+    assert.throws(checkFixture(t, files));
+  }
+});
+
+test('rejects missing or altered candidate and missing identity', (t) => {
+  for (const mutate of [
+    files => delete files['package.json'].package.sourceSha,
+    files => files['package.json'].package.sha256 = 'b'.repeat(64),
+    files => files['package.json'].package.dirty = 'false',
+  ]) {
+    const files = reports(); mutate(files);
+    assert.throws(checkFixture(t, files));
+  }
+});
+
+test('rejects a replay with absent or different expected identity', (t) => {
+  const check = checkFixture(t, reports());
+  assert.throws(() => checkContracts(check.root));
+  for (const expected of [null, {...identity, sourceSha: 'b'.repeat(40)}, {...identity, runId: 'other'}, {...identity, attempt: '2'}]) {
+    assert.throws(() => check(expected));
+  }
+});
+
+
+test('rejects missing and altered candidate bytes', (t) => {
+  for (const bytes of [null, 'altered']) {
+    const check = checkFixture(t, reports());
+    const path = join(check.root, 'test-results/package-evidence/candidate.tgz');
+    if (bytes === null) rmSync(path); else writeFileSync(path, bytes);
+    assert.throws(check);
+  }
+});
+
+test('replay CLI requires a complete unique argument set', (t) => {
+  const check = checkFixture(t, reports());
+  const cli = new URL('../scripts/check-contracts.mjs', import.meta.url).pathname;
+  const args = ['--report-root', check.root, '--source-sha', identity.sourceSha, '--run-id', identity.runId, '--attempt', identity.attempt];
+  assert.equal(spawnSync(process.execPath, [cli, ...args]).status, 0);
+  for (const invalid of [args.slice(0, -2), [...args, '--attempt', '1'], [...args, '--unknown', 'x'], [...args.slice(0, -1), '2']]) {
+    assert.notEqual(spawnSync(process.execPath, [cli, ...invalid]).status, 0);
+  }
+});
+
+test('accepts native Karma properties and output with encoded names', (t) => {
+  const files = reports();
+  files['i18n/junit.xml'] = files['i18n/junit.xml']
+    .replace('<testcase', '<properties><property name="browser.fullName" value="Chrome"/></properties><testcase')
+    .replace('</testsuite>', '<system-out><![CDATA[<testcase name="not a test"/>]]></system-out><system-err/></testsuite>');
+  assert.equal(checkFixture(t, files)(), 113);
+});
+
+
+test('identity uses complete CI context and rejects a partial context', () => {
+  const module = new URL('../scripts/evidence-identity.mjs', import.meta.url).href;
+  const script = `import { currentIdentity } from ${JSON.stringify(module)}; console.log(JSON.stringify(currentIdentity(process.cwd())));`;
+  const env = { ...process.env, GITHUB_SHA: identity.sourceSha, GITHUB_RUN_ID: identity.runId, GITHUB_RUN_ATTEMPT: identity.attempt };
+  const complete = spawnSync(process.execPath, ['--input-type=module', '-e', script], { env, encoding: 'utf8' });
+  assert.equal(complete.status, 0, complete.stderr);
+  const value = JSON.parse(complete.stdout);
+  assert.deepEqual({ sourceSha: value.sourceSha, runId: value.runId, attempt: value.attempt }, identity);
+  assert.equal(typeof value.dirty, 'boolean');
+  delete env.GITHUB_RUN_ATTEMPT;
+  assert.notEqual(spawnSync(process.execPath, ['--input-type=module', '-e', script], { env }).status, 0);
+});
