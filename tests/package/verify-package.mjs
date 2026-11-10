@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { buildSync } from 'esbuild';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { cp, lstat, mkdir, mkdtemp, readFile, realpath, rm, stat, writeFile } from 'node:fs/promises';
@@ -10,7 +11,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const output = join(root, 'test-results');
 const evidence = join(output, 'package-evidence');
 const report = { schemaVersion: 1, package: {}, tests: [] };
-const yarn = join(root, '.yarn/releases/yarn-4.5.3.cjs');
+const yarn = join(root, '.yarn/releases/yarn-4.18.1.cjs');
 let current = 'package.setup';
 let scratch;
 
@@ -45,7 +46,7 @@ async function check(id, action) {
 }
 
 try {
-  assert.equal(process.versions.node, '24.22.1', 'Run with the pinned Node 24.22.1');
+  assert.equal(process.versions.node, '24.22.2', 'Run with the pinned Node 24.22.2');
   scratch = await realpath(await mkdtemp(join(tmpdir(), 'core-lib-package-')));
   env.YARN_GLOBAL_FOLDER = join(scratch, 'yarn-global');
   env.YARN_CACHE_FOLDER = join(scratch, 'cache');
@@ -60,6 +61,19 @@ try {
     assert.ok((await stat(join(dist, 'forms/validation/LICENCE'))).isFile());
   });
 
+  await check('package.physical-node', async () => {
+    for (const file of ['node/index.js', 'node/index.d.ts', 'node/package.json', 'node/LICENCE']) assert.ok((await stat(join(dist, file))).isFile());
+    assert.equal(JSON.parse(await readFile(join(dist, 'node/package.json'), 'utf8')).type, 'commonjs');
+    const exports = JSON.parse(await readFile(join(dist, 'package.json'), 'utf8')).exports['./node'];
+    assert.equal(exports.browser, null);
+    assert.equal(exports.node, './node/index.js');
+  });
+
+  await check('package.physical-i18n', async () => {
+    for (const file of ['i18n/index.d.ts', 'i18n/LICENCE', 'fesm2022/hmcts-rpx-xui-core-lib-i18n.mjs']) assert.ok((await stat(join(dist, file))).isFile());
+    const implementation = await readFile(join(dist, 'fesm2022/hmcts-rpx-xui-core-lib-i18n.mjs'), 'utf8');
+    assert.doesNotMatch(implementation, /from ['"]rpx-xui-translation['"]/, 'Canonical implementation must not depend on legacy runtime');
+  });
   await cp(dist, staged, { recursive: true });
   await writeFile(join(staged, 'yarn.lock'), '');
   const candidate = join(scratch, 'candidate.tgz');
@@ -68,7 +82,7 @@ try {
   report.package = {
     sha256: createHash('sha256').update(await readFile(candidate)).digest('hex'),
     node: process.versions.node,
-    yarn: '4.5.3',
+    yarn: '4.18.1',
     angular: '20.3.31',
     typescript: '5.9.3',
   };
@@ -77,6 +91,7 @@ try {
   await cp(candidate, join(consumer, 'candidate.tgz'));
   const manifest = JSON.parse(await readFile(join(consumer, 'package.json'), 'utf8'));
   manifest.dependencies['@hmcts/rpx-xui-core-lib'] = 'file:./candidate.tgz';
+  manifest.dependencies['rpx-xui-translation'] = 'file:./translation-facade';
   await writeFile(join(consumer, 'package.json'), `${JSON.stringify(manifest, null, 2)}\n`);
 
   // Freeze this build's tarball checksum without re-resolving the committed cohort.
@@ -91,10 +106,26 @@ try {
   assert.equal((await lstat(installed)).isSymbolicLink(), false, 'Candidate must be installed, never a workspace link');
   assert.equal(await realpath(installed), installed);
   assert.ok((await stat(join(installed, declaration))).isFile());
+  assert.equal(JSON.parse(await readFile(join(installed, 'node/package.json'), 'utf8')).type, 'commonjs', 'Packed Node marker must survive installation');
   const compiler = join(consumer, 'node_modules/typescript/bin/tsc');
   await check('package.strict-node', () => run('strict-node', [compiler, '-p', 'tsconfig.node.json'], consumer));
   await check('package.strict-bundler', () => run('strict-bundler', [compiler, '-p', 'tsconfig.bundler.json'], consumer));
   await check('package.installed-runtime', () => run('installed-runtime', ['runtime.mjs'], consumer));
+
+  await check('package.staged-i18n-identity', () => run('staged-i18n-identity', ['i18n-runtime.mjs'], consumer));
+  await check('package.installed-node-runtime', () => run('installed-node-runtime', ['node-runtime.cjs'], consumer));
+  await check('package.browser-denied', async () => {
+    const diagnostic = await run('browser-condition-denied', ['--conditions=browser', 'node-runtime.cjs'], consumer, 1);
+    assert.match(diagnostic, /ERR_PACKAGE_PATH_NOT_EXPORTED/);
+    try {
+      buildSync({ entryPoints: ['node-browser.mjs'], absWorkingDir: consumer, bundle: true, platform: 'browser', write: false, logLevel: 'silent' });
+      assert.fail('Browser bundling must reject the Node entry');
+    } catch (error) {
+      await writeFile(join(evidence, 'browser-bundle-denied.log'), error.message);
+      assert.match(error.message, /Could not resolve "@hmcts\/rpx-xui-core-lib\/node"/);
+      assert.match(error.errors[0].notes.map((note) => note.text).join('\n'), /blocked|disabled/);
+    }
+  });
 
   const canonicalManifest = await readFile(join(consumer, 'package.json'));
   await check('package.missing-declaration-fault', async () => {
@@ -120,6 +151,29 @@ try {
     }
   });
   await check('package.restored-node', () => run('restored-node', [compiler, '-p', 'tsconfig.node.json'], consumer));
+  await check('package.missing-marker-fault', async () => {
+    const faulty = join(scratch, 'missing-marker-package');
+    await cp(staged, faulty, { recursive: true });
+    await rm(join(faulty, 'node/package.json'));
+    const faultyCandidate = join(consumer, 'missing-marker.tgz');
+    await run('pack-missing-marker', [yarn, 'pack', '--out', faultyCandidate], faulty);
+    await cp(faultyCandidate, join(evidence, 'missing-marker.tgz'));
+    report.package.missingMarkerSha256 = createHash('sha256').update(await readFile(faultyCandidate)).digest('hex');
+    manifest.dependencies['@hmcts/rpx-xui-core-lib'] = 'file:./missing-marker.tgz';
+    await writeFile(join(consumer, 'package.json'), `${JSON.stringify(manifest, null, 2)}\n`);
+    try {
+      await run('marker-fault-lock', [yarn, 'install', '--mode=update-lockfile'], consumer);
+      await run('marker-fault-install-immutable', [yarn, 'install', '--immutable'], consumer);
+      await assert.rejects(stat(join(installed, 'node/package.json')), { code: 'ENOENT' });
+      const diagnostic = await run('missing-marker-fault', ['node-runtime.cjs'], consumer, 1);
+      assert.match(diagnostic, /exports is not defined in ES module scope/);
+    } finally {
+      await writeFile(join(consumer, 'package.json'), canonicalManifest);
+      await writeFile(join(consumer, 'yarn.lock'), locked);
+      await run('marker-restore-install-immutable', [yarn, 'install', '--immutable'], consumer);
+    }
+  });
+  await check('package.restored-node-runtime', () => run('restored-node-runtime', ['node-runtime.cjs'], consumer));
 } catch (error) {
   report.tests.push({ id: current, status: 'failed', details: error.message });
   console.error(error);

@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "packageManager": "yarn@4.5.3",
+  "packageManager": "yarn@4.18.1",
   "dependencies": {
     "@angular/common": "20.3.31",
     "@angular/compiler": "20.3.31",

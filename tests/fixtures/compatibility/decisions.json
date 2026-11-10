@@ -1,0 +1,100 @@
+[
+  {
+    "id": "pagination",
+    "selection": "6.0.3",
+    "conflict": "common^3.2.1 vs toolkit6.0.3",
+    "required_proof": "Both pagination APIs/pipe/event bounds and facade metadata require proof before range adaptation",
+    "status": "blocked"
+  },
+  {
+    "id": "translation",
+    "selection": "core/i18n; coordinated direct external cutover preferred",
+    "conflict": "current viewer requires old-name1.2.18; current common/toolkit require1.2.14",
+    "required_proof": "Published compatible viewer/payment/facade candidate set and mixed root-child/cache identity",
+    "status": "blocked"
+  },
+  {
+    "id": "helmet",
+    "selection": "8.1.0 prospective host target",
+    "conflict": "published Node peer^7 excludes host^8",
+    "required_proof": "Security/CSP/nonce/error/next behavior before adaptation; no nestedHelmet7 workaround",
+    "status": "blocked"
+  },
+  {
+    "id": "zone",
+    "selection": "0.15.1 supported initial core cohort",
+    "conflict": "Angular20.3.31 peer~0.15.0 excludes actual host0.16.2/0.16.3",
+    "required_proof": "Explicit host alignment or supported framework cohort; no ignored peers",
+    "status": "blocked"
+  },
+  {
+    "id": "editor",
+    "selection": "19.0.0-beta.1",
+    "conflict": "AO selects19.1.1",
+    "required_proof": "Actual AO import/declaration census plus removal/alignment or API compatibility proof",
+    "status": "blocked"
+  },
+  {
+    "id": "host-angular",
+    "selection": "20.3.31 library cohort",
+    "conflict": "MO router20.3.33 and MC lock compiler20.3.35 vs fixed core/common20.3.31",
+    "required_proof": "Coherent host framework/compiler versions in separately reviewable adoption prep",
+    "status": "blocked"
+  },
+  {
+    "id": "ngrx-router-store",
+    "selection": "20.x store/effects cohort",
+    "conflict": "actual hosts declare router-store21 with store20",
+    "required_proof": "Native resolved peer evidence and explicit application dependency correction",
+    "status": "blocked"
+  },
+  {
+    "id": "payment-metadata",
+    "selection": "retained external6.5.28",
+    "conflict": "emitted imports/declarations omit required Angular modules,RxJS,old translation from metadata",
+    "required_proof": "Payment owner release with full declared closure and chosen direct/facade translation cutover",
+    "status": "blocked"
+  },
+  {
+    "id": "viewer-metadata",
+    "selection": "retained external4.2.48",
+    "conflict": "root FESM imports undeclared lodash; asset has optional Node canvas import",
+    "required_proof": "External source/metadata ownership and asset/runtime proof; root hoisting does not repair metadata",
+    "status": "blocked"
+  },
+  {
+    "id": "node-types",
+    "selection": "explicit public @types providers",
+    "conflict": "published Node public imports expose dev-only Express/session/OAuth2/core type providers",
+    "required_proof": "Strict clean full emitted declaration closure and actual host Passport/Express/session identity",
+    "status": "blocked"
+  },
+  {
+    "id": "moment-timezone",
+    "selection": "0.6.2 prospective host target",
+    "conflict": "toolkit peer^0.5.31 excludes viewer/host^0.6.2",
+    "required_proof": "Direct date/timezone/format tests and explicit metadata/API adaptation",
+    "status": "blocked"
+  },
+  {
+    "id": "legacy-name-registry",
+    "selection": "no old implementation dependency in core",
+    "conflict": "actual retained viewer/payment still import old translation implementation",
+    "required_proof": "Compatible immutable registry counterparts or coordinated direct import cutover; local fake version cannot pass",
+    "status": "blocked"
+  },
+  {
+    "id": "mutable-div",
+    "selection": "external owner must provide compatible release",
+    "conflict": "retained viewer4.2.48 depends on mutable-div2.0.0 whose immutable Angular peers^16.2.12 exclude20",
+    "required_proof": "Compatible real viewer/mutable-div release with clean native graph and real viewer behavior",
+    "status": "blocked"
+  },
+  {
+    "id": "marked",
+    "selection": "core-owned18.0.5, host peer-provider16.4.2 for ngx-markdown20.1.0",
+    "conflict": "ngx-markdown20 peer^15||^16 excludes root actualMC18; independent owned parser18 may coexist as normal nested dependency",
+    "required_proof": "Actual host parser API/metadata adaptation; no forced resolutions or compatibility claim from installation alone",
+    "status": "blocked"
+  }
+]

@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "strict": false,
+    "noImplicitAny": true,
+    "types": [
+      "jasmine"
+    ],
+    "outDir": "../../test-results/i18n-compiled"
+  },
+  "include": [
+    "**/*.ts"
+  ]
+}

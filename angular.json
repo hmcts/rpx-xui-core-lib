@@ -40,6 +40,28 @@
           }
         }
       }
+    },
+    "translation-tests": {
+      "projectType": "application",
+      "root": "tests/i18n",
+      "sourceRoot": "tests/i18n",
+      "architect": {
+        "test": {
+          "builder": "@angular/build:karma",
+          "options": {
+            "tsConfig": "tests/i18n/tsconfig.json",
+            "karmaConfig": "tests/i18n/karma.conf.cjs",
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ],
+            "include": [
+              "tests/i18n/**/*.spec.ts"
+            ],
+            "watch": false
+          }
+        }
+      }
     }
   },
   "cli": {

@@ -14,6 +14,7 @@
     "public-api.ts"
   ],
   "include": [
-    "forms/**/*.ts"
+    "forms/**/*.ts",
+    "i18n/**/*.ts"
   ]
 }

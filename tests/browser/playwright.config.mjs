@@ -5,7 +5,7 @@ const root = fileURLToPath(new URL('../../', import.meta.url));
 
 export default defineConfig({
   outputDir: `${root}/test-results/browser`,
-  testDir: './validation',
+  testDir: '.',
   projects: [{ name: 'chromium', use: { browserName: 'chromium' } }],
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),

@@ -1,0 +1,255 @@
+{
+  "schemaVersion": 1,
+  "repository": "hmcts/rpx-xui-webapp",
+  "gitHead": "67cda3e943a69fd57a692189941863b1c6d5c3f9",
+  "previousProfileGitHead": "1060fed3fdca46ed5398cf77b9245adce624a1d1",
+  "source_file_sha256": {
+    "package.json": "265942e19005a8af277d8bb4019c2509e772bb5d5781bf54c8c9e7c1d5d88819",
+    "api/package.json": "31113b4d997b4c9c2684d32e9593175d5ad4faf4299be999356a3c26fb78eec4",
+    "yarn.lock": "fd10e8b1a621877e2828a0710877bb0492a37b4da8442214ae5c6d50a6d3dc2f",
+    ".yarnrc.yml": "9ed710563177e88df1b732e08d846e251c8b93f4e51d6f09cdd55f97386b3e3b",
+    ".yarn/releases/yarn-4.17.1.cjs": "471ffb15e0523663865bbf46a69e7d157ecf532412eb436c48dfab6e3f2abe88",
+    "api/webpack-node.config.js": "d50197e61df6cece6694a7b9e6a5bcceed1387cc009e468682cc6ba9b8c5853f"
+  },
+  "scope": "Projection of exact committed host declarations, lock selections and existing resolutions; no invented peer adaptation",
+  "profiles": {
+    "rpx-xui-webapp": {
+      "gitHead": "67cda3e943a69fd57a692189941863b1c6d5c3f9",
+      "host_resolutions": {
+        "archiver-utils@npm:^2.1.0": "npm:5.0.2",
+        "archiver-utils@npm:^3.0.4": "npm:5.0.2",
+        "@opentelemetry/core": "^2.12.0",
+        "unzipper@npm:^0.10.11": "npm:0.12.5",
+        "@types/jsdom": "^27",
+        "axios@npm:^0.24.0": "npm:1.20.0",
+        "bn.js": "^4.12.3",
+        "body-parser": "^2.3.0",
+        "braces": "^3.0.3",
+        "@dr.pogodin/csurf/cookie": "^2.0.1",
+        "dompurify": "^3.4.13",
+        "exceljs/uuid": "11.1.1",
+        "flat": "~5.0.1",
+        "form-data": "4.0.6",
+        "glob@npm:^10.0.0": "npm:13.0.1",
+        "jsdom": "^27.4.0",
+        "jsonwebtoken@npm:^9.0.0": "npm:9.0.3",
+        "launchdarkly-js-sdk-common/uuid": "11.1.1",
+        "loader-utils": "~2.0.3",
+        "lodash": "^4.18.1",
+        "lodash-es": "^4.18.1",
+        "mermaid": "^11.16.1",
+        "min-document": "^2.19.1",
+        "minimist": "^1.2.8",
+        "path-to-regexp": "^8.4.2",
+        "qs": "6.16.0",
+        "semver": "^7.6.3",
+        "socket.io-parser": "4.2.7",
+        "superagent": "^10.2.2",
+        "tar": "^7.5.22",
+        "tar-fs": "^3.1.0",
+        "tough-cookie": "^6.0.2",
+        "typed-rest-client": "^2.0.0",
+        "unzipper": "0.12.5",
+        "webpack": "5.112.0",
+        "ws": "8.21.3",
+        "xml2js": "^0.6.2"
+      },
+      "runtime_declarations": {
+        "applicationinsights": "^3.17.0",
+        "global-agent": "^4.1.3"
+      },
+      "runtime_locked_versions": {
+        "applicationinsights": "3.17.0",
+        "global-agent": "4.1.7"
+      },
+      "api_toolchain_declarations": {
+        "webpack": "5.112.0",
+        "webpack-cli": "^6.0.0",
+        "webpack-node-externals": "^3.0.0",
+        "ts-loader": "^9.4.4",
+        "terser-webpack-plugin": "^5.3.3"
+      },
+      "api_toolchain_locked_versions": {
+        "webpack": "5.112.0",
+        "webpack-cli": "6.0.1",
+        "webpack-node-externals": "3.0.0",
+        "ts-loader": "9.6.2",
+        "terser-webpack-plugin": "5.6.1"
+      },
+      "install_settings": {
+        "approvedGitRepositories": [
+          "**"
+        ],
+        "compressionLevel": "mixed",
+        "enableGlobalCache": false,
+        "enableScripts": true,
+        "nodeLinker": "node-modules",
+        "npmMinimalAgeGate": 0
+      },
+      "seed_root_lock": true,
+      "locked_telemetry_versions": {
+        "@azure/monitor-opentelemetry": [
+          "1.21.0"
+        ],
+        "@azure/monitor-opentelemetry-exporter": [
+          "1.0.0-beta.47"
+        ],
+        "@azure/opentelemetry-instrumentation-azure-sdk": [
+          "1.0.0",
+          "1.1.0-beta.1"
+        ],
+        "@opentelemetry/api": [
+          "1.10.0"
+        ],
+        "@opentelemetry/api-logs": [
+          "0.211.0",
+          "0.221.0"
+        ],
+        "@opentelemetry/configuration": [
+          "0.221.0"
+        ],
+        "@opentelemetry/context-async-hooks": [
+          "2.10.0",
+          "2.12.0"
+        ],
+        "@opentelemetry/core": [
+          "2.12.0"
+        ],
+        "@opentelemetry/exporter-logs-otlp-grpc": [
+          "0.221.0"
+        ],
+        "@opentelemetry/exporter-logs-otlp-http": [
+          "0.221.0"
+        ],
+        "@opentelemetry/exporter-logs-otlp-proto": [
+          "0.221.0"
+        ],
+        "@opentelemetry/exporter-metrics-otlp-grpc": [
+          "0.221.0"
+        ],
+        "@opentelemetry/exporter-metrics-otlp-http": [
+          "0.221.0"
+        ],
+        "@opentelemetry/exporter-metrics-otlp-proto": [
+          "0.221.0"
+        ],
+        "@opentelemetry/exporter-prometheus": [
+          "0.221.0"
+        ],
+        "@opentelemetry/exporter-trace-otlp-grpc": [
+          "0.221.0"
+        ],
+        "@opentelemetry/exporter-trace-otlp-http": [
+          "0.221.0"
+        ],
+        "@opentelemetry/exporter-trace-otlp-proto": [
+          "0.221.0"
+        ],
+        "@opentelemetry/exporter-zipkin": [
+          "2.10.0"
+        ],
+        "@opentelemetry/instrumentation": [
+          "0.211.0",
+          "0.221.0"
+        ],
+        "@opentelemetry/instrumentation-bunyan": [
+          "0.66.0"
+        ],
+        "@opentelemetry/instrumentation-console": [
+          "0.3.0"
+        ],
+        "@opentelemetry/instrumentation-http": [
+          "0.221.0"
+        ],
+        "@opentelemetry/instrumentation-mongodb": [
+          "0.74.0"
+        ],
+        "@opentelemetry/instrumentation-mysql": [
+          "0.67.0"
+        ],
+        "@opentelemetry/instrumentation-pg": [
+          "0.73.0"
+        ],
+        "@opentelemetry/instrumentation-redis": [
+          "0.69.0"
+        ],
+        "@opentelemetry/instrumentation-winston": [
+          "0.65.0"
+        ],
+        "@opentelemetry/otlp-exporter-base": [
+          "0.221.0"
+        ],
+        "@opentelemetry/otlp-grpc-exporter-base": [
+          "0.221.0"
+        ],
+        "@opentelemetry/otlp-transformer": [
+          "0.221.0"
+        ],
+        "@opentelemetry/propagator-b3": [
+          "2.10.0"
+        ],
+        "@opentelemetry/propagator-jaeger": [
+          "2.10.0"
+        ],
+        "@opentelemetry/redis-common": [
+          "0.38.3"
+        ],
+        "@opentelemetry/resource-detector-azure": [
+          "0.29.0"
+        ],
+        "@opentelemetry/resources": [
+          "2.10.0",
+          "2.12.0"
+        ],
+        "@opentelemetry/sdk-logs": [
+          "0.221.0"
+        ],
+        "@opentelemetry/sdk-metrics": [
+          "2.10.0",
+          "2.12.0"
+        ],
+        "@opentelemetry/sdk-node": [
+          "0.221.0"
+        ],
+        "@opentelemetry/sdk-trace": [
+          "2.10.0",
+          "2.12.0"
+        ],
+        "@opentelemetry/sdk-trace-base": [
+          "2.10.0",
+          "2.12.0"
+        ],
+        "@opentelemetry/sdk-trace-node": [
+          "2.10.0",
+          "2.12.0"
+        ],
+        "@opentelemetry/sdk-trace-web": [
+          "2.12.0"
+        ],
+        "@opentelemetry/semantic-conventions": [
+          "1.44.0",
+          "1.45.0"
+        ],
+        "@opentelemetry/sql-common": [
+          "0.42.0"
+        ],
+        "@opentelemetry/winston-transport": [
+          "0.31.0"
+        ]
+      }
+    },
+    "mc-api-standalone": {
+      "gitHead": "67cda3e943a69fd57a692189941863b1c6d5c3f9",
+      "host_resolutions": {},
+      "runtime_declarations": {
+        "applicationinsights": "^3.17.0",
+        "express": "^5.2.1"
+      },
+      "runtime_locked_versions": {
+        "applicationinsights": "3.17.0",
+        "express": "5.3.0"
+      },
+      "lock_source": "yarn.lock (root); no api/yarn.lock exists"
+    }
+  }
+}

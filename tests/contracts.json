@@ -17,6 +17,18 @@
       {
         "projectName": "chromium",
         "title": "keyboard checkbox toggles update real FormGroup validity and submitted errors"
+      },
+      {
+        "projectName": "chromium",
+        "title": "locale switches reuse persisted translations across English and page reloads"
+      },
+      {
+        "projectName": "chromium",
+        "title": "a translation HTTP failure returns and caches the original phrase"
+      },
+      {
+        "projectName": "chromium",
+        "title": "a late Welsh response preserves English and is reused after switching back"
       }
     ]
   },
@@ -28,7 +40,91 @@
       "package.strict-bundler",
       "package.installed-runtime",
       "package.missing-declaration-fault",
-      "package.restored-node"
+      "package.restored-node",
+      "package.physical-node",
+      "package.installed-node-runtime",
+      "package.browser-denied",
+      "package.missing-marker-fault",
+      "package.restored-node-runtime",
+      "package.physical-i18n",
+      "package.staged-i18n-identity"
+    ]
+  },
+  "nodeUnit": {
+    "report": "test-results/node-jest.json",
+    "required": [
+      "arrayPatternMatch() matches [\"pui-organisation-manager\", \"pui-user-manager\", \"pui-finance-manager\"] to user-manager expecting true",
+      "arrayPatternMatch() matches [\"pui-organisation-manager\", \"pui-user-manager\", \"pui-finance-manager\"] to . expecting true",
+      "arrayPatternMatch() matches [\"pui-organisation-manager\", \"pui-user-manager\", \"pui-finance-manager\"] to dwp expecting false",
+      "isRoleMatch() matches pui-case-manager to case-",
+      "isRoleMatch() matches pui-case-manager to pui",
+      "isRoleMatch() matches pui-case-manager to dwp-",
+      "isRoleMatch() matches pui to .",
+      "empty roles do not match, including an invalid unused pattern",
+      "invalid patterns throw SyntaxError for a string or nonempty roles"
+    ]
+  },
+  "i18nUnit": {
+    "report": "test-results/i18n/junit.xml",
+    "required": [
+      "matchCase should return the second string with the same case as the first string if the first character is uppercase",
+      "matchCase should return the second string in lowercase if the first character is lowercase",
+      "matchCase should return the second string as is if either string is empty",
+      "replacePlaceholders should replace placeholders with the correct values - example 1",
+      "replacePlaceholders should replace placeholders with the correct values - example 2",
+      "replacePlaceholders should replace placeholders with the correct values - example 3",
+      "RpxTranslatePipe create an instance",
+      "RpxTranslatePipe transform should return null when called with null or undefined",
+      "RpxTranslatePipe transform should return the same string when called with a string",
+      "RpxTranslatePipe transform should call getTranslation with the string argument when no replacements or yesOrNo are provided",
+      "RpxTranslatePipe transform should call getTranslationWithReplacements with the string and replacements arguments when replacements are provided",
+      "RpxTranslatePipe transform should call getYesTranslationReplacement with the string and yesOrNo argument when yesOrNo is \"yes\"",
+      "RpxTranslatePipe transform should call getNoTranslationReplacement with the string and yesOrNo argument when yesOrNo is \"no\"",
+      "RpxTranslationService should be created",
+      "RpxTranslationService should return the default language en as a string",
+      "RpxTranslationService should normalise repeated spacing before translating a phrase",
+      "RpxTranslationService should normalise multiple spacing runs before translating a phrase",
+      "RpxTranslationService should preserve markdown line breaks while normalising horizontal spacing",
+      "RpxTranslationService should request the normalised phrase when loading a phrase with multiple spaces",
+      "RpxTranslationService should not call load method with given phrase, language, and yesOrNo value when translation not found in DB",
+      "RpxTranslationService shouldTranslate should return false for phrases without alphabetic characters",
+      "RpxTranslationService shouldTranslate should return true for phrases with alphabetic characters",
+      "RpxTranslationService shouldTranslate should return false for phrases containing [Translation in progress]",
+      "RpxTranslationService shouldTranslate should return true for phrases not containing [Translation in progress]",
+      "RpxTranslationService shouldTranslate should return false for placeholder-only phrases",
+      "RpxTranslationService shouldTranslate should return true for phrases containing placeholders with other text",
+      "RpxTranslationService shouldTranslate should return false for null or undefined phrases",
+      "RpxTranslationService Null/Undefined handling should handle null phrase in normalisePhraseSpacing",
+      "RpxTranslationService Null/Undefined handling should handle undefined phrase in normalisePhraseSpacing",
+      "RpxTranslationService Null/Undefined handling should handle empty string in normalisePhraseSpacing",
+      "RpxTranslationService Null/Undefined handling should handle null phrase in getTranslation$",
+      "RpxTranslationService Null/Undefined handling should handle undefined phrase in getTranslation$",
+      "RpxTranslationService Null/Undefined handling should safely get persisted language when cookie not set",
+      "RpxTranslationService Null/Undefined handling should safely get persisted language when cookie is set",
+      "RpxTranslationService Null/Undefined handling should handle normalisePhraseSpacing with multiple spaces and null/undefined",
+      "RpxTranslationService Null/Undefined handling should handle shouldTranslate with various null/undefined edge cases",
+      "RpxTranslationService Null/Undefined handling should handle getTranslationWithYesOrNo$ with null yesOrNoValue",
+      "RpxTranslationService Null/Undefined handling should handle getTranslationWithReplacements$ with empty replacements",
+      "canonical translation provider scope forChild inherits the root service and configuration identities",
+      "canonical translation provider scope a child injector can override configuration without replacing the root service",
+      "canonical translation provider scope renders the real public pipe through the root module",
+      "RpxTranslationService language changes retires a pending cache lookup on English selection and can reuse Welsh cache later",
+      "RpxTranslationService language changes caches a late Welsh response without overwriting English",
+      "RpxTranslationService language changes does not replace English with a stale failed-request fallback",
+      "RpxTranslationService language changes returns English for phrases matching inherited Object property names",
+      "RpxTranslationService public API composition translates only static fragments and preserves repeated numeric replacements and spacing",
+      "RpxTranslationService public API composition selects Yes/No metadata and matches each input\u2019s initial letter case from one request",
+      "RpxTranslationService public API composition restores original Yes/No inputs after a successful response without answer metadata",
+      "RpxTranslationService request lifecycle batches distinct phrases and deduplicates repeated subscriptions and normalized aliases",
+      "RpxTranslationService request lifecycle uses source fallback in production mode and allows a subsequent phrase to translate",
+      "RpxTranslationService overlapping batches keeps a queued second batch after an in-flight success",
+      "RpxTranslationService overlapping batches keeps a queued second batch after an in-flight failure",
+      "RpxTranslationService overlapping batches keeps dispatched batches independent when the second finishes before the first success",
+      "RpxTranslationService overlapping batches keeps dispatched batches independent when the second finishes before the first failure",
+      "RpxTranslationService phrase dictionary keys keeps hasOwnProperty and subsequent phrases working across a language change and HTTP success",
+      "RpxTranslationService phrase dictionary keys keeps hasOwnProperty and subsequent phrases working across a language change and HTTP failure",
+      "RpxTranslationService phrase dictionary keys keeps __proto__ and subsequent phrases working across a language change and HTTP success",
+      "RpxTranslationService phrase dictionary keys keeps __proto__ and subsequent phrases working across a language change and HTTP failure"
     ]
   }
 }

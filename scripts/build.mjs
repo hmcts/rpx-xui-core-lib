@@ -1,3 +1,4 @@
+import { spawnSync } from 'node:child_process';
 import { ngPackagr } from 'ng-packagr';
 import { copyFile, mkdir, symlink, realpath } from 'node:fs/promises';
 
@@ -6,6 +7,8 @@ const packager = ngPackagr()
   .withTsConfig('projects/core-lib/tsconfig.lib.json');
 
 async function stage() {
+  const nodeBuild = spawnSync(process.execPath, ['node_modules/typescript/bin/tsc', '-p', 'projects/core-lib/node/tsconfig.json'], { stdio: 'inherit' });
+  if (nodeBuild.status !== 0) throw new Error('Node library compilation failed');
   await copyFile('LICENCE', 'dist/core-lib/LICENCE');
   await mkdir('node_modules/@hmcts', { recursive: true });
   const link = 'node_modules/@hmcts/rpx-xui-core-lib';
