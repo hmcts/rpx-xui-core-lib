@@ -2,13 +2,13 @@
   <h1>Validation diagnostic pilot</h1>
   <p>Angular 20 form using the built validation entry point.</p>
   <form [formGroup]="form" (ngSubmit)="submitted = true">
-    <fieldset>
+    <fieldset [attr.aria-describedby]="submitted && form.invalid ? 'roles-error' : null">
       <legend>Select at least one role</legend>
-      <label><input type="checkbox" formControlName="first"> First role</label>
-      <label><input type="checkbox" formControlName="second"> Second role</label>
+      <label><input type="checkbox" formControlName="first" [attr.aria-invalid]="submitted && form.invalid ? 'true' : null"> First role</label>
+      <label><input type="checkbox" formControlName="second" [attr.aria-invalid]="submitted && form.invalid ? 'true' : null"> Second role</label>
     </fieldset>
     @if (submitted && form.hasError('requireOneCheckboxToBeChecked')) {
-      <p role="alert">Select at least one role</p>
+      <p id="roles-error" role="alert">Select at least one role</p>
     }
     <p data-testid="validity">{{ form.valid ? 'Valid' : 'Invalid' }}</p>
     <p data-testid="values">First: {{ form.controls.first.value }}; Second: {{ form.controls.second.value }}</p>
