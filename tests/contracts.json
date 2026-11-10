@@ -29,6 +29,18 @@
       {
         "projectName": "chromium",
         "title": "a late Welsh response preserves English and is reused after switching back"
+      },
+      {
+        "projectName": "chromium",
+        "title": "local gallery translates through its own synthetic service"
+      },
+      {
+        "projectName": "chromium",
+        "title": "local gallery demonstrates a synthetic service failure"
+      },
+      {
+        "projectName": "chromium",
+        "title": "local translation endpoint validates requests"
       }
     ]
   },

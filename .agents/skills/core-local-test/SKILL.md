@@ -1,0 +1,30 @@
+---
+name: core-local-test
+description: Start the RPX XUI core library gallery, run its local checks, or diagnose a local test failure. Use when a developer asks an agent to stand up, test, or troubleshoot this repository locally.
+---
+
+# Core library local testing
+
+Use the repository containing this skill as the working directory. Read its nearest `AGENTS.md`, `package.json`, README and relevant runner configuration before acting; scripts and supported capabilities may have changed. Do not interpret a passing local test as consumer, release or CI acceptance.
+
+## Choose the requested action
+
+- **Start the gallery:** verify the Node version in `.nvmrc`, the checked-in Yarn release selected by `.yarnrc.yml` and that dependencies are installed. From the repo, use `node .yarn/releases/yarn-4.18.1.cjs start` (substitute the selected checked-in release if it has changed). The watcher builds before serving `http://127.0.0.1:4307`. Before reporting ready, verify that the current watcher build completed successfully and no newer compile error is present, then check the intended view in a real browser: for the current validation gallery, its heading and interactive form must be usable. An HTTP response, error page, blank shell or stale output after a failed rebuild alone is not readiness. Report the URL, checkout/commit and whether the worktree is dirty; a dirty build is not an exact commit artifact. Keep the process alive only when the user asked to start it.
+- **Run checks:** choose the smallest relevant documented commands for a focused request. For a full local gate, run the repo's current `test:all` using its checked-in Yarn; it builds, lints, tests, checks the packed artifact and compares native reports with the required contract inventory. `test:cache-upgrade` needs the package artifact produced by `test:package`. Do not substitute test discovery, retries, filtered tests or `test:compatibility:contracts` for the full gate. The separate `test:compatibility` rehearsal currently reports a blocked full consumer graph; run it when compatibility is requested and report its nonzero result rather than treating it as the ordinary passing suite.
+- **Diagnose a failure:** retain the first failure and inspect native terminal logs and available Playwright HTML, JUnit, JSON and trace artifacts before proposing a cause. Identify the earliest causal error and classify product, test, setup or environment failure only when evidence supports it. Reproduce narrowly when useful; do not weaken assertions or hide failures. Explain the smallest supported next step. Make source fixes only when separately requested or already in scope.
+
+## Protect local state
+
+Before any command, inspect its current script and runner configuration to identify every directory or report it can remove or replace. Preserve affected evidence owned by this task in a separate evidence directory before running. Never overwrite another task's reports or fixtures, even when its run is inactive; if ownership is uncertain or belongs to another task, use an isolated worktree/output or stop and report the conflict rather than overwrite or copy live evidence.
+
+Current examples: `test:all` removes `test-results/`; `test:node` and `test:i18n` replace their native reports; `test:package` replaces `test-results/package.json` and `test-results/package-evidence/`; `test:compatibility` replaces `test-results/compatibility/`; browser runs replace their configured reports, including `playwright-report/`; and `test:cache-upgrade` replaces `.angular/cache-upgrade/` as well as its browser reports. Recheck these paths when scripts change rather than treating this list as exhaustive.
+
+Check for active runs and occupied ports before starting. The browser config starts its own server with `reuseExistingServer: false`; never attach to an unknown service merely because port 4307 responds. Stop only processes this invocation started, including on interruption. If a user asks to leave the gallery running, state how to stop that owned process.
+
+Use the workspace policy for launching Chromium outside the macOS sandbox. Use only synthetic data and local fixtures. Do not print credentials, case data or secrets. Do not push, publish, merge or change access settings as part of this skill.
+
+Installation and the packed-consumer check may require registry access; a warm checkout is not proof that the suite is offline. If dependencies, browsers, an approved runtime or a required report are unavailable, state the blocker and keep that check unpassed. Do not install, upgrade or download an alternative toolchain silently.
+
+## Return evidence
+
+Report the requested action, checkout and commit/dirty state, commands actually run, pass/fail/blocked result and paths to relevant native reports (currently `test-results/` and `playwright-report/`). For a failure, include the first causal evidence and what remains unverified. For a running gallery, include the local URL and process ownership/stop instructions. Do not claim all four libraries are locally covered while their migration is incomplete.

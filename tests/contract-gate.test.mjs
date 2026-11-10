@@ -97,7 +97,7 @@ const i18nNames = [
   "translation provider lifecycle stops a language change when its subscriber destroys the owner",
   "translation provider lifecycle stops observing cached translations when its owner is destroyed"
 ];
-const i18nJourneys = ['a late Welsh response preserves English and is reused after switching back', 'locale switches reuse persisted translations across English and page reloads', 'a translation HTTP failure returns and caches the original phrase'];
+const i18nJourneys = ['a late Welsh response preserves English and is reused after switching back', 'locale switches reuse persisted translations across English and page reloads', 'a translation HTTP failure returns and caches the original phrase', 'local gallery translates through its own synthetic service', 'local gallery demonstrates a synthetic service failure', 'local translation endpoint validates requests'];
 const cacheJourneys = ['legacy to core preserves valid cached translation', 'core to legacy preserves valid cached translation', 'core replaces an expired cache row written by published legacy'];
 const journey = 'keyboard checkbox toggles update real FormGroup validity and submitted errors';
 const packageIds = [
@@ -132,7 +132,7 @@ function checkFixture(t, files) {
 }
 
 test('accepts all independently required successful contracts', (t) => {
-  assert.equal(checkFixture(t, reports())(), 105);
+  assert.equal(checkFixture(t, reports())(), 108);
 });
 
 for (const file of ['validation.tap', 'browser.json', 'cache-upgrade-report.json', 'package.json', 'node-jest.json', 'i18n/junit.xml']) {
@@ -192,6 +192,14 @@ for (const replacement of [[], [{ title: 'a different passing journey', tests: [
   });
 }
 
+for (const title of i18nJourneys.slice(-3)) {
+  test(`rejects a missing ${title} result`, (t) => {
+    const files = reports();
+    files['browser.json'].suites[0].specs = files['browser.json'].suites[0].specs.filter((spec) => spec.title !== title);
+    assert.throws(checkFixture(t, files), /missing|required/i);
+  });
+}
+
 test('rejects expected browser failure and empty attempts', (t) => {
   for (const change of [{ expectedStatus: 'failed' }, { results: [] }]) {
     const files = reports();
@@ -246,7 +254,7 @@ test('accepts a real native node:test TAP stream', (t) => {
   assert.equal(result.status, 0, result.stderr);
   const files = reports();
   files['validation.tap'] = result.stdout;
-  assert.equal(checkFixture(t, files)(), 105);
+  assert.equal(checkFixture(t, files)(), 108);
 });
 
 for (const file of ['browser.json', 'package.json']) {

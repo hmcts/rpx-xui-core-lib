@@ -1,7 +1,7 @@
 import { spawnSync } from 'node:child_process';
 import { readdirSync } from 'node:fs';
 
-const javascript = ['eslint.config.mjs', ...['scripts', 'tests'].flatMap((root) =>
+const javascript = ['eslint.config.mjs', ...['scripts', 'tests', 'apps/test-host'].flatMap((root) =>
   readdirSync(root, { recursive: true, encoding: 'utf8' }).filter((file) => /\.(?:mjs|cjs)$/.test(file)).map((file) => `${root}/${file}`))];
 const commands = [
   ['node_modules/eslint/bin/eslint.js', '.'],

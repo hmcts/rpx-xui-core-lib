@@ -17,6 +17,8 @@ Media Viewer and payment integrations remain external. The repository configurat
 
 ## Develop locally
 
+For agent-assisted local startup, checks and failure diagnosis, ask your repository-aware agent to read [the core local test skill](.agents/skills/core-local-test/SKILL.md). It uses the same repository commands and reports; it does not replace human review or remote CI.
+
 Use Node **24.22.2** and Yarn **4.18.1** for the core integration cohort. Yarn is checked in so setup does not require a global Yarn installation or Corepack.
 
 ```sh
@@ -30,6 +32,8 @@ yarn start
 `test:all` resets generated reports, builds the package, runs lint and type checks, runs the report-gate regression tests, seven validator contracts and nine Node Jest contracts, verifies the installed tarball, builds the gallery, runs the complete local browser suite, then compares executed outcomes with the independent inventory in `tests/contracts.json`. The required CI `build` job runs this same fail-fast command. Missing reports, filtered-out required tests, skipped scenarios and failures cannot satisfy the contract gate. Reports are `test-results/validation.tap`, `test-results/node-jest.json`, `test-results/package.json`, `test-results/browser.json`, `test-results/browser-junit.xml` and `playwright-report/index.html`; browser artifacts stay below `test-results/browser/` so browser cleanup cannot remove earlier unit/package reports.
 
 `start` lets the official library watcher complete its initial build before serving the private gallery at [localhost:4307](http://127.0.0.1:4307). Source/template/style edits rebuild, compilation errors appear in the terminal, and corrected source resumes compilation. Stop with Ctrl+C. The gallery and direct tests use the built package's public `@hmcts/rpx-xui-core-lib/forms/validation` import through an explicit local development link, without source aliases. The gallery excludes that linked package from prebundling so library edits reach the browser. Avoid placing this checkout below an unrelated Yarn Plug'n'Play workspace, whose ancestor manifest can override esbuild resolution.
+
+Open the [translation gallery](http://127.0.0.1:4307/translation) to try Welsh translation and the service-failure scenario. Its development server returns fictional local responses; it does not contact a translation service. The standalone browser checks use those responses without intercepting requests. This local endpoint is not included in the library package or production gallery build.
 
 For individual checks, run `yarn build` before `yarn lint`, `yarn test`, `yarn test:package` or `yarn build:host`. Lint covers ESLint, library TypeScript, strict gallery/template checking and JavaScript scripts/config/tests. Pure validator cases use native `node:test` against real Angular FormGroups; no custom Angular runner bridge is involved. Browser coverage uses native Chromium keyboard interactions and real form values, validity and submitted errors, with retries disabled.
 
