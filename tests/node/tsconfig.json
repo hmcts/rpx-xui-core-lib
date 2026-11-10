@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "strict": true,
+    "skipLibCheck": false,
+    "types": [
+      "jest"
+    ],
+    "rootDir": "../..",
+    "outDir": "../../test-results/node-unit"
+  },
+  "include": [
+    "*.spec.ts"
+  ]
+}

@@ -2,10 +2,12 @@ import { spawnSync } from 'node:child_process';
 import { readdirSync } from 'node:fs';
 
 const javascript = ['eslint.config.mjs', ...['scripts', 'tests'].flatMap((root) =>
-  readdirSync(root, { recursive: true, encoding: 'utf8' }).filter((file) => file.endsWith('.mjs')).map((file) => `${root}/${file}`))];
+  readdirSync(root, { recursive: true, encoding: 'utf8' }).filter((file) => /\.(?:mjs|cjs)$/.test(file)).map((file) => `${root}/${file}`))];
 const commands = [
   ['node_modules/eslint/bin/eslint.js', '.'],
   ['node_modules/typescript/bin/tsc', '-p', 'projects/core-lib/tsconfig.lib.json', '--noEmit'],
+  ['node_modules/typescript/bin/tsc', '-p', 'projects/core-lib/node/tsconfig.json', '--noEmit'],
+  ['node_modules/typescript/bin/tsc', '-p', 'tests/node/tsconfig.json', '--noEmit'],
   ['node_modules/@angular/compiler-cli/bundles/src/bin/ngc.js', '-p', 'apps/test-host/tsconfig.app.json', '--noEmit'],
   ['node_modules/typescript/bin/tsc', '--allowJs', '--checkJs', '--noEmit', '--target', 'ES2022', '--module', 'ES2022', '--moduleResolution', 'bundler', '--types', 'node', ...javascript],
 ];

@@ -9,6 +9,11 @@
       "input": "forms/validation",
       "glob": "LICENCE",
       "output": "forms/validation"
+    },
+    {
+      "input": "node",
+      "glob": "{LICENCE,package.json}",
+      "output": "node"
     }
   ]
 }

@@ -45,6 +45,17 @@ function browserOutcomes(report) {
   return outcomes;
 }
 
+function jestOutcomes(report) {
+  if (report.success !== true || !Array.isArray(report.testResults) || !report.testResults.length ||
+    report.numFailedTests !== 0 || report.numPendingTests !== 0 || report.numTodoTests !== 0 ||
+    report.testResults.some((suite) => suite.status !== 'passed' || !Array.isArray(suite.assertionResults) || !suite.assertionResults.length)) {
+    throw new Error('Incomplete or unsuccessful native Jest report');
+  }
+  const outcomes = report.testResults.flatMap((suite) => suite.assertionResults.map((test) => ({ id: test.fullName, passed: test.status === 'passed' })));
+  if (report.numTotalTests !== outcomes.length || report.numPassedTests !== outcomes.length) throw new Error('Inconsistent native Jest totals');
+  return outcomes;
+}
+
 function packageOutcomes(report) {
   if (report.schemaVersion !== 1 || !/^[a-f0-9]{64}$/.test(report.package?.sha256 ?? '') || !Array.isArray(report.tests)) {
     throw new Error('Malformed package contract report or missing artifact hash');
@@ -53,7 +64,7 @@ function packageOutcomes(report) {
 }
 
 export function checkContracts(reportRoot = root) {
-  const parsers = { unit: unitOutcomes, browser: (text) => browserOutcomes(JSON.parse(text)), package: (text) => packageOutcomes(JSON.parse(text)) };
+  const parsers = { nodeUnit: (text) => jestOutcomes(JSON.parse(text)), unit: unitOutcomes, browser: (text) => browserOutcomes(JSON.parse(text)), package: (text) => packageOutcomes(JSON.parse(text)) };
   let count = 0;
   for (const [kind, inventory] of Object.entries(contracts)) {
     const outcomes = parsers[kind](readFileSync(resolve(reportRoot, inventory.report), 'utf8'));

@@ -28,7 +28,26 @@
       "package.strict-bundler",
       "package.installed-runtime",
       "package.missing-declaration-fault",
-      "package.restored-node"
+      "package.restored-node",
+      "package.physical-node",
+      "package.installed-node-runtime",
+      "package.browser-denied",
+      "package.missing-marker-fault",
+      "package.restored-node-runtime"
+    ]
+  },
+  "nodeUnit": {
+    "report": "test-results/node-jest.json",
+    "required": [
+      "arrayPatternMatch() matches [\"pui-organisation-manager\", \"pui-user-manager\", \"pui-finance-manager\"] to user-manager expecting true",
+      "arrayPatternMatch() matches [\"pui-organisation-manager\", \"pui-user-manager\", \"pui-finance-manager\"] to . expecting true",
+      "arrayPatternMatch() matches [\"pui-organisation-manager\", \"pui-user-manager\", \"pui-finance-manager\"] to dwp expecting false",
+      "isRoleMatch() matches pui-case-manager to case-",
+      "isRoleMatch() matches pui-case-manager to pui",
+      "isRoleMatch() matches pui-case-manager to dwp-",
+      "isRoleMatch() matches pui to .",
+      "empty roles do not match, including an invalid unused pattern",
+      "invalid patterns throw SyntaxError for a string or nonempty roles"
     ]
   }
 }

@@ -27,7 +27,7 @@ yarn test:all
 yarn start
 ```
 
-`test:all` resets generated reports, builds the package, runs lint and type checks, runs the report-gate regression tests and seven validator contracts, verifies the installed tarball, builds the gallery, runs the complete local browser suite, then compares executed outcomes with the independent inventory in `tests/contracts.json`. The required CI `build` job runs this same fail-fast command. Missing reports, filtered-out required tests, skipped scenarios and failures cannot satisfy the contract gate. Reports are `test-results/validation.tap`, `test-results/package.json`, `test-results/browser.json`, `test-results/browser-junit.xml` and `playwright-report/index.html`; browser artifacts stay below `test-results/browser/` so browser cleanup cannot remove earlier unit/package reports.
+`test:all` resets generated reports, builds the package, runs lint and type checks, runs the report-gate regression tests, seven validator contracts and nine Node Jest contracts, verifies the installed tarball, builds the gallery, runs the complete local browser suite, then compares executed outcomes with the independent inventory in `tests/contracts.json`. The required CI `build` job runs this same fail-fast command. Missing reports, filtered-out required tests, skipped scenarios and failures cannot satisfy the contract gate. Reports are `test-results/validation.tap`, `test-results/node-jest.json`, `test-results/package.json`, `test-results/browser.json`, `test-results/browser-junit.xml` and `playwright-report/index.html`; browser artifacts stay below `test-results/browser/` so browser cleanup cannot remove earlier unit/package reports.
 
 `start` lets the official library watcher complete its initial build before serving the private gallery at [localhost:4307](http://127.0.0.1:4307). Source/template/style edits rebuild, compilation errors appear in the terminal, and corrected source resumes compilation. Stop with Ctrl+C. The gallery and direct tests use the built package's public `@hmcts/rpx-xui-core-lib/forms/validation` import through an explicit local development link, without source aliases. The gallery excludes that linked package from prebundling so library edits reach the browser. Avoid placing this checkout below an unrelated Yarn Plug'n'Play workspace, whose ancestor manifest can override esbuild resolution.
 
@@ -43,6 +43,12 @@ The initial APF build contract is Angular/compiler-cli **20.3.31**, ng-packagr *
 
 The validator is byte-for-byte from [rpx-xui-common-lib published revision f23288743831ef13a55b4348f757db74c1a189c8](https://github.com/hmcts/rpx-xui-common-lib/blob/f23288743831ef13a55b4348f757db74c1a189c8/projects/exui-common-lib/src/lib/gov-ui/validators/checkboxes-be-checked.validator.ts). SHA-256: `095a8cb877b637406efcb175b2d73775a199104c26e2142b307d18f7d94673c3`. Its original MIT licence and 2019 Crown Copyright notice are retained at `forms/validation/LICENCE` in the distribution, alongside the core licence. The preserved behavior counts boolean `true` only, defaults to minimum one and returns `requireOneCheckboxToBeChecked`. Existing AO/common/MO source packages and production authority are unchanged.
 
+
+## Node entry point
+
+`@hmcts/rpx-xui-core-lib/node` exports `arrayPatternMatch` and `isStringPatternMatch`, preserved from Node-lib 2.30.35 at `133bfdf4c82f0fb1885932845dba24174edd45d0`. These stateless utilities keep the existing regular-expression behavior and failures; auth/session services and their constructed instances remain in Node-lib.
+
+`yarn build` compiles the Node tree as CommonJS alongside the Angular output. The tarball includes its own `node/package.json` marker and declarations. `yarn test:node` runs the seven original Jest contracts and two empty/error contracts; the aggregate gate also requires their native Jest report. Package checks prove raw installed `require`, strict types, browser import rejection, and failure/restoration when the packed marker is removed. Browser/gallery watch does not watch Node source; run `yarn build` after Node edits.
 
 ## Architecture contract
 

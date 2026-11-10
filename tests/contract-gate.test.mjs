@@ -15,16 +15,30 @@ const unitNames = [
   'accepts the exact configured minimum',
   'accepts zero when zero is explicitly required',
 ];
+const nodeNames = [
+  'arrayPatternMatch() matches ["pui-organisation-manager", "pui-user-manager", "pui-finance-manager"] to user-manager expecting true',
+  'arrayPatternMatch() matches ["pui-organisation-manager", "pui-user-manager", "pui-finance-manager"] to . expecting true',
+  'arrayPatternMatch() matches ["pui-organisation-manager", "pui-user-manager", "pui-finance-manager"] to dwp expecting false',
+  'isRoleMatch() matches pui-case-manager to case-',
+  'isRoleMatch() matches pui-case-manager to pui',
+  'isRoleMatch() matches pui-case-manager to dwp-',
+  'isRoleMatch() matches pui to .',
+  'empty roles do not match, including an invalid unused pattern',
+  'invalid patterns throw SyntaxError for a string or nonempty roles',
+];
 const journey = 'keyboard checkbox toggles update real FormGroup validity and submitted errors';
 const packageIds = [
   'package.physical-secondary-declaration', 'package.strict-node', 'package.strict-bundler',
   'package.installed-runtime', 'package.missing-declaration-fault', 'package.restored-node',
+  'package.physical-node', 'package.installed-node-runtime', 'package.browser-denied',
+  'package.missing-marker-fault', 'package.restored-node-runtime',
 ];
 
 /** @returns {Record<string, any>} */
 function reports() {
   return {
     'validation.tap': `TAP version 13\n${unitNames.map((name, index) => `ok ${index + 1} - ${name}`).join('\n')}\n1..7\n# tests 7\n# pass 7\n# fail 0\n`,
+    'node-jest.json': { success: true, numTotalTests: 9, numPassedTests: 9, numFailedTests: 0, numPendingTests: 0, numTodoTests: 0, testResults: [{ status: 'passed', assertionResults: nodeNames.map((fullName) => ({ fullName, status: 'passed' })) }] },
     'browser.json': { errors: [], suites: [{ specs: [{ title: journey, tests: [{ projectName: 'chromium', expectedStatus: 'passed', status: 'expected', results: [{ status: 'passed' }] }] }] }] },
     'package.json': { schemaVersion: 1, package: { sha256: 'a'.repeat(64) }, tests: packageIds.map((id) => ({ id, status: 'passed' })) },
   };
@@ -41,10 +55,10 @@ function checkFixture(t, files) {
 }
 
 test('accepts all independently required successful contracts', (t) => {
-  assert.equal(checkFixture(t, reports())(), 14);
+  assert.equal(checkFixture(t, reports())(), 28);
 });
 
-for (const file of ['validation.tap', 'browser.json', 'package.json']) {
+for (const file of ['validation.tap', 'browser.json', 'package.json', 'node-jest.json']) {
   test(`rejects missing ${file} even when other reports pass`, (t) => {
     const files = reports();
     delete files[file];
@@ -155,7 +169,7 @@ test('accepts a real native node:test TAP stream', (t) => {
   assert.equal(result.status, 0, result.stderr);
   const files = reports();
   files['validation.tap'] = result.stdout;
-  assert.equal(checkFixture(t, files)(), 14);
+  assert.equal(checkFixture(t, files)(), 28);
 });
 
 for (const file of ['browser.json', 'package.json']) {
@@ -186,5 +200,31 @@ test('rejects an absent or empty browser project name', (t) => {
     const files = reports();
     files['browser.json'].suites[0].specs[0].tests[0].projectName = projectName;
     assert.throws(checkFixture(t, files), /contract|missing|required/i);
+  }
+});
+
+for (const name of nodeNames) {
+  test(`rejects a filtered-out Jest contract: ${name}`, (t) => {
+    const files = reports();
+    files['node-jest.json'].testResults[0].assertionResults = files['node-jest.json'].testResults[0].assertionResults.filter((result) => result.fullName !== name);
+    files['node-jest.json'].numTotalTests -= 1;
+    files['node-jest.json'].numPassedTests -= 1;
+    assert.throws(checkFixture(t, files), /missing|required/i);
+  });
+}
+
+for (const status of ['failed', 'pending', 'todo']) {
+  test(`rejects a ${status} Jest contract`, (t) => {
+    const files = reports();
+    files['node-jest.json'].testResults[0].assertionResults[0].status = status;
+    assert.throws(checkFixture(t, files), /pass|Jest|contract/i);
+  });
+}
+
+test('rejects Jest failure summaries and interrupted suites', (t) => {
+  for (const change of [{ success: false }, { numFailedTests: 1 }, { numPendingTests: 1 }, { numTodoTests: 1 }, { numTotalTests: 10 }, { testResults: [] }]) {
+    const files = reports();
+    Object.assign(files['node-jest.json'], change);
+    assert.throws(checkFixture(t, files), /Jest|pass|report|missing|required/i);
   }
 });
