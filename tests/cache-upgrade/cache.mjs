@@ -32,7 +32,10 @@ export async function expireCachedTranslation(page) {
         const store = transaction.objectStore('translations');
         const read = store.getAll();
         read.onsuccess = () => {
-          const row = read.result.find((item) => item.phrase === 'Hello world' && item.lang === 'cy');
+          let row;
+          for (const item of read.result) {
+            if (item.phrase === 'Hello world' && item.lang === 'cy') { row = item; break; }
+          }
           if (!row) { transaction.abort(); return; }
           row.validity = '2000-01-01T00:00:00.000Z';
           store.put(row);
