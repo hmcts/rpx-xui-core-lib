@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "projects": {
+    "test-host": {
+      "projectType": "application",
+      "root": "apps/test-host",
+      "sourceRoot": "apps/test-host",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "apps/test-host/main.ts",
+            "index": "apps/test-host/index.html",
+            "tsConfig": "apps/test-host/tsconfig.app.json",
+            "outputPath": "dist/test-host",
+            "styles": [],
+            "polyfills": [
+              "zone.js"
+            ],
+            "preserveSymlinks": true
+          },
+          "configurations": {
+            "development": {
+              "optimization": false,
+              "sourceMap": true
+            }
+          }
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "options": {
+            "buildTarget": "test-host:build:development",
+            "host": "127.0.0.1",
+            "port": 4307,
+            "prebundle": {
+              "exclude": [
+                "@hmcts/rpx-xui-core-lib"
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "cli": {
+    "analytics": false
+  }
+}

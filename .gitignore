@@ -9,3 +9,6 @@ coverage/
 .env.*
 !.env.example
 .DS_Store
+.angular/
+playwright-report/
+test-results/

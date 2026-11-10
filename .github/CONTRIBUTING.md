@@ -4,10 +4,10 @@ Coordinate work through an EXUI ticket and the architecture proposal linked in t
 
 1. Branch from `master` using a ticket-based feature or fix name.
 2. Use the Node/Yarn versions and local commands in the README.
-3. Run `yarn install --immutable`, `yarn lint` and `yarn test`. Add meaningful validation for any new behaviour.
+3. Run `yarn install --immutable`, install Chromium as shown in the README, then run `yarn test:all`. Add meaningful validation for any new behaviour.
 4. Open a pull request with the ticket, changed behaviour, evidence and compatibility impact.
 5. Obtain two human approvals, including EXUI code-owner review, and a passing `build` check before merging.
 
 Keep commit messages about the change. Never include credentials or case data. Report vulnerabilities through [SECURITY.md](../SECURITY.md).
 
-This bootstrap has no runtime or release pipeline. Adding exports or enabling publication requires the proposal's applicable feasibility evidence; a green configuration check does not replace it.
+The private package foundation has a real validation capability and an installed-artifact/browser test gate, with no release pipeline. Publication and application adoption require the proposal's remaining feasibility and human acceptance evidence; local green checks do not replace those gates.
