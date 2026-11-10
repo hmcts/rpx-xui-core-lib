@@ -13,7 +13,34 @@
   },
   "packageManager": "yarn@4.5.3",
   "scripts": {
-    "lint": "node --check scripts/check-repository.mjs",
-    "test": "node scripts/check-repository.mjs"
+    "lint": "node scripts/lint.mjs",
+    "test": "mkdir -p test-results && node scripts/check-repository.mjs && node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=tap --test-reporter-destination=test-results/validation.tap tests/validation.test.mjs",
+    "build": "node scripts/build.mjs",
+    "build:host": "ng build test-host",
+    "start": "node scripts/dev.mjs",
+    "test:browser": "playwright test -c tests/browser/playwright.config.mjs",
+    "test:package": "node tests/package/verify-package.mjs",
+    "test:contracts": "node --test tests/contract-gate.test.mjs",
+    "check:contracts": "node scripts/check-contracts.mjs",
+    "test:all": "rm -rf test-results && mkdir -p test-results && yarn build && yarn lint && yarn test:contracts && yarn test && yarn test:package && yarn build:host && yarn test:browser && yarn check:contracts"
+  },
+  "devDependencies": {
+    "@angular/build": "20.3.32",
+    "@angular/cli": "20.3.32",
+    "@angular/common": "20.3.31",
+    "@angular/compiler": "20.3.31",
+    "@angular/compiler-cli": "20.3.31",
+    "@angular/core": "20.3.31",
+    "@angular/forms": "20.3.31",
+    "@angular/platform-browser": "20.3.31",
+    "@playwright/test": "1.65.0",
+    "@types/node": "24.10.1",
+    "eslint": "9.39.1",
+    "ng-packagr": "20.3.2",
+    "rxjs": "7.8.2",
+    "tslib": "2.8.1",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.46.4",
+    "zone.js": "0.15.1"
   }
 }
