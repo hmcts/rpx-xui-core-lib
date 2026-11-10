@@ -17,4 +17,7 @@ class ValidationGallery {
   submitted = false;
 }
 
-bootstrapApplication(ValidationGallery).catch((error: unknown) => console.error(error));
+const application = window.location.pathname === '/translation'
+  ? import('./translation').then(({ startTranslationGallery }) => startTranslationGallery())
+  : bootstrapApplication(ValidationGallery);
+application.catch((error: unknown) => console.error(error));

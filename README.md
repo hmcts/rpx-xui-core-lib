@@ -50,6 +50,14 @@ The validator is byte-for-byte from [rpx-xui-common-lib published revision f2328
 
 `yarn build` compiles the Node tree as CommonJS alongside the Angular output. The tarball includes its own `node/package.json` marker and declarations. `yarn test:node` runs the seven original Jest contracts and two empty/error contracts; the aggregate gate also requires their native Jest report. Package checks prove raw installed `require`, strict types, browser import rejection, and failure/restoration when the packed marker is removed. Browser/gallery watch does not watch Node source; run `yarn build` after Node edits.
 
+## Translation preparation
+
+`@hmcts/rpx-xui-core-lib/i18n` owns the complete published Translation 1.2.18 implementation (`c64cbe88f3f84a2d32ca9006f75c48a71a6dfc3b`), including its service/config classes, pipe, module and IndexedDB cache. Source and MIT licence are preserved. Published runtime dependencies are Dexie 4.4.4 and Luxon 2.5.2; this retains the published dependency contract rather than silently adopting the source workspace's Luxon 3 build dependency.
+
+`yarn test:i18n` runs the 38 original Jasmine contracts and three provider/template contracts through the official Angular 20 Karma builder in Chrome. `yarn test:browser` also exercises the lazily loaded [translation gallery](http://127.0.0.1:4307/translation): locale persistence, real HTTP, IndexedDB cache reuse after reload, and the existing HTTP-error fallback. The gallery uses built `/i18n` output; validation startup does not import it eagerly. Native Karma JUnit at `test-results/i18n/junit.xml` is required by the aggregate report gate.
+
+The packed fixture includes a local, private old-name package that only reexports `/i18n`, proving class/provider identity for that staged shape. It is not a released legacy facade or acceptance of existing Media Viewer/payment dependencies. Prefer coordinated direct external cutover where owners can supply compatible releases; retain a pure reexport facade for supported old-name callers. Real external graphs, cancellation/teardown and concurrency behavior, supported consumer adoption, releases and cache/provider continuity across those upgrades remain acceptance gates. No application should initialize an old implementation alongside core translation.
+
 ## Architecture contract
 
 One installed package must not become one eagerly loaded application bundle. The planned package uses real capability entry points, with no root aggregate module. Small startup/UI/validation consumers must not retain the case renderer or Node implementation. Applications own route-level dynamic loading; entry points alone do not make imports lazy. Installing one package still installs its declared dependency set.

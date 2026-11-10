@@ -69,6 +69,11 @@ try {
     assert.equal(exports.node, './node/index.js');
   });
 
+  await check('package.physical-i18n', async () => {
+    for (const file of ['i18n/index.d.ts', 'i18n/LICENCE', 'fesm2022/hmcts-rpx-xui-core-lib-i18n.mjs']) assert.ok((await stat(join(dist, file))).isFile());
+    const implementation = await readFile(join(dist, 'fesm2022/hmcts-rpx-xui-core-lib-i18n.mjs'), 'utf8');
+    assert.doesNotMatch(implementation, /from ['"]rpx-xui-translation['"]/, 'Canonical implementation must not depend on legacy runtime');
+  });
   await cp(dist, staged, { recursive: true });
   await writeFile(join(staged, 'yarn.lock'), '');
   const candidate = join(scratch, 'candidate.tgz');
@@ -86,6 +91,7 @@ try {
   await cp(candidate, join(consumer, 'candidate.tgz'));
   const manifest = JSON.parse(await readFile(join(consumer, 'package.json'), 'utf8'));
   manifest.dependencies['@hmcts/rpx-xui-core-lib'] = 'file:./candidate.tgz';
+  manifest.dependencies['rpx-xui-translation'] = 'file:./translation-facade';
   await writeFile(join(consumer, 'package.json'), `${JSON.stringify(manifest, null, 2)}\n`);
 
   // Freeze this build's tarball checksum without re-resolving the committed cohort.
@@ -106,6 +112,7 @@ try {
   await check('package.strict-bundler', () => run('strict-bundler', [compiler, '-p', 'tsconfig.bundler.json'], consumer));
   await check('package.installed-runtime', () => run('installed-runtime', ['runtime.mjs'], consumer));
 
+  await check('package.staged-i18n-identity', () => run('staged-i18n-identity', ['i18n-runtime.mjs'], consumer));
   await check('package.installed-node-runtime', () => run('installed-node-runtime', ['node-runtime.cjs'], consumer));
   await check('package.browser-denied', async () => {
     const diagnostic = await run('browser-condition-denied', ['--conditions=browser', 'node-runtime.cjs'], consumer, 1);

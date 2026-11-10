@@ -14,6 +14,15 @@
       "input": "node",
       "glob": "{LICENCE,package.json}",
       "output": "node"
+    },
+    {
+      "input": "i18n",
+      "glob": "LICENCE",
+      "output": "i18n"
     }
+  ],
+  "allowedNonPeerDependencies": [
+    "dexie",
+    "luxon"
   ]
 }

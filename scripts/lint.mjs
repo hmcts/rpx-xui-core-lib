@@ -8,6 +8,7 @@ const commands = [
   ['node_modules/typescript/bin/tsc', '-p', 'projects/core-lib/tsconfig.lib.json', '--noEmit'],
   ['node_modules/typescript/bin/tsc', '-p', 'projects/core-lib/node/tsconfig.json', '--noEmit'],
   ['node_modules/typescript/bin/tsc', '-p', 'tests/node/tsconfig.json', '--noEmit'],
+  ['node_modules/typescript/bin/tsc', '-p', 'tests/i18n/tsconfig.json', '--noEmit'],
   ['node_modules/@angular/compiler-cli/bundles/src/bin/ngc.js', '-p', 'apps/test-host/tsconfig.app.json', '--noEmit'],
   ['node_modules/typescript/bin/tsc', '--allowJs', '--checkJs', '--noEmit', '--target', 'ES2022', '--module', 'ES2022', '--moduleResolution', 'bundler', '--types', 'node', ...javascript],
 ];
