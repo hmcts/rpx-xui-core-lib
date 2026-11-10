@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { readFileSync } from 'node:fs';
+import * as compatibility from '../scripts/check-compatibility.mjs';
+import { cpSync, mkdtempSync, mkdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { checkInstallResult, validateManifest, hostDependencies, checkMatrixReport, validateHostProfile, hostManifest, hostInstallSettings, hostLockBytes, checkLockedTelemetry } from '../scripts/check-compatibility.mjs';
 
@@ -142,7 +146,7 @@ test('only frozen source-owned MC resolutions enter the generated root and peer 
   assert.throws(() => validateHostProfile({ ...mc, install_settings: { ...mc.install_settings, packageExtensions: { 'mutable-div@*': { peerDependencies: { '@angular/core': '*' } } } } }, source), /install setting/i);
   validateHostProfile(profiles.standalone_mc_api, source);
   assert.equal(hostManifest(manifest, profiles.standalone_mc_api).resolutions, undefined);
-  assert.throws(() => validateHostProfile({ id: 'core', host_resolutions: { express: '5.3.0' } }, source), /resolution/i);
+  assert.throws(() => validateHostProfile({ id: 'core', host_resolutions: { express: '5.3.0' } }, source), /contract/i);
 });
 
 
@@ -181,4 +185,70 @@ test('every installed telemetry descriptor stays within frozen source versions',
   skipped.profiles[1].hostLockSource = 'frozen lock';
   skipped.profiles[1].lockedTelemetryVerified = false;
   assert.throws(() => checkMatrixReport(skipped), /telemetry lock/i);
+});
+
+
+test('complete decisions are validated against the actual candidate before acceptance', () => {
+  const expected = { sourceSha: 'a'.repeat(40), artifactSha256: 'b'.repeat(64) };
+  const decisions = fixture('decisions.json');
+  const accepted = { ...decisions[0], status: 'accepted', owner: 'owner', reviewer: 'reviewer', evidence: 'evidence', ...expected };
+  const collection = [accepted, ...decisions.slice(1)];
+  compatibility.validateDecisions(collection, expected);
+  for (const field of ['owner', 'reviewer', 'evidence', 'sourceSha', 'artifactSha256']) {
+    const bad = structuredClone(collection);
+    delete bad[0][field];
+    assert.throws(() => compatibility.validateDecisions(bad, expected));
+  }
+  for (const change of [{status: 'unknown'}, {sourceSha: 'c'.repeat(40)}, {artifactSha256: 'd'.repeat(64)}, {owner: '  '}]) {
+    assert.throws(() => compatibility.validateDecisions([{...accepted, ...change}, ...decisions.slice(1)], expected));
+  }
+  compatibility.validateDecisions(decisions, expected);
+  for (const incomplete of [[], decisions.slice(1), [...decisions, decisions[0]], [{ ...decisions[0], id: 'invented' }, ...decisions.slice(1)]]) {
+    assert.throws(() => compatibility.validateDecisions(incomplete, expected));
+  }
+});
+
+
+test('matrix CLI rejects invalid acceptance before any host install', () => {
+  const dir = realpathSync(mkdtempSync(join(tmpdir(), 'compatibility-cli-')));
+  try {
+    mkdirSync(join(dir, 'scripts'), { recursive: true });
+    mkdirSync(join(dir, 'tests/fixtures'), { recursive: true });
+    mkdirSync(join(dir, 'dist/core-lib'), { recursive: true });
+    mkdirSync(join(dir, '.yarn/releases'), { recursive: true });
+    cpSync(new URL('../scripts/check-compatibility.mjs', import.meta.url), join(dir, 'scripts/check-compatibility.mjs'));
+    cpSync(new URL('./fixtures/compatibility', import.meta.url), join(dir, 'tests/fixtures/compatibility'), { recursive: true });
+    writeFileSync(join(dir, 'dist/core-lib/package.json'), '{}');
+    writeFileSync(join(dir, '.yarn/releases/yarn-4.18.1.cjs'), "require('fs').writeFileSync(process.argv[process.argv.indexOf('--out') + 1], 'candidate');\n");
+    assert.equal(spawnSync('git', ['init', '-q', dir]).status, 0);
+    assert.equal(spawnSync('git', ['-C', dir, '-c', 'user.name=Test', '-c', 'user.email=test@example.invalid', 'commit', '--allow-empty', '-qm', 'fixture']).status, 0);
+    const sourceSha = spawnSync('git', ['-C', dir, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).stdout.trim();
+    const artifactSha256 = createHash('sha256').update('candidate').digest('hex');
+    const decisions = fixture('decisions.json');
+    const accepted = { ...decisions[0], status: 'accepted', owner: 'owner', reviewer: 'reviewer', evidence: 'proof', sourceSha, artifactSha256 };
+    const variants = ['owner', 'reviewer', 'evidence', 'sourceSha', 'artifactSha256'].map((field) => { const value = { ...accepted }; delete value[field]; return value; });
+    variants.push({ ...accepted, status: 'unknown' }, { ...accepted, artifactSha256: 'd'.repeat(64) });
+    for (const invalid of variants) {
+      writeFileSync(join(dir, 'tests/fixtures/compatibility/decisions.json'), JSON.stringify([invalid, ...decisions.slice(1)]));
+      const run = spawnSync(process.execPath, [join(dir, 'scripts/check-compatibility.mjs')], { encoding: 'utf8' });
+      assert.notEqual(run.status, 0);
+      assert.match(run.stderr, /decision/i);
+      const report = JSON.parse(readFileSync(join(dir, 'test-results/compatibility/report.json')));
+      assert.equal(report.status, 'failed');
+      assert.equal(report.profiles.length, 0);
+      assert.equal(report.unresolvedDecisions.length, decisions.length);
+    }
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('unknown or missing source contracts fail closed before host installation', () => {
+  const source = fixture('mc-source-contract.json');
+  for (const profile of [{ id: 'unknown' }, { id: 'core' }, fixture('profiles.json').profiles[1], fixture('profiles.json').profiles[2]]) {
+    assert.throws(() => validateHostProfile(profile, source), /contract/i);
+  }
+});
+
+test('host configuration cannot override runner-owned isolation settings', () => {
+  const settings = hostInstallSettings({ install_settings: { nodeLinker: 'pnp', enableGlobalCache: true, cacheFolder: '/other', globalFolder: '/other', enableTelemetry: true } }, '/cache', '/global');
+  assert.deepEqual(settings, { nodeLinker: 'node-modules', enableGlobalCache: false, cacheFolder: '/cache', globalFolder: '/global', enableTelemetry: false });
 });

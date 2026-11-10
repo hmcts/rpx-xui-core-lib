@@ -39,10 +39,10 @@ export function hostDependencies(manifest, profile, peerProviders = {}) {
 export function validateHostProfile(profile, sourceContract) {
   assert.ok(!profile.resolutions && !profile.overrides, 'Host overrides must use the frozen source contract');
   const source = sourceContract.profiles[profile.id];
+  assert.ok(source, `Missing source contract: ${profile.id}`);
   assert.deepEqual(profile.host_resolutions ?? {}, source?.host_resolutions ?? {}, 'Unapproved extra or altered host resolution');
   assert.equal(profile.lock_source_url, source?.seed_root_lock ? `https://raw.githubusercontent.com/hmcts/rpx-xui-webapp/${sourceContract.gitHead}/yarn.lock` : undefined, 'Unapproved host lock source');
   assert.equal(profile.lock_sha256, source?.seed_root_lock ? sourceContract.source_file_sha256['yarn.lock'] : undefined, 'Host lock hash differs from committed source');
-  if (!source) return;
   assert.equal(profile.gitHead, source.gitHead, 'Host source head differs from its frozen contract');
   assert.deepEqual(profile.install_settings ?? {}, source.install_settings ?? {}, 'Unapproved or altered host install setting');
   for (const [name, declared] of Object.entries(source.runtime_declarations)) {
@@ -77,7 +77,7 @@ export function checkLockedTelemetry(lock, expected) {
 }
 
 export function hostInstallSettings(profile, cacheFolder, globalFolder) {
-  return { nodeLinker: 'node-modules', enableGlobalCache: false, cacheFolder, globalFolder, enableTelemetry: false, ...profile.install_settings };
+  return { ...profile.install_settings, nodeLinker: 'node-modules', enableGlobalCache: false, cacheFolder, globalFolder, enableTelemetry: false };
 }
 
 export function hostManifest(manifest, profile, peerProviders = {}) {
@@ -86,6 +86,27 @@ export function hostManifest(manifest, profile, peerProviders = {}) {
     dependencies: { ...hostDependencies(manifest, profile, peerProviders), '@hmcts/rpx-xui-core-lib': 'file:./prospective.tgz' },
     ...(profile.host_resolutions ? { resolutions: profile.host_resolutions } : {}),
   };
+}
+
+export function validateDecisions(decisions, expected) {
+  assert.ok(Array.isArray(decisions), 'Decisions must be a collection');
+  assert.match(expected.sourceSha, /^[a-f0-9]{40}$/, 'Missing expected source SHA');
+  assert.match(expected.artifactSha256, /^[a-f0-9]{64}$/, 'Missing expected artifact hash');
+  const requiredIds = ['pagination', 'translation', 'helmet', 'zone', 'editor', 'host-angular', 'ngrx-router-store', 'payment-metadata', 'viewer-metadata', 'node-types', 'moment-timezone', 'legacy-name-registry', 'mutable-div', 'marked'];
+  const ids = new Set();
+  for (const decision of decisions) {
+    assert.ok(typeof decision.id === 'string' && decision.id.trim() && !ids.has(decision.id), 'Missing or duplicate decision id');
+    assert.ok(requiredIds.includes(decision.id), `Unknown decision id: ${decision.id}`);
+    ids.add(decision.id);
+    assert.ok(['accepted', 'blocked'].includes(decision.status), `Unknown decision status: ${decision.id}`);
+    if (decision.status !== 'accepted') continue;
+    for (const field of ['owner', 'reviewer', 'evidence', 'sourceSha', 'artifactSha256']) {
+      assert.ok(typeof decision[field] === 'string' && decision[field].trim(), `Missing accepted decision ${field}: ${decision.id}`);
+    }
+    assert.equal(decision.sourceSha, expected.sourceSha, `Decision source mismatch: ${decision.id}`);
+    assert.equal(decision.artifactSha256, expected.artifactSha256, `Decision artifact mismatch: ${decision.id}`);
+  }
+  assert.equal(ids.size, requiredIds.length, 'Missing required compatibility decisions');
 }
 
 export function checkMatrixReport(report) {
@@ -120,7 +141,7 @@ async function runMatrix() {
   const env = { ...process.env, PATH: `${dirname(process.execPath)}:${process.env.PATH}` };
   for (const name of Object.keys(env)) if (name === 'NODE_PATH' || name === 'NODE_OPTIONS' || name.startsWith('YARN_')) delete env[name];
   env.YARN_IGNORE_PATH = '1';
-  const report = { schemaVersion: 1, status: 'running', scope: 'Prospective full graph on current real core bytes; not full migrated runtime or application adoption', scratch, artifactSha256: '', profiles: [], unresolvedDecisions: decisions.filter((entry) => entry.status !== 'accepted') };
+  const report = { schemaVersion: 1, status: 'running', scope: 'Prospective full graph on current real core bytes; not full migrated runtime or application adoption', scratch, artifactSha256: '', profiles: [], unresolvedDecisions: decisions };
   async function command(name, args, cwd) {
     const result = spawnSync(process.execPath, args, { cwd, env, encoding: 'utf8', timeout: 6 * 60_000 });
     await writeFile(join(output, `${name}.log`), `${result.stdout ?? ''}${result.stderr ?? ''}${result.error?.message ?? ''}`);
@@ -137,6 +158,11 @@ async function runMatrix() {
     const packed = await command('pack-prospective', [coreYarn, 'pack', '--out', candidate], staged);
     assert.equal(packed.status, 0, 'Prospective artifact pack failed');
     report.artifactSha256 = createHash('sha256').update(await readFile(candidate)).digest('hex');
+    const source = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' });
+    assert.equal(source.status, 0, 'Cannot identify candidate source');
+    const expected = { sourceSha: source.stdout.trim(), artifactSha256: report.artifactSha256 };
+    validateDecisions(decisions, expected);
+    report.unresolvedDecisions = decisions.filter((entry) => entry.status !== 'accepted');
     await cp(candidate, join(output, 'prospective.tgz'));
     for (const name of ['prospective-package.json', 'profiles.json', 'decisions.json', 'peer-providers.json', 'mc-source-contract.json']) await cp(join(fixtures, name), join(output, name));
     const matrix = [
