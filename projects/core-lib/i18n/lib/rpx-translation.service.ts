@@ -26,6 +26,7 @@ export class RpxTranslationService {
   private observables: { [phrase: string]: Observable<TranslatedData> } = {};
   private cacheSubscriptions: { [phrase: string]: Subscription } = Object.create(null);
   private requesting: { [lang: string]: string[] } = {};
+  private inFlight: { [lang: string]: Set<string> } = {};
   private requestTimerSubscription: Subscription | null;
   private languageSource: BehaviorSubject<RpxLanguage> = new BehaviorSubject<RpxLanguage>(this.currentLanguage);
   public language$: Observable<RpxLanguage>;
@@ -175,7 +176,7 @@ export class RpxTranslationService {
       this.requesting[lang] = [];
     }
 
-    if (this.requesting[lang].indexOf(lookupPhrase) !== -1) {
+    if (this.requesting[lang].indexOf(lookupPhrase) !== -1 || this.inFlight[lang]?.has(lookupPhrase)) {
       return;
     }
 
@@ -191,10 +192,15 @@ export class RpxTranslationService {
     }
 
     this.requestTimerSubscription = timer(this.config.debounceTimeMs).subscribe(() => {
+      const phrases = this.requesting[lang];
+      this.requesting[lang] = [];
+      this.requestTimerSubscription = null;
+      const inFlight = this.inFlight[lang] ??= new Set<string>();
+      phrases.forEach((p) => inFlight.add(p));
       const url = this.config.baseUrl + `/${lang}`;
       const s = this.http.post<TranslationsDTO>(url,
         {
-          phrases: this.requesting[lang]
+          phrases
         }
       )
         .pipe(
@@ -214,7 +220,7 @@ export class RpxTranslationService {
           }),
           catchError(() => {
             const translations: { [from: string]: TranslatedData } = {};
-            this.requesting[lang].forEach((p) => (
+            phrases.forEach((p) => (
               translations[p] = this.config.testMode ? { translation: `[Test translation for ${p}]` } : { translation: p })
             );
             return of(translations);
@@ -228,9 +234,7 @@ export class RpxTranslationService {
               .forEach((phraseKey) => this.phrases[phraseKey].next(translations[p]));
           });
           db.translations.bulkAdd(toAdd);
-          this.requesting[lang] = [];
-          this.requestTimerSubscription?.unsubscribe();
-          this.requestTimerSubscription = null;
+          phrases.forEach((p) => inFlight.delete(p));
           s.unsubscribe();
         });
     });

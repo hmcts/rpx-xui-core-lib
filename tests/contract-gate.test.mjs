@@ -76,7 +76,11 @@ const i18nNames = [
   "RpxTranslationService public API composition selects Yes/No metadata and matches each input’s initial letter case from one request",
   "RpxTranslationService public API composition restores original Yes/No inputs after a successful response without answer metadata",
   "RpxTranslationService request lifecycle batches distinct phrases and deduplicates repeated subscriptions and normalized aliases",
-  "RpxTranslationService request lifecycle uses source fallback in production mode and allows a subsequent phrase to translate"
+  "RpxTranslationService request lifecycle uses source fallback in production mode and allows a subsequent phrase to translate",
+  "RpxTranslationService overlapping batches keeps a queued second batch after an in-flight success",
+  "RpxTranslationService overlapping batches keeps a queued second batch after an in-flight failure",
+  "RpxTranslationService overlapping batches keeps dispatched batches independent when the second finishes before the first success",
+  "RpxTranslationService overlapping batches keeps dispatched batches independent when the second finishes before the first failure"
 ];
 const i18nJourneys = ['a late Welsh response preserves English and is reused after switching back', 'locale switches reuse persisted translations across English and page reloads', 'a translation HTTP failure returns and caches the original phrase'];
 const journey = 'keyboard checkbox toggles update real FormGroup validity and submitted errors';
@@ -93,7 +97,7 @@ function reports() {
   return {
     'validation.tap': `TAP version 13\n${unitNames.map((name, index) => `ok ${index + 1} - ${name}`).join('\n')}\n1..7\n# tests 7\n# pass 7\n# fail 0\n`,
     'node-jest.json': { success: true, numTotalTests: 9, numPassedTests: 9, numFailedTests: 0, numPendingTests: 0, numTodoTests: 0, testResults: [{ status: 'passed', assertionResults: nodeNames.map((fullName) => ({ fullName, status: 'passed' })) }] },
-    'i18n/junit.xml': `<?xml version="1.0"?><testsuite name="Chrome Headless" tests="50" errors="0" failures="0">${i18nNames.map((name) => `<testcase name="${name.replaceAll('&', '&amp;').replaceAll('\"', '&quot;')}"/>`).join('')}</testsuite>`,
+    'i18n/junit.xml': `<?xml version="1.0"?><testsuite name="Chrome Headless" tests="54" errors="0" failures="0">${i18nNames.map((name) => `<testcase name="${name.replaceAll('&', '&amp;').replaceAll('\"', '&quot;')}"/>`).join('')}</testsuite>`,
     'browser.json': { errors: [], suites: [{ specs: [journey, ...i18nJourneys].map((title) => ({ title, tests: [{ projectName: 'chromium', expectedStatus: 'passed', status: 'expected', results: [{ status: 'passed' }] }] })) }] },
     'package.json': { schemaVersion: 1, package: { sha256: 'a'.repeat(64) }, tests: packageIds.map((id) => ({ id, status: 'passed' })) },
   };
@@ -111,7 +115,7 @@ function checkFixture(t, files) {
 }
 
 test('accepts all independently required successful contracts', (t) => {
-  assert.equal(checkFixture(t, reports())(), 83);
+  assert.equal(checkFixture(t, reports())(), 87);
 });
 
 for (const file of ['validation.tap', 'browser.json', 'package.json', 'node-jest.json', 'i18n/junit.xml']) {
@@ -225,7 +229,7 @@ test('accepts a real native node:test TAP stream', (t) => {
   assert.equal(result.status, 0, result.stderr);
   const files = reports();
   files['validation.tap'] = result.stdout;
-  assert.equal(checkFixture(t, files)(), 83);
+  assert.equal(checkFixture(t, files)(), 87);
 });
 
 for (const file of ['browser.json', 'package.json']) {
@@ -295,8 +299,8 @@ for (const status of ['failure', 'error', 'skipped']) {
 
 test('rejects a filtered native Karma contract and contradictory totals', (t) => {
   for (const change of [
-    (xml) => xml.replace(/<testcase [^>]+\/>/, '').replace('tests="50"', 'tests="49"'),
-    (xml) => xml.replace('tests="50"', 'tests="51"'),
+    (xml) => xml.replace(/<testcase [^>]+\/>/, '').replace('tests="54"', 'tests="53"'),
+    (xml) => xml.replace('tests="54"', 'tests="55"'),
     (xml) => xml.replace('failures="0"', 'failures="1"'),
     (xml) => xml.replace('</testsuite>', ''),
   ]) {

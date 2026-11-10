@@ -116,7 +116,11 @@
       "RpxTranslationService public API composition selects Yes/No metadata and matches each input\u2019s initial letter case from one request",
       "RpxTranslationService public API composition restores original Yes/No inputs after a successful response without answer metadata",
       "RpxTranslationService request lifecycle batches distinct phrases and deduplicates repeated subscriptions and normalized aliases",
-      "RpxTranslationService request lifecycle uses source fallback in production mode and allows a subsequent phrase to translate"
+      "RpxTranslationService request lifecycle uses source fallback in production mode and allows a subsequent phrase to translate",
+      "RpxTranslationService overlapping batches keeps a queued second batch after an in-flight success",
+      "RpxTranslationService overlapping batches keeps a queued second batch after an in-flight failure",
+      "RpxTranslationService overlapping batches keeps dispatched batches independent when the second finishes before the first success",
+      "RpxTranslationService overlapping batches keeps dispatched batches independent when the second finishes before the first failure"
     ]
   }
 }
