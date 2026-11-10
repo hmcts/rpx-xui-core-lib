@@ -124,7 +124,18 @@
       "RpxTranslationService phrase dictionary keys keeps hasOwnProperty and subsequent phrases working across a language change and HTTP success",
       "RpxTranslationService phrase dictionary keys keeps hasOwnProperty and subsequent phrases working across a language change and HTTP failure",
       "RpxTranslationService phrase dictionary keys keeps __proto__ and subsequent phrases working across a language change and HTTP success",
-      "RpxTranslationService phrase dictionary keys keeps __proto__ and subsequent phrases working across a language change and HTTP failure"
+      "RpxTranslationService phrase dictionary keys keeps __proto__ and subsequent phrases working across a language change and HTTP failure",
+      "translation provider lifecycle does not dispatch a pending batch after its owner is destroyed",
+      "translation provider lifecycle cancels an in-flight request when its owner is destroyed",
+      "translation provider lifecycle cancels all overlapping requests when their owner is destroyed",
+      "translation provider lifecycle ignores a cache lookup that finishes after its owner is destroyed",
+      "translation provider lifecycle keeps the root service active when a forChild injector is destroyed",
+      "translation provider lifecycle handles a synchronously completed HTTP success",
+      "translation provider lifecycle handles a synchronously completed HTTP failure",
+      "translation provider lifecycle stops response processing if a subscriber destroys the owner",
+      "translation provider lifecycle stops cache-miss processing if a subscriber destroys the owner",
+      "translation provider lifecycle stops a language change when its subscriber destroys the owner",
+      "translation provider lifecycle stops observing cached translations when its owner is destroyed"
     ]
   }
 }
