@@ -1,7 +1,15 @@
 import '@angular/compiler';
 import assert from 'node:assert/strict';
 import { FormControl, FormGroup } from '@angular/forms';
+import { BadgeColour, ContactDetailsComponent, ContactDetailsModule } from '@hmcts/rpx-xui-core-lib/ui/contact-details';
+import { LoadingSpinnerComponent, LoadingSpinnerModule } from '@hmcts/rpx-xui-core-lib/ui/loading-spinner';
 import { checkboxesBeCheckedValidator } from '@hmcts/rpx-xui-core-lib/forms/validation';
+
+assert.equal(BadgeColour.BADGE_BLUE, 'hmcts-badge--blue');
+assert.equal(ContactDetailsComponent.name, 'ContactDetailsComponent');
+assert.ok(ContactDetailsModule.ɵmod);
+assert.equal(LoadingSpinnerComponent.name, 'LoadingSpinnerComponent');
+assert.ok(LoadingSpinnerModule.ɵmod);
 
 const required = { requireOneCheckboxToBeChecked: true };
 for (const { values, minimum, errors } of [

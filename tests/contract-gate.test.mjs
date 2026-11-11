@@ -22,6 +22,8 @@ const unitNames = [
   'rejects use on a non-group control with a clear error',
 ];
 const nodeNames = [
+  'Node authentication and session constants retain the legacy values',
+  'Node security policy retains the legacy directives',
   "getUserSessionTimeout matches configuration order and sorts roles in place",
   "getUserSessionTimeout returns the same mutable fallback for unmatched and empty roles",
   "getUserSessionTimeout throws for an invalid pattern only when there are roles to examine",
@@ -127,7 +129,7 @@ const i18nNames = [
   "translation real cache recovery recovers from a rejected expired deletion with real IndexedDB and a fresh service",
   "translation real cache recovery keeps a malformed response fallback stable then recovers after a language cycle",
 ];
-const i18nJourneys = ['a late Welsh response preserves English and is reused after switching back', 'locale switches reuse persisted translations across English and page reloads', 'a translation HTTP failure returns and caches the original phrase', 'local gallery translates through its own synthetic service', 'local gallery demonstrates a synthetic service failure', 'local translation endpoint validates requests'];
+const i18nJourneys = ['contact details show optional fields and translate labels', 'spinner displays default, updated and translated text', 'a late Welsh response preserves English and is reused after switching back', 'locale switches reuse persisted translations across English and page reloads', 'a translation HTTP failure returns and caches the original phrase', 'local gallery translates through its own synthetic service', 'local gallery demonstrates a synthetic service failure', 'local translation endpoint validates requests'];
 const cacheJourneys = [
   "baseline: legacy to core preserves valid cached translation",
   "baseline: core to legacy preserves valid cached translation",

@@ -6,3 +6,8 @@ export { hasKey } from './util/hasKey';
 export { sortArray } from './util/sortArray';
 export type { AuthOptions, RouteCredential } from './types/authOptions';
 export type { SessionMetadata, FileSessionMetadata, RedisSessionMetadata } from './types/sessionMetadata';
+export { AUTH } from './constants/auth';
+export { OAUTH2 } from './constants/oauth2';
+export { OIDC } from './constants/oidc';
+export { SESSION } from './constants/session';
+export { SECURITY_POLICY } from './constants/securityPolicy';
