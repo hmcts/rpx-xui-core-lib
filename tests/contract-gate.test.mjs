@@ -31,6 +31,7 @@ const nodeNames = [
   'getUserSessionTimeout throws on missing roles or configuration',
   'hasKey includes inherited keys and rejects absent keys',
   'sortArray returns the same array sorted in place',
+  'Node authentication and session constants retain the legacy values',
 ];
 const i18nNames = [
   "matchCase should return the second string with the same case as the first string if the first character is uppercase",
@@ -145,7 +146,7 @@ function checkFixture(t, files) {
 }
 
 test('accepts all independently required successful contracts', (t) => {
-  assert.equal(checkFixture(t, reports())(), 125);
+  assert.equal(checkFixture(t, reports())(), 126);
 });
 
 for (const file of ['validation.tap', 'browser.json', 'cache-upgrade-report.json', 'package.json', 'node-jest.json', 'i18n/junit.xml']) {
@@ -280,7 +281,7 @@ test('accepts a real native node:test TAP stream', (t) => {
   assert.equal(result.status, 0, result.stderr);
   const files = reports();
   files['validation.tap'] = result.stdout;
-  assert.equal(checkFixture(t, files)(), 125);
+  assert.equal(checkFixture(t, files)(), 126);
 });
 
 for (const file of ['browser.json', 'package.json']) {
