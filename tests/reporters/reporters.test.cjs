@@ -39,11 +39,19 @@ test(${JSON.stringify('representative report case ' + hostileText)}, async ({}, 
 });\n`);
     if (!failing) fs.writeFileSync(path.join(i18nDir, 'translation.spec.cjs'), `const {test} = require(${JSON.stringify(require.resolve('@playwright/test'))}); test('translation case', async () => { await test.step(${JSON.stringify('check ' + hostileText)}, async () => {}); });\n`);
     const { reporters } = await import('./config.mjs');
-    const productionReporters = reporters('browser').map(([name, options]) => {
+    const projectName = 'Chromium "quoted" ' + hostileText;
+    const requiredBrowserContracts = [
+      { projectName, title: 'representative report case ' + hostileText, feature: 'validation' },
+      { projectName, title: 'translation case', feature: 'i18n' },
+      { projectName, title: 'not selected', feature: 'validation' },
+    ];
+    fs.mkdirSync(path.join(fixture, 'native'));
+    fs.writeFileSync(path.join(fixture, 'native/browser.json'), '{"stale":true}');
+    const productionReporters = reporters('browser').filter(([name]) => name !== 'json').map(([name, options]) => {
       if (!options) return [name];
       const odhin = name.endsWith('odhin-adaptive.reporter.cjs');
       return [name, { ...options,
-        ...(odhin ? { title: 'RPX XUI Core ' + hostileText, project: 'Core ' + hostileText, release: hostileText, testEnvironment: hostileText } : {}),
+        ...(odhin ? { title: 'RPX XUI Core ' + hostileText, project: 'Core ' + hostileText, release: hostileText, testEnvironment: hostileText, requiredBrowserContracts } : {}),
         ...(options.outputFolder ? { outputFolder: path.join(fixture, odhin ? 'report/browser' : `native/${name}`) } : {}),
         ...(options.outputFile ? { outputFile: path.join(fixture, 'native', path.basename(options.outputFile)) } : {}),
       }];
@@ -59,6 +67,11 @@ test(${JSON.stringify('representative report case ' + hostileText)}, async ({}, 
     assert.ok(html.includes('&lt;script'));
     assert.ok(!html.includes('{{.TestCases}}'), 'replacement tokens in metadata remain literal');
     assert.ok(!html.includes('data:image/'));
+    const evidence = parse(html).querySelector('#required-browser-evidence');
+    assert.ok(evidence);
+    const validation = evidence.querySelectorAll('tbody tr').find(row => row.querySelector('th')?.text.trim() === 'validation').querySelectorAll('td').map(cell => Number(cell.text));
+    assert.deepEqual(validation, [failing ? 0 : 1, failing ? 1 : 0, 0, 1, 0]);
+    assert.equal(fs.readFileSync(path.join(fixture, 'native/browser.json'), 'utf8'), '{"stale":true}');
     if (!failing) {
       const features = parse(html).querySelectorAll('#odhin-feature-summary tbody tr').map((row) => row.querySelector('td')?.text.trim());
       assert.deepEqual(features.sort(), ['i18n', 'validation']);
