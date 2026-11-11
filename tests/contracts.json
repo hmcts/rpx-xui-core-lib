@@ -69,6 +69,10 @@
       {
         "projectName": "chromium",
         "title": "contact details show optional fields and translate labels"
+      },
+      {
+        "projectName": "chromium",
+        "title": "case reference formatting preserves links and handles drafts"
       }
     ]
   },
