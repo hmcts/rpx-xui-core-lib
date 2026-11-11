@@ -114,6 +114,52 @@ try {
   await check('package.strict-bundler', () => run('strict-bundler', [compiler, '-p', 'tsconfig.bundler.json'], consumer));
   await check('package.installed-runtime', () => run('installed-runtime', ['runtime.mjs'], consumer));
 
+  const graph = () => {
+    const result = buildSync({ entryPoints: ['validation-graph.mjs'], absWorkingDir: consumer, bundle: true, platform: 'browser', format: 'esm', metafile: true, write: false, logLevel: 'silent' });
+    const used = Object.values(result.metafile.outputs).flatMap((output) => Object.entries(output.inputs).filter(([, value]) => value.bytesInOutput > 0).map(([path]) => path.replaceAll('\\', '/')));
+    assert.ok(used.some((path) => path.endsWith('/fesm2022/hmcts-rpx-xui-core-lib-forms-validation.mjs')), 'Installed validation FESM must contribute bytes');
+    assert.ok(!used.some((path) => /hmcts-rpx-xui-core-lib-i18n\.mjs|(?:^|\/)dexie(?:\/|$)|(?:^|\/)luxon(?:\/|$)|(?:^|\/)node(?:\/|$)|^node:/.test(path)), 'Validation graph must exclude i18n, Dexie, Luxon and Node');
+    return result.metafile;
+  };
+  await check('package.root-runtime-empty', () => run('root-runtime-empty', ['runtime-root.mjs'], consumer));
+  await check('package.validation-graph', async () => {
+    await writeFile(join(evidence, 'validation-metafile.json'), JSON.stringify(graph(), null, 2));
+  });
+
+  const canonicalManifest = await readFile(join(consumer, 'package.json'));
+  async function faultCandidate(name, relative, mutate, probe) {
+    const faulty = join(scratch, name);
+    await cp(staged, faulty, { recursive: true });
+    const file = join(faulty, relative);
+    await writeFile(file, mutate(await readFile(file, 'utf8')));
+    const archive = join(consumer, `${name}.tgz`);
+    await run(`pack-${name}`, [yarn, 'pack', '--out', archive], faulty);
+    await cp(archive, join(evidence, `${name}.tgz`));
+    manifest.dependencies['@hmcts/rpx-xui-core-lib'] = `file:./${name}.tgz`;
+    await writeFile(join(consumer, 'package.json'), `${JSON.stringify(manifest, null, 2)}\n`);
+    try {
+      await run(`${name}-lock`, [yarn, 'install', '--mode=update-lockfile'], consumer);
+      await run(`${name}-install`, [yarn, 'install', '--immutable'], consumer);
+      await probe();
+    } finally {
+      await writeFile(join(consumer, 'package.json'), canonicalManifest);
+      await writeFile(join(consumer, 'yarn.lock'), locked);
+      await run(`${name}-restore`, [yarn, 'install', '--immutable'], consumer);
+    }
+  }
+  await check('package.root-export-fault', () => faultCandidate('root-export-fault', 'fesm2022/hmcts-rpx-xui-core-lib.mjs', (text) => `${text}\nexport const unexpected = true;\n`, async () => {
+    const diagnostic = await run('root-export-red', ['runtime-root.mjs'], consumer, 1);
+    assert.match(diagnostic, /AssertionError/);
+  }));
+  await check('package.validation-i18n-fault', () => faultCandidate('validation-i18n-fault', 'fesm2022/hmcts-rpx-xui-core-lib-forms-validation.mjs', (text) => `import { RpxTranslationService } from './hmcts-rpx-xui-core-lib-i18n.mjs';\n${text.replace('return function validate(formGroup) {', 'return function validate(formGroup) { new RpxTranslationService();')}`, async () => {
+    assert.throws(graph, /Validation graph must exclude/);
+    await writeFile(join(evidence, 'validation-i18n-red.log'), 'Validation graph rejected real i18n runtime call\n');
+  }));
+  await check('package.restored-runtime-graph', async () => {
+    await run('restored-root-runtime', ['runtime-root.mjs'], consumer);
+    graph();
+  });
+
   await check('package.staged-i18n-identity', () => run('staged-i18n-identity', ['i18n-runtime.mjs'], consumer));
   await check('package.installed-node-runtime', () => run('installed-node-runtime', ['node-runtime.cjs'], consumer));
   await check('package.browser-denied', async () => {
@@ -129,7 +175,6 @@ try {
     }
   });
 
-  const canonicalManifest = await readFile(join(consumer, 'package.json'));
   await check('package.missing-declaration-fault', async () => {
     const faulty = join(scratch, 'missing-declaration-package');
     await cp(staged, faulty, { recursive: true });
