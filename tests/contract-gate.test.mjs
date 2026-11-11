@@ -116,7 +116,7 @@ const validationJourneys = [
 const packageIds = [
   'package.physical-secondary-declaration', 'package.strict-node', 'package.strict-bundler',
   'package.installed-runtime', 'package.missing-declaration-fault', 'package.restored-node',
-  'package.physical-node', 'package.installed-node-runtime', 'package.browser-denied',
+  'package.physical-node', 'package.installed-node-runtime', 'package.node-loading-fault', 'package.browser-denied',
   'package.missing-marker-fault', 'package.restored-node-runtime',
   'package.physical-i18n', 'package.staged-i18n-identity',
 ];
@@ -145,7 +145,7 @@ function checkFixture(t, files) {
 }
 
 test('accepts all independently required successful contracts', (t) => {
-  assert.equal(checkFixture(t, reports())(), 124);
+  assert.equal(checkFixture(t, reports())(), 125);
 });
 
 for (const file of ['validation.tap', 'browser.json', 'cache-upgrade-report.json', 'package.json', 'node-jest.json', 'i18n/junit.xml']) {
@@ -280,7 +280,7 @@ test('accepts a real native node:test TAP stream', (t) => {
   assert.equal(result.status, 0, result.stderr);
   const files = reports();
   files['validation.tap'] = result.stdout;
-  assert.equal(checkFixture(t, files)(), 124);
+  assert.equal(checkFixture(t, files)(), 125);
 });
 
 for (const file of ['browser.json', 'package.json']) {

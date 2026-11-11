@@ -114,6 +114,21 @@ try {
 
   await check('package.staged-i18n-identity', () => run('staged-i18n-identity', ['i18n-runtime.mjs'], consumer));
   await check('package.installed-node-runtime', () => run('installed-node-runtime', ['node-runtime.cjs'], consumer));
+  await check('package.node-loading-fault', async () => {
+    const entry = join(installed, 'node/index.js');
+    const original = await readFile(entry, 'utf8');
+    const fault = join(installed, 'node/legacy/auth/loading-fault.cjs');
+    await mkdir(dirname(fault), { recursive: true });
+    await writeFile(fault, 'module.exports = {};\n', { flag: 'wx' });
+    try {
+      await writeFile(entry, `require('./legacy/auth/loading-fault.cjs');\n${original}`);
+      const diagnostic = await run('node-loading-fault', ['node-runtime.cjs'], consumer, 1);
+      assert.match(diagnostic, /Lightweight Node entry must not load authentication or session dependencies/);
+    } finally {
+      await writeFile(entry, original);
+      await rm(fault, { force: true });
+    }
+  });
   await check('package.browser-denied', async () => {
     const diagnostic = await run('browser-condition-denied', ['--conditions=browser', 'node-runtime.cjs'], consumer, 1);
     assert.match(diagnostic, /ERR_PACKAGE_PATH_NOT_EXPORTED/);
