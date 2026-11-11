@@ -88,6 +88,7 @@
       "package.restored-node",
       "package.physical-node",
       "package.installed-node-runtime",
+      "package.installed-node-http",
       "package.node-loading-fault",
       "package.browser-denied",
       "package.missing-marker-fault",

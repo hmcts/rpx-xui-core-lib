@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import yaml from 'js-yaml';
+import semver from 'semver';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const fixtures = join(root, 'tests/fixtures/compatibility');
@@ -78,7 +79,7 @@ export function validateHostProfile(profile, sourceContract) {
   }
 }
 
-export function currentCoreProjection(manifest, library, ngPackage, config, lock) {
+export function currentCoreProjection(manifest, library, ngPackage, config, lock, nodeWorkspace) {
   const names = Object.keys(manifest.devDependencies).filter((name) => name.startsWith('@angular/') || ['typescript', 'rxjs', 'zone.js', 'ng-packagr'].includes(name));
   const devCohort = Object.fromEntries(names.map((name) => [name, manifest.devDependencies[name]]));
   const lockedVersions = {};
@@ -88,7 +89,7 @@ export function currentCoreProjection(manifest, library, ngPackage, config, lock
     assert.equal(matches.size, 1, `Missing or ambiguous current core lock selection: ${descriptor}`);
     lockedVersions[name] = [...matches][0];
   }
-  return { packageManager: manifest.packageManager, engine: manifest.engines, devCohort, resolutions: manifest.resolutions ?? {}, overrides: manifest.overrides ?? {}, libraryPeerDependencies: library.peerDependencies, libraryPeerDependenciesMeta: library.peerDependenciesMeta ?? {}, libraryDependencies: library.dependencies, libraryResolutions: library.resolutions ?? {}, libraryOverrides: library.overrides ?? {}, ngPackage, yarnConfig: config, lockedVersions };
+  return { packageManager: manifest.packageManager, engine: manifest.engines, rootWorkspaces: manifest.workspaces ?? [], nodeWorkspace, devCohort, resolutions: manifest.resolutions ?? {}, overrides: manifest.overrides ?? {}, libraryPeerDependencies: library.peerDependencies, libraryPeerDependenciesMeta: library.peerDependenciesMeta ?? {}, libraryDependencies: library.dependencies, libraryResolutions: library.resolutions ?? {}, libraryOverrides: library.overrides ?? {}, ngPackage, yarnConfig: config, lockedVersions };
 }
 
 export function validateCurrentCore(actual, expected, prospective) {
@@ -97,7 +98,10 @@ export function validateCurrentCore(actual, expected, prospective) {
   assert.deepEqual(actual, projection, 'Current core cohort differs from its contract');
   if (prospective) {
     for (const [name, version] of Object.entries(actual.libraryPeerDependencies)) assert.equal(prospective.peerDependencies[name], version, `Prospective peer differs from current core: ${name}`);
-    for (const [name, version] of Object.entries(actual.libraryDependencies)) assert.equal(prospective.dependencies[name], version, `Prospective dependency differs from current core: ${name}`);
+    for (const [name, version] of Object.entries(actual.libraryDependencies)) {
+      const selected = prospective.dependencies[name];
+      assert.ok(typeof selected === 'string' && semver.valid(selected) && semver.validRange(String(version)) && semver.satisfies(selected, String(version)), `Prospective dependency differs from current core: ${name}`);
+    }
   }
 }
 
@@ -193,7 +197,8 @@ async function runMatrix() {
   const ngPackage = JSON.parse(await readFile(join(root, 'projects/core-lib/ng-package.json'), 'utf8'));
   const coreConfig = yaml.load(await readFile(join(root, '.yarnrc.yml'), 'utf8'));
   const coreLock = yaml.load(await readFile(join(root, 'yarn.lock'), 'utf8'));
-  validateCurrentCore(currentCoreProjection(coreRoot, coreLibrary, ngPackage, coreConfig, coreLock), currentCore, manifest);
+  const nodeWorkspace = JSON.parse(await readFile(join(root, 'projects/core-lib/node/package.json'), 'utf8'));
+  validateCurrentCore(currentCoreProjection(coreRoot, coreLibrary, ngPackage, coreConfig, coreLock, nodeWorkspace), currentCore, manifest);
   const scratch = await mkdtemp(join(tmpdir(), 'core-compatibility-'));
   /** @type {NodeJS.ProcessEnv} */
   const env = { ...process.env, PATH: `${dirname(process.execPath)}:${process.env.PATH}` };

@@ -20,5 +20,5 @@ const sorted = ['b', 'a'];
 assert.equal(sortArray(sorted), sorted);
 assert.deepEqual(sorted, ['a', 'b']);
 assert.ok(Object.keys(require.cache).every((path) => !/\/@angular\/|rpx-xui-node-lib|rpx-xui-translation/.test(path)));
-assert.ok(Object.keys(require.cache).every((path) => !/[/\\](?:node[/\\]legacy[/\\](?:auth|session)|node_modules[/\\](?:otplib|@otplib|@scure|passport(?:-[^/\\]+)?|redis|@redis|connect-redis|express-session))(?:[/\\]|$)/.test(path)), 'Lightweight Node entry must not load authentication or session dependencies');
+assert.ok(Object.keys(require.cache).every((path) => !/[/\\](?:node[/\\]legacy[/\\](?:auth|session)|node_modules[/\\](?:otplib|@otplib|@scure|passport(?:-[^/\\]+)?|axios|redis|@redis|connect-redis|express-session))(?:[/\\]|$)/.test(path)), 'Lightweight Node entry must not load authentication or session dependencies');
 console.log('Installed CommonJS Node contract passed without Angular or legacy initialization');

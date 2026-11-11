@@ -15,6 +15,11 @@
       "browser": null,
       "types": "./node/index.d.ts",
       "node": "./node/index.js"
+    },
+    "./node/http": {
+      "browser": null,
+      "types": "./node/http.d.ts",
+      "node": "./node/http.js"
     }
   },
   "type": "module",
@@ -26,6 +31,7 @@
   ],
   "dependencies": {
     "dexie": "4.4.7",
-    "luxon": "2.5.2"
+    "luxon": "2.5.2",
+    "axios": "^1.20.0"
   }
 }

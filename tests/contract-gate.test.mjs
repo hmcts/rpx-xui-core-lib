@@ -152,7 +152,7 @@ const validationJourneys = [
 const packageIds = [
   'package.physical-secondary-declaration', 'package.strict-node', 'package.strict-bundler',
   'package.installed-runtime', 'package.missing-declaration-fault', 'package.restored-node',
-  'package.physical-node', 'package.installed-node-runtime', 'package.node-loading-fault', 'package.browser-denied',
+  'package.physical-node', 'package.installed-node-runtime', 'package.installed-node-http', 'package.node-loading-fault', 'package.browser-denied',
   'package.missing-marker-fault', 'package.restored-node-runtime',
   'package.physical-i18n', 'package.staged-i18n-identity',
   "package.root-runtime-empty",
