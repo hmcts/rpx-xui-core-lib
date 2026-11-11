@@ -17,7 +17,7 @@ async function stage() {
   } catch (error) {
     if (error.code !== 'EEXIST' || await realpath(nodeModulesLink) !== await realpath('projects/core-lib/node/node_modules')) throw error;
   }
-  await writeFile('dist/core-lib/node/package.json', '{\"type\":\"commonjs\"}\n');
+  await writeFile('dist/core-lib/node/package.json', '{"type":"commonjs"}\n');
   await copyFile('LICENCE', 'dist/core-lib/LICENCE');
   await mkdir('node_modules/@hmcts', { recursive: true });
   const link = 'node_modules/@hmcts/rpx-xui-core-lib';
@@ -38,17 +38,17 @@ if (process.argv.includes('--watch')) {
     pending = true;
     if (!ready || running || stopping) return;
     running = true;
-    while (pending && !stopping) {
-      pending = false;
-      try {
-        await stage();
-        if (!stopping) process.exitCode = 0;
-      } catch (error) {
-        console.error(error);
-        process.exitCode = 1;
-      }
+    pending = false;
+    try {
+      await stage();
+      if (!stopping) process.exitCode = 0;
+    } catch (error) {
+      console.error(error);
+      process.exitCode = 1;
+    } finally {
+      running = false;
+      if (pending && !stopping) void requestStage();
     }
-    running = false;
   }
   const nodeWatchers = new Map();
   let subscription;
