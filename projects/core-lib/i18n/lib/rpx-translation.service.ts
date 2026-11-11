@@ -1,9 +1,9 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { liveQuery } from 'dexie';
 import { DateTime } from 'luxon';
 import { BehaviorSubject, combineLatest, from, Observable, of, Subscription, timer } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
+import { catchError, finalize, map, take, tap } from 'rxjs/operators';
 import { db, Translation } from './db';
 import { matchCase } from './helpers/match-case/match-case.helper';
 import { splitPhraseIntoComponents } from './helpers/replace-placeholders/replace-placeholders.helper';
@@ -18,7 +18,8 @@ interface TranslationsDTO {
 export type Replacements = { [key: string]: string };
 
 @Injectable()
-export class RpxTranslationService {
+export class RpxTranslationService implements OnDestroy {
+  private readonly lifetime = new Subscription();
   private currentLanguage: RpxLanguage = 'en';
   private languageKey = 'exui-preferred-language';
 
@@ -40,7 +41,9 @@ export class RpxTranslationService {
       this.currentLanguage = lang;
       this.persistLanguage();
       this.languageSource.next(lang);
-      Object.keys(this.phrases).forEach((phrase) => this.translate(phrase));
+      Object.keys(this.phrases).forEach((phrase) => {
+        if (!this.lifetime.closed) this.translate(phrase);
+      });
     }
   }
 
@@ -56,6 +59,10 @@ export class RpxTranslationService {
       this.persistLanguage();
     }
     this.language$ = this.languageSource.asObservable();
+  }
+
+  ngOnDestroy(): void {
+    this.lifetime.unsubscribe();
   }
 
   public getTranslation$(phrase: string): Observable<string> {
@@ -134,10 +141,11 @@ export class RpxTranslationService {
               yes: 'Yes [Translation in progress]',
               no: 'No [Translation in progress]'
             });
-            this.load(phrase, lang);
+            if (!this.lifetime.closed) this.load(phrase, lang);
           }
         })
       ).subscribe(() => ({}));
+      this.lifetime.add(this.cacheSubscriptions[phrase]);
     }
 
     return this.observables[phrase];
@@ -198,7 +206,7 @@ export class RpxTranslationService {
       const inFlight = this.inFlight[lang] ??= new Set<string>();
       phrases.forEach((p) => inFlight.add(p));
       const url = this.config.baseUrl + `/${lang}`;
-      const s = this.http.post<TranslationsDTO>(url,
+      const request = this.http.post<TranslationsDTO>(url,
         {
           phrases
         }
@@ -224,20 +232,24 @@ export class RpxTranslationService {
               translations[p] = this.config.testMode ? { translation: `[Test translation for ${p}]` } : { translation: p })
             );
             return of(translations);
-          })
+          }),
+          take(1),
+          finalize(() => phrases.forEach((p) => inFlight.delete(p)))
         ).subscribe((translations: { [from: string]: TranslatedData }) => {
           const toAdd: Translation[] = [];
           Object.keys(translations).forEach((p) => {
             toAdd.push(Translation.create(p, lang, translations[p], DateTime.now().plus(this.config.validity).toISO()));
             Object.keys(this.phrases)
               .filter((phraseKey) => this.language === lang && this.normalisePhraseSpacing(phraseKey) === p)
-              .forEach((phraseKey) => this.phrases[phraseKey].next(translations[p]));
+              .forEach((phraseKey) => {
+                if (!this.lifetime.closed) this.phrases[phraseKey].next(translations[p]);
+              });
           });
-          db.translations.bulkAdd(toAdd);
-          phrases.forEach((p) => inFlight.delete(p));
-          s.unsubscribe();
+          if (!this.lifetime.closed) db.translations.bulkAdd(toAdd);
         });
+      this.lifetime.add(request);
     });
+    this.lifetime.add(this.requestTimerSubscription);
   }
 
   private persistLanguage(): void {

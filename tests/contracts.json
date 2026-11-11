@@ -20,6 +20,26 @@
       },
       {
         "projectName": "chromium",
+        "title": "validation keyboard traversal toggles roles and submits with Enter and Space"
+      },
+      {
+        "projectName": "chromium",
+        "title": "validation initial exposes accessible roles and passes axe"
+      },
+      {
+        "projectName": "chromium",
+        "title": "validation invalid-submit exposes accessible roles and passes axe"
+      },
+      {
+        "projectName": "chromium",
+        "title": "validation valid exposes accessible roles and passes axe"
+      },
+      {
+        "projectName": "chromium",
+        "title": "validation axe detects the label rule when a checkbox label is removed"
+      },
+      {
+        "projectName": "chromium",
         "title": "locale switches reuse persisted translations across English and page reloads"
       },
       {
@@ -29,6 +49,18 @@
       {
         "projectName": "chromium",
         "title": "a late Welsh response preserves English and is reused after switching back"
+      },
+      {
+        "projectName": "chromium",
+        "title": "local gallery translates through its own synthetic service"
+      },
+      {
+        "projectName": "chromium",
+        "title": "local gallery demonstrates a synthetic service failure"
+      },
+      {
+        "projectName": "chromium",
+        "title": "local translation endpoint validates requests"
       }
     ]
   },
@@ -124,7 +156,35 @@
       "RpxTranslationService phrase dictionary keys keeps hasOwnProperty and subsequent phrases working across a language change and HTTP success",
       "RpxTranslationService phrase dictionary keys keeps hasOwnProperty and subsequent phrases working across a language change and HTTP failure",
       "RpxTranslationService phrase dictionary keys keeps __proto__ and subsequent phrases working across a language change and HTTP success",
-      "RpxTranslationService phrase dictionary keys keeps __proto__ and subsequent phrases working across a language change and HTTP failure"
+      "RpxTranslationService phrase dictionary keys keeps __proto__ and subsequent phrases working across a language change and HTTP failure",
+      "translation provider lifecycle does not dispatch a pending batch after its owner is destroyed",
+      "translation provider lifecycle cancels an in-flight request when its owner is destroyed",
+      "translation provider lifecycle cancels all overlapping requests when their owner is destroyed",
+      "translation provider lifecycle ignores a cache lookup that finishes after its owner is destroyed",
+      "translation provider lifecycle keeps the root service active when a forChild injector is destroyed",
+      "translation provider lifecycle handles a synchronously completed HTTP success",
+      "translation provider lifecycle handles a synchronously completed HTTP failure",
+      "translation provider lifecycle stops response processing if a subscriber destroys the owner",
+      "translation provider lifecycle stops cache-miss processing if a subscriber destroys the owner",
+      "translation provider lifecycle stops a language change when its subscriber destroys the owner",
+      "translation provider lifecycle stops observing cached translations when its owner is destroyed"
+    ]
+  },
+  "cacheBrowser": {
+    "report": "test-results/cache-upgrade-report.json",
+    "required": [
+      {
+        "projectName": "chromium",
+        "title": "legacy to core preserves valid cached translation"
+      },
+      {
+        "projectName": "chromium",
+        "title": "core to legacy preserves valid cached translation"
+      },
+      {
+        "projectName": "chromium",
+        "title": "core replaces an expired cache row written by published legacy"
+      }
     ]
   }
 }
