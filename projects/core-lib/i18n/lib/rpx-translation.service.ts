@@ -135,7 +135,8 @@ export class RpxTranslationService implements OnDestroy {
     if (lang === 'en') {
       this.phrases[phrase].next({ translation: phrase });
     } else {
-      this.cacheSubscriptions[phrase] = from(liveQuery(() => db.translations.where('[phrase+lang]').equals([lookupPhrase, lang]).first())).pipe(
+      // A newer replacement must not be shadowed by a row whose deletion failed.
+      this.cacheSubscriptions[phrase] = from(liveQuery(() => db.translations.where('[phrase+lang]').equals([lookupPhrase, lang]).last())).pipe(
         catchError(() => {
           if (!this.lifetime.closed) console.warn('Translation cache read failed');
           return of(undefined);

@@ -29,7 +29,7 @@ describe('RpxTranslationService public API composition', () => {
     });
     // Only cache misses and HTTP delivery are faked; the public composition methods and helpers stay real.
     spyOn(db.translations, 'where').and.returnValue({
-      equals: () => ({ first: () => Promise.resolve(undefined) })
+      equals: () => ({ last: () => Promise.resolve(undefined) })
     } as unknown as ReturnType<typeof db.translations.where>);
     spyOn(db.translations, 'bulkAdd').and.stub();
     service = new RpxTranslationService(

@@ -21,8 +21,8 @@ describe('translation boundary validation', () => {
     TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] });
     http = TestBed.inject(HttpTestingController);
     warning = spyOn(console, 'warn');
-    lookup = jasmine.createSpy('first').and.resolveTo(undefined);
-    spyOn(db.translations, 'where').and.returnValue({ equals: () => ({ first: lookup }) } as unknown as ReturnType<typeof db.translations.where>);
+    lookup = jasmine.createSpy('last').and.resolveTo(undefined);
+    spyOn(db.translations, 'where').and.returnValue({ equals: () => ({ last: lookup }) } as unknown as ReturnType<typeof db.translations.where>);
     writes = spyOn(db.translations, 'bulkAdd').and.resolveTo(1);
     deletes = spyOn(db.translations, 'delete').and.resolveTo();
     service = new RpxTranslationService(config, TestBed.inject(HttpClient));

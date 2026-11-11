@@ -23,7 +23,7 @@ describe('RpxTranslationService request lifecycle', () => {
     });
     // These request tests model cache misses; real IndexedDB refresh/restore is covered by Playwright.
     spyOn(db.translations, 'where').and.returnValue({
-      equals: () => ({ first: () => Promise.resolve(undefined) })
+      equals: () => ({ last: () => Promise.resolve(undefined) })
     } as unknown as ReturnType<typeof db.translations.where>);
     spyOn(db.translations, 'bulkAdd').and.stub();
     service = new RpxTranslationService({ baseUrl: '/translations', debounceTimeMs: 20, validity: { days: 1 }, testMode: false }, { post } as unknown as HttpClient);

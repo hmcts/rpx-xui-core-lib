@@ -21,7 +21,7 @@ describe('translation provider lifecycle', () => {
     post = jasmine.createSpy('post').and.returnValue(reply);
     cacheResult = Promise.resolve(undefined);
     spyOn(db.translations, 'where').and.callFake((() => ({
-      equals: () => ({ first: () => cacheResult })
+      equals: () => ({ last: () => cacheResult })
     })) as unknown as typeof db.translations.where);
     spyOn(db.translations, 'bulkAdd').and.stub();
   });
