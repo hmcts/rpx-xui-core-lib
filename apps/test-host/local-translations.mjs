@@ -16,6 +16,7 @@ export default {
       }
       try {
         let body = '';
+        request.setEncoding('utf8');
         for await (const chunk of request) {
           body += chunk;
           if (body.length > 64 * 1024) throw new Error('Request too large');
