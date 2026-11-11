@@ -85,7 +85,7 @@ try {
     ...currentIdentity(root),
     node: process.versions.node,
     yarn: '4.18.1',
-    angular: '20.3.31',
+    angular: '20.3.35',
     typescript: '5.9.3',
   };
   await cp(candidate, join(evidence, 'candidate.tgz'));

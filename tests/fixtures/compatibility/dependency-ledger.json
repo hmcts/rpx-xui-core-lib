@@ -55,7 +55,7 @@
       ],
       "emitted_by": [],
       "classification": "peerDependency",
-      "selection": "20.3.31",
+      "selection": "20.3.35",
       "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
     },
     {
@@ -178,7 +178,7 @@
         }
       ],
       "classification": "peerDependency",
-      "selection": "20.3.31",
+      "selection": "20.3.35",
       "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
     },
     {
@@ -197,7 +197,7 @@
       ],
       "emitted_by": [],
       "classification": "peerDependency",
-      "selection": "20.3.31",
+      "selection": "20.3.35",
       "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
     },
     {
@@ -277,7 +277,7 @@
         }
       ],
       "classification": "peerDependency",
-      "selection": "20.3.31",
+      "selection": "20.3.35",
       "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
     },
     {
@@ -338,7 +338,7 @@
         }
       ],
       "classification": "peerDependency",
-      "selection": "20.3.31",
+      "selection": "20.3.35",
       "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
     },
     {
@@ -357,7 +357,7 @@
       ],
       "emitted_by": [],
       "classification": "peerDependency",
-      "selection": "20.3.31",
+      "selection": "20.3.35",
       "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
     },
     {
@@ -478,7 +478,7 @@
         }
       ],
       "classification": "peerDependency",
-      "selection": "20.3.31",
+      "selection": "20.3.35",
       "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
     },
     {
@@ -497,7 +497,7 @@
       ],
       "emitted_by": [],
       "classification": "peerDependency",
-      "selection": "20.3.31",
+      "selection": "20.3.35",
       "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
     },
     {
@@ -558,7 +558,7 @@
         }
       ],
       "classification": "peerDependency",
-      "selection": "20.3.31",
+      "selection": "20.3.35",
       "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
     },
     {
@@ -572,7 +572,7 @@
       ],
       "emitted_by": [],
       "classification": "peerDependency",
-      "selection": "20.3.31",
+      "selection": "20.3.35",
       "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
     },
     {
@@ -2250,12 +2250,12 @@
     {
       "name": "@angular/compiler-cli",
       "classification": "peerDependency",
-      "selection": "20.3.31",
+      "selection": "20.3.35",
       "declared_by": [
         {
-          "package": "@angular/localize20.3.31",
+          "package": "@angular/localize20.3.35",
           "kind": "peerDependencies",
-          "range": "20.3.31"
+          "range": "20.3.35"
         }
       ],
       "emitted_by": [],
