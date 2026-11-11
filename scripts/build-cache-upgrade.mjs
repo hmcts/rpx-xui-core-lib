@@ -47,7 +47,7 @@ for (const name of ['legacy', 'core']) {
     writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
     const lockLog = run(process.execPath, [yarn, 'install', '--mode=update-lockfile'], host);
     const lock = readFileSync(join(host, 'yarn.lock'));
-    const installLog = run(process.execPath, [yarn, 'install', '--immutable'], host, { ...process.env, YARN_ENABLE_NETWORK: '0' });
+    const installLog = run(process.execPath, [yarn, 'install', '--immutable'], host);
     assert.doesNotMatch(lockLog + installLog, /YN0002|YN0060|YN0086/, 'Installed host has unmet peer dependencies');
     assert.deepEqual(readFileSync(join(host, 'yarn.lock')), lock);
     writeFileSync(join(output, 'core-install.log'), lockLog + installLog);
@@ -101,7 +101,7 @@ writeFileSync(join(output, 'receipt.json'), JSON.stringify({
   coreTarSha256: sha256(tarball),
   coreFesmSha256: sha256(installedCoreFesm),
   installedCoreRealpath: realpathSync(installedCoreFesm),
-  manager: 'yarn@4.18.1', installedLockSha256, immutableInstallNetwork: 'disabled',
+  manager: 'yarn@4.18.1', installedLockSha256, immutableInstallNetwork: 'inherited',
   coreMapSha256: sha256(join(output, 'core/dist/browser/main.js.map')),
   legacyMapSha256: sha256(join(output, 'legacy/dist/browser/main.js.map')),
   legacyVersion: '1.2.18', coreDexie, legacyDexie,
