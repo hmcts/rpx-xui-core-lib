@@ -56,48 +56,63 @@ function browserOutcomes(report) {
   return outcomes;
 }
 
-function jasmineOutcomes(text) {
-  const report = JSON.parse(text);
-  const invalid = () => { throw new Error('Malformed or unsuccessful native Jasmine report'); };
+function invalidJasmineReport() {
+  throw new Error('Malformed or unsuccessful native Jasmine report');
+}
+
+function validateJasmineEnvelope(report) {
   if (!report || report.schemaVersion !== 1 || report.complete !== true ||
     report.jasmineVersion !== expectedJasmineVersion || !Array.isArray(report.browserErrors) || report.browserErrors.length ||
     (report.driverError !== undefined && report.driverError !== null && report.driverError !== '') ||
-    !Array.isArray(report.events) || report.events.length < 3) invalid();
+    !Array.isArray(report.events) || report.events.length < 3) invalidJasmineReport();
   const events = report.events;
-  if (events[0]?.type !== 'jasmineStarted' || events.at(-1)?.type !== 'jasmineDone') invalid();
+  if (events[0]?.type !== 'jasmineStarted' || events.at(-1)?.type !== 'jasmineDone') invalidJasmineReport();
   const defined = events[0].result?.totalSpecsDefined;
-  if (!Number.isSafeInteger(defined) || defined < 1) invalid();
-  const specs = new Set();
-  const names = new Set();
-  const suites = new Set();
-  const outcomes = [];
+  if (!Number.isSafeInteger(defined) || defined < 1) invalidJasmineReport();
+  return defined;
+}
+
+function validateJasmineEvent(event, index, eventCount) {
+  const result = event?.result;
+  if (!result || typeof result !== 'object' || Array.isArray(result)) invalidJasmineReport();
+  if (event.type === 'jasmineStarted') {
+    if (index !== 0) invalidJasmineReport();
+    return;
+  }
+  if (!Array.isArray(result.failedExpectations) || result.failedExpectations.length ||
+    !Array.isArray(result.deprecationWarnings) || result.deprecationWarnings.length) invalidJasmineReport();
+  if (event.type === 'jasmineDone') {
+    if (index !== eventCount - 1 || result.overallStatus !== 'passed' || result.incompleteReason) invalidJasmineReport();
+  } else if (event.type !== 'specDone' && event.type !== 'suiteDone') invalidJasmineReport();
+}
+
+function recordJasmineResult(event, state) {
+  const result = event.result;
+  if (typeof result.id !== 'string' || !result.id || typeof result.fullName !== 'string' ||
+    !result.fullName.trim() || result.status !== 'passed') invalidJasmineReport();
+  const ids = event.type === 'specDone' ? state.specs : state.suites;
+  if (ids.has(result.id)) invalidJasmineReport();
+  ids.add(result.id);
+  if (event.type === 'specDone') {
+    if (state.names.has(result.fullName)) invalidJasmineReport();
+    state.names.add(result.fullName);
+    state.outcomes.push({ id: result.fullName, passed: true });
+  }
+}
+
+function jasmineOutcomes(text) {
+  const report = JSON.parse(text);
+  const defined = validateJasmineEnvelope(report);
+  const events = report.events;
+  const state = { specs: new Set(), names: new Set(), suites: new Set(), outcomes: [] };
   for (let index = 0; index < events.length; index += 1) {
     const event = events[index];
-    const result = event?.result;
-    if (!result || typeof result !== 'object' || Array.isArray(result)) invalid();
-    if (event.type === 'jasmineStarted') {
-      if (index !== 0) invalid();
-      continue;
-    }
-    if (!Array.isArray(result.failedExpectations) || result.failedExpectations.length ||
-      !Array.isArray(result.deprecationWarnings) || result.deprecationWarnings.length) invalid();
-    if (event.type === 'jasmineDone') {
-      if (index !== events.length - 1 || result.overallStatus !== 'passed' || result.incompleteReason) invalid();
-    } else if (event.type === 'specDone' || event.type === 'suiteDone') {
-      if (typeof result.id !== 'string' || !result.id || typeof result.fullName !== 'string' ||
-        !result.fullName.trim() || result.status !== 'passed') invalid();
-      const ids = event.type === 'specDone' ? specs : suites;
-      if (ids.has(result.id)) invalid();
-      ids.add(result.id);
-      if (event.type === 'specDone') {
-        if (names.has(result.fullName)) invalid();
-        names.add(result.fullName);
-        outcomes.push({ id: result.fullName, passed: true });
-      }
-    } else invalid();
+    validateJasmineEvent(event, index, events.length);
+    if (event.type === 'jasmineStarted' || event.type === 'jasmineDone') continue;
+    recordJasmineResult(event, state);
   }
-  if (!suites.size || specs.size !== defined) invalid();
-  return outcomes;
+  if (!state.suites.size || state.specs.size !== defined) invalidJasmineReport();
+  return state.outcomes;
 }
 
 function packageOutcomes(report, reportRoot, expectedIdentity) {
