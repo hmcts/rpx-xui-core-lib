@@ -62,3 +62,9 @@ export const sharingError: SharedCaseErrorMessages = SharedCaseErrorMessages.One
 export const invalidSharedCase: SharedCase = { caseTitle: 'Title' };
 import { http } from '@hmcts/rpx-xui-core-lib/node/http';
 export const get = http.get;
+
+import { DueDateComponent, DueDateModule, DateBadgeColour, SECONDS_IN_A_DAY } from '@hmcts/rpx-xui-core-lib/ui/due-date';
+export { DueDateComponent, DueDateModule, DateBadgeColour, SECONDS_IN_A_DAY };
+
+import { AccessibilityComponent, AccessibilityModule } from '@hmcts/rpx-xui-core-lib/ui/accessibility';
+export { AccessibilityComponent, AccessibilityModule };

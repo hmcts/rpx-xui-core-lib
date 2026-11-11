@@ -5,8 +5,13 @@ import { Draft, DRAFT_PREFIX } from '@hmcts/rpx-xui-core-lib/case/models';
 import { CaseReferencePipe, CaseReferenceModule } from '@hmcts/rpx-xui-core-lib/case/reference';
 import { BadgeColour, ContactDetailsComponent, ContactDetailsModule } from '@hmcts/rpx-xui-core-lib/ui/contact-details';
 import { LoadingSpinnerComponent, LoadingSpinnerModule } from '@hmcts/rpx-xui-core-lib/ui/loading-spinner';
+import { DueDateComponent, DueDateModule, DateBadgeColour, SECONDS_IN_A_DAY } from '@hmcts/rpx-xui-core-lib/ui/due-date';
 import { checkboxesBeCheckedValidator } from '@hmcts/rpx-xui-core-lib/forms/validation';
 
+assert.equal(DueDateComponent.name, 'DueDateComponent');
+assert.ok(DueDateModule.ɵmod);
+assert.equal(DateBadgeColour.RED, 'hmcts-badge--red');
+assert.equal(SECONDS_IN_A_DAY, 86400);
 assert.equal(BadgeColour.BADGE_BLUE, 'hmcts-badge--blue');
 assert.equal(ContactDetailsComponent.name, 'ContactDetailsComponent');
 assert.ok(ContactDetailsModule.ɵmod);
@@ -51,3 +56,7 @@ assert.deepEqual(Object.values(SharedCaseErrorMessages), [
   'You have not requested any changes to case sharing',
   'At least one person must be assigned to each case'
 ]);
+
+const accessibility = await import('@hmcts/rpx-xui-core-lib/ui/accessibility');
+assert.equal(typeof accessibility.AccessibilityComponent, 'function');
+assert.equal(typeof accessibility.AccessibilityModule, 'function');

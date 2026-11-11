@@ -88,6 +88,16 @@
         "input": "case/sharing",
         "glob": "LICENCE",
         "output": "case/sharing"
+      },
+      {
+        "input": "ui/due-date",
+        "glob": "LICENCE",
+        "output": "ui/due-date"
+      },
+      {
+        "input": "ui/accessibility",
+        "glob": "LICENCE",
+        "output": "ui/accessibility"
       }
     ],
     "allowedNonPeerDependencies": [
