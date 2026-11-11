@@ -25,6 +25,10 @@ const nodeNames = [
   'isRoleMatch() matches pui to .',
   'empty roles do not match, including an invalid unused pattern',
   'invalid patterns throw SyntaxError for a string or nonempty roles',
+  'getUserSessionTimeout matches configuration order and sorts roles in place',
+  'getUserSessionTimeout returns the same mutable fallback for unmatched and empty roles',
+  'getUserSessionTimeout throws for an invalid pattern only when there are roles to examine',
+  'getUserSessionTimeout throws on missing roles or configuration',
 ];
 const i18nNames = [
   "matchCase should return the second string with the same case as the first string if the first character is uppercase",
@@ -119,7 +123,7 @@ const packageIds = [
 function reports() {
   return {
     'validation.tap': `TAP version 13\n${unitNames.map((name, index) => `ok ${index + 1} - ${name}`).join('\n')}\n1..7\n# tests 7\n# pass 7\n# fail 0\n`,
-    'node-jest.json': { success: true, numTotalTests: 9, numPassedTests: 9, numFailedTests: 0, numPendingTests: 0, numTodoTests: 0, testResults: [{ status: 'passed', assertionResults: nodeNames.map((fullName) => ({ fullName, status: 'passed' })) }] },
+    'node-jest.json': { success: true, numTotalTests: 13, numPassedTests: 13, numFailedTests: 0, numPendingTests: 0, numTodoTests: 0, testResults: [{ status: 'passed', assertionResults: nodeNames.map((fullName) => ({ fullName, status: 'passed' })) }] },
     'i18n/junit.xml': `<?xml version="1.0"?><testsuite name="Chrome Headless" tests="69" errors="0" failures="0">${i18nNames.map((name) => `<testcase name="${name.replaceAll('&', '&amp;').replaceAll('\"', '&quot;')}"/>`).join('')}</testsuite>`,
     'browser.json': { errors: [], suites: [{ specs: [journey, ...validationJourneys, ...i18nJourneys].map((title) => ({ title, tests: [{ projectName: 'chromium', expectedStatus: 'passed', status: 'expected', results: [{ status: 'passed' }] }] })) }] },
     'cache-upgrade-report.json': { errors: [], suites: [{ specs: cacheJourneys.map((title) => ({ title, tests: [{ projectName: 'chromium', expectedStatus: 'passed', status: 'expected', results: [{ status: 'passed' }] }] })) }] },
@@ -139,7 +143,7 @@ function checkFixture(t, files) {
 }
 
 test('accepts all independently required successful contracts', (t) => {
-  assert.equal(checkFixture(t, reports())(), 113);
+  assert.equal(checkFixture(t, reports())(), 117);
 });
 
 for (const file of ['validation.tap', 'browser.json', 'cache-upgrade-report.json', 'package.json', 'node-jest.json', 'i18n/junit.xml']) {
@@ -274,7 +278,7 @@ test('accepts a real native node:test TAP stream', (t) => {
   assert.equal(result.status, 0, result.stderr);
   const files = reports();
   files['validation.tap'] = result.stdout;
-  assert.equal(checkFixture(t, files)(), 113);
+  assert.equal(checkFixture(t, files)(), 117);
 });
 
 for (const file of ['browser.json', 'package.json']) {

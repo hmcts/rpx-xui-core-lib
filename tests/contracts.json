@@ -93,7 +93,11 @@
       "isRoleMatch() matches pui-case-manager to dwp-",
       "isRoleMatch() matches pui to .",
       "empty roles do not match, including an invalid unused pattern",
-      "invalid patterns throw SyntaxError for a string or nonempty roles"
+      "invalid patterns throw SyntaxError for a string or nonempty roles",
+      "getUserSessionTimeout matches configuration order and sorts roles in place",
+      "getUserSessionTimeout returns the same mutable fallback for unmatched and empty roles",
+      "getUserSessionTimeout throws for an invalid pattern only when there are roles to examine",
+      "getUserSessionTimeout throws on missing roles or configuration"
     ]
   },
   "i18nUnit": {

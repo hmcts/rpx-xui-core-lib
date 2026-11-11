@@ -7,7 +7,7 @@ const validator: ValidatorFn = checkboxesBeCheckedValidator(2);
 const form: FormGroup = new FormGroup({ first: new FormControl(true) }, validator);
 void form.errors;
 
-import { arrayPatternMatch, isStringPatternMatch } from '@hmcts/rpx-xui-core-lib/node';
+import { arrayPatternMatch, isStringPatternMatch, getUserSessionTimeout, type RoleGroupSessionTimeout } from '@hmcts/rpx-xui-core-lib/node';
 const matches: boolean = arrayPatternMatch(['pui-user-manager'], 'user-manager');
 const singleMatch: boolean = isStringPatternMatch('pui-user-manager', '^pui-');
 void [matches, singleMatch];
@@ -19,3 +19,6 @@ const language: RpxLanguage = 'cy';
 const replacements: Replacements = { name: 'Example' };
 const configuration = new RpxTranslationConfig();
 void [translationConstructor, language, replacements, configuration, RpxTranslationModule, RpxTranslatePipe];
+
+const timeout: RoleGroupSessionTimeout = getUserSessionTimeout(['role'], [{ pattern: 'role', idleModalDisplayTime: 2, totalIdleTime: 10 }]);
+void timeout;
