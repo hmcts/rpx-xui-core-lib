@@ -33,12 +33,12 @@
   "devDependencies": {
     "@angular/build": "20.3.32",
     "@angular/cli": "20.3.32",
-    "@angular/common": "20.3.31",
-    "@angular/compiler": "20.3.31",
-    "@angular/compiler-cli": "20.3.31",
-    "@angular/core": "20.3.31",
-    "@angular/forms": "20.3.31",
-    "@angular/platform-browser": "20.3.31",
+    "@angular/common": "20.3.35",
+    "@angular/compiler": "20.3.35",
+    "@angular/compiler-cli": "20.3.35",
+    "@angular/core": "20.3.35",
+    "@angular/forms": "20.3.35",
+    "@angular/platform-browser": "20.3.35",
     "@axe-core/playwright": "4.14.0",
     "@playwright/test": "1.65.0",
     "@types/jasmine": "5.1.0",
@@ -62,6 +62,6 @@
     "tslib": "2.8.1",
     "typescript": "5.9.3",
     "typescript-eslint": "8.46.4",
-    "zone.js": "0.15.1"
+    "zone.js": "0.16.3"
   }
 }
