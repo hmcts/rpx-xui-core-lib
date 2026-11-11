@@ -23,7 +23,7 @@ export default {
         }
         const { phrases } = JSON.parse(body);
         if (!Array.isArray(phrases) || !phrases.every((phrase) => typeof phrase === 'string')) throw new Error('Invalid phrases');
-        const translations = Object.fromEntries(phrases.map((phrase) => [phrase, phrase === 'Hello world' ? 'Helo byd' : phrase === 'Searching' ? 'Chwilio' : phrase]));
+        const translations = Object.fromEntries(phrases.map((phrase) => [phrase, phrase === 'Hello world' ? 'Helo byd' : phrase === 'Searching' ? 'Chwilio' : phrase === 'Phone:' ? 'Ffôn:' : phrase]));
         response.writeHead(200).end(JSON.stringify({ translations }));
       } catch {
         response.writeHead(400).end(JSON.stringify({ error: 'Invalid local translation request' }));

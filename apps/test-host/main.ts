@@ -17,7 +17,9 @@ class ValidationGallery {
   submitted = false;
 }
 
-const application = window.location.pathname === '/spinner'
+const application = window.location.pathname === '/contact'
+  ? import('./contact').then(({ startContactGallery }) => startContactGallery())
+  : window.location.pathname === '/spinner'
   ? import('./spinner').then(({ startSpinnerGallery }) => startSpinnerGallery())
   : window.location.pathname === '/translation'
   ? import('./translation').then(({ startTranslationGallery }) => startTranslationGallery())

@@ -35,3 +35,7 @@ export const timeout: RoleGroupSessionTimeout = getUserSessionTimeout(['role'], 
 
 import { LoadingSpinnerComponent, LoadingSpinnerModule } from '@hmcts/rpx-xui-core-lib/ui/loading-spinner';
 void [LoadingSpinnerComponent, LoadingSpinnerModule];
+
+import { BadgeColour, ContactDetailsComponent, ContactDetailsModule, type ContactDetailsDataModel } from '@hmcts/rpx-xui-core-lib/ui/contact-details';
+const contact: ContactDetailsDataModel = { badgeColour: BadgeColour.BADGE_BLUE };
+void [contact, ContactDetailsComponent, ContactDetailsModule];

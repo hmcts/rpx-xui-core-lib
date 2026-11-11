@@ -65,6 +65,10 @@
       {
         "projectName": "chromium",
         "title": "spinner displays default, updated and translated text"
+      },
+      {
+        "projectName": "chromium",
+        "title": "contact details show optional fields and translate labels"
       }
     ]
   },

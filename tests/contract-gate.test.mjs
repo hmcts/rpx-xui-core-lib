@@ -105,7 +105,7 @@ const i18nNames = [
   "translation provider lifecycle stops a language change when its subscriber destroys the owner",
   "translation provider lifecycle stops observing cached translations when its owner is destroyed"
 ];
-const i18nJourneys = ['spinner displays default, updated and translated text', 'a late Welsh response preserves English and is reused after switching back', 'locale switches reuse persisted translations across English and page reloads', 'a translation HTTP failure returns and caches the original phrase', 'local gallery translates through its own synthetic service', 'local gallery demonstrates a synthetic service failure', 'local translation endpoint validates requests'];
+const i18nJourneys = ['contact details show optional fields and translate labels', 'spinner displays default, updated and translated text', 'a late Welsh response preserves English and is reused after switching back', 'locale switches reuse persisted translations across English and page reloads', 'a translation HTTP failure returns and caches the original phrase', 'local gallery translates through its own synthetic service', 'local gallery demonstrates a synthetic service failure', 'local translation endpoint validates requests'];
 const cacheJourneys = ['baseline', 'aligned'].flatMap(cohort => ['legacy to core preserves valid cached translation', 'core to legacy preserves valid cached translation', 'core replaces an expired cache row written by published legacy'].map(name => `${cohort}: ${name}`)).concat(['direct: baseline core to aligned core preserves valid cached translation', 'direct: aligned core to baseline core preserves valid cached translation']);
 const journey = 'keyboard checkbox toggles update real FormGroup validity and submitted errors';
 const validationJourneys = [
@@ -147,7 +147,7 @@ function checkFixture(t, files) {
 }
 
 test('accepts all independently required successful contracts', (t) => {
-  assert.equal(checkFixture(t, reports())(), 128);
+  assert.equal(checkFixture(t, reports())(), 129);
 });
 
 for (const file of ['validation.tap', 'browser.json', 'cache-upgrade-report.json', 'package.json', 'node-jest.json', 'i18n/junit.xml']) {
@@ -282,7 +282,7 @@ test('accepts a real native node:test TAP stream', (t) => {
   assert.equal(result.status, 0, result.stderr);
   const files = reports();
   files['validation.tap'] = result.stdout;
-  assert.equal(checkFixture(t, files)(), 128);
+  assert.equal(checkFixture(t, files)(), 129);
 });
 
 for (const file of ['browser.json', 'package.json']) {
