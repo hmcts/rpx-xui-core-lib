@@ -1,0 +1,84 @@
+{
+  "scope": "Current checked-in core library and root development cohort; separate from the synthetic prospective host and historical consumer source snapshots.",
+  "packageManager": "yarn@4.18.1",
+  "engine": {
+    "node": ">=24.22.2 <25"
+  },
+  "devCohort": {
+    "@angular/build": "20.3.32",
+    "@angular/cli": "20.3.32",
+    "@angular/common": "20.3.31",
+    "@angular/compiler": "20.3.31",
+    "@angular/compiler-cli": "20.3.31",
+    "@angular/core": "20.3.31",
+    "@angular/forms": "20.3.31",
+    "@angular/platform-browser": "20.3.31",
+    "ng-packagr": "20.3.2",
+    "rxjs": "7.8.2",
+    "typescript": "5.9.3",
+    "zone.js": "0.15.1"
+  },
+  "resolutions": {},
+  "libraryPeerDependencies": {
+    "@angular/common": "20.3.31",
+    "@angular/core": "20.3.31",
+    "@angular/forms": "20.3.31",
+    "rxjs": "7.8.2"
+  },
+  "libraryDependencies": {
+    "dexie": "4.4.4",
+    "luxon": "2.5.2"
+  },
+  "ngPackage": {
+    "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
+    "dest": "../../dist/core-lib",
+    "lib": {
+      "entryFile": "public-api.ts"
+    },
+    "assets": [
+      {
+        "input": "forms/validation",
+        "glob": "LICENCE",
+        "output": "forms/validation"
+      },
+      {
+        "input": "node",
+        "glob": "{LICENCE,package.json}",
+        "output": "node"
+      },
+      {
+        "input": "i18n",
+        "glob": "LICENCE",
+        "output": "i18n"
+      }
+    ],
+    "allowedNonPeerDependencies": [
+      "dexie",
+      "luxon"
+    ]
+  },
+  "yarnConfig": {
+    "nodeLinker": "node-modules",
+    "yarnPath": ".yarn/releases/yarn-4.18.1.cjs"
+  },
+  "lockedVersions": {
+    "@angular/build": "20.3.32",
+    "@angular/cli": "20.3.32",
+    "@angular/common": "20.3.31",
+    "@angular/compiler": "20.3.31",
+    "@angular/compiler-cli": "20.3.31",
+    "@angular/core": "20.3.31",
+    "@angular/forms": "20.3.31",
+    "@angular/platform-browser": "20.3.31",
+    "ng-packagr": "20.3.2",
+    "rxjs": "7.8.2",
+    "typescript": "5.9.3",
+    "zone.js": "0.15.1",
+    "dexie": "4.4.4",
+    "luxon": "2.5.2"
+  },
+  "overrides": {},
+  "libraryPeerDependenciesMeta": {},
+  "libraryResolutions": {},
+  "libraryOverrides": {}
+}

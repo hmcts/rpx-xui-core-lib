@@ -1,11 +1,13 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import * as compatibility from '../scripts/check-compatibility.mjs';
-import { cpSync, mkdtempSync, mkdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdtempSync, mkdirSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { verifySourceHashes } from './fixtures/compatibility/verify-source-contract.mjs';
+import * as sourceVerification from './fixtures/compatibility/verify-source-contract.mjs';
 import { createHash } from 'node:crypto';
 import { checkInstallResult, validateManifest, hostDependencies, checkMatrixReport, validateHostProfile, hostManifest, hostInstallSettings, hostLockBytes, checkLockedTelemetry } from '../scripts/check-compatibility.mjs';
 
@@ -217,6 +219,10 @@ test('matrix CLI rejects invalid decisions and profiles before any host install'
     mkdirSync(join(dir, 'tests/fixtures'), { recursive: true });
     mkdirSync(join(dir, 'dist/core-lib'), { recursive: true });
     mkdirSync(join(dir, '.yarn/releases'), { recursive: true });
+    mkdirSync(join(dir, 'projects/core-lib'), { recursive: true });
+    symlinkSync(fileURLToPath(new URL('../node_modules', import.meta.url)), join(dir, 'node_modules'));
+
+    for (const file of ['package.json', 'yarn.lock', '.yarnrc.yml', 'projects/core-lib/package.json', 'projects/core-lib/ng-package.json']) cpSync(new URL(`../${file}`, import.meta.url), join(dir, file));
     cpSync(new URL('../scripts/check-compatibility.mjs', import.meta.url), join(dir, 'scripts/check-compatibility.mjs'));
     cpSync(new URL('./fixtures/compatibility', import.meta.url), join(dir, 'tests/fixtures/compatibility'), { recursive: true });
     writeFileSync(join(dir, 'dist/core-lib/package.json'), '{}');
@@ -259,6 +265,25 @@ test('matrix CLI rejects invalid decisions and profiles before any host install'
       const report = JSON.parse(readFileSync(join(dir, 'test-results/compatibility/report.json'), 'utf8'));
       assert.equal(report.status, 'failed');
       assert.equal(report.profiles.length, 0);
+    }
+    writeFileSync(join(dir, 'tests/fixtures/compatibility/profiles.json'), JSON.stringify(baseProfiles));
+    /** @type {Array<[string, (body: string) => string]>} */
+    const mutations = [
+      ['package.json', (body) => { const value = JSON.parse(body); value.devDependencies['@angular/core'] = '99.0.0'; return JSON.stringify(value); }],
+      ['projects/core-lib/package.json', (body) => { const value = JSON.parse(body); value.peerDependencies['@angular/core'] = '99.0.0'; return JSON.stringify(value); }],
+      ['.yarnrc.yml', (body) => body.replace('nodeLinker: node-modules', 'nodeLinker: pnp')],
+      ['yarn.lock', (body) => body.replace(/("@angular\/core@npm:20\.3\.31":\n  version: )20\.3\.31/, '$199.0.0')],
+    ];
+    for (const [name, mutate] of mutations) {
+      const path = join(dir, name);
+      const original = readFileSync(path, 'utf8');
+      const changed = mutate(original);
+      assert.notEqual(changed, original, `fixture mutation applied: ${name}`);
+      writeFileSync(path, changed);
+      const run = spawnSync(process.execPath, [join(dir, 'scripts/check-compatibility.mjs')], { encoding: 'utf8' });
+      assert.notEqual(run.status, 0);
+      assert.match(run.stderr, /core/i);
+      writeFileSync(path, original);
     }
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
@@ -311,7 +336,9 @@ test('source verification rejects changed committed object bytes and manager evi
   const source = fixture('source-contract.json');
   const bytes = Buffer.from('source');
   const digest = createHash('sha256').update(bytes).digest('hex');
-  const contract = { sources: { sample: { gitHead: 'a'.repeat(40), files: { 'package.json': digest } } }, harness: { standalone_api_manager: { sha256: digest } } };
+  const contract = structuredClone(source);
+  for (const entry of Object.values(contract.sources)) for (const path of Object.keys(entry.files)) entry.files[path] = digest;
+  contract.harness.standalone_api_manager.sha256 = digest;
   verifySourceHashes(contract, () => bytes, bytes);
   assert.throws(() => verifySourceHashes(contract, () => Buffer.from('changed'), bytes), /hash/i);
   assert.throws(() => verifySourceHashes(contract, () => bytes, Buffer.from('changed')), /hash/i);
@@ -327,4 +354,74 @@ test('the local core manager bytes must match the pinned source hash', () => {
   const expected = createHash('sha256').update(bytes).digest('hex');
   compatibility.checkManagerBytes(bytes, expected);
   assert.throws(() => compatibility.checkManagerBytes(Buffer.from('changed'), expected), /manager.*hash/i);
+});
+
+test('fixed profile schemas reject matching omissions and unknown fields in both copies', () => {
+  const profiles = fixture('profiles.json');
+  const source = fixture('source-contract.json');
+  for (const profile of compatibility.constructProfiles(profiles, source)) {
+    for (const field of ['manifest_packageManager', 'engine', 'locked_toolchain', 'install_settings', 'actual_requirements']) {
+      const changed = structuredClone(profile);
+      const contract = structuredClone(source);
+      delete changed[field];
+      delete contract.profiles[profile.id][field];
+      assert.throws(() => validateHostProfile(changed, contract), undefined, `${profile.id}: missing ${field}`);
+    }
+    const changed = { ...profile, invented: 'value' };
+    const contract = structuredClone(source);
+    contract.profiles[profile.id].invented = 'value';
+    assert.throws(() => validateHostProfile(changed, contract), undefined, `${profile.id}: unknown field`);
+  }
+});
+
+
+test('source-derived projections reject the same invented lock and resolution in both copies', () => {
+  const deps = { '@angular/core': '20.3.31', '@angular-devkit/build-angular': '20.3.32', '@angular/cli': '20.3.32', '@angular/compiler': '20.3.31', '@angular/compiler-cli': '20.3.31', typescript: '5.9.3' };
+  const manifest = { dependencies: { '@angular/core': deps['@angular/core'] }, devDependencies: deps, packageManager: 'yarn@4.9.2', engines: { node: '>=24' }, resolutions: { webpack: '5.112.0' } };
+  const lock = Object.fromEntries(Object.entries(deps).map(([name, version]) => [`${name}@npm:${version}`, { version }]));
+  const angular = { projects: { app: { architect: { build: { builder: '@angular-devkit/build-angular:application' } } } } };
+  const rawProjection = sourceVerification.deriveConsumerProjection('rpx-xui-manage-organisations', 'a'.repeat(40), manifest, lock, { yarnPath: '.yarn/releases/yarn-4.9.2.cjs' }, angular, { dependencies: {}, peerDependencies: { '@angular/core': '20.3.31' } }, {}, Buffer.from('manager'));
+  const profile = structuredClone(rawProjection);
+  const source = structuredClone(rawProjection);
+  sourceVerification.compareSourceProjection(profile, source, rawProjection);
+  for (const [field, key] of [['locked_peer_versions', '@angular/core'], ['host_resolutions', 'webpack']]) {
+    const changedProfile = structuredClone(profile);
+    const changedSource = structuredClone(source);
+    changedProfile[field][key] = '99.0.0';
+    changedSource[field][key] = '99.0.0';
+    assert.throws(() => sourceVerification.compareSourceProjection(changedProfile, changedSource, rawProjection), /source/i);
+  }
+});
+
+test('source verification requires every fixed repository and mandatory file', () => {
+  const contract = fixture('source-contract.json');
+  sourceVerification.validateSourceInventory(contract);
+  const missingRepo = structuredClone(contract);
+  delete missingRepo.sources.core;
+  assert.throws(() => sourceVerification.validateSourceInventory(missingRepo), /source/i);
+  const missingFile = structuredClone(contract);
+  delete missingFile.sources['rpx-xui-webapp'].files['yarn.lock'];
+  assert.throws(() => sourceVerification.validateSourceInventory(missingFile), /source/i);
+});
+
+test('current core cohort rejects source and lock drift independently of git HEAD', () => {
+  const current = fixture('core-current-contract.json');
+  const actual = structuredClone(current);
+  delete actual.scope;
+  compatibility.validateCurrentCore(actual, current);
+  for (const change of [
+    (value) => { value.devCohort['@angular/core'] = '99.0.0'; },
+    (value) => { value.lockedVersions['@angular/core'] = '99.0.0'; },
+    (value) => { value.libraryPeerDependencies['@angular/core'] = '99.0.0'; },
+    (value) => { value.yarnConfig.nodeLinker = 'pnp'; },
+    (value) => { value.packageManager = 'yarn@99.0.0'; },
+    (value) => { value.engine.node = '>=1'; },
+    (value) => { value.resolutions.unapproved = '1.0.0'; },
+    (value) => { value.libraryPeerDependenciesMeta['@angular/core'] = { optional: true }; },
+    (value) => { value.libraryOverrides['@angular/core'] = '1.0.0'; },
+  ]) {
+    const changed = structuredClone(actual);
+    change(changed);
+    assert.throws(() => compatibility.validateCurrentCore(changed, current), /core/i);
+  }
 });

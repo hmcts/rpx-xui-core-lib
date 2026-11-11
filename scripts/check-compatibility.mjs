@@ -5,6 +5,7 @@ import { cp, mkdir, mkdtemp, readFile, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import yaml from 'js-yaml';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const fixtures = join(root, 'tests/fixtures/compatibility');
@@ -44,9 +45,23 @@ export function constructProfiles(profiles, sourceContract) {
   return matrix;
 }
 
+const commonProfileFields = ['id', 'gitHead', 'manager', 'manager_sha256', 'manifest_packageManager', 'engine', 'builder_family', 'actual_requirements', 'locked_peer_versions', 'locked_toolchain', 'install_settings', 'host_resolutions'];
+const consumerFields = [...commonProfileFields, 'manager_source_url', 'requirement_scope', 'resolution_scope', 'source_contract'];
+const profileFields = {
+  core: [...commonProfileFields, 'scope'],
+  'rpx-xui-webapp': [...consumerFields, 'lock_source_url', 'lock_sha256'],
+  'rpx-xui-manage-organisations': consumerFields,
+  'rpx-xui-approve-org': consumerFields,
+  'mc-api-standalone': [...commonProfileFields, 'manager_source_url', 'scope', 'lock_source', 'source_contract'],
+};
+
 export function validateHostProfile(profile, sourceContract) {
+  const expectedFields = profileFields[profile.id];
+  assert.ok(expectedFields, `Unknown profile: ${profile.id}`);
+  assert.deepEqual(Object.keys(profile).sort(), [...expectedFields].sort(), `Invalid profile fields: ${profile.id}`);
   const source = sourceContract.profiles[profile.id];
   assert.ok(source, `Missing source contract: ${profile.id}`);
+  assert.deepEqual(Object.keys(source).sort(), [...expectedFields].sort(), `Invalid source contract fields: ${profile.id}`);
   const sourceId = profile.id === 'mc-api-standalone' ? 'rpx-xui-webapp' : profile.id;
   const metadata = sourceContract.sources[sourceId];
   assert.ok(metadata, `Missing source metadata: ${profile.id}`);
@@ -60,6 +75,29 @@ export function validateHostProfile(profile, sourceContract) {
   const fields = new Set([...Object.keys(profile), ...Object.keys(source)]);
   for (const field of fields) {
     assert.deepEqual(profile[field], source[field], `Host ${field.replaceAll('_', ' ')} differs from source contract`);
+  }
+}
+
+export function currentCoreProjection(manifest, library, ngPackage, config, lock) {
+  const names = Object.keys(manifest.devDependencies).filter((name) => name.startsWith('@angular/') || ['typescript', 'rxjs', 'zone.js', 'ng-packagr'].includes(name));
+  const devCohort = Object.fromEntries(names.map((name) => [name, manifest.devDependencies[name]]));
+  const lockedVersions = {};
+  for (const [name, version] of Object.entries({ ...devCohort, ...library.dependencies })) {
+    const descriptor = `${name}@npm:${version}`;
+    const matches = new Set(Object.entries(lock).filter(([key]) => key.split(', ').includes(descriptor)).map(([, row]) => String(row.version)));
+    assert.equal(matches.size, 1, `Missing or ambiguous current core lock selection: ${descriptor}`);
+    lockedVersions[name] = [...matches][0];
+  }
+  return { packageManager: manifest.packageManager, engine: manifest.engines, devCohort, resolutions: manifest.resolutions ?? {}, overrides: manifest.overrides ?? {}, libraryPeerDependencies: library.peerDependencies, libraryPeerDependenciesMeta: library.peerDependenciesMeta ?? {}, libraryDependencies: library.dependencies, libraryResolutions: library.resolutions ?? {}, libraryOverrides: library.overrides ?? {}, ngPackage, yarnConfig: config, lockedVersions };
+}
+
+export function validateCurrentCore(actual, expected, prospective) {
+  const { scope, ...projection } = expected;
+  assert.ok(typeof scope === 'string' && scope.trim(), 'Missing current core scope');
+  assert.deepEqual(actual, projection, 'Current core cohort differs from its contract');
+  if (prospective) {
+    for (const [name, version] of Object.entries(actual.libraryPeerDependencies)) assert.equal(prospective.peerDependencies[name], version, `Prospective peer differs from current core: ${name}`);
+    for (const [name, version] of Object.entries(actual.libraryDependencies)) assert.equal(prospective.dependencies[name], version, `Prospective dependency differs from current core: ${name}`);
   }
 }
 
@@ -148,7 +186,14 @@ async function runMatrix() {
   const decisions = await json('decisions.json');
   const peerProviders = await json('peer-providers.json');
   const sourceContract = await json('source-contract.json');
+  const currentCore = await json('core-current-contract.json');
   validateManifest(manifest, ledger);
+  const coreRoot = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'));
+  const coreLibrary = JSON.parse(await readFile(join(root, 'projects/core-lib/package.json'), 'utf8'));
+  const ngPackage = JSON.parse(await readFile(join(root, 'projects/core-lib/ng-package.json'), 'utf8'));
+  const coreConfig = yaml.load(await readFile(join(root, '.yarnrc.yml'), 'utf8'));
+  const coreLock = yaml.load(await readFile(join(root, 'yarn.lock'), 'utf8'));
+  validateCurrentCore(currentCoreProjection(coreRoot, coreLibrary, ngPackage, coreConfig, coreLock), currentCore, manifest);
   const scratch = await mkdtemp(join(tmpdir(), 'core-compatibility-'));
   /** @type {NodeJS.ProcessEnv} */
   const env = { ...process.env, PATH: `${dirname(process.execPath)}:${process.env.PATH}` };
@@ -167,8 +212,9 @@ async function runMatrix() {
     await writeFile(join(staged, 'package.json'), `${JSON.stringify({ ...built, ...manifest }, null, 2)}\n`);
     await writeFile(join(staged, 'yarn.lock'), '');
     const candidate = join(scratch, 'prospective.tgz');
-    const coreYarn = join(root, '.yarn/releases/yarn-4.18.1.cjs');
-    checkManagerBytes(await readFile(coreYarn), sourceContract.sources.core.files['.yarn/releases/yarn-4.18.1.cjs']);
+    validateHostProfile(profiles.core, sourceContract);
+    const coreYarn = join(root, coreConfig.yarnPath);
+    checkManagerBytes(await readFile(coreYarn), sourceContract.sources.core.files[coreConfig.yarnPath]);
     const packed = await command('pack-prospective', [coreYarn, 'pack', '--out', candidate], staged);
     assert.equal(packed.status, 0, 'Prospective artifact pack failed');
     report.artifactSha256 = createHash('sha256').update(await readFile(candidate)).digest('hex');
@@ -178,7 +224,7 @@ async function runMatrix() {
     validateDecisions(decisions, expected);
     report.unresolvedDecisions = decisions.filter((entry) => entry.status !== 'accepted');
     await cp(candidate, join(output, 'prospective.tgz'));
-    for (const name of ['prospective-package.json', 'profiles.json', 'decisions.json', 'peer-providers.json', 'source-contract.json']) await cp(join(fixtures, name), join(output, name));
+    for (const name of ['prospective-package.json', 'profiles.json', 'decisions.json', 'peer-providers.json', 'source-contract.json', 'core-current-contract.json']) await cp(join(fixtures, name), join(output, name));
     const matrix = constructProfiles(profiles, sourceContract);
     for (const profile of matrix) {
       const cwd = join(scratch, profile.id);
