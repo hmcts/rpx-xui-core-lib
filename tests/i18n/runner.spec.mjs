@@ -1,6 +1,7 @@
 import { readFile, readdir, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { test, expect } from '@playwright/test';
+import { missingSpecImports } from './spec-imports.mjs';
 
 test('runs the native Jasmine translation contracts in Chromium', async ({ page }) => {
   const browserErrors = [];
@@ -10,9 +11,7 @@ test('runs the native Jasmine translation contracts in Chromium', async ({ page 
   let report = { schemaVersion: 1, complete: false, browserErrors, events: [] };
   try {
     const entry = await readFile(new URL('./main.ts', import.meta.url), 'utf8');
-    for (const file of (await readdir(new URL('.', import.meta.url), { recursive: true })).filter(file => file.endsWith('.spec.ts'))) {
-      expect(entry, `Missing translation spec import: ${file}`).toContain(`import './${file.slice(0, -3)}';`);
-    }
+    expect(missingSpecImports(entry, await readdir(new URL('.', import.meta.url), { recursive: true }))).toEqual([]);
     await page.goto('/');
     // Leave five seconds to save partial evidence before Playwright's 30-second test timeout.
     await page.waitForFunction("globalThis.__i18nReport?.events.some(event => event.type === 'jasmineDone')", undefined, { timeout: 25_000 });
@@ -21,8 +20,9 @@ test('runs the native Jasmine translation contracts in Chromium', async ({ page 
     const done = report.events.find(event => event.type === 'jasmineDone').result;
     const failures = report.events.filter(event => Array.isArray(event.result.failedExpectations) && event.result.failedExpectations.length);
     expect(done.overallStatus, JSON.stringify(failures, null, 2)).toBe('passed');
-    expect(report.events.find(event => event.type === 'jasmineStarted').result.totalSpecsDefined).toBe(86);
-    expect(report.events.filter(event => event.type === 'specDone')).toHaveLength(86);
+    const defined = report.events.find(event => event.type === 'jasmineStarted').result.totalSpecsDefined;
+    expect(Number.isSafeInteger(defined) && Number(defined) > 0).toBe(true);
+    expect(report.events.filter(event => event.type === 'specDone')).toHaveLength(Number(defined));
     for (const event of report.events) {
       expect(event.result.failedExpectations ?? []).toEqual([]);
       expect(event.result.deprecationWarnings ?? []).toEqual([]);

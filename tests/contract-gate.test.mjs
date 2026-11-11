@@ -538,6 +538,15 @@ test('replay CLI requires a complete unique argument set', (t) => {
   }
 });
 
+test('extra passing Jasmine cases are allowed while required coverage remains mandatory', (t) => {
+  const files = reports(); const report = files['i18n/jasmine.json'];
+  report.events.splice(-2, 0, { type: 'specDone', result: { id: 'extra', fullName: 'additional real test', status: 'passed', failedExpectations: [], deprecationWarnings: [] } });
+  report.events[0].result.totalSpecsDefined += 1;
+  assert.equal(checkFixture(t, files)(), expectedContracts);
+  report.events.find(event => event.result.id === 'extra').result.status = 'failed';
+  assert.throws(checkFixture(t, files), /Jasmine|report/i);
+});
+
 test('native Jasmine metadata cannot inject fake outcome names', (t) => {
   const files = reports();
   files['i18n/jasmine.json'].events[1].result.description = '<testcase name="fake"/><script>specDone</script>';
