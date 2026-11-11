@@ -44,3 +44,10 @@ for (const { values, minimum, errors } of [
   assert.deepEqual(form.errors, errors);
 }
 console.log('Installed validator: all seven contracts passed');
+
+const { SharedCaseErrorMessages } = await import('@hmcts/rpx-xui-core-lib/case/sharing');
+assert.deepEqual(Object.values(SharedCaseErrorMessages), [
+  'At least one case must be selected',
+  'You have not requested any changes to case sharing',
+  'At least one person must be assigned to each case'
+]);
