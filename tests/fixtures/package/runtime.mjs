@@ -64,3 +64,10 @@ assert.equal(typeof accessibility.AccessibilityModule, 'function');
 const sessionDialog = await import('@hmcts/rpx-xui-core-lib/ui/session-dialog');
 assert.equal(sessionDialog.HmctsSessionDialogComponent.name, 'HmctsSessionDialogComponent');
 assert.equal(sessionDialog.SessionDialogModule.name, 'SessionDialogModule');
+
+const banner = await import('@hmcts/rpx-xui-core-lib/ui/banner');
+const formLabel = await import('@hmcts/rpx-xui-core-lib/ui/form-label');
+assert.equal(banner.HmctsBannerComponent.name, 'HmctsBannerComponent');
+assert.equal(banner.BannerModule.name, 'BannerModule');
+assert.equal(formLabel.GovUkLabelComponent.name, 'GovUkLabelComponent');
+assert.equal(formLabel.FormLabelModule.name, 'FormLabelModule');

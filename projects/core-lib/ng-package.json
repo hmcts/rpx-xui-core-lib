@@ -59,6 +59,16 @@
       "input": "ui/session-dialog",
       "glob": "LICENCE",
       "output": "ui/session-dialog"
+    },
+    {
+      "input": "ui/banner",
+      "glob": "LICENCE",
+      "output": "ui/banner"
+    },
+    {
+      "input": "ui/form-label",
+      "glob": "LICENCE",
+      "output": "ui/form-label"
     }
   ],
   "allowedNonPeerDependencies": [

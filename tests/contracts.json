@@ -149,6 +149,31 @@
         "projectName": "chromium",
         "title": "nested modal restoration returns focus to its own opener",
         "feature": "session-dialog"
+      },
+      {
+        "projectName": "chromium",
+        "title": "banner renders and removes the configured success message and icon",
+        "feature": "ui-primitives"
+      },
+      {
+        "projectName": "chromium",
+        "title": "form label associates the field and retains optional heading variants",
+        "feature": "ui-primitives"
+      },
+      {
+        "projectName": "chromium",
+        "title": "heading label and banner use translated messages",
+        "feature": "ui-primitives"
+      },
+      {
+        "projectName": "chromium",
+        "title": "primitives pass scoped serious accessibility checks",
+        "feature": "ui-primitives"
+      },
+      {
+        "projectName": "chromium",
+        "title": "non-heading label preserves supplied text when language changes",
+        "feature": "ui-primitives"
       }
     ]
   },
@@ -178,7 +203,8 @@
       "package.restored-runtime-graph",
       "package.due-date-graph",
       "package.accessibility-graph",
-      "package.session-dialog-graph"
+      "package.session-dialog-graph",
+      "package.primitives-entry-graphs"
     ]
   },
   "nodeUnit": {

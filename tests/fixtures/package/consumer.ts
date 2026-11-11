@@ -75,3 +75,7 @@ export { HmctsSessionDialogComponent, SessionDialogModule };
 type IsAny<T> = 0 extends (1 & T) ? true : false;
 type SessionCloseValue = Parameters<HmctsSessionDialogComponent['close']['emit']>[0];
 export const legacySessionCloseType: IsAny<SessionCloseValue> = true;
+
+import { HmctsBannerComponent, BannerModule } from '@hmcts/rpx-xui-core-lib/ui/banner';
+import { GovUkLabelComponent, FormLabelModule } from '@hmcts/rpx-xui-core-lib/ui/form-label';
+export { HmctsBannerComponent, BannerModule, GovUkLabelComponent, FormLabelModule };

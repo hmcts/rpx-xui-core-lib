@@ -17,7 +17,9 @@ class ValidationGallery {
   submitted = false;
 }
 
-const application = window.location.pathname === '/session-dialog'
+const application = window.location.pathname === '/primitives'
+  ? import('./primitives').then(({ startPrimitivesGallery }) => startPrimitivesGallery())
+  : window.location.pathname === '/session-dialog'
   ? import('./session-dialog').then(({ startSessionDialogGallery }) => startSessionDialogGallery())
   : window.location.pathname === '/accessibility'
   ? import('./accessibility').then(({ startAccessibilityGallery }) => startAccessibilityGallery())

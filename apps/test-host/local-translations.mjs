@@ -23,7 +23,7 @@ export default {
         }
         const { phrases } = JSON.parse(body);
         if (!Array.isArray(phrases) || !phrases.every((phrase) => typeof phrase === 'string')) throw new Error('Invalid phrases');
-        const translations = Object.fromEntries(phrases.map((phrase) => [phrase, phrase === 'Accessibility statement for MyHMCTS' ? 'Datganiad hygyrchedd MyHMCTS' : phrase === 'We are about to sign you out' ? 'Rydym ar fin eich allgofnodi' : phrase === 'Hello world' ? 'Helo byd' : phrase === 'Searching' ? 'Chwilio' : phrase === 'Phone:' ? 'Ffôn:' : phrase === 'TODAY' ? 'HEDDIW' : phrase === 'This task is due to be completed today' ? 'Mae’r dasg hon i fod i gael ei chwblhau heddiw' : phrase]));
+        const translations = Object.fromEntries(phrases.map((phrase) => [phrase, phrase === 'Accessibility statement for MyHMCTS' ? 'Datganiad hygyrchedd MyHMCTS' : phrase === 'We are about to sign you out' ? 'Rydym ar fin eich allgofnodi' : phrase === 'Saved' ? 'Wedi cadw' : phrase === 'Case name' ? 'Enw achos' : phrase === 'Hello world' ? 'Helo byd' : phrase === 'Searching' ? 'Chwilio' : phrase === 'Phone:' ? 'Ffôn:' : phrase === 'TODAY' ? 'HEDDIW' : phrase === 'This task is due to be completed today' ? 'Mae’r dasg hon i fod i gael ei chwblhau heddiw' : phrase]));
         response.writeHead(200).end(JSON.stringify({ translations }));
       } catch {
         response.writeHead(400).end(JSON.stringify({ error: 'Invalid local translation request' }));
