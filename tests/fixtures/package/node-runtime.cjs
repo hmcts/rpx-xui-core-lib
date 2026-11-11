@@ -1,5 +1,5 @@
 const assert = require('node:assert/strict');
-const { arrayPatternMatch, isStringPatternMatch, getUserSessionTimeout } = require('@hmcts/rpx-xui-core-lib/node');
+const { arrayPatternMatch, isStringPatternMatch, getUserSessionTimeout, hasKey, sortArray } = require('@hmcts/rpx-xui-core-lib/node');
 assert.equal(isStringPatternMatch('pui-user-manager', '^pui-'), true);
 assert.equal(arrayPatternMatch(['pui-user-manager'], 'user-manager'), true);
 assert.equal(arrayPatternMatch([], '['), false);
@@ -10,5 +10,9 @@ const selected = { pattern: 'manager', idleModalDisplayTime: 2, totalIdleTime: 1
 assert.equal(getUserSessionTimeout(roles, [selected]), selected);
 assert.deepEqual(roles, ['account', 'manager']);
 assert.equal(getUserSessionTimeout([], []), getUserSessionTimeout(['other'], []));
+assert.equal(hasKey(Object.create({ inherited: true }), 'inherited'), true);
+const sorted = ['b', 'a'];
+assert.equal(sortArray(sorted), sorted);
+assert.deepEqual(sorted, ['a', 'b']);
 assert.ok(Object.keys(require.cache).every((path) => !/\/@angular\/|rpx-xui-node-lib|rpx-xui-translation/.test(path)));
 console.log('Installed CommonJS Node contract passed without Angular or legacy initialization');

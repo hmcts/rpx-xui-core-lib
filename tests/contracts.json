@@ -97,7 +97,9 @@
       "getUserSessionTimeout matches configuration order and sorts roles in place",
       "getUserSessionTimeout returns the same mutable fallback for unmatched and empty roles",
       "getUserSessionTimeout throws for an invalid pattern only when there are roles to examine",
-      "getUserSessionTimeout throws on missing roles or configuration"
+      "getUserSessionTimeout throws on missing roles or configuration",
+      "hasKey includes inherited keys and rejects absent keys",
+      "sortArray returns the same array sorted in place"
     ]
   },
   "i18nUnit": {

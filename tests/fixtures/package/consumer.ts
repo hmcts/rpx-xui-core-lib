@@ -7,10 +7,12 @@ const validator: ValidatorFn = checkboxesBeCheckedValidator(2);
 const form: FormGroup = new FormGroup({ first: new FormControl(true) }, validator);
 void form.errors;
 
-import { arrayPatternMatch, isStringPatternMatch, getUserSessionTimeout, type RoleGroupSessionTimeout } from '@hmcts/rpx-xui-core-lib/node';
+import { arrayPatternMatch, isStringPatternMatch, getUserSessionTimeout, hasKey, sortArray, type RoleGroupSessionTimeout } from '@hmcts/rpx-xui-core-lib/node';
 const matches: boolean = arrayPatternMatch(['pui-user-manager'], 'user-manager');
 const singleMatch: boolean = isStringPatternMatch('pui-user-manager', '^pui-');
-void [matches, singleMatch];
+const keyPresent: boolean = hasKey({ role: 'manager' }, 'role');
+const sortedRoles: string[] = sortArray(['b', 'a']);
+void [matches, singleMatch, keyPresent, sortedRoles];
 
 import { RpxTranslationConfig, RpxTranslationService, RpxTranslationModule, RpxTranslatePipe, type RpxLanguage, type Replacements } from '@hmcts/rpx-xui-core-lib/i18n';
 import { RpxTranslationService as LegacyTranslationService } from 'rpx-xui-translation';
