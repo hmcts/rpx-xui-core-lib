@@ -82,6 +82,11 @@
         "input": "case/reference",
         "glob": "LICENCE",
         "output": "case/reference"
+      },
+      {
+        "input": "case/sharing",
+        "glob": "LICENCE",
+        "output": "case/sharing"
       }
     ],
     "allowedNonPeerDependencies": [

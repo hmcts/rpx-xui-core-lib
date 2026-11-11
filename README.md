@@ -147,3 +147,5 @@ Library package publication remains disabled. Before adoption, consumer and rele
 - [Security policy](SECURITY.md)
 
 EXUI owns this repository. Changes go through a pull request to `master`, the required `build` check and human review. Licensed under the [MIT licence](LICENCE).
+
+`case/sharing` supplies the case-sharing models and error messages used by webapp and manage organisations. These are copied from CommonLib commit `f8566da8a53bff16177deeef824a0642a631285c`, retain the original 2019 Crown Copyright licence, and remain a selective entry point; application adoption is not implied.

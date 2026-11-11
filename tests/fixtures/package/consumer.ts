@@ -52,3 +52,11 @@ export {
   caseReference, CaseReferenceModule,
   draft, details, DRAFT_PREFIX, DRAFT_QUERY_PARAM,
 };
+
+import { SharedCaseErrorMessages, type SharedCase, type UserDetails, type UserAccessType } from '@hmcts/rpx-xui-core-lib/case/sharing';
+const access: UserAccessType = { jurisdictionId: 'j', organisationProfileId: 'p', accessTypeId: 'a', enabled: true };
+const sharedUser: UserDetails = { email: 'test@example.test', firstName: 'First', lastName: 'Last', idamId: 'id', userAccessTypes: [access] };
+export const sharedCase: SharedCase = { caseId: 'case', caseTitle: 'Title', pendingShares: [sharedUser] };
+export const sharingError: SharedCaseErrorMessages = SharedCaseErrorMessages.OneCaseMustBeSelected;
+// @ts-expect-error caseId remains required in the legacy contract.
+export const invalidSharedCase: SharedCase = { caseTitle: 'Title' };
