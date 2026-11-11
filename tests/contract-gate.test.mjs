@@ -157,6 +157,7 @@ const packageIds = [
   'package.physical-i18n', 'package.staged-i18n-identity',
   "package.root-runtime-empty",
   "package.validation-graph",
+  "package.sharing-graph",
   "package.root-export-fault",
   "package.validation-i18n-fault",
   "package.restored-runtime-graph",
