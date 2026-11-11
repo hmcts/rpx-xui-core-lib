@@ -5,30 +5,34 @@
     "node": ">=24.22.2 <25"
   },
   "devCohort": {
-    "@angular/build": "20.3.32",
-    "@angular/cli": "20.3.32",
-    "@angular/common": "20.3.31",
-    "@angular/compiler": "20.3.31",
-    "@angular/compiler-cli": "20.3.31",
-    "@angular/core": "20.3.31",
-    "@angular/forms": "20.3.31",
-    "@angular/platform-browser": "20.3.31",
+    "@angular/build": "20.3.42",
+    "@angular/cli": "20.3.42",
+    "@angular/common": "20.3.35",
+    "@angular/compiler": "20.3.35",
+    "@angular/compiler-cli": "20.3.35",
+    "@angular/core": "20.3.35",
+    "@angular/forms": "20.3.35",
+    "@angular/platform-browser": "20.3.35",
     "ng-packagr": "20.3.2",
     "rxjs": "7.8.2",
     "typescript": "5.9.3",
     "zone.js": "0.15.1"
   },
   "resolutions": {},
+  "overrides": {},
   "libraryPeerDependencies": {
-    "@angular/common": "20.3.31",
-    "@angular/core": "20.3.31",
-    "@angular/forms": "20.3.31",
+    "@angular/common": "20.3.35",
+    "@angular/core": "20.3.35",
+    "@angular/forms": "20.3.35",
     "rxjs": "7.8.2"
   },
+  "libraryPeerDependenciesMeta": {},
   "libraryDependencies": {
     "dexie": "4.4.4",
     "luxon": "2.5.2"
   },
+  "libraryResolutions": {},
+  "libraryOverrides": {},
   "ngPackage": {
     "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
     "dest": "../../dist/core-lib",
@@ -62,23 +66,19 @@
     "yarnPath": ".yarn/releases/yarn-4.18.1.cjs"
   },
   "lockedVersions": {
-    "@angular/build": "20.3.32",
-    "@angular/cli": "20.3.32",
-    "@angular/common": "20.3.31",
-    "@angular/compiler": "20.3.31",
-    "@angular/compiler-cli": "20.3.31",
-    "@angular/core": "20.3.31",
-    "@angular/forms": "20.3.31",
-    "@angular/platform-browser": "20.3.31",
+    "@angular/build": "20.3.42",
+    "@angular/cli": "20.3.42",
+    "@angular/common": "20.3.35",
+    "@angular/compiler": "20.3.35",
+    "@angular/compiler-cli": "20.3.35",
+    "@angular/core": "20.3.35",
+    "@angular/forms": "20.3.35",
+    "@angular/platform-browser": "20.3.35",
     "ng-packagr": "20.3.2",
     "rxjs": "7.8.2",
     "typescript": "5.9.3",
     "zone.js": "0.15.1",
     "dexie": "4.4.4",
     "luxon": "2.5.2"
-  },
-  "overrides": {},
-  "libraryPeerDependenciesMeta": {},
-  "libraryResolutions": {},
-  "libraryOverrides": {}
+  }
 }

@@ -38,3 +38,26 @@ jobs:
             playwright-report/
             test-results/
           if-no-files-found: error
+
+  dependency-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+      - name: Resolve the locked graph without dependency build scripts
+        run: node .yarn/releases/yarn-4.18.1.cjs install --immutable --mode=skip-build
+      - name: Audit runtime and development dependencies
+        run: |
+          mkdir -p test-results
+          node .yarn/releases/yarn-4.18.1.cjs npm audit --all --recursive --json > test-results/dependency-audit.jsonl
+      - name: Retain dependency audit
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: dependency-audit-evidence
+          path: test-results/dependency-audit.jsonl
+          if-no-files-found: error

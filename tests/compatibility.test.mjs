@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import yaml from 'js-yaml';
 import { test } from 'node:test';
 import * as compatibility from '../scripts/check-compatibility.mjs';
 import { cpSync, mkdtempSync, mkdirSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
@@ -267,12 +268,19 @@ test('matrix CLI rejects invalid decisions and profiles before any host install'
       assert.equal(report.profiles.length, 0);
     }
     writeFileSync(join(dir, 'tests/fixtures/compatibility/profiles.json'), JSON.stringify(baseProfiles));
+    const coreVersion = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')).devDependencies['@angular/core'];
     /** @type {Array<[string, (body: string) => string]>} */
     const mutations = [
       ['package.json', (body) => { const value = JSON.parse(body); value.devDependencies['@angular/core'] = '99.0.0'; return JSON.stringify(value); }],
       ['projects/core-lib/package.json', (body) => { const value = JSON.parse(body); value.peerDependencies['@angular/core'] = '99.0.0'; return JSON.stringify(value); }],
       ['.yarnrc.yml', (body) => body.replace('nodeLinker: node-modules', 'nodeLinker: pnp')],
-      ['yarn.lock', (body) => body.replace(/("@angular\/core@npm:20\.3\.31":\n  version: )20\.3\.31/, '$199.0.0')],
+      ['yarn.lock', (body) => {
+        const lock = yaml.load(body);
+        const key = Object.keys(lock).find((descriptor) => descriptor.split(', ').includes(`@angular/core@npm:${coreVersion}`));
+        assert.ok(key, 'current Angular core descriptor exists');
+        lock[key].version = '99.0.0';
+        return yaml.dump(lock);
+      }],
     ];
     for (const [name, mutate] of mutations) {
       const path = join(dir, name);

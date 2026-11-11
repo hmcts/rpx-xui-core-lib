@@ -23,7 +23,7 @@
   {
     "id": "zone",
     "selection": "0.15.1 supported initial core cohort",
-    "conflict": "Angular20.3.31 peer~0.15.0 excludes actual host0.16.2/0.16.3",
+    "conflict": "Angular20.3.35 peer~0.15.0 excludes frozen host0.16.2/0.16.3",
     "required_proof": "Explicit host alignment or supported framework cohort; no ignored peers",
     "status": "blocked"
   },
@@ -36,8 +36,8 @@
   },
   {
     "id": "host-angular",
-    "selection": "20.3.31 library cohort",
-    "conflict": "MO router20.3.33 and MC lock compiler20.3.35 vs fixed core/common20.3.31",
+    "selection": "20.3.35 library cohort",
+    "conflict": "Current core peers require20.3.35; frozen hosts still include common/core20.3.31 and MO router20.3.33, with mixed compiler patches",
     "required_proof": "Coherent host framework/compiler versions in separately reviewable adoption prep",
     "status": "blocked"
   },
