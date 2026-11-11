@@ -29,6 +29,16 @@
       "input": "ui/loading-spinner",
       "glob": "LICENCE",
       "output": "ui/loading-spinner"
+    },
+    {
+      "input": "case/models",
+      "glob": "LICENCE",
+      "output": "case/models"
+    },
+    {
+      "input": "case/reference",
+      "glob": "LICENCE",
+      "output": "case/reference"
     }
   ],
   "allowedNonPeerDependencies": [

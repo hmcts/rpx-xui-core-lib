@@ -60,8 +60,8 @@ try {
   await check('package.physical-secondary-declaration', async () => {
     assert.ok((await stat(join(dist, declaration))).isFile());
     assert.ok((await stat(join(dist, 'forms/validation/LICENCE'))).isFile());
-    for (const entry of ['contact-details', 'loading-spinner']) {
-      assert.equal(await readFile(join(dist, 'ui', entry, 'LICENCE'), 'utf8'), await readFile(join(root, 'projects/core-lib/ui', entry, 'LICENCE'), 'utf8'), 'UI source licence must survive packaging');
+    for (const entry of ['ui/contact-details', 'ui/loading-spinner', 'case/models', 'case/reference']) {
+      assert.equal(await readFile(join(dist, entry, 'LICENCE'), 'utf8'), await readFile(join(root, 'projects/core-lib', entry, 'LICENCE'), 'utf8'), 'Copied source licence must survive packaging');
     }
   });
 
@@ -117,8 +117,8 @@ try {
   await check('package.strict-bundler', () => run('strict-bundler', [compiler, '-p', 'tsconfig.bundler.json'], consumer));
   await check('package.installed-runtime', async () => {
     await run('installed-runtime', ['runtime.mjs'], consumer);
-    for (const entry of ['contact-details', 'loading-spinner']) {
-      assert.equal(await readFile(join(installed, 'ui', entry, 'LICENCE'), 'utf8'), await readFile(join(root, 'projects/core-lib/ui', entry, 'LICENCE'), 'utf8'), 'UI source licence must survive immutable installation');
+    for (const entry of ['ui/contact-details', 'ui/loading-spinner', 'case/models', 'case/reference']) {
+      assert.equal(await readFile(join(installed, entry, 'LICENCE'), 'utf8'), await readFile(join(root, 'projects/core-lib', entry, 'LICENCE'), 'utf8'), 'Copied source licence must survive immutable installation');
     }
   });
 
