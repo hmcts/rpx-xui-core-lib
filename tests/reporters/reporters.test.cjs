@@ -158,7 +158,12 @@ test('reporter configuration preserves native evidence and rejects unknown repor
 
 test('vendored reporter is reproducible and unsupported modes cannot load removed tooling', () => {
   const archive = path.join(root, '.yarn/patches/odhin-reports-playwright-1.1.8-core.tgz');
-  const verified = spawnSync('python3', [path.join(__dirname, 'vendor-odhin.py'), '--verify', archive], { encoding: 'utf8', timeout: 10_000 });
+  const tools = path.join(workspace, 'untrusted-tools');
+  fs.mkdirSync(tools);
+  fs.writeFileSync(path.join(tools, 'git'), '#!/bin/sh\nexit 73\n', { mode: 0o755 });
+  const verified = spawnSync('python3', [path.join(__dirname, 'vendor-odhin.py'), '--verify', archive], {
+    encoding: 'utf8', timeout: 10_000, env: { ...process.env, PATH: `${tools}${path.delimiter}${process.env.PATH}` },
+  });
   assert.equal(verified.status, 0, verified.stdout + verified.stderr);
   const manifest = require('odhin-reports-playwright/package.json');
   assert.deepEqual(Object.keys(manifest.dependencies).sort(), ['ansi-to-html', 'fs-extra', 'lodash', 'picocolors']);

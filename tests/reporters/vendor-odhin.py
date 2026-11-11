@@ -46,7 +46,7 @@ def apply_patch(source, reverse=False, patch=SECURITY_PATCH):
     newline_file = source / 'lib/html/assets/js/dataTables.min.js'
     if patch == UI_PATCH and not reverse and not newline_file.read_bytes().endswith(b'\n'):
         newline_file.write_bytes(newline_file.read_bytes() + b'\n')
-    command = ['git', 'apply', '--whitespace=nowarn', str(patch)]
+    command = ['/usr/bin/git', 'apply', '--whitespace=nowarn', str(patch)]
     if reverse:
         command.append('--reverse')
     result = subprocess.run(command, cwd=source, capture_output=True, text=True)

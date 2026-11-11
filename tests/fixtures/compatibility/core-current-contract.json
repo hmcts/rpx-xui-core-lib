@@ -18,7 +18,15 @@
     "typescript": "5.9.3",
     "zone.js": "0.15.1"
   },
-  "resolutions": {},
+  "resolutions": {
+    "eslint@npm:10.14.0/minimatch": "11.0.8",
+    "@eslint/config-array@npm:0.23.5/minimatch": "11.0.8",
+    "@typescript-eslint/typescript-estree@npm:8.72.2/minimatch": "11.0.8",
+    "@npmcli/package-json@npm:7.0.5/glob": "14.0.4",
+    "cacache@npm:20.0.4/glob": "14.0.4",
+    "ignore-walk@npm:8.0.0/minimatch": "11.0.8",
+    "@tufjs/models@npm:4.1.0/minimatch": "11.0.8"
+  },
   "overrides": {},
   "libraryPeerDependencies": {
     "@angular/common": "20.3.35",
@@ -83,7 +91,10 @@
   },
   "yarnConfig": {
     "nodeLinker": "node-modules",
-    "yarnPath": ".yarn/releases/yarn-4.18.1.cjs"
+    "yarnPath": ".yarn/releases/yarn-4.18.1.cjs",
+    "npmPreapprovedPackages": [
+      "minimatch@11.0.8"
+    ]
   },
   "lockedVersions": {
     "@angular/build": "20.3.42",
