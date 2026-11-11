@@ -39,3 +39,12 @@ void [LoadingSpinnerComponent, LoadingSpinnerModule];
 import { BadgeColour, ContactDetailsComponent, ContactDetailsModule, type ContactDetailsDataModel } from '@hmcts/rpx-xui-core-lib/ui/contact-details';
 const contact: ContactDetailsDataModel = { badgeColour: BadgeColour.BADGE_BLUE };
 void [contact, ContactDetailsComponent, ContactDetailsModule];
+
+import { CaseReferencePipe, CaseReferenceModule } from '@hmcts/rpx-xui-core-lib/case/reference';
+const caseReference = new CaseReferencePipe().transform('1234567890123456');
+void [caseReference, CaseReferenceModule];
+
+import { Draft, CaseDetails, DRAFT_PREFIX, DRAFT_QUERY_PARAM } from '@hmcts/rpx-xui-core-lib/case/models';
+const draft = new Draft();
+const details = new CaseDetails();
+void [draft, details, DRAFT_PREFIX, DRAFT_QUERY_PARAM];

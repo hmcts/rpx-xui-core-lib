@@ -129,7 +129,7 @@ const i18nNames = [
   "translation real cache recovery recovers from a rejected expired deletion with real IndexedDB and a fresh service",
   "translation real cache recovery keeps a malformed response fallback stable then recovers after a language cycle",
 ];
-const i18nJourneys = ['contact details show optional fields and translate labels', 'spinner displays default, updated and translated text', 'a late Welsh response preserves English and is reused after switching back', 'locale switches reuse persisted translations across English and page reloads', 'a translation HTTP failure returns and caches the original phrase', 'local gallery translates through its own synthetic service', 'local gallery demonstrates a synthetic service failure', 'local translation endpoint validates requests'];
+const i18nJourneys = ['case reference formatting preserves links and handles drafts', 'contact details show optional fields and translate labels', 'spinner displays default, updated and translated text', 'a late Welsh response preserves English and is reused after switching back', 'locale switches reuse persisted translations across English and page reloads', 'a translation HTTP failure returns and caches the original phrase', 'local gallery translates through its own synthetic service', 'local gallery demonstrates a synthetic service failure', 'local translation endpoint validates requests'];
 const cacheJourneys = [
   "baseline: legacy to core preserves valid cached translation",
   "baseline: core to legacy preserves valid cached translation",
