@@ -61,6 +61,10 @@
       {
         "projectName": "chromium",
         "title": "local translation endpoint validates requests"
+      },
+      {
+        "projectName": "chromium",
+        "title": "spinner displays default, updated and translated text"
       }
     ]
   },

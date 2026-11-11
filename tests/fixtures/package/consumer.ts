@@ -32,3 +32,6 @@ const configuration = new RpxTranslationConfig();
 void [translationConstructor, language, replacements, configuration, RpxTranslationModule, RpxTranslatePipe];
 
 export const timeout: RoleGroupSessionTimeout = getUserSessionTimeout(['role'], [{ pattern: 'role', idleModalDisplayTime: 2, totalIdleTime: 10 }]);
+
+import { LoadingSpinnerComponent, LoadingSpinnerModule } from '@hmcts/rpx-xui-core-lib/ui/loading-spinner';
+void [LoadingSpinnerComponent, LoadingSpinnerModule];

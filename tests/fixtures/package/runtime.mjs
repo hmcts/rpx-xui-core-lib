@@ -1,7 +1,11 @@
 import '@angular/compiler';
 import assert from 'node:assert/strict';
 import { FormControl, FormGroup } from '@angular/forms';
+import { LoadingSpinnerComponent, LoadingSpinnerModule } from '@hmcts/rpx-xui-core-lib/ui/loading-spinner';
 import { checkboxesBeCheckedValidator } from '@hmcts/rpx-xui-core-lib/forms/validation';
+
+assert.equal(LoadingSpinnerComponent.name, 'LoadingSpinnerComponent');
+assert.ok(LoadingSpinnerModule.ɵmod);
 
 const required = { requireOneCheckboxToBeChecked: true };
 for (const { values, minimum, errors } of [
