@@ -79,3 +79,7 @@ export const legacySessionCloseType: IsAny<SessionCloseValue> = true;
 import { HmctsBannerComponent, BannerModule } from '@hmcts/rpx-xui-core-lib/ui/banner';
 import { GovUkLabelComponent, FormLabelModule } from '@hmcts/rpx-xui-core-lib/ui/form-label';
 export { HmctsBannerComponent, BannerModule, GovUkLabelComponent, FormLabelModule };
+
+import { LoadingService, HasLoadingState } from '@hmcts/rpx-xui-core-lib/ui/loading-state';
+export const loadingService: HasLoadingState = new LoadingService();
+export const loadingRegistration: string = loadingService instanceof LoadingService ? loadingService.register() : '';

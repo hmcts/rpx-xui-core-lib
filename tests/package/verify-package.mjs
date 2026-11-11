@@ -60,7 +60,7 @@ try {
   await check('package.physical-secondary-declaration', async () => {
     assert.ok((await stat(join(dist, declaration))).isFile());
     assert.ok((await stat(join(dist, 'forms/validation/LICENCE'))).isFile());
-    for (const entry of ['ui/contact-details', 'ui/loading-spinner', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog', 'ui/banner', 'ui/form-label', 'case/models', 'case/reference', 'case/sharing']) {
+    for (const entry of ['ui/contact-details', 'ui/loading-spinner', 'ui/loading-state', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog', 'ui/banner', 'ui/form-label', 'case/models', 'case/reference', 'case/sharing']) {
       assert.equal(await readFile(join(dist, entry, 'LICENCE'), 'utf8'), await readFile(join(root, 'projects/core-lib', entry, 'LICENCE'), 'utf8'), 'Copied source licence must survive packaging');
     }
   });
@@ -118,7 +118,7 @@ try {
   await check('package.strict-bundler', () => run('strict-bundler', [compiler, '-p', 'tsconfig.bundler.json'], consumer));
   await check('package.installed-runtime', async () => {
     await run('installed-runtime', ['runtime.mjs'], consumer);
-    for (const entry of ['ui/contact-details', 'ui/loading-spinner', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog', 'ui/banner', 'ui/form-label', 'case/models', 'case/reference', 'case/sharing']) {
+    for (const entry of ['ui/contact-details', 'ui/loading-spinner', 'ui/loading-state', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog', 'ui/banner', 'ui/form-label', 'case/models', 'case/reference', 'case/sharing']) {
       assert.equal(await readFile(join(installed, entry, 'LICENCE'), 'utf8'), await readFile(join(root, 'projects/core-lib', entry, 'LICENCE'), 'utf8'), 'Copied source licence must survive immutable installation');
     }
   });
@@ -130,6 +130,16 @@ try {
     assert.ok(!used.some((path) => /hmcts-rpx-xui-core-lib-i18n\.mjs|(?:^|\/)dexie(?:\/|$)|(?:^|\/)luxon(?:\/|$)|(?:^|\/)node(?:\/|$)|^node:/.test(path)), 'Validation graph must exclude i18n, Dexie, Luxon and Node');
     return result.metafile;
   };
+  await cp(join(root, 'tests/loading-state/loading-state.test.mjs'), join(consumer, 'loading-state.test.mjs'));
+  await check('package.loading-state-behavior', () => run('loading-state-behavior', ['--test', 'loading-state.test.mjs'], consumer));
+
+  await check('package.loading-state-graph', async () => {
+    const result = buildSync({ entryPoints: ['loading-state-graph.mjs'], absWorkingDir: consumer, bundle: true, platform: 'browser', format: 'esm', metafile: true, write: false, logLevel: 'silent' });
+    const used = Object.values(result.metafile.outputs).flatMap(output => Object.entries(output.inputs).filter(([, value]) => value.bytesInOutput > 0).map(([path]) => path.replaceAll('\\', '/')));
+    assert.ok(used.some(path => path.endsWith('/fesm2022/hmcts-rpx-xui-core-lib-ui-loading-state.mjs')));
+    assert.ok(!used.some(path => /hmcts-rpx-xui-core-lib-(?:ui-loading-spinner|ui-contact-details|ui-due-date|ui-accessibility|case-|forms-|i18n)|(?:^|\/)node(?:\/|$)|^node:/.test(path)));
+  });
+
   await check('package.sharing-graph', async () => {
     const result = buildSync({ entryPoints: ['sharing-graph.mjs'], absWorkingDir: consumer, bundle: true, platform: 'browser', format: 'esm', metafile: true, write: false, logLevel: 'silent' });
     const used = Object.values(result.metafile.outputs).flatMap((output) => Object.entries(output.inputs).filter(([, value]) => value.bytesInOutput > 0).map(([input]) => input.replaceAll('\\', '/')));

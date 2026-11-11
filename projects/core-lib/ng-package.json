@@ -69,6 +69,11 @@
       "input": "ui/form-label",
       "glob": "LICENCE",
       "output": "ui/form-label"
+    },
+    {
+      "input": "ui/loading-state",
+      "glob": "LICENCE",
+      "output": "ui/loading-state"
     }
   ],
   "allowedNonPeerDependencies": [

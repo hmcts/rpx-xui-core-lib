@@ -198,6 +198,8 @@
       "package.root-runtime-empty",
       "package.validation-graph",
       "package.sharing-graph",
+      "package.loading-state-graph",
+      "package.loading-state-behavior",
       "package.root-export-fault",
       "package.validation-i18n-fault",
       "package.restored-runtime-graph",

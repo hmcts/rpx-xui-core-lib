@@ -71,3 +71,10 @@ assert.equal(banner.HmctsBannerComponent.name, 'HmctsBannerComponent');
 assert.equal(banner.BannerModule.name, 'BannerModule');
 assert.equal(formLabel.GovUkLabelComponent.name, 'GovUkLabelComponent');
 assert.equal(formLabel.FormLabelModule.name, 'FormLabelModule');
+
+const { LoadingService } = await import('@hmcts/rpx-xui-core-lib/ui/loading-state');
+const service = new LoadingService();
+let loadingState;
+const loadingSubscription = service.isLoading.subscribe(value => { loadingState = value; });
+assert.equal(loadingState, false);
+loadingSubscription.unsubscribe();

@@ -186,6 +186,8 @@ const packageIds = [
   "package.root-runtime-empty",
   "package.validation-graph",
   "package.sharing-graph",
+      "package.loading-state-graph",
+      "package.loading-state-behavior",
   "package.due-date-graph",
   "package.accessibility-graph",
   "package.session-dialog-graph",
