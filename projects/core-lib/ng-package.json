@@ -19,6 +19,16 @@
       "input": "i18n",
       "glob": "LICENCE",
       "output": "i18n"
+    },
+    {
+      "input": "ui/contact-details",
+      "glob": "LICENCE",
+      "output": "ui/contact-details"
+    },
+    {
+      "input": "ui/loading-spinner",
+      "glob": "LICENCE",
+      "output": "ui/loading-spinner"
     }
   ],
   "allowedNonPeerDependencies": [
