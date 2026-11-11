@@ -37,7 +37,8 @@
   "libraryPeerDependenciesMeta": {},
   "libraryDependencies": {
     "dexie": "4.4.7",
-    "luxon": "2.5.2"
+    "luxon": "2.5.2",
+    "axios": "^1.20.0"
   },
   "libraryResolutions": {},
   "libraryOverrides": {},
@@ -91,7 +92,8 @@
     ],
     "allowedNonPeerDependencies": [
       "dexie",
-      "luxon"
+      "luxon",
+      "axios"
     ]
   },
   "yarnConfig": {
@@ -99,7 +101,8 @@
     "yarnPath": ".yarn/releases/yarn-4.18.1.cjs",
     "npmPreapprovedPackages": [
       "minimatch@11.0.8"
-    ]
+    ],
+    "nmHoistingLimits": "workspaces"
   },
   "lockedVersions": {
     "@angular/build": "20.3.42",
@@ -115,6 +118,18 @@
     "typescript": "5.9.3",
     "zone.js": "0.15.1",
     "dexie": "4.4.7",
-    "luxon": "2.5.2"
+    "luxon": "2.5.2",
+    "axios": "1.21.1"
+  },
+  "rootWorkspaces": [
+    "projects/core-lib/node"
+  ],
+  "nodeWorkspace": {
+    "type": "commonjs",
+    "name": "@hmcts/rpx-xui-core-node-workspace",
+    "private": true,
+    "devDependencies": {
+      "axios": "^1.20.0"
+    }
   }
 }
