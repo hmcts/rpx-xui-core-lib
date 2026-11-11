@@ -32,6 +32,10 @@ const nodeNames = [
   'invalid patterns throw SyntaxError for a string or nonempty roles',
 ];
 const i18nNames = [
+  "replacePlaceholders handles literal metacharacter keys, repeated values and empty literals",
+  "RpxTranslatePipe transform passes explicit literal replacements to the service",
+  "translation real cache recovery keeps literal values out of requests and real IndexedDB across language changes",
+  "RpxTranslationService public API composition keeps explicit literal replacements out of translation requests",
   "matchCase should return the second string with the same case as the first string if the first character is uppercase",
   "matchCase should return the second string in lowercase if the first character is lowercase",
   "matchCase should return the second string as is if either string is empty",
@@ -116,7 +120,12 @@ const i18nNames = [
   "translation real cache recovery keeps a malformed response fallback stable then recovers after a language cycle",
 ];
 const i18nJourneys = ['a late Welsh response preserves English and is reused after switching back', 'locale switches reuse persisted translations across English and page reloads', 'a translation HTTP failure returns and caches the original phrase', 'local gallery translates through its own synthetic service', 'local gallery demonstrates a synthetic service failure', 'local translation endpoint validates requests'];
-const cacheJourneys = ['legacy to core preserves valid cached translation', 'core to legacy preserves valid cached translation', 'core replaces an expired cache row written by published legacy'];
+const cacheJourneys = [
+  'installed core keeps literal values out of requests and IndexedDB after reload',
+  'legacy to core preserves valid cached translation',
+  'core to legacy preserves valid cached translation',
+  'core replaces an expired cache row written by published legacy',
+];
 const journey = 'keyboard checkbox toggles update real FormGroup validity and submitted errors';
 const validationJourneys = [
   'validation keyboard traversal toggles roles and submits with Enter and Space',

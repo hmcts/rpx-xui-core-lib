@@ -61,6 +61,14 @@ describe('RpxTranslatePipe', () => {
       expect(translationServiceMock.getTranslationWithReplacements$).toHaveBeenCalledWith(str, replacements);
     });
 
+    it('passes explicit literal replacements to the service', () => {
+      translationServiceMock.getTranslationWithReplacements$.and.returnValue(of('result'));
+      pipe.transform('Hello %name%', null, undefined, { name: 'Fictional Person' });
+      expect(translationServiceMock.getTranslationWithReplacements$).toHaveBeenCalledWith(
+        'Hello %name%', {}, { name: 'Fictional Person' }
+      );
+    });
+
     it('should call getYesTranslationReplacement with the string and yesOrNo argument when yesOrNo is "yes"', () => {
       const str = 'Are you sure?';
       const yesOrNo = 'Yes';

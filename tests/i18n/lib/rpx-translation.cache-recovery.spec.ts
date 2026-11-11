@@ -51,6 +51,24 @@ describe('translation real cache recovery', () => {
     document.cookie = 'exui-preferred-language=; Max-Age=0; SameSite=Strict;';
   });
 
+  it('keeps literal values out of requests and real IndexedDB across language changes', async () => {
+    const service = createService();
+    const values: string[] = [];
+    const literal = 'Fictional Person 123';
+    service.getTranslationWithReplacements$('Hello %NAME%!', {}, { NAME: literal }).subscribe(value => values.push(value));
+    const request = await nextRequest();
+    expect(JSON.stringify(request.request.body)).not.toContain(literal);
+    request.flush({ translations: { Hello: 'Helo', '!': '!' } });
+    await waitFor(async () => (await db.translations.count()) > 0 ? true : undefined);
+    expect(values.at(-1)).toBe('Helo ' + literal + '!');
+    expect(JSON.stringify(await db.translations.toArray())).not.toContain(literal);
+    service.language = 'en';
+    service.language = 'cy';
+    await new Promise<void>(resolve => setTimeout(resolve, config.debounceTimeMs * 5));
+    expect(JSON.stringify(http.match('/translations/cy').map(req => req.request.body))).not.toContain(literal);
+    expect(JSON.stringify(await db.translations.toArray())).not.toContain(literal);
+  });
+
   for (const kind of ['invalid', 'expired']) {
     it(`recovers from a rejected ${kind} deletion with real IndexedDB and a fresh service`, async () => {
       const data = kind === 'invalid' ? { translation: null } as unknown as TranslatedData : { translation: 'old' };

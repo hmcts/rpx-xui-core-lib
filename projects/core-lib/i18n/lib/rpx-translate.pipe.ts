@@ -18,10 +18,12 @@ export class RpxTranslatePipe implements PipeTransform, OnDestroy {
     this.asyncPipe = new AsyncPipe(changeDetectorRef);
   }
 
-  public transform<T = string>(value: T, replacements?: Replacements | null, yesOrNoValue?: string): T | null {
+  public transform<T = string>(value: T, replacements?: Replacements | null, yesOrNoValue?: string, literals?: Replacements): T | null {
     if (value && typeof value === 'string' && value.toString().trim()) {
       let o: Observable<string>;
-      if (replacements) {
+      if (literals) {
+        o = this.translationService.getTranslationWithReplacements$(value, replacements || {}, literals);
+      } else if (replacements) {
         o = this.translationService.getTranslationWithReplacements$(value, replacements);
       } else if (yesOrNoValue) {
         o = this.translationService.getTranslationWithYesOrNo$(value, yesOrNoValue);

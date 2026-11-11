@@ -6,7 +6,7 @@ import { BehaviorSubject, combineLatest, from, Observable, of, Subscription, tim
 import { catchError, finalize, map, take, tap } from 'rxjs/operators';
 import { db, Translation } from './db';
 import { matchCase } from './helpers/match-case/match-case.helper';
-import { splitPhraseIntoComponents } from './helpers/replace-placeholders/replace-placeholders.helper';
+import { splitPhraseIntoComponents, splitWithLiterals } from './helpers/replace-placeholders/replace-placeholders.helper';
 import { TranslatedData } from './models/translated-data.model';
 import { RpxLanguage, YesOrNoValue } from './rpx-language.enum';
 import { RpxTranslationConfig } from './rpx-translation.config';
@@ -78,7 +78,17 @@ export class RpxTranslationService implements OnDestroy {
     );
   }
 
-  public getTranslationWithReplacements$(phrase: string, replacements: Replacements): Observable<string> {
+  public getTranslationWithReplacements$(phrase: string, replacements: Replacements, literals?: Replacements): Observable<string> {
+    if (literals) {
+      const components = splitWithLiterals(phrase, replacements, literals);
+      if (!components.length) return of('');
+      const translated = components.map(({ value, literal }) => literal
+        ? of(value)
+        : this.getTranslatedData(value).pipe(map((data) => data.translation)));
+      return combineLatest(translated).pipe(
+        map((values) => values.join(''))
+      );
+    }
     // Split the phrase into components first based on replacements
     const components = splitPhraseIntoComponents(phrase, replacements);
 

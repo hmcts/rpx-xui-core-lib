@@ -186,7 +186,11 @@
       "RpxTranslationService Null/Undefined handling returns an empty string for undefined yesOrNoValue without a request",
       "translation real cache recovery recovers from a rejected invalid deletion with real IndexedDB and a fresh service",
       "translation real cache recovery recovers from a rejected expired deletion with real IndexedDB and a fresh service",
-      "translation real cache recovery keeps a malformed response fallback stable then recovers after a language cycle"
+      "translation real cache recovery keeps a malformed response fallback stable then recovers after a language cycle",
+      "replacePlaceholders handles literal metacharacter keys, repeated values and empty literals",
+      "RpxTranslatePipe transform passes explicit literal replacements to the service",
+      "translation real cache recovery keeps literal values out of requests and real IndexedDB across language changes",
+      "RpxTranslationService public API composition keeps explicit literal replacements out of translation requests"
     ]
   },
   "cacheBrowser": {
@@ -203,6 +207,10 @@
       {
         "projectName": "chromium",
         "title": "core replaces an expired cache row written by published legacy"
+      },
+      {
+        "projectName": "chromium",
+        "title": "installed core keeps literal values out of requests and IndexedDB after reload"
       }
     ]
   }

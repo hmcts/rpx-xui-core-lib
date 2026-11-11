@@ -51,3 +51,31 @@ test('core replaces an expired cache row written by published legacy', async ({ 
   expect(requests).toEqual([{ phrases: ['Hello world'] }, { phrases: ['Hello world'] }]);
   expect(errors).toEqual([]);
 });
+
+
+test('installed core keeps literal values out of requests and IndexedDB after reload', async ({ page }) => {
+  const requests = [];
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.route('**/translations/cy', async route => {
+    requests.push(route.request().postDataJSON());
+    await route.fulfill({ json: { translations: { Details: 'Manylion', for: 'am' } } });
+  });
+  await page.goto('/?app=core&privacy=1');
+  await expect(page.getByTestId('literal-phrase')).toHaveText('Details for Fictional Person: CASE-123 / Fictional Person');
+  await page.getByRole('button', { name: 'Cymraeg' }).click();
+  await expect(page.getByTestId('literal-phrase')).toHaveText('Manylion am Fictional Person: CASE-123 / Fictional Person');
+  expect(requests).toEqual([{ phrases: ['Details', 'for'] }]);
+  await expect.poll(async () => (await readCache(page)).rows.length).toBe(2);
+  const before = await readCache(page);
+  expect(before.rows.map(row => row.phrase).sort()).toEqual(['Details', 'for']);
+  expect(JSON.stringify(before)).not.toMatch(/Fictional Person|CASE-123/);
+  await page.getByRole('button', { name: 'English' }).click();
+  await expect(page.getByTestId('literal-phrase')).toHaveText('Details for Fictional Person: CASE-123 / Fictional Person');
+  await page.getByRole('button', { name: 'Cymraeg' }).click();
+  await page.reload();
+  await expect(page.getByTestId('literal-phrase')).toHaveText('Manylion am Fictional Person: CASE-123 / Fictional Person');
+  expect(await readCache(page)).toEqual(before);
+  expect(requests).toHaveLength(1);
+  expect(errors).toEqual([]);
+});

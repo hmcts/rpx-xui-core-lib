@@ -64,6 +64,19 @@ describe('RpxTranslationService public API composition', () => {
     expect(post).toHaveBeenCalledTimes(1);
   });
 
+  it('keeps explicit literal replacements out of translation requests', async () => {
+    const pending = firstValueFrom(requests);
+    const values: string[] = [];
+    subscriptions.push(service.getTranslationWithReplacements$(
+      'Hello %NAME% and %NAME%', {}, { NAME: 'Fictional Person' }
+    ).subscribe((value) => values.push(value)));
+    const request = await pending;
+    expect(request.body).toEqual({ phrases: ['Hello', 'and'] });
+    request.reply.next({ translations: { Hello: 'Helo', and: 'a' } });
+    expect(values.at(-1)).toBe('Helo Fictional Person a Fictional Person');
+    expect(JSON.stringify(post.calls.allArgs())).not.toContain('Fictional Person');
+  });
+
   it('selects Yes/No metadata and matches each input’s initial letter case from one request', async () => {
     const phrase = 'Do you agree?';
     const pending = firstValueFrom(requests);
