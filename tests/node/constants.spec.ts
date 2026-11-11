@@ -1,7 +1,9 @@
+import { test } from 'node:test';
+import { strict as assert } from 'node:assert';
 import { AUTH, OAUTH2, OIDC, SESSION } from '../../projects/core-lib/node';
 
 test('Node authentication and session constants retain the legacy values', () => {
-  expect(AUTH).toEqual({
+  assert.deepEqual(AUTH, {
     EVENT: {
       AUTHENTICATE_SUCCESS: 'auth.authenticate.success',
       SERIALIZE_USER: 'auth.serializeUser',
@@ -15,9 +17,9 @@ test('Node authentication and session constants retain the legacy values', () =>
       EXPIRED_LOGIN_LINK: '/expired-login-link', ACCESS_DENIED: '/access-denied',
     },
   });
-  expect(OAUTH2).toEqual({ PROMPT: 'login', STRATEGY_NAME: 'oauth2' });
-  expect(OIDC).toEqual({ PROMPT: 'login', STRATEGY_NAME: 'oidc' });
-  expect(SESSION).toEqual({
+  assert.deepEqual(OAUTH2, { PROMPT: 'login', STRATEGY_NAME: 'oauth2' });
+  assert.deepEqual(OIDC, { PROMPT: 'login', STRATEGY_NAME: 'oidc' });
+  assert.deepEqual(SESSION, {
     EVENT: { REDIS_CLIENT_ERROR: 'redisStore.ClientError', REDIS_CLIENT_READY: 'redisStore.ClientReady' },
     REDIS_STORE_NAME: 'redisStore', FILE_STORE_NAME: 'fileStore',
   });

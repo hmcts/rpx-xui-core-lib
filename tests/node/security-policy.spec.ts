@@ -1,7 +1,9 @@
+import { test } from 'node:test';
+import { strict as assert } from 'node:assert';
 import { SECURITY_POLICY } from '../../projects/core-lib/node';
 
 test('Node security policy retains the legacy directives', () => {
-  expect(SECURITY_POLICY).toEqual({
+  assert.deepEqual(SECURITY_POLICY, {
   "directives": {
     "connectSrc": [
       "'self' blob: data:",
