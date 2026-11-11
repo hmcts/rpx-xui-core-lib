@@ -142,6 +142,15 @@ const accessibilityJourneys = [
   'accessibility statement selects the application context and exposes service links',
   'accessibility statement translates its visible heading',
 ];
+const sessionDialogJourneys = [
+  'session dialog displays projected content and preserves close output',
+  'session dialog translates the sign-out message',
+  'session dialog passes serious accessibility checks',
+  'session dialog is modal and keeps keyboard focus away from background',
+  'destroying the dialog after its opener is removed does not restore focus to a detached node',
+  'nested modal restoration returns focus to its own opener',
+
+];
 const cacheJourneys = [
   "baseline: legacy to core preserves valid cached translation",
   "baseline: core to legacy preserves valid cached translation",
@@ -172,13 +181,14 @@ const packageIds = [
   "package.sharing-graph",
   "package.due-date-graph",
   "package.accessibility-graph",
+  "package.session-dialog-graph",
   "package.root-export-fault",
   "package.validation-i18n-fault",
   "package.restored-runtime-graph",
 
 ];
 
-const expectedContracts = unitNames.length + nodeNames.length + i18nNames.length + i18nJourneys.length + dueDateJourneys.length + accessibilityJourneys.length + cacheJourneys.length + validationJourneys.length + packageIds.length + 1;
+const expectedContracts = unitNames.length + nodeNames.length + i18nNames.length + i18nJourneys.length + dueDateJourneys.length + accessibilityJourneys.length + sessionDialogJourneys.length + cacheJourneys.length + validationJourneys.length + packageIds.length + 1;
 
 function nativeTap(names) {
   return `TAP version 13\n${names.map((name, index) => `ok ${index + 1} - ${name}`).join('\n')}\n1..${names.length}\n# tests ${names.length}\n# suites 0\n# pass ${names.length}\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n`;
@@ -204,7 +214,7 @@ function reports() {
     'validation.tap': nativeTap(unitNames),
     'node.tap': nativeTap(nodeNames),
     'i18n/jasmine.json': nativeJasmine(),
-    'browser.json': { errors: [], suites: [{ specs: [journey, ...validationJourneys, ...i18nJourneys, ...dueDateJourneys, ...accessibilityJourneys].map((title) => ({ title, tests: [{ projectName: 'chromium', expectedStatus: 'passed', status: 'expected', results: [{ status: 'passed' }] }] })) }] },
+    'browser.json': { errors: [], suites: [{ specs: [journey, ...validationJourneys, ...i18nJourneys, ...dueDateJourneys, ...accessibilityJourneys, ...sessionDialogJourneys].map((title) => ({ title, tests: [{ projectName: 'chromium', expectedStatus: 'passed', status: 'expected', results: [{ status: 'passed' }] }] })) }] },
     'cache-upgrade-report.json': { errors: [], suites: [{ specs: cacheJourneys.map((title) => ({ title, tests: [{ projectName: 'chromium', expectedStatus: 'passed', status: 'expected', results: [{ status: 'passed' }] }] })) }] },
     'package.json': { schemaVersion: 1, package: { sha256: createHash('sha256').update(candidate).digest('hex'), ...identity, dirty: false }, tests: packageIds.map((id) => ({ id, status: 'passed' })) },
   };

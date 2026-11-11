@@ -17,7 +17,9 @@ class ValidationGallery {
   submitted = false;
 }
 
-const application = window.location.pathname === '/accessibility'
+const application = window.location.pathname === '/session-dialog'
+  ? import('./session-dialog').then(({ startSessionDialogGallery }) => startSessionDialogGallery())
+  : window.location.pathname === '/accessibility'
   ? import('./accessibility').then(({ startAccessibilityGallery }) => startAccessibilityGallery())
   : window.location.pathname === '/due-date'
   ? import('./due-date').then(({ startDueDateGallery }) => startDueDateGallery())

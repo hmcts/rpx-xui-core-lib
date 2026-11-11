@@ -60,7 +60,7 @@ try {
   await check('package.physical-secondary-declaration', async () => {
     assert.ok((await stat(join(dist, declaration))).isFile());
     assert.ok((await stat(join(dist, 'forms/validation/LICENCE'))).isFile());
-    for (const entry of ['ui/contact-details', 'ui/loading-spinner', 'ui/due-date', 'ui/accessibility', 'case/models', 'case/reference', 'case/sharing']) {
+    for (const entry of ['ui/contact-details', 'ui/loading-spinner', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog', 'case/models', 'case/reference', 'case/sharing']) {
       assert.equal(await readFile(join(dist, entry, 'LICENCE'), 'utf8'), await readFile(join(root, 'projects/core-lib', entry, 'LICENCE'), 'utf8'), 'Copied source licence must survive packaging');
     }
   });
@@ -118,7 +118,7 @@ try {
   await check('package.strict-bundler', () => run('strict-bundler', [compiler, '-p', 'tsconfig.bundler.json'], consumer));
   await check('package.installed-runtime', async () => {
     await run('installed-runtime', ['runtime.mjs'], consumer);
-    for (const entry of ['ui/contact-details', 'ui/loading-spinner', 'ui/due-date', 'ui/accessibility', 'case/models', 'case/reference', 'case/sharing']) {
+    for (const entry of ['ui/contact-details', 'ui/loading-spinner', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog', 'case/models', 'case/reference', 'case/sharing']) {
       assert.equal(await readFile(join(installed, entry, 'LICENCE'), 'utf8'), await readFile(join(root, 'projects/core-lib', entry, 'LICENCE'), 'utf8'), 'Copied source licence must survive immutable installation');
     }
   });
@@ -150,6 +150,13 @@ try {
     assert.ok(used.some((input) => input.endsWith('/fesm2022/hmcts-rpx-xui-core-lib-ui-accessibility.mjs')), 'Accessibility entry must contribute bytes');
     assert.ok(!used.some((input) => /hmcts-rpx-xui-core-lib-(?:ui-contact-details|ui-loading-spinner|ui-due-date|case-|forms-)|(?:^|\/)node(?:\/|$)|^node:/.test(input)), 'Accessibility graph must not pull unrelated capabilities');
     await writeFile(join(evidence, 'accessibility-metafile.json'), JSON.stringify(result.metafile, null, 2));
+  });
+  await check('package.session-dialog-graph', async () => {
+    const result = buildSync({ entryPoints: ['session-dialog-graph.mjs'], absWorkingDir: consumer, bundle: true, platform: 'browser', format: 'esm', metafile: true, write: false, logLevel: 'silent' });
+    const used = Object.values(result.metafile.outputs).flatMap((output) => Object.entries(output.inputs).filter(([, value]) => value.bytesInOutput > 0).map(([input]) => input.replaceAll('\\', '/')));
+    assert.ok(used.some(input => input.endsWith('/fesm2022/hmcts-rpx-xui-core-lib-ui-session-dialog.mjs')));
+    assert.ok(!used.some(input => /hmcts-rpx-xui-core-lib-(?:ui-contact-details|ui-loading-spinner|ui-accessibility|ui-due-date|case-|forms-)|(?:^|\/)node(?:\/|$)|^node:/.test(input)));
+    await writeFile(join(evidence, 'session-dialog-metafile.json'), JSON.stringify(result.metafile, null, 2));
   });
   await check('package.root-runtime-empty', () => run('root-runtime-empty', ['runtime-root.mjs'], consumer));
   await check('package.validation-graph', async () => {

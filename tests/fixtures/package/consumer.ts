@@ -68,3 +68,10 @@ export { DueDateComponent, DueDateModule, DateBadgeColour, SECONDS_IN_A_DAY };
 
 import { AccessibilityComponent, AccessibilityModule } from '@hmcts/rpx-xui-core-lib/ui/accessibility';
 export { AccessibilityComponent, AccessibilityModule };
+
+import { HmctsSessionDialogComponent, SessionDialogModule } from '@hmcts/rpx-xui-core-lib/ui/session-dialog';
+export { HmctsSessionDialogComponent, SessionDialogModule };
+
+type IsAny<T> = 0 extends (1 & T) ? true : false;
+type SessionCloseValue = Parameters<HmctsSessionDialogComponent['close']['emit']>[0];
+export const legacySessionCloseType: IsAny<SessionCloseValue> = true;

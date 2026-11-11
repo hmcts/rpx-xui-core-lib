@@ -54,6 +54,11 @@
       "input": "ui/accessibility",
       "glob": "LICENCE",
       "output": "ui/accessibility"
+    },
+    {
+      "input": "ui/session-dialog",
+      "glob": "LICENCE",
+      "output": "ui/session-dialog"
     }
   ],
   "allowedNonPeerDependencies": [

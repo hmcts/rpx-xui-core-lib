@@ -60,3 +60,7 @@ assert.deepEqual(Object.values(SharedCaseErrorMessages), [
 const accessibility = await import('@hmcts/rpx-xui-core-lib/ui/accessibility');
 assert.equal(typeof accessibility.AccessibilityComponent, 'function');
 assert.equal(typeof accessibility.AccessibilityModule, 'function');
+
+const sessionDialog = await import('@hmcts/rpx-xui-core-lib/ui/session-dialog');
+assert.equal(sessionDialog.HmctsSessionDialogComponent.name, 'HmctsSessionDialogComponent');
+assert.equal(sessionDialog.SessionDialogModule.name, 'SessionDialogModule');

@@ -119,6 +119,36 @@
         "projectName": "chromium",
         "title": "accessibility statement translates its visible heading",
         "feature": "accessibility"
+      },
+      {
+        "projectName": "chromium",
+        "title": "session dialog displays projected content and preserves close output",
+        "feature": "session-dialog"
+      },
+      {
+        "projectName": "chromium",
+        "title": "session dialog translates the sign-out message",
+        "feature": "session-dialog"
+      },
+      {
+        "projectName": "chromium",
+        "title": "session dialog passes serious accessibility checks",
+        "feature": "session-dialog"
+      },
+      {
+        "projectName": "chromium",
+        "title": "session dialog is modal and keeps keyboard focus away from background",
+        "feature": "session-dialog"
+      },
+      {
+        "projectName": "chromium",
+        "title": "destroying the dialog after its opener is removed does not restore focus to a detached node",
+        "feature": "session-dialog"
+      },
+      {
+        "projectName": "chromium",
+        "title": "nested modal restoration returns focus to its own opener",
+        "feature": "session-dialog"
       }
     ]
   },
@@ -147,7 +177,8 @@
       "package.validation-i18n-fault",
       "package.restored-runtime-graph",
       "package.due-date-graph",
-      "package.accessibility-graph"
+      "package.accessibility-graph",
+      "package.session-dialog-graph"
     ]
   },
   "nodeUnit": {
