@@ -70,7 +70,7 @@ export const anyRolesMatch = (roles: string[], pattern: string): boolean => {
  * Should sort the User's Roles alphabetically. Why? So that a priority order can be given to the Session Timeout +
  * configuration list.
  *
- * We clone the original array, so that we avoid mutation.
+ * Sorting mutates the original array.
  *
  * Example: If we want a PUI Session Timeout to be given preference over another Session Timeout it would be further
  * up the Session Timeout Configuration list.
