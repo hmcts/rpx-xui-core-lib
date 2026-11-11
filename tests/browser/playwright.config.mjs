@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from '@playwright/test';
+import { reporters } from '../reporters/config.mjs';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 
@@ -10,7 +11,7 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
   retries: 0,
-  reporter: [['list'], ['html', { open: 'never', outputFolder: `${root}/playwright-report` }], ['junit', { outputFile: `${root}/test-results/browser-junit.xml` }], ['json', { outputFile: `${root}/test-results/browser.json` }]],
+  reporter: reporters('browser'),
   use: { baseURL: 'http://127.0.0.1:4307', trace: 'retain-on-failure' },
   webServer: {
     command: 'node scripts/dev.mjs',

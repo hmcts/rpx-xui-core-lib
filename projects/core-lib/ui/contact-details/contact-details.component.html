@@ -1,0 +1,22 @@
+@if (data) {
+  <div class="contact-details">
+    @if (data.title) {
+      <h3 class="govuk-heading-m">{{ data.title }}</h3>
+    }
+    @if (data.badgeText) {
+      <p><span [className]="'hmcts-badge ' + data.badgeColour">{{ data.badgeText }}</span></p>
+    }
+    @if (data.email) {
+      <div class="email"><span class="govuk-!-font-weight-bold">{{'Email:' | rpxTranslate}} </span> <a href="mailto:{{ data.email }}">{{ data.email }}</a></div>
+    }
+    @if (data.contactDetails) {
+      <div class="contactDetails"><span class="govuk-!-font-weight-bold">{{'Contact:' | rpxTranslate}} </span> <a rel="external" href="{{ data.contactDetails.contactLink }}">{{ data.contactDetails.name }}</a></div>
+    }
+    @if (data.phone) {
+      <div class="phone"><span class="govuk-!-font-weight-bold">{{'Phone:' | rpxTranslate}} </span>{{ data.phone }}</div>
+    }
+    @if (data.openingTimes) {
+      <div class="opening-times"><span class="govuk-!-font-weight-bold">{{'Opening times:' | rpxTranslate }} </span>{{ data.openingTimes}}</div>
+    }
+  </div>
+}

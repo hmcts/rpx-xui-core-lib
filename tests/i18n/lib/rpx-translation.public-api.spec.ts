@@ -29,7 +29,7 @@ describe('RpxTranslationService public API composition', () => {
     });
     // Only cache misses and HTTP delivery are faked; the public composition methods and helpers stay real.
     spyOn(db.translations, 'where').and.returnValue({
-      equals: () => ({ first: () => Promise.resolve(undefined) })
+      equals: () => ({ last: () => Promise.resolve(undefined) })
     } as unknown as ReturnType<typeof db.translations.where>);
     spyOn(db.translations, 'bulkAdd').and.stub();
     service = new RpxTranslationService(
@@ -62,6 +62,19 @@ describe('RpxTranslationService public API composition', () => {
 
     expect(values.at(-1)).toBe('Achos 1234 gyda 1234 diweddariadau');
     expect(post).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps explicit literal replacements out of translation requests', async () => {
+    const pending = firstValueFrom(requests);
+    const values: string[] = [];
+    subscriptions.push(service.getTranslationWithReplacements$(
+      'Hello %NAME% and %NAME%', {}, { NAME: 'Fictional Person' }
+    ).subscribe((value) => values.push(value)));
+    const request = await pending;
+    expect(request.body).toEqual({ phrases: ['Hello', 'and'] });
+    request.reply.next({ translations: { Hello: 'Helo', and: 'a' } });
+    expect(values.at(-1)).toBe('Helo Fictional Person a Fictional Person');
+    expect(JSON.stringify(post.calls.allArgs())).not.toContain('Fictional Person');
   });
 
   it('selects Yes/No metadata and matches each input’s initial letter case from one request', async () => {

@@ -1,0 +1,735 @@
+{
+  "schemaVersion": 1,
+  "profiles": {
+    "rpx-xui-webapp": {
+      "id": "rpx-xui-webapp",
+      "gitHead": "67cda3e943a69fd57a692189941863b1c6d5c3f9",
+      "manager": "4.17.1",
+      "manager_source_url": "https://raw.githubusercontent.com/hmcts/rpx-xui-webapp/67cda3e943a69fd57a692189941863b1c6d5c3f9/.yarn/releases/yarn-4.17.1.cjs",
+      "manifest_packageManager": "yarn@4.17.1",
+      "engine": {
+        "node": ">=24.22.1"
+      },
+      "builder_family": "application",
+      "locked_toolchain": {
+        "@angular-devkit/build-angular": "20.3.42",
+        "@angular/cli": "20.3.42",
+        "@angular/compiler": "20.3.35",
+        "@angular/compiler-cli": "20.3.35",
+        "typescript": "5.9.3",
+        "webpack": "5.112.0",
+        "webpack-cli": "6.0.1",
+        "webpack-node-externals": "3.0.0",
+        "ts-loader": "9.6.2",
+        "terser-webpack-plugin": "5.6.1"
+      },
+      "actual_requirements": {
+        "@angular/animations": "^20.3.31",
+        "@angular/cdk": "^20.2.14",
+        "@angular/common": "20.3.31",
+        "@angular/compiler": "^20.3.31",
+        "@angular/compiler-cli": "^20.3.31",
+        "@angular/core": "20.3.31",
+        "@angular/forms": "20.3.31",
+        "@angular/material": "^20.2.14",
+        "@angular/material-moment-adapter": "^20.0.0",
+        "@angular/platform-browser": "20.3.31",
+        "@angular/platform-browser-dynamic": "^20.3.31",
+        "@angular/router": "20.3.31",
+        "@dr.pogodin/csurf": "^1.17.1",
+        "@edium/fsm": "^3.0.2",
+        "@hmcts/ccpay-web-component": "6.5.28",
+        "@hmcts/media-viewer": "4.2.48",
+        "@ng-idle/core": "^16.0.0",
+        "@ng-idle/keepalive": "^16.0.0",
+        "@ngrx/effects": "^20.1.0",
+        "@ngrx/router-store": "^21.1.0",
+        "@ngrx/store": "^20.1.0",
+        "@ngrx/store-devtools": "^20",
+        "@ngxmc/datetime-picker": "20.1.0",
+        "@types/express": "^5.0.6",
+        "@types/express-session": "^1.17.0",
+        "@types/node": "^20.19.0",
+        "applicationinsights": "^3.17.0",
+        "axios": "^1.20.0",
+        "class-transformer": "^0.5.1",
+        "express": "^5.2.1",
+        "file-saver": "^2.0.5",
+        "global-agent": "^4.1.3",
+        "govuk-frontend": "5.13.0",
+        "helmet": "^8.1.0",
+        "launchdarkly-js-client-sdk": "3.9.6",
+        "lodash": "^4.18.1",
+        "lz-string": "^1.5.0",
+        "marked": "^18.0.5",
+        "moment-timezone": "^0.6.2",
+        "ngx-chips": "3.0.0",
+        "ngx-editor": "19.0.0-beta.1",
+        "ngx-markdown": "^20.1.0",
+        "ngx-pagination": "^6.0.3",
+        "otplib": "^13.4.0",
+        "rpx-xui-translation": "1.2.18",
+        "rxjs": "^7.8.2",
+        "tslib": "^2.8.1",
+        "underscore": "^1.13.6",
+        "uuid": "^14.0.3",
+        "zone.js": "0.16.2"
+      },
+      "manager_sha256": "471ffb15e0523663865bbf46a69e7d157ecf532412eb436c48dfab6e3f2abe88",
+      "locked_peer_versions": {
+        "@angular/animations": "20.3.35",
+        "@angular/cdk": "20.2.14",
+        "@angular/common": "20.3.31",
+        "@angular/compiler": "20.3.35",
+        "@angular/compiler-cli": "20.3.35",
+        "@angular/core": "20.3.31",
+        "@angular/forms": "20.3.31",
+        "@angular/material": "20.2.14",
+        "@angular/material-moment-adapter": "20.2.14",
+        "@angular/platform-browser": "20.3.31",
+        "@angular/platform-browser-dynamic": "20.3.35",
+        "@angular/router": "20.3.31",
+        "@dr.pogodin/csurf": "1.18.2",
+        "@edium/fsm": "3.0.2",
+        "@hmcts/ccpay-web-component": "6.5.28",
+        "@hmcts/media-viewer": "4.2.48",
+        "@ng-idle/core": "16.0.0",
+        "@ng-idle/keepalive": "16.0.0",
+        "@ngrx/effects": "20.1.0",
+        "@ngrx/router-store": "21.1.1",
+        "@ngrx/store": "20.1.0",
+        "@ngrx/store-devtools": "20.1.0",
+        "@ngxmc/datetime-picker": "20.1.0",
+        "@types/express": "5.0.6",
+        "@types/express-session": "1.19.0",
+        "@types/node": "20.19.43",
+        "applicationinsights": "3.17.0",
+        "axios": "1.21.0",
+        "class-transformer": "0.5.1",
+        "express": "5.3.0",
+        "file-saver": "2.0.5",
+        "global-agent": "4.1.7",
+        "govuk-frontend": "5.13.0",
+        "helmet": "8.3.0",
+        "launchdarkly-js-client-sdk": "3.9.6",
+        "lodash": "4.18.1",
+        "lz-string": "1.5.0",
+        "marked": "18.1.3",
+        "moment-timezone": "0.6.6",
+        "ngx-chips": "3.0.0",
+        "ngx-editor": "19.0.0-beta.1",
+        "ngx-markdown": "20.1.0",
+        "ngx-pagination": "6.0.3",
+        "otplib": "13.6.0",
+        "rpx-xui-translation": "1.2.18",
+        "rxjs": "7.8.2",
+        "tslib": "2.9.1",
+        "underscore": "1.13.8",
+        "uuid": "14.0.3",
+        "zone.js": "0.16.2"
+      },
+      "install_settings": {
+        "approvedGitRepositories": [
+          "**"
+        ],
+        "compressionLevel": "mixed",
+        "enableGlobalCache": false,
+        "enableScripts": true,
+        "nodeLinker": "node-modules",
+        "npmMinimalAgeGate": 0
+      },
+      "requirement_scope": "All direct production or development requirements shared with the prospective graph, including root peer providers and public types; actual versions take precedence over fixture defaults; retained host telemetry/proxy runtime and production API webpack toolchain",
+      "host_resolutions": {
+        "archiver-utils@npm:^2.1.0": "npm:5.0.2",
+        "archiver-utils@npm:^3.0.4": "npm:5.0.2",
+        "@opentelemetry/core": "^2.12.0",
+        "unzipper@npm:^0.10.11": "npm:0.12.5",
+        "@types/jsdom": "^27",
+        "axios@npm:^0.24.0": "npm:1.20.0",
+        "bn.js": "^4.12.3",
+        "body-parser": "^2.3.0",
+        "braces": "^3.0.3",
+        "@dr.pogodin/csurf/cookie": "^2.0.1",
+        "dompurify": "^3.4.13",
+        "exceljs/uuid": "11.1.1",
+        "flat": "~5.0.1",
+        "form-data": "4.0.6",
+        "glob@npm:^10.0.0": "npm:13.0.1",
+        "jsdom": "^27.4.0",
+        "jsonwebtoken@npm:^9.0.0": "npm:9.0.3",
+        "launchdarkly-js-sdk-common/uuid": "11.1.1",
+        "loader-utils": "~2.0.3",
+        "lodash": "^4.18.1",
+        "lodash-es": "^4.18.1",
+        "mermaid": "^11.16.1",
+        "min-document": "^2.19.1",
+        "minimist": "^1.2.8",
+        "path-to-regexp": "^8.4.2",
+        "qs": "6.16.0",
+        "semver": "^7.6.3",
+        "socket.io-parser": "4.2.7",
+        "superagent": "^10.2.2",
+        "tar": "^7.5.22",
+        "tar-fs": "^3.1.0",
+        "tough-cookie": "^6.0.2",
+        "typed-rest-client": "^2.0.0",
+        "unzipper": "0.12.5",
+        "webpack": "5.112.0",
+        "ws": "8.21.3",
+        "xml2js": "^0.6.2"
+      },
+      "source_contract": "source-contract.json",
+      "resolution_scope": "Exact pre-existing host-owned resolutions; applied graph is not unmodified and native peer errors remain blockers",
+      "lock_source_url": "https://raw.githubusercontent.com/hmcts/rpx-xui-webapp/67cda3e943a69fd57a692189941863b1c6d5c3f9/yarn.lock",
+      "lock_sha256": "fd10e8b1a621877e2828a0710877bb0492a37b4da8442214ae5c6d50a6d3dc2f"
+    },
+    "rpx-xui-manage-organisations": {
+      "id": "rpx-xui-manage-organisations",
+      "gitHead": "80810d3ca68476aefa9ccec107d77243882a8314",
+      "manager": "4.9.2",
+      "manager_source_url": "https://raw.githubusercontent.com/hmcts/rpx-xui-manage-organisations/80810d3ca68476aefa9ccec107d77243882a8314/.yarn/releases/yarn-4.9.2.cjs",
+      "manifest_packageManager": "yarn@4.9.2",
+      "engine": {
+        "node": ">=24.22.1 <25"
+      },
+      "builder_family": "application",
+      "locked_toolchain": {
+        "@angular-devkit/build-angular": "20.3.37",
+        "@angular/cli": "20.3.37",
+        "@angular/compiler": "20.3.31",
+        "@angular/compiler-cli": "20.3.31",
+        "typescript": "5.9.2"
+      },
+      "actual_requirements": {
+        "@angular/animations": "20.3.31",
+        "@angular/cdk": "^20.2.4",
+        "@angular/common": "20.3.31",
+        "@angular/compiler": "20.3.31",
+        "@angular/compiler-cli": "20.3.31",
+        "@angular/core": "20.3.31",
+        "@angular/forms": "20.3.31",
+        "@angular/material": "^20.2.14",
+        "@angular/material-moment-adapter": "^20.2.14",
+        "@angular/platform-browser": "20.3.31",
+        "@angular/platform-browser-dynamic": "20.3.31",
+        "@angular/router": "20.3.33",
+        "@edium/fsm": "^3.0.2",
+        "@hmcts/ccpay-web-component": "6.5.28",
+        "@hmcts/media-viewer": "4.2.45",
+        "@ng-idle/core": "^16.0.0",
+        "@ng-idle/keepalive": "^16.0.0",
+        "@ngrx/effects": "^20.1.0",
+        "@ngrx/router-store": "^21.1.0",
+        "@ngrx/store": "^20.1.0",
+        "@ngrx/store-devtools": "^20.0.0",
+        "@ngxmc/datetime-picker": "20.1.0",
+        "@types/express": "^5.0.6",
+        "@types/express-session": "^1.17.0",
+        "@types/node": "24.19.2",
+        "axios": "^1.20.0",
+        "class-transformer": "^0.5.1",
+        "connect-redis": "^9.0.0",
+        "express": "^5.2.1",
+        "express-session": "^1.19.0",
+        "file-saver": "^2.0.5",
+        "govuk-frontend": "5.14.0",
+        "helmet": "^8.1.0",
+        "jwt-decode": "^4.0.0",
+        "launchdarkly-js-client-sdk": "3.9.6",
+        "lz-string": "^1.5.0",
+        "moment": "^2.30.1",
+        "moment-timezone": "^0.6.2",
+        "ngx-chips": "^3.0.0",
+        "ngx-editor": "19.0.0-beta.1",
+        "ngx-markdown": "^20.1.0",
+        "ngx-pagination": "^6.0.3",
+        "redis": "^6.1.0",
+        "rpx-xui-translation": "1.2.17",
+        "rxjs": "^7.8.2",
+        "session-file-store": "^1.5.0",
+        "tslib": "^2.6.1",
+        "zone.js": "0.16.3"
+      },
+      "manager_sha256": "ca4310f8ba997b4643a000ce512d9772e01c1485df35511114b325315960acb7",
+      "locked_peer_versions": {
+        "@angular/animations": "20.3.31",
+        "@angular/cdk": "20.2.14",
+        "@angular/common": "20.3.31",
+        "@angular/compiler": "20.3.31",
+        "@angular/compiler-cli": "20.3.31",
+        "@angular/core": "20.3.31",
+        "@angular/forms": "20.3.31",
+        "@angular/material": "20.2.14",
+        "@angular/material-moment-adapter": "20.2.14",
+        "@angular/platform-browser": "20.3.31",
+        "@angular/platform-browser-dynamic": "20.3.31",
+        "@angular/router": "20.3.33",
+        "@edium/fsm": "3.0.2",
+        "@hmcts/ccpay-web-component": "6.5.28",
+        "@hmcts/media-viewer": "4.2.45",
+        "@ng-idle/core": "16.0.0",
+        "@ng-idle/keepalive": "16.0.0",
+        "@ngrx/effects": "20.1.0",
+        "@ngrx/router-store": "21.1.1",
+        "@ngrx/store": "20.1.0",
+        "@ngrx/store-devtools": "20.1.0",
+        "@ngxmc/datetime-picker": "20.1.0",
+        "@types/express": "5.0.6",
+        "@types/express-session": "1.19.0",
+        "@types/node": "24.19.2",
+        "axios": "1.20.0",
+        "class-transformer": "0.5.1",
+        "connect-redis": "9.0.0",
+        "express": "5.2.1",
+        "express-session": "1.19.0",
+        "file-saver": "2.0.5",
+        "govuk-frontend": "5.14.0",
+        "helmet": "8.3.0",
+        "jwt-decode": "4.0.0",
+        "launchdarkly-js-client-sdk": "3.9.6",
+        "lz-string": "1.5.0",
+        "moment": "2.31.0",
+        "moment-timezone": "0.6.4",
+        "ngx-chips": "3.0.0",
+        "ngx-editor": "19.0.0-beta.1",
+        "ngx-markdown": "20.1.0",
+        "ngx-pagination": "6.0.3",
+        "redis": "6.2.1",
+        "rpx-xui-translation": "1.2.17",
+        "rxjs": "7.8.2",
+        "session-file-store": "1.5.0",
+        "tslib": "2.8.1",
+        "zone.js": "0.16.3"
+      },
+      "install_settings": {
+        "compressionLevel": "mixed",
+        "enableGlobalCache": false,
+        "nodeLinker": "node-modules"
+      },
+      "requirement_scope": "All direct production or development requirements shared with the prospective graph, including root peer providers and public types; actual versions take precedence over fixture defaults",
+      "host_resolutions": {
+        "@stryker-mutator/api": "^3.0.1",
+        "@stryker-mutator/core": "^3.0.1",
+        "@stryker-mutator/html-reporter": "^3.0.1",
+        "@stryker-mutator/karma-runner": "^3.0.1",
+        "@stryker-mutator/mocha-runner": "^3.0.1",
+        "@stryker-mutator/typescript": "^4.0.0",
+        "typed-rest-client": "^1.8.0",
+        "minimist": "^1.2.8",
+        "loader-utils": "~2.0.3",
+        "mem": "^4.0.0",
+        "cross-spawn": "^7.0.6",
+        "yargs-parser": "^21.1.1",
+        "shelljs": "^0.10.0",
+        "exceljs/archiver": "8.0.0",
+        "exceljs/fast-csv": "5.0.7",
+        "exceljs/unzipper": "0.12.5",
+        "exceljs/uuid": "11.1.1",
+        "dompurify": "^3.4.13",
+        "form-data": "^4.0.6",
+        "follow-redirects": "1.16.1",
+        "katex": "0.18.2",
+        "xml2js": "^0.6.2",
+        "tough-cookie": "^6.0.2",
+        "qs": "6.16.0",
+        "semver": "^7.6.0",
+        "socket.io-parser": "^4.2.7",
+        "html-encoding-sniffer": "^6.0.0",
+        "jsdom": "^27.0.1",
+        "axios@npm:^0.24.0": "npm:1.20.0",
+        "axios@npm:^0.27.2": "npm:1.20.0",
+        "body-parser": "^2.3.0",
+        "ws": "8.22.0",
+        "@opentelemetry/core": "^2.8.0",
+        "@azure/monitor-opentelemetry": "^1.19.0",
+        "tar": "^7.5.22",
+        "unzipper": "0.12.5",
+        "source-map-js": "1.2.2"
+      },
+      "source_contract": "source-contract.json",
+      "resolution_scope": "Exact committed host-owned resolutions; native peer errors remain blockers"
+    },
+    "rpx-xui-approve-org": {
+      "id": "rpx-xui-approve-org",
+      "gitHead": "9c1e1cdabda47b961aa2101dfe485d204ec09b05",
+      "manager": "4.10.3",
+      "manager_source_url": "https://raw.githubusercontent.com/hmcts/rpx-xui-approve-org/9c1e1cdabda47b961aa2101dfe485d204ec09b05/.yarn/releases/yarn-4.10.3.cjs",
+      "manifest_packageManager": "yarn@4.9.2",
+      "engine": {
+        "node": ">=24.22.1 <25"
+      },
+      "builder_family": "webpack",
+      "locked_toolchain": {
+        "@angular-devkit/build-angular": "20.3.37",
+        "@angular/cli": "20.3.37",
+        "@angular/compiler": "20.3.31",
+        "@angular/compiler-cli": "20.3.31",
+        "typescript": "5.9.3"
+      },
+      "actual_requirements": {
+        "@angular/animations": "^20.3.31",
+        "@angular/cdk": "^20.2.14",
+        "@angular/common": "20.3.31",
+        "@angular/compiler": "^20.3.31",
+        "@angular/compiler-cli": "^20.3.31",
+        "@angular/core": "20.3.31",
+        "@angular/forms": "20.3.31",
+        "@angular/material": "^20.2.14",
+        "@angular/material-moment-adapter": "^20.2.14",
+        "@angular/platform-browser": "20.3.31",
+        "@angular/platform-browser-dynamic": "^20.3.31",
+        "@angular/router": "20.3.31",
+        "@ng-idle/core": "^16.0.0",
+        "@ng-idle/keepalive": "^16.0.0",
+        "@ngrx/effects": "^20.1.0",
+        "@ngrx/router-store": "^21.1.0",
+        "@ngrx/store": "^20.1.0",
+        "@ngrx/store-devtools": "^20",
+        "@ngxmc/datetime-picker": "20.1.0",
+        "@types/express": "^5.0.6",
+        "@types/express-session": "^1.19.0",
+        "@types/node": "^24.13.3",
+        "@types/passport": "^1.0.17",
+        "axios": "^1.20.0",
+        "express": "^5.2.1",
+        "govuk-frontend": "5.14.0",
+        "helmet": "^8.1.0",
+        "jwt-decode": "^4.0.0",
+        "launchdarkly-js-client-sdk": "3.9.1",
+        "ngx-editor": "19.1.1",
+        "ngx-pagination": "^6.0.3",
+        "redis": "^6.1.0",
+        "rpx-xui-translation": "1.2.18",
+        "rxjs": "^7.8.2",
+        "tslib": "^2.8.1",
+        "zone.js": "0.16.3"
+      },
+      "manager_sha256": "cd71753d68307301d21034efaf20bd8eee81f9450af75f068477bf9011bb9ad4",
+      "locked_peer_versions": {
+        "@angular/animations": "20.3.31",
+        "@angular/cdk": "20.2.14",
+        "@angular/common": "20.3.31",
+        "@angular/compiler": "20.3.31",
+        "@angular/compiler-cli": "20.3.31",
+        "@angular/core": "20.3.31",
+        "@angular/forms": "20.3.31",
+        "@angular/material": "20.2.14",
+        "@angular/material-moment-adapter": "20.2.14",
+        "@angular/platform-browser": "20.3.31",
+        "@angular/platform-browser-dynamic": "20.3.31",
+        "@angular/router": "20.3.31",
+        "@ng-idle/core": "16.0.0",
+        "@ng-idle/keepalive": "16.0.0",
+        "@ngrx/effects": "20.1.0",
+        "@ngrx/router-store": "21.1.1",
+        "@ngrx/store": "20.1.0",
+        "@ngrx/store-devtools": "20.1.0",
+        "@ngxmc/datetime-picker": "20.1.0",
+        "@types/express": "5.0.6",
+        "@types/express-session": "1.19.0",
+        "@types/node": "24.19.1",
+        "@types/passport": "1.0.17",
+        "axios": "1.20.0",
+        "express": "5.3.0",
+        "govuk-frontend": "5.14.0",
+        "helmet": "8.3.0",
+        "jwt-decode": "4.0.0",
+        "launchdarkly-js-client-sdk": "3.9.1",
+        "ngx-editor": "19.1.1",
+        "ngx-pagination": "6.0.3",
+        "redis": "6.3.0",
+        "rpx-xui-translation": "1.2.18",
+        "rxjs": "7.8.2",
+        "tslib": "2.8.1",
+        "zone.js": "0.16.3"
+      },
+      "install_settings": {
+        "compressionLevel": "mixed",
+        "enableGlobalCache": false,
+        "nodeLinker": "node-modules"
+      },
+      "requirement_scope": "All direct production or development requirements shared with the prospective graph, including root peer providers and public types; actual versions take precedence over fixture defaults",
+      "host_resolutions": {
+        "odhin-reports-playwright/axios": "0.34.0",
+        "archiver-utils@npm:^2.1.0": "npm:5.0.2",
+        "archiver-utils@npm:^3.0.4": "npm:5.0.2",
+        "minimist": "^1.2.8",
+        "loader-utils": "~2.0.3",
+        "async": "~3.2.2",
+        "nanoid": "^3.3.8",
+        "cross-spawn": "^7.0.6",
+        "semver": "~7.8.0",
+        "selenium-webdriver": "^4.33.0",
+        "xml2js": "^0.6.2",
+        "critters": "^0.0.25",
+        "form-data": "^4.0.6",
+        "glob@npm:^10.0.0": "npm:13.0.6",
+        "unzipper@^0.10.11": "0.12.5",
+        "tough-cookie": "^6.0.2",
+        "@angular/platform-server": "^20.0.0",
+        "@angular/ssr": "20.3.32",
+        "shelljs": "^0.8.5",
+        "qs": "6.17.0",
+        "@opentelemetry/core": "^2.8.0",
+        "@azure/monitor-opentelemetry": "^1.19.0",
+        "tar": "^7.5.22",
+        "unzipper": "0.12.5"
+      },
+      "source_contract": "source-contract.json",
+      "resolution_scope": "Exact committed host-owned resolutions; native peer errors remain blockers"
+    },
+    "mc-api-standalone": {
+      "id": "mc-api-standalone",
+      "manager": "4.7.0",
+      "manager_source_url": "https://repo.yarnpkg.com/4.7.0/packages/yarnpkg-cli/bin/yarn.js",
+      "actual_requirements": {
+        "applicationinsights": "^3.17.0",
+        "express": "^5.2.1"
+      },
+      "locked_toolchain": {},
+      "scope": "Standalone api/package.json declared runtime dependencies and manager4.7.0, constrained to inherited root-lock selections for reproducibility; there is no standalone api lock/config. In-tree commands inherit root yarnPath4.17.1. This prospective-core installation rehearsal does not build/start the real API deployment artifact.",
+      "manager_sha256": "293632d8a095d8ea4786eb2c5798c83c37544abed17ed31186a3ec4549a07c06",
+      "gitHead": "67cda3e943a69fd57a692189941863b1c6d5c3f9",
+      "locked_peer_versions": {
+        "applicationinsights": "3.17.0",
+        "express": "5.3.0"
+      },
+      "lock_source": "yarn.lock (root); no api/yarn.lock exists",
+      "source_contract": "source-contract.json",
+      "manifest_packageManager": "yarn@4.7.0",
+      "engine": {
+        "node": ">=24.22.1"
+      },
+      "builder_family": "webpack",
+      "host_resolutions": {},
+      "install_settings": {}
+    },
+    "core": {
+      "id": "core",
+      "gitHead": "e3e4222a1e7df9009041c03dd5eef878ac7c13b0",
+      "manager": "4.18.1",
+      "manager_sha256": "a28ad591febb769f939c11f82f89bacad0b0fac0c884d3b78fa2aaaee970907e",
+      "manifest_packageManager": "yarn@4.18.1",
+      "engine": {
+        "node": ">=24.22.2 <25"
+      },
+      "builder_family": "ng-packagr",
+      "actual_requirements": {},
+      "locked_peer_versions": {},
+      "locked_toolchain": {},
+      "install_settings": {
+        "nodeLinker": "node-modules"
+      },
+      "host_resolutions": {},
+      "scope": "Synthetic prospective core host; runner installs the candidate and frozen peer providers, not the repository development graph."
+    }
+  },
+  "sources": {
+    "rpx-xui-webapp": {
+      "repository": "hmcts/rpx-xui-webapp",
+      "gitHead": "67cda3e943a69fd57a692189941863b1c6d5c3f9",
+      "files": {
+        "package.json": "265942e19005a8af277d8bb4019c2509e772bb5d5781bf54c8c9e7c1d5d88819",
+        "yarn.lock": "fd10e8b1a621877e2828a0710877bb0492a37b4da8442214ae5c6d50a6d3dc2f",
+        ".yarnrc.yml": "9ed710563177e88df1b732e08d846e251c8b93f4e51d6f09cdd55f97386b3e3b",
+        ".yarn/releases/yarn-4.17.1.cjs": "471ffb15e0523663865bbf46a69e7d157ecf532412eb436c48dfab6e3f2abe88",
+        "angular.json": "68d3530dc12d413e199cb8ca1c9c9875a5caca09669e5fedbb2dacf875b3f329",
+        "api/package.json": "31113b4d997b4c9c2684d32e9593175d5ad4faf4299be999356a3c26fb78eec4",
+        "api/webpack-node.config.js": "d50197e61df6cece6694a7b9e6a5bcceed1387cc009e468682cc6ba9b8c5853f"
+      }
+    },
+    "rpx-xui-manage-organisations": {
+      "repository": "hmcts/rpx-xui-manage-organisations",
+      "gitHead": "80810d3ca68476aefa9ccec107d77243882a8314",
+      "files": {
+        "package.json": "69c7c91e99d5299979d63c1c7b9be2544331281af73c1b1515a3fd67d40ea222",
+        "yarn.lock": "fd8a5d6fffd5131c0947244f7932bd40acac13e36debb97a3fbdd9288d955c1c",
+        ".yarnrc.yml": "3f9df93eb6f8df72e222cac10cc144942f7c96f75d54fd4fd055052bbd52300b",
+        ".yarn/releases/yarn-4.9.2.cjs": "ca4310f8ba997b4643a000ce512d9772e01c1485df35511114b325315960acb7",
+        "angular.json": "a042e9fb469dbbf46a41c4e1d899e160534be2a362b57f631d589ce85f35c3ee"
+      }
+    },
+    "rpx-xui-approve-org": {
+      "repository": "hmcts/rpx-xui-approve-org",
+      "gitHead": "9c1e1cdabda47b961aa2101dfe485d204ec09b05",
+      "files": {
+        "package.json": "f9b562fc5ac5092eeeeaa4f3164abf3b892e259fcdeb6f1fb6f74200103c9b3a",
+        "yarn.lock": "5f9670af436227e3120726658af17e58e21bcf50856544058f2af0606914b1c6",
+        ".yarnrc.yml": "f51c56f129696e23793c9bc86fdc89948eaa9cf2b797e7c0f03c344d23031dfe",
+        ".yarn/releases/yarn-4.10.3.cjs": "cd71753d68307301d21034efaf20bd8eee81f9450af75f068477bf9011bb9ad4",
+        "angular.json": "b53003864c094c0bdfe029704c709c7b2e76471263b6439bbbde91fd335cf37f"
+      }
+    },
+    "core": {
+      "repository": "hmcts/rpx-xui-core-lib",
+      "gitHead": "e3e4222a1e7df9009041c03dd5eef878ac7c13b0",
+      "files": {
+        "package.json": "e063cb36e53dde920cd77727beb34c48d68d640fe02b1cbe3d141a265f160a9e",
+        "yarn.lock": "ed0706ff59036f7fffe21b5048d36f9271f35129440bb5b517e93504137e7af2",
+        ".yarnrc.yml": "68878052b783809f5c919d0605cc064790bca760861aa9d6a71714d6022c3d6a",
+        ".yarn/releases/yarn-4.18.1.cjs": "a28ad591febb769f939c11f82f89bacad0b0fac0c884d3b78fa2aaaee970907e",
+        "projects/core-lib/ng-package.json": "396144b3896ec389676dbefa828f8ff06f7e25810044d2527b1dbceacd9bdb1f"
+      }
+    }
+  },
+  "scope": "Source-derived direct shared requirements and selected toolchains; synthetic harness choices are explicitly described in each profile. Verify hashes against git objects before refreshing.",
+  "locked_telemetry_versions": {
+    "rpx-xui-webapp": {
+      "@azure/monitor-opentelemetry": [
+        "1.21.0"
+      ],
+      "@azure/monitor-opentelemetry-exporter": [
+        "1.0.0-beta.47"
+      ],
+      "@azure/opentelemetry-instrumentation-azure-sdk": [
+        "1.0.0",
+        "1.1.0-beta.1"
+      ],
+      "@opentelemetry/api": [
+        "1.10.0"
+      ],
+      "@opentelemetry/api-logs": [
+        "0.211.0",
+        "0.221.0"
+      ],
+      "@opentelemetry/configuration": [
+        "0.221.0"
+      ],
+      "@opentelemetry/context-async-hooks": [
+        "2.10.0",
+        "2.12.0"
+      ],
+      "@opentelemetry/core": [
+        "2.12.0"
+      ],
+      "@opentelemetry/exporter-logs-otlp-grpc": [
+        "0.221.0"
+      ],
+      "@opentelemetry/exporter-logs-otlp-http": [
+        "0.221.0"
+      ],
+      "@opentelemetry/exporter-logs-otlp-proto": [
+        "0.221.0"
+      ],
+      "@opentelemetry/exporter-metrics-otlp-grpc": [
+        "0.221.0"
+      ],
+      "@opentelemetry/exporter-metrics-otlp-http": [
+        "0.221.0"
+      ],
+      "@opentelemetry/exporter-metrics-otlp-proto": [
+        "0.221.0"
+      ],
+      "@opentelemetry/exporter-prometheus": [
+        "0.221.0"
+      ],
+      "@opentelemetry/exporter-trace-otlp-grpc": [
+        "0.221.0"
+      ],
+      "@opentelemetry/exporter-trace-otlp-http": [
+        "0.221.0"
+      ],
+      "@opentelemetry/exporter-trace-otlp-proto": [
+        "0.221.0"
+      ],
+      "@opentelemetry/exporter-zipkin": [
+        "2.10.0"
+      ],
+      "@opentelemetry/instrumentation": [
+        "0.211.0",
+        "0.221.0"
+      ],
+      "@opentelemetry/instrumentation-bunyan": [
+        "0.66.0"
+      ],
+      "@opentelemetry/instrumentation-console": [
+        "0.3.0"
+      ],
+      "@opentelemetry/instrumentation-http": [
+        "0.221.0"
+      ],
+      "@opentelemetry/instrumentation-mongodb": [
+        "0.74.0"
+      ],
+      "@opentelemetry/instrumentation-mysql": [
+        "0.67.0"
+      ],
+      "@opentelemetry/instrumentation-pg": [
+        "0.73.0"
+      ],
+      "@opentelemetry/instrumentation-redis": [
+        "0.69.0"
+      ],
+      "@opentelemetry/instrumentation-winston": [
+        "0.65.0"
+      ],
+      "@opentelemetry/otlp-exporter-base": [
+        "0.221.0"
+      ],
+      "@opentelemetry/otlp-grpc-exporter-base": [
+        "0.221.0"
+      ],
+      "@opentelemetry/otlp-transformer": [
+        "0.221.0"
+      ],
+      "@opentelemetry/propagator-b3": [
+        "2.10.0"
+      ],
+      "@opentelemetry/propagator-jaeger": [
+        "2.10.0"
+      ],
+      "@opentelemetry/redis-common": [
+        "0.38.3"
+      ],
+      "@opentelemetry/resource-detector-azure": [
+        "0.29.0"
+      ],
+      "@opentelemetry/resources": [
+        "2.10.0",
+        "2.12.0"
+      ],
+      "@opentelemetry/sdk-logs": [
+        "0.221.0"
+      ],
+      "@opentelemetry/sdk-metrics": [
+        "2.10.0",
+        "2.12.0"
+      ],
+      "@opentelemetry/sdk-node": [
+        "0.221.0"
+      ],
+      "@opentelemetry/sdk-trace": [
+        "2.10.0",
+        "2.12.0"
+      ],
+      "@opentelemetry/sdk-trace-base": [
+        "2.10.0",
+        "2.12.0"
+      ],
+      "@opentelemetry/sdk-trace-node": [
+        "2.10.0",
+        "2.12.0"
+      ],
+      "@opentelemetry/sdk-trace-web": [
+        "2.12.0"
+      ],
+      "@opentelemetry/semantic-conventions": [
+        "1.44.0",
+        "1.45.0"
+      ],
+      "@opentelemetry/sql-common": [
+        "0.42.0"
+      ],
+      "@opentelemetry/winston-transport": [
+        "0.31.0"
+      ]
+    }
+  },
+  "harness": {
+    "standalone_api_manager": {
+      "url": "https://repo.yarnpkg.com/4.7.0/packages/yarnpkg-cli/bin/yarn.js",
+      "sha256": "293632d8a095d8ea4786eb2c5798c83c37544abed17ed31186a3ec4549a07c06",
+      "provenance": "Synthetic declared manager; downloaded from official Yarn distribution, not committed consumer bytes. Real in-tree commands inherit the root yarnPath."
+    }
+  }
+}

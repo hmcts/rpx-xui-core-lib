@@ -1,6 +1,15 @@
-import { replacePlaceholders, splitPhraseIntoComponents } from '../../../../../projects/core-lib/i18n/lib/helpers/replace-placeholders/replace-placeholders.helper';
+import { replacePlaceholders, splitPhraseIntoComponents, splitWithLiterals } from '../../../../../projects/core-lib/i18n/lib/helpers/replace-placeholders/replace-placeholders.helper';
 
 describe('replacePlaceholders', () => {
+  it('handles literal metacharacter keys, repeated values and empty literals', () => {
+    expect(splitWithLiterals('%A+B%/%A+B%/%EMPTY%', {}, { 'A+B': ' x ', EMPTY: '' })).toEqual([
+      { value: ' x ', literal: true }, { value: '/', literal: false },
+      { value: ' x ', literal: true }, { value: '/', literal: false }, { value: '', literal: true }
+    ]);
+    expect(splitWithLiterals('%A%B%', { A: 'label' }, { 'A%B': 'literal' })).toEqual([{ value: 'literal', literal: true }]);
+    expect(() => splitWithLiterals('%A%', { A: 'label' }, { A: 'secret' })).toThrow();
+  });
+
   it('should replace placeholders with the correct values - example 1', () => {
     const input = 'Hello %FIELDNAME%';
     const replacements = { FIELDNAME: 'John' };

@@ -24,7 +24,7 @@ describe('RpxTranslationService overlapping batches', () => {
     requests = [];
     subscriptions = [];
     spyOn(db.translations, 'where').and.returnValue({
-      equals: () => ({ first: () => Promise.resolve(undefined) })
+      equals: () => ({ last: () => Promise.resolve(undefined) })
     } as unknown as ReturnType<typeof db.translations.where>);
     writes = spyOn(db.translations, 'bulkAdd').and.stub();
     const post = jasmine.createSpy('post').and.callFake((_url: string, body: { phrases: string[] }) => {

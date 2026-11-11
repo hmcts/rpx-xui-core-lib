@@ -9,16 +9,21 @@ on:
 permissions:
   contents: read
 
+env:
+  YARN_ENABLE_HARDENED_MODE: "1"
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version-file: .nvmrc
@@ -30,11 +35,60 @@ jobs:
       - name: Build and verify required contracts
         run: node .yarn/releases/yarn-4.18.1.cjs test:all
       - name: Retain test evidence
+        id: evidence
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: validation-foundation-evidence
           path: |
             playwright-report/
             test-results/
+          if-no-files-found: error
+      - name: Validate available Odhín reports
+        if: ${{ !cancelled() && hashFiles('test-results/odhin/*/index.html') != '' }}
+        run: node tests/reporters/odhin-site-publisher.cjs --check-source test-results/odhin
+      - name: Retain Odhín reports, including failed tests
+        id: odhin
+        if: ${{ !cancelled() && hashFiles('test-results/odhin/*/index.html') != '' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: core-lib-odhin
+          path: test-results/odhin/
+          if-no-files-found: error
+      - name: Link this run's report artifacts
+        if: ${{ !cancelled() }}
+        env:
+          NATIVE_URL: ${{ steps.evidence.outputs.artifact-url }}
+          ODHIN_URL: ${{ steps.odhin.outputs.artifact-url }}
+        run: |
+          if [ -n "$ODHIN_URL" ]; then
+            printf '[Download Odhín browser reports](%s)\n\n' "$ODHIN_URL" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ -n "$NATIVE_URL" ]; then
+            printf '[Download all native validation evidence](%s)\n' "$NATIVE_URL" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+  dependency-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+      - name: Resolve the locked graph without dependency build scripts
+        run: node .yarn/releases/yarn-4.18.1.cjs install --immutable --mode=skip-build
+      - name: Audit runtime and development dependencies
+        run: |
+          mkdir -p test-results
+          node .yarn/releases/yarn-4.18.1.cjs npm audit --all --recursive --json > test-results/dependency-audit.jsonl
+      - name: Retain dependency audit
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: dependency-audit-evidence
+          path: test-results/dependency-audit.jsonl
           if-no-files-found: error

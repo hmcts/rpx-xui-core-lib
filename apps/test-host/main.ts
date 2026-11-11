@@ -17,7 +17,13 @@ class ValidationGallery {
   submitted = false;
 }
 
-const application = window.location.pathname === '/translation'
+const application = window.location.pathname === '/case-reference'
+  ? import('./case-reference').then(({ startCaseReferenceGallery }) => startCaseReferenceGallery())
+  : window.location.pathname === '/contact'
+  ? import('./contact').then(({ startContactGallery }) => startContactGallery())
+  : window.location.pathname === '/spinner'
+  ? import('./spinner').then(({ startSpinnerGallery }) => startSpinnerGallery())
+  : window.location.pathname === '/translation'
   ? import('./translation').then(({ startTranslationGallery }) => startTranslationGallery())
   : bootstrapApplication(ValidationGallery);
 application.catch((error: unknown) => console.error(error));

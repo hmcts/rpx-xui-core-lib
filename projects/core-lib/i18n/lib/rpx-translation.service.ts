@@ -6,13 +6,20 @@ import { BehaviorSubject, combineLatest, from, Observable, of, Subscription, tim
 import { catchError, finalize, map, take, tap } from 'rxjs/operators';
 import { db, Translation } from './db';
 import { matchCase } from './helpers/match-case/match-case.helper';
-import { splitPhraseIntoComponents } from './helpers/replace-placeholders/replace-placeholders.helper';
+import { splitPhraseIntoComponents, splitWithLiterals } from './helpers/replace-placeholders/replace-placeholders.helper';
 import { TranslatedData } from './models/translated-data.model';
 import { RpxLanguage, YesOrNoValue } from './rpx-language.enum';
 import { RpxTranslationConfig } from './rpx-translation.config';
 
-interface TranslationsDTO {
-  translations: { [from: string]: string | TranslatedData };
+function translationData(value: unknown): TranslatedData | undefined {
+  if (typeof value === 'string') return { translation: value };
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined;
+  const data = value as Record<string, unknown>;
+  if (!Object.hasOwn(data, 'translation') || typeof data['translation'] !== 'string') return undefined;
+  if (Object.hasOwn(data, 'yes') && typeof data['yes'] !== 'string') return undefined;
+  if (Object.hasOwn(data, 'no') && typeof data['no'] !== 'string') return undefined;
+  if (Object.hasOwn(data, 'yesOrNoField') && typeof data['yesOrNoField'] !== 'boolean') return undefined;
+  return data as unknown as TranslatedData;
 }
 
 export type Replacements = { [key: string]: string };
@@ -37,7 +44,7 @@ export class RpxTranslationService implements OnDestroy {
   }
 
   public set language(lang: RpxLanguage) {
-    if (lang !== this.currentLanguage) {
+    if ((lang === 'en' || lang === 'cy') && lang !== this.currentLanguage) {
       this.currentLanguage = lang;
       this.persistLanguage();
       this.languageSource.next(lang);
@@ -71,7 +78,17 @@ export class RpxTranslationService implements OnDestroy {
     );
   }
 
-  public getTranslationWithReplacements$(phrase: string, replacements: Replacements): Observable<string> {
+  public getTranslationWithReplacements$(phrase: string, replacements: Replacements, literals?: Replacements): Observable<string> {
+    if (literals) {
+      const components = splitWithLiterals(phrase, replacements, literals);
+      if (!components.length) return of('');
+      const translated = components.map(({ value, literal }) => literal
+        ? of(value)
+        : this.getTranslatedData(value).pipe(map((data) => data.translation)));
+      return combineLatest(translated).pipe(
+        map((values) => values.join(''))
+      );
+    }
     // Split the phrase into components first based on replacements
     const components = splitPhraseIntoComponents(phrase, replacements);
 
@@ -86,7 +103,8 @@ export class RpxTranslationService implements OnDestroy {
   }
 
   public getTranslationWithYesOrNo$(phrase: string, yesOrNoValue: string): Observable<string> {
-    const isYes = yesOrNoValue?.toLowerCase() === YesOrNoValue.YES.toLowerCase();
+    if (yesOrNoValue == null) return of('');
+    const isYes = yesOrNoValue.toLowerCase() === YesOrNoValue.YES.toLowerCase();
 
     return this.getTranslatedData(phrase).pipe(map((translatedData: TranslatedData) => {
       const yesOrNoTranslated = isYes ? (translatedData.yes || yesOrNoValue)
@@ -127,21 +145,30 @@ export class RpxTranslationService implements OnDestroy {
     if (lang === 'en') {
       this.phrases[phrase].next({ translation: phrase });
     } else {
-      this.cacheSubscriptions[phrase] = from(liveQuery(() => db.translations.where('[phrase+lang]').equals([lookupPhrase, lang]).first())).pipe(
+      // A newer replacement must not be shadowed by a row whose deletion failed.
+      this.cacheSubscriptions[phrase] = from(liveQuery(() => db.translations.where('[phrase+lang]').equals([lookupPhrase, lang]).last())).pipe(
+        catchError(() => {
+          if (!this.lifetime.closed) console.warn('Translation cache read failed');
+          return of(undefined);
+        }),
         tap((t) => {
-          if (t && !t.isExpired()) {
-            this.phrases[phrase].next(t.translation);
+          if (this.lifetime.closed || this.language !== lang) return;
+          const cached = t && typeof t.translation === 'object' ? translationData(t.translation) : undefined;
+          if (t && !t.isExpired() && cached) {
+            this.phrases[phrase].next(cached);
           } else {
             if (t) {
-              // expired, clean up DB
-              db.translations.delete(t.id!);
+              // Remove expired or invalid cache entries.
+              void Promise.resolve(db.translations.delete(t.id!)).catch((): void => {
+                if (!this.lifetime.closed) console.warn('Translation cache delete failed');
+              });
             }
             this.phrases[phrase].next({
               translation: `${phrase} [Translation in progress]`,
               yes: 'Yes [Translation in progress]',
               no: 'No [Translation in progress]'
             });
-            if (!this.lifetime.closed) this.load(phrase, lang);
+            if (!this.lifetime.closed && this.language === lang) this.load(phrase, lang);
           }
         })
       ).subscribe(() => ({}));
@@ -206,47 +233,38 @@ export class RpxTranslationService implements OnDestroy {
       const inFlight = this.inFlight[lang] ??= new Set<string>();
       phrases.forEach((p) => inFlight.add(p));
       const url = this.config.baseUrl + `/${lang}`;
-      const request = this.http.post<TranslationsDTO>(url,
-        {
-          phrases
-        }
-      )
-        .pipe(
-          map((t) => t.translations),
-          map((translations) => {
-            const translatedData: { [from: string]: TranslatedData } = Object.create(null);
-
-            Object.keys(translations).forEach((p) => {
-              if (typeof(translations[p]) === 'string') {
-                translatedData[p] = { translation: translations[p] as string };
-              } else {
-                translatedData[p] = translations[p] as TranslatedData;
-              }
-            });
-
-            return translatedData;
-          }),
-          catchError(() => {
-            const translations: { [from: string]: TranslatedData } = Object.create(null);
-            phrases.forEach((p) => (
-              translations[p] = this.config.testMode ? { translation: `[Test translation for ${p}]` } : { translation: p })
-            );
-            return of(translations);
-          }),
-          take(1),
-          finalize(() => phrases.forEach((p) => inFlight.delete(p)))
-        ).subscribe((translations: { [from: string]: TranslatedData }) => {
-          const toAdd: Translation[] = [];
-          Object.keys(translations).forEach((p) => {
-            toAdd.push(Translation.create(p, lang, translations[p], DateTime.now().plus(this.config.validity).toISO()));
-            Object.keys(this.phrases)
-              .filter((phraseKey) => this.language === lang && this.normalisePhraseSpacing(phraseKey) === p)
-              .forEach((phraseKey) => {
-                if (!this.lifetime.closed) this.phrases[phraseKey].next(translations[p]);
-              });
+      const fallback = (p: string): TranslatedData => this.config.testMode
+        ? { translation: `[Test translation for ${p}]` } : { translation: p };
+      const request = this.http.post<unknown>(url, { phrases }).pipe(
+        map((response) => {
+          const body = response && typeof response === 'object' && !Array.isArray(response) && Object.hasOwn(response, 'translations')
+            ? (response as Record<string, unknown>)['translations'] : undefined;
+          const translations = body && typeof body === 'object' && !Array.isArray(body)
+            ? body as Record<string, unknown> : undefined;
+          return phrases.map((p) => {
+            const value = translations && Object.hasOwn(translations, p) ? translationData(translations[p]) : undefined;
+            return { phrase: p, data: value ?? fallback(p), cache: value !== undefined };
           });
-          if (!this.lifetime.closed) db.translations.bulkAdd(toAdd);
+        }),
+        catchError(() => of(phrases.map((p) => ({ phrase: p, data: fallback(p), cache: true })))),
+        take(1),
+        finalize(() => phrases.forEach((p) => inFlight.delete(p)))
+      ).subscribe((translations) => {
+        const toAdd: Translation[] = [];
+        translations.forEach(({ phrase: p, data, cache }) => {
+          if (cache) toAdd.push(Translation.create(p, lang, data, DateTime.now().plus(this.config.validity).toISO()));
+          Object.keys(this.phrases)
+            .filter((phraseKey) => this.language === lang && this.normalisePhraseSpacing(phraseKey) === p)
+            .forEach((phraseKey) => {
+              if (!this.lifetime.closed && this.language === lang) this.phrases[phraseKey].next(data);
+            });
         });
+        if (!this.lifetime.closed && toAdd.length) {
+          void Promise.resolve(db.translations.bulkAdd(toAdd)).catch((): void => {
+            if (!this.lifetime.closed) console.warn('Translation cache write failed');
+          });
+        }
+      });
       this.lifetime.add(request);
     });
     this.lifetime.add(this.requestTimerSubscription);
@@ -256,8 +274,8 @@ export class RpxTranslationService implements OnDestroy {
     document.cookie = `${this.languageKey}=${this.currentLanguage}; SameSite=Strict;`;
   }
 
-  private getPersistedLanguage(): RpxLanguage {
-    console.log(document.cookie.split(';').find((cookie) => cookie.trim().startsWith(this.languageKey + '='))?.split('=')[1].trim());
-    return document.cookie.split(';').find((cookie) => cookie.trim().startsWith(this.languageKey + '='))?.split('=')[1].trim() as RpxLanguage;
+  private getPersistedLanguage(): RpxLanguage | undefined {
+    const value = document.cookie.split(';').find((cookie) => cookie.trim().startsWith(this.languageKey + '='))?.split('=')[1].trim();
+    return value === 'en' || value === 'cy' ? value : undefined;
   }
 }

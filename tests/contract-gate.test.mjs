@@ -1,10 +1,15 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { test } from 'node:test';
 import { checkContracts } from '../scripts/check-contracts.mjs';
+
+const identity = { sourceSha: 'a'.repeat(40), runId: 'fixture', attempt: '1' };
+const candidate = Buffer.from('candidate bytes');
+const jasmineVersion = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).devDependencies['jasmine-core'];
 
 const unitNames = [
   'rejects an empty group with the default minimum',
@@ -14,8 +19,18 @@ const unitNames = [
   'rejects fewer than the configured minimum',
   'accepts the exact configured minimum',
   'accepts zero when zero is explicitly required',
+  'rejects use on a non-group control with a clear error',
 ];
 const nodeNames = [
+  'Node authentication and session constants retain the legacy values',
+  'Node security policy retains the legacy directives',
+  "getUserSessionTimeout matches configuration order and sorts roles in place",
+  "getUserSessionTimeout returns the same mutable fallback for unmatched and empty roles",
+  "getUserSessionTimeout throws for an invalid pattern only when there are roles to examine",
+  "getUserSessionTimeout throws on missing roles or configuration",
+  "hasKey includes inherited keys and rejects absent keys",
+  "sortArray returns the same array sorted in place",
+
   'arrayPatternMatch() matches ["pui-organisation-manager", "pui-user-manager", "pui-finance-manager"] to user-manager expecting true',
   'arrayPatternMatch() matches ["pui-organisation-manager", "pui-user-manager", "pui-finance-manager"] to . expecting true',
   'arrayPatternMatch() matches ["pui-organisation-manager", "pui-user-manager", "pui-finance-manager"] to dwp expecting false',
@@ -27,6 +42,10 @@ const nodeNames = [
   'invalid patterns throw SyntaxError for a string or nonempty roles',
 ];
 const i18nNames = [
+  "replacePlaceholders handles literal metacharacter keys, repeated values and empty literals",
+  "RpxTranslatePipe transform passes explicit literal replacements to the service",
+  "translation real cache recovery keeps literal values out of requests and real IndexedDB across language changes",
+  "RpxTranslationService public API composition keeps explicit literal replacements out of translation requests",
   "matchCase should return the second string with the same case as the first string if the first character is uppercase",
   "matchCase should return the second string in lowercase if the first character is lowercase",
   "matchCase should return the second string as is if either string is empty",
@@ -46,7 +65,7 @@ const i18nNames = [
   "RpxTranslationService should normalise multiple spacing runs before translating a phrase",
   "RpxTranslationService should preserve markdown line breaks while normalising horizontal spacing",
   "RpxTranslationService should request the normalised phrase when loading a phrase with multiple spaces",
-  "RpxTranslationService should not call load method with given phrase, language, and yesOrNo value when translation not found in DB",
+  "RpxTranslationService returns English without loading a translation",
   "RpxTranslationService shouldTranslate should return false for phrases without alphabetic characters",
   "RpxTranslationService shouldTranslate should return true for phrases with alphabetic characters",
   "RpxTranslationService shouldTranslate should return false for phrases containing [Translation in progress]",
@@ -95,10 +114,33 @@ const i18nNames = [
   "translation provider lifecycle stops response processing if a subscriber destroys the owner",
   "translation provider lifecycle stops cache-miss processing if a subscriber destroys the owner",
   "translation provider lifecycle stops a language change when its subscriber destroys the owner",
-  "translation provider lifecycle stops observing cached translations when its owner is destroyed"
+  "translation provider lifecycle stops observing cached translations when its owner is destroyed",
+  "translation boundary validation accepts only supported persisted and assigned languages",
+  "translation boundary validation falls back for malformed response values without caching them and retains valid siblings",
+  "translation boundary validation treats rejected cache reads as misses and preserves output when writes reject",
+  "translation boundary validation rejects malformed cached values and tolerates deletion failure",
+  "translation boundary validation falls back for malformed payloads and metadata, and accepts an empty translation",
+  "translation boundary validation uses valid cached empty strings and metadata without HTTP",
+  "translation boundary validation tolerates an expired cache deletion failure",
+  "translation boundary validation uses own response keys for normalized phrases with inherited property names",
+  "translation boundary validation uses the configured test-mode fallback without caching a malformed response",
+  "RpxTranslationService Null/Undefined handling returns an empty string for undefined yesOrNoValue without a request",
+  "translation real cache recovery recovers from a rejected invalid deletion with real IndexedDB and a fresh service",
+  "translation real cache recovery recovers from a rejected expired deletion with real IndexedDB and a fresh service",
+  "translation real cache recovery keeps a malformed response fallback stable then recovers after a language cycle",
 ];
-const i18nJourneys = ['a late Welsh response preserves English and is reused after switching back', 'locale switches reuse persisted translations across English and page reloads', 'a translation HTTP failure returns and caches the original phrase', 'local gallery translates through its own synthetic service', 'local gallery demonstrates a synthetic service failure', 'local translation endpoint validates requests'];
-const cacheJourneys = ['legacy to core preserves valid cached translation', 'core to legacy preserves valid cached translation', 'core replaces an expired cache row written by published legacy'];
+const i18nJourneys = ['case reference formatting preserves links and handles drafts', 'contact details show optional fields and translate labels', 'spinner displays default, updated and translated text', 'a late Welsh response preserves English and is reused after switching back', 'locale switches reuse persisted translations across English and page reloads', 'a translation HTTP failure returns and caches the original phrase', 'local gallery translates through its own synthetic service', 'local gallery demonstrates a synthetic service failure', 'local translation endpoint validates requests'];
+const cacheJourneys = [
+  "baseline: legacy to core preserves valid cached translation",
+  "baseline: core to legacy preserves valid cached translation",
+  "baseline: core replaces an expired cache row written by published legacy",
+  "aligned: legacy to core preserves valid cached translation",
+  "aligned: core to legacy preserves valid cached translation",
+  "aligned: core replaces an expired cache row written by published legacy",
+  "direct: baseline core to aligned core preserves valid cached translation",
+  "direct: aligned core to baseline core preserves valid cached translation",
+  "installed core keeps literal values out of requests and IndexedDB after reload"
+];
 const journey = 'keyboard checkbox toggles update real FormGroup validity and submitted errors';
 const validationJourneys = [
   'validation keyboard traversal toggles roles and submits with Enter and Space',
@@ -110,20 +152,46 @@ const validationJourneys = [
 const packageIds = [
   'package.physical-secondary-declaration', 'package.strict-node', 'package.strict-bundler',
   'package.installed-runtime', 'package.missing-declaration-fault', 'package.restored-node',
-  'package.physical-node', 'package.installed-node-runtime', 'package.browser-denied',
+  'package.physical-node', 'package.installed-node-runtime', 'package.node-loading-fault', 'package.browser-denied',
   'package.missing-marker-fault', 'package.restored-node-runtime',
   'package.physical-i18n', 'package.staged-i18n-identity',
+  "package.root-runtime-empty",
+  "package.validation-graph",
+  "package.root-export-fault",
+  "package.validation-i18n-fault",
+  "package.restored-runtime-graph",
+
 ];
+
+const expectedContracts = unitNames.length + nodeNames.length + i18nNames.length + i18nJourneys.length + cacheJourneys.length + validationJourneys.length + packageIds.length + 1;
+
+function nativeTap(names) {
+  return `TAP version 13\n${names.map((name, index) => `ok ${index + 1} - ${name}`).join('\n')}\n1..${names.length}\n# tests ${names.length}\n# suites 0\n# pass ${names.length}\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n`;
+}
+
+function nativeJasmine() {
+  return {
+    schemaVersion: 1, jasmineVersion, complete: true, browserErrors: [],
+    events: [
+      { type: 'jasmineStarted', result: { totalSpecsDefined: i18nNames.length } },
+      ...i18nNames.map((fullName, index) => ({ type: 'specDone', result: {
+        id: `spec${index}`, fullName, status: 'passed', failedExpectations: [], deprecationWarnings: []
+      } })),
+      { type: 'suiteDone', result: { id: 'suite0', fullName: 'fixture suite', status: 'passed', failedExpectations: [], deprecationWarnings: [] } },
+      { type: 'jasmineDone', result: { overallStatus: 'passed', failedExpectations: [], deprecationWarnings: [] } }
+    ]
+  };
+}
 
 /** @returns {Record<string, any>} */
 function reports() {
   return {
-    'validation.tap': `TAP version 13\n${unitNames.map((name, index) => `ok ${index + 1} - ${name}`).join('\n')}\n1..7\n# tests 7\n# pass 7\n# fail 0\n`,
-    'node-jest.json': { success: true, numTotalTests: 9, numPassedTests: 9, numFailedTests: 0, numPendingTests: 0, numTodoTests: 0, testResults: [{ status: 'passed', assertionResults: nodeNames.map((fullName) => ({ fullName, status: 'passed' })) }] },
-    'i18n/junit.xml': `<?xml version="1.0"?><testsuite name="Chrome Headless" tests="69" errors="0" failures="0">${i18nNames.map((name) => `<testcase name="${name.replaceAll('&', '&amp;').replaceAll('\"', '&quot;')}"/>`).join('')}</testsuite>`,
+    'validation.tap': nativeTap(unitNames),
+    'node.tap': nativeTap(nodeNames),
+    'i18n/jasmine.json': nativeJasmine(),
     'browser.json': { errors: [], suites: [{ specs: [journey, ...validationJourneys, ...i18nJourneys].map((title) => ({ title, tests: [{ projectName: 'chromium', expectedStatus: 'passed', status: 'expected', results: [{ status: 'passed' }] }] })) }] },
     'cache-upgrade-report.json': { errors: [], suites: [{ specs: cacheJourneys.map((title) => ({ title, tests: [{ projectName: 'chromium', expectedStatus: 'passed', status: 'expected', results: [{ status: 'passed' }] }] })) }] },
-    'package.json': { schemaVersion: 1, package: { sha256: 'a'.repeat(64) }, tests: packageIds.map((id) => ({ id, status: 'passed' })) },
+    'package.json': { schemaVersion: 1, package: { sha256: createHash('sha256').update(candidate).digest('hex'), ...identity, dirty: false }, tests: packageIds.map((id) => ({ id, status: 'passed' })) },
   };
 }
 
@@ -135,14 +203,18 @@ function checkFixture(t, files) {
     mkdirSync(dirname(join(root, 'test-results', file)), { recursive: true });
     writeFileSync(join(root, 'test-results', file), typeof report === 'string' ? report : JSON.stringify(report));
   }
-  return () => checkContracts(root);
+  mkdirSync(join(root, 'test-results/package-evidence'), { recursive: true });
+  writeFileSync(join(root, 'test-results/package-evidence/candidate.tgz'), candidate);
+  const check = (expected = identity) => checkContracts(root, expected);
+  check.root = root;
+  return check;
 }
 
 test('accepts all independently required successful contracts', (t) => {
-  assert.equal(checkFixture(t, reports())(), 113);
+  assert.equal(checkFixture(t, reports())(), expectedContracts);
 });
 
-for (const file of ['validation.tap', 'browser.json', 'cache-upgrade-report.json', 'package.json', 'node-jest.json', 'i18n/junit.xml']) {
+for (const file of ['validation.tap', 'browser.json', 'cache-upgrade-report.json', 'package.json', 'node.tap', 'i18n/jasmine.json']) {
   test(`rejects missing ${file} even when other reports pass`, (t) => {
     const files = reports();
     delete files[file];
@@ -158,7 +230,7 @@ for (const file of ['validation.tap', 'browser.json', 'cache-upgrade-report.json
 for (const name of unitNames) {
   test(`rejects a filtered-out unit contract: ${name}`, (t) => {
     const files = reports();
-    files['validation.tap'] = `TAP version 13\n${unitNames.filter((value) => value !== name).map((value, index) => `ok ${index + 1} - ${value}`).join('\n')}\n1..6\n`;
+    files['validation.tap'] = nativeTap(unitNames.filter((value) => value !== name));
     assert.throws(checkFixture(t, files), /missing|required/i);
   });
 }
@@ -173,13 +245,13 @@ for (const outcome of ['not ok 1', 'ok 1 # SKIP', 'ok 1 # TODO']) {
 
 test('rejects truncated TAP without a complete plan', (t) => {
   const files = reports();
-  files['validation.tap'] = files['validation.tap'].replace('1..7\n', '');
+  files['validation.tap'] = files['validation.tap'].replace(`1..${unitNames.length}\n`, '');
   assert.throws(checkFixture(t, files), /plan|TAP/i);
 });
 
 test('rejects duplicate native outcomes', (t) => {
   const files = reports();
-  files['validation.tap'] = files['validation.tap'].replace('1..7', `ok 8 - ${unitNames[0]}\n1..8`);
+  files['validation.tap'] = nativeTap([...unitNames, unitNames[0]]);
   assert.throws(checkFixture(t, files), /duplicate|once/i);
 });
 
@@ -274,7 +346,7 @@ test('accepts a real native node:test TAP stream', (t) => {
   assert.equal(result.status, 0, result.stderr);
   const files = reports();
   files['validation.tap'] = result.stdout;
-  assert.equal(checkFixture(t, files)(), 113);
+  assert.equal(checkFixture(t, files)(), expectedContracts);
 });
 
 for (const file of ['browser.json', 'package.json']) {
@@ -309,59 +381,99 @@ test('rejects an absent or empty browser project name', (t) => {
 });
 
 for (const name of nodeNames) {
-  test(`rejects a filtered-out Jest contract: ${name}`, (t) => {
+  test(`rejects a filtered-out Node contract: ${name}`, (t) => {
     const files = reports();
-    files['node-jest.json'].testResults[0].assertionResults = files['node-jest.json'].testResults[0].assertionResults.filter((result) => result.fullName !== name);
-    files['node-jest.json'].numTotalTests -= 1;
-    files['node-jest.json'].numPassedTests -= 1;
+    files['node.tap'] = nativeTap(nodeNames.filter((value) => value !== name));
     assert.throws(checkFixture(t, files), /missing|required/i);
   });
 }
 
-for (const status of ['failed', 'pending', 'todo']) {
-  test(`rejects a ${status} Jest contract`, (t) => {
+for (const outcome of ['not ok', 'SKIP', 'TODO']) {
+  test(`rejects a ${outcome} native Node outcome`, (t) => {
     const files = reports();
-    files['node-jest.json'].testResults[0].assertionResults[0].status = status;
-    assert.throws(checkFixture(t, files), /pass|Jest|contract/i);
+    files['node.tap'] = files['node.tap'].replace(`ok 1 - ${nodeNames[0]}`,
+      outcome === 'not ok' ? `not ok 1 - ${nodeNames[0]}` : `ok 1 - ${nodeNames[0]} # ${outcome}`);
+    assert.throws(checkFixture(t, files), /pass|TAP|contract/i);
   });
 }
 
-test('rejects Jest failure summaries and interrupted suites', (t) => {
-  for (const change of [{ success: false }, { numFailedTests: 1 }, { numPendingTests: 1 }, { numTodoTests: 1 }, { numTotalTests: 10 }, { testResults: [] }]) {
-    const files = reports();
-    Object.assign(files['node-jest.json'], change);
-    assert.throws(checkFixture(t, files), /Jest|pass|report|missing|required/i);
-  }
-});
-
-for (const status of ['failure', 'error', 'skipped']) {
-  test(`rejects a ${status} native Karma outcome`, (t) => {
-    const files = reports();
-    files['i18n/junit.xml'] = files['i18n/junit.xml'].replace('/>', `><${status}/></testcase>`);
-    assert.throws(checkFixture(t, files), /pass|Karma|report/i);
-  });
-}
-
-test('rejects a filtered native Karma contract and contradictory totals', (t) => {
+test('rejects inconsistent or interrupted native Node reports', (t) => {
   for (const change of [
-    (xml) => xml.replace(/<testcase [^>]+\/>/, '').replace('tests="69"', 'tests="68"'),
-    (xml) => xml.replace('tests="69"', 'tests="70"'),
-    (xml) => xml.replace('failures="0"', 'failures="1"'),
-    (xml) => xml.replace('</testsuite>', ''),
+    (tap) => tap.replace(`1..${nodeNames.length}\n`, ''),
+    (tap) => tap.replace(`1..${nodeNames.length}`, `1..${nodeNames.length + 1}`),
+    (tap) => tap.replace(`# tests ${nodeNames.length}`, `# tests ${nodeNames.length + 1}`),
+    (tap) => tap.replace(`# pass ${nodeNames.length}`, `# pass ${nodeNames.length - 1}`),
+    (tap) => tap.replace('# fail 0', '# fail 1'),
+    (tap) => tap.replace('# cancelled 0', '# cancelled 1'),
+    (tap) => tap.replace('# skipped 0', '# skipped 1'),
+    (tap) => tap.replace('# todo 0', '# todo 1'),
+    (tap) => tap.replace('# suites 0', '# suites 1'),
+    (tap) => tap.replace('# fail 0\n', ''),
+    (tap) => `${tap}# pass ${nodeNames.length}\n`,
+    (tap) => `${tap}Bail out! interrupted\n`,
+    (tap) => tap.replace('ok 2 - ', 'ok 1 - '),
+    (tap) => tap.replace('ok 2 - ', '    ok 2 - '),
   ]) {
     const files = reports();
-    files['i18n/junit.xml'] = change(files['i18n/junit.xml']);
-    assert.throws(checkFixture(t, files), /missing|required|Karma|report/i);
+    files['node.tap'] = change(files['node.tap']);
+    assert.throws(checkFixture(t, files), /TAP|pass|report|missing|required/i);
   }
 });
 
-test('rejects each omitted lifecycle contract', (t) => {
-  for (const name of i18nNames.filter((value) => value.startsWith('translation provider lifecycle '))) {
+test('rejects duplicate native Node contracts even with consistent totals', (t) => {
+  const files = reports();
+  files['node.tap'] = nativeTap([...nodeNames, nodeNames[0]]);
+  assert.throws(checkFixture(t, files), /duplicate|once/i);
+});
+
+test('accepts the real native Node report without transforming it', (t) => {
+  const directory = mkdtempSync(join(tmpdir(), 'core-native-node-'));
+  t.after(() => rmSync(directory, { recursive: true, force: true }));
+  const file = join(directory, 'native.test.mjs');
+  writeFileSync(file, `import { test } from 'node:test';\nfor (const name of ${JSON.stringify(nodeNames)}) test(name, () => {});`);
+  const env = { ...process.env };
+  delete env.NODE_TEST_CONTEXT;
+  const result = spawnSync(process.execPath, ['--test', '--test-reporter=tap', file], { encoding: 'utf8', env });
+  assert.equal(result.status, 0, result.stderr);
+  const files = reports();
+  files['node.tap'] = result.stdout;
+  assert.equal(checkFixture(t, files)(), expectedContracts);
+});
+
+for (const status of ['failed', 'pending', 'excluded', 'disabled', 'unknown']) {
+  test(`rejects a ${status} native Jasmine outcome`, (t) => {
     const files = reports();
-    files['i18n/junit.xml'] = files['i18n/junit.xml']
-      .replace(`<testcase name="${name}"/>`, '')
-      .replace('tests="69"', 'tests="68"');
-    assert.throws(checkFixture(t, files), /missing|required|Karma|report/i);
+    files['i18n/jasmine.json'].events[1].result.status = status;
+    assert.throws(checkFixture(t, files), /pass|Jasmine|report/i);
+  });
+}
+
+test('rejects incomplete, contradictory, browser, global and suite failures', (t) => {
+  for (const mutate of [
+    report => report.complete = false,
+    report => report.browserErrors.push('page error'),
+    report => report.driverError = 'driver failed',
+    report => report.events.shift(),
+    report => report.events.pop(),
+    report => report.events[0].result.totalSpecsDefined += 1,
+    report => report.events.at(-1).result.overallStatus = 'failed',
+    report => report.events.at(-1).result.failedExpectations.push({ message: 'global afterAll failed' }),
+    report => report.events.at(-2).result.failedExpectations.push({ message: 'suite afterAll failed' }),
+    report => report.events.at(-2).result.status = 'failed',
+    report => report.events[1].result.failedExpectations.push({ message: 'spec failed despite passed status' }),
+    report => report.events[1].result.deprecationWarnings.push({ message: 'deprecated API' })
+  ]) {
+    const files = reports(); mutate(files['i18n/jasmine.json']);
+    assert.throws(checkFixture(t, files), /Jasmine|report/i);
+  }
+});
+
+test('rejects each omitted i18n contract even when native totals agree', (t) => {
+  for (const name of i18nNames) {
+    const files = reports(); const report = files['i18n/jasmine.json'];
+    report.events = report.events.filter(event => event.type !== 'specDone' || event.result.fullName !== name);
+    report.events[0].result.totalSpecsDefined -= 1;
+    assert.throws(checkFixture(t, files), /missing|required|Jasmine|report/i);
   }
 });
 
@@ -372,3 +484,86 @@ for (const name of cacheJourneys) {
     assert.throws(checkFixture(t, files), /missing|required/i);
   });
 }
+
+
+test('rejects malformed JSON, unknown events, duplicate outcomes and wrong runner identity', (t) => {
+  for (const mutate of [
+    report => report.events[1].type = 'unknown',
+    report => report.jasmineVersion = 'wrong-version',
+    report => { report.events.splice(2, 0, structuredClone(report.events[1])); report.events[0].result.totalSpecsDefined += 1; },
+    report => report.events.push(structuredClone(report.events.at(-1))),
+    report => report.events.unshift(structuredClone(report.events[0]))
+  ]) {
+    const files = reports(); mutate(files['i18n/jasmine.json']); assert.throws(checkFixture(t, files));
+  }
+  for (const malformed of ['<!-- specDone passed -->', '{"schemaVersion":1,', '{}', 'null', '[]']) {
+    const files = reports(); files['i18n/jasmine.json'] = malformed; assert.throws(checkFixture(t, files));
+  }
+});
+
+test('rejects missing or altered candidate and missing identity', (t) => {
+  for (const mutate of [
+    files => delete files['package.json'].package.sourceSha,
+    files => files['package.json'].package.sha256 = 'b'.repeat(64),
+    files => files['package.json'].package.dirty = 'false',
+  ]) {
+    const files = reports(); mutate(files);
+    assert.throws(checkFixture(t, files));
+  }
+});
+
+test('rejects a replay with absent or different expected identity', (t) => {
+  const check = checkFixture(t, reports());
+  assert.throws(() => checkContracts(check.root));
+  for (const expected of [null, {...identity, sourceSha: 'b'.repeat(40)}, {...identity, runId: 'other'}, {...identity, attempt: '2'}]) {
+    assert.throws(() => check(expected));
+  }
+});
+
+
+test('rejects missing and altered candidate bytes', (t) => {
+  for (const bytes of [null, 'altered']) {
+    const check = checkFixture(t, reports());
+    const path = join(check.root, 'test-results/package-evidence/candidate.tgz');
+    if (bytes === null) rmSync(path); else writeFileSync(path, bytes);
+    assert.throws(check);
+  }
+});
+
+test('replay CLI requires a complete unique argument set', (t) => {
+  const check = checkFixture(t, reports());
+  const cli = new URL('../scripts/check-contracts.mjs', import.meta.url).pathname;
+  const args = ['--report-root', check.root, '--source-sha', identity.sourceSha, '--run-id', identity.runId, '--attempt', identity.attempt];
+  assert.equal(spawnSync(process.execPath, [cli, ...args]).status, 0);
+  for (const invalid of [args.slice(0, -2), [...args, '--attempt', '1'], [...args, '--unknown', 'x'], [...args.slice(0, -1), '2']]) {
+    assert.notEqual(spawnSync(process.execPath, [cli, ...invalid]).status, 0);
+  }
+});
+
+test('extra passing Jasmine cases are allowed while required coverage remains mandatory', (t) => {
+  const files = reports(); const report = files['i18n/jasmine.json'];
+  report.events.splice(-2, 0, { type: 'specDone', result: { id: 'extra', fullName: 'additional real test', status: 'passed', failedExpectations: [], deprecationWarnings: [] } });
+  report.events[0].result.totalSpecsDefined += 1;
+  assert.equal(checkFixture(t, files)(), expectedContracts);
+  report.events.find(event => event.result.id === 'extra').result.status = 'failed';
+  assert.throws(checkFixture(t, files), /Jasmine|report/i);
+});
+
+test('native Jasmine metadata cannot inject fake outcome names', (t) => {
+  const files = reports();
+  files['i18n/jasmine.json'].events[1].result.description = '<testcase name="fake"/><script>specDone</script>';
+  assert.equal(checkFixture(t, files)(), expectedContracts);
+});
+
+test('identity uses complete CI context and rejects a partial context', () => {
+  const module = new URL('../scripts/evidence-identity.mjs', import.meta.url).href;
+  const script = `import { currentIdentity } from ${JSON.stringify(module)}; console.log(JSON.stringify(currentIdentity(process.cwd())));`;
+  const env = { ...process.env, GITHUB_SHA: identity.sourceSha, GITHUB_RUN_ID: identity.runId, GITHUB_RUN_ATTEMPT: identity.attempt };
+  const complete = spawnSync(process.execPath, ['--input-type=module', '-e', script], { env, encoding: 'utf8' });
+  assert.equal(complete.status, 0, complete.stderr);
+  const value = JSON.parse(complete.stdout);
+  assert.deepEqual({ sourceSha: value.sourceSha, runId: value.runId, attempt: value.attempt }, identity);
+  assert.equal(typeof value.dirty, 'boolean');
+  delete env.GITHUB_RUN_ATTEMPT;
+  assert.notEqual(spawnSync(process.execPath, ['--input-type=module', '-e', script], { env }).status, 0);
+});

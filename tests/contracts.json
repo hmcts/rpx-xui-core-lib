@@ -8,7 +8,8 @@
       "rejects truthy non-boolean values",
       "rejects fewer than the configured minimum",
       "accepts the exact configured minimum",
-      "accepts zero when zero is explicitly required"
+      "accepts zero when zero is explicitly required",
+      "rejects use on a non-group control with a clear error"
     ]
   },
   "browser": {
@@ -61,6 +62,18 @@
       {
         "projectName": "chromium",
         "title": "local translation endpoint validates requests"
+      },
+      {
+        "projectName": "chromium",
+        "title": "spinner displays default, updated and translated text"
+      },
+      {
+        "projectName": "chromium",
+        "title": "contact details show optional fields and translate labels"
+      },
+      {
+        "projectName": "chromium",
+        "title": "case reference formatting preserves links and handles drafts"
       }
     ]
   },
@@ -75,15 +88,21 @@
       "package.restored-node",
       "package.physical-node",
       "package.installed-node-runtime",
+      "package.node-loading-fault",
       "package.browser-denied",
       "package.missing-marker-fault",
       "package.restored-node-runtime",
       "package.physical-i18n",
-      "package.staged-i18n-identity"
+      "package.staged-i18n-identity",
+      "package.root-runtime-empty",
+      "package.validation-graph",
+      "package.root-export-fault",
+      "package.validation-i18n-fault",
+      "package.restored-runtime-graph"
     ]
   },
   "nodeUnit": {
-    "report": "test-results/node-jest.json",
+    "report": "test-results/node.tap",
     "required": [
       "arrayPatternMatch() matches [\"pui-organisation-manager\", \"pui-user-manager\", \"pui-finance-manager\"] to user-manager expecting true",
       "arrayPatternMatch() matches [\"pui-organisation-manager\", \"pui-user-manager\", \"pui-finance-manager\"] to . expecting true",
@@ -93,11 +112,19 @@
       "isRoleMatch() matches pui-case-manager to dwp-",
       "isRoleMatch() matches pui to .",
       "empty roles do not match, including an invalid unused pattern",
-      "invalid patterns throw SyntaxError for a string or nonempty roles"
+      "invalid patterns throw SyntaxError for a string or nonempty roles",
+      "getUserSessionTimeout matches configuration order and sorts roles in place",
+      "getUserSessionTimeout returns the same mutable fallback for unmatched and empty roles",
+      "getUserSessionTimeout throws for an invalid pattern only when there are roles to examine",
+      "getUserSessionTimeout throws on missing roles or configuration",
+      "hasKey includes inherited keys and rejects absent keys",
+      "sortArray returns the same array sorted in place",
+      "Node authentication and session constants retain the legacy values",
+      "Node security policy retains the legacy directives"
     ]
   },
   "i18nUnit": {
-    "report": "test-results/i18n/junit.xml",
+    "report": "test-results/i18n/jasmine.json",
     "required": [
       "matchCase should return the second string with the same case as the first string if the first character is uppercase",
       "matchCase should return the second string in lowercase if the first character is lowercase",
@@ -118,7 +145,7 @@
       "RpxTranslationService should normalise multiple spacing runs before translating a phrase",
       "RpxTranslationService should preserve markdown line breaks while normalising horizontal spacing",
       "RpxTranslationService should request the normalised phrase when loading a phrase with multiple spaces",
-      "RpxTranslationService should not call load method with given phrase, language, and yesOrNo value when translation not found in DB",
+      "RpxTranslationService returns English without loading a translation",
       "RpxTranslationService shouldTranslate should return false for phrases without alphabetic characters",
       "RpxTranslationService shouldTranslate should return true for phrases with alphabetic characters",
       "RpxTranslationService shouldTranslate should return false for phrases containing [Translation in progress]",
@@ -167,7 +194,24 @@
       "translation provider lifecycle stops response processing if a subscriber destroys the owner",
       "translation provider lifecycle stops cache-miss processing if a subscriber destroys the owner",
       "translation provider lifecycle stops a language change when its subscriber destroys the owner",
-      "translation provider lifecycle stops observing cached translations when its owner is destroyed"
+      "translation provider lifecycle stops observing cached translations when its owner is destroyed",
+      "translation boundary validation accepts only supported persisted and assigned languages",
+      "translation boundary validation falls back for malformed response values without caching them and retains valid siblings",
+      "translation boundary validation treats rejected cache reads as misses and preserves output when writes reject",
+      "translation boundary validation rejects malformed cached values and tolerates deletion failure",
+      "translation boundary validation falls back for malformed payloads and metadata, and accepts an empty translation",
+      "translation boundary validation uses valid cached empty strings and metadata without HTTP",
+      "translation boundary validation tolerates an expired cache deletion failure",
+      "translation boundary validation uses own response keys for normalized phrases with inherited property names",
+      "translation boundary validation uses the configured test-mode fallback without caching a malformed response",
+      "RpxTranslationService Null/Undefined handling returns an empty string for undefined yesOrNoValue without a request",
+      "translation real cache recovery recovers from a rejected invalid deletion with real IndexedDB and a fresh service",
+      "translation real cache recovery recovers from a rejected expired deletion with real IndexedDB and a fresh service",
+      "translation real cache recovery keeps a malformed response fallback stable then recovers after a language cycle",
+      "replacePlaceholders handles literal metacharacter keys, repeated values and empty literals",
+      "RpxTranslatePipe transform passes explicit literal replacements to the service",
+      "translation real cache recovery keeps literal values out of requests and real IndexedDB across language changes",
+      "RpxTranslationService public API composition keeps explicit literal replacements out of translation requests"
     ]
   },
   "cacheBrowser": {
@@ -175,15 +219,39 @@
     "required": [
       {
         "projectName": "chromium",
-        "title": "legacy to core preserves valid cached translation"
+        "title": "baseline: legacy to core preserves valid cached translation"
       },
       {
         "projectName": "chromium",
-        "title": "core to legacy preserves valid cached translation"
+        "title": "baseline: core to legacy preserves valid cached translation"
       },
       {
         "projectName": "chromium",
-        "title": "core replaces an expired cache row written by published legacy"
+        "title": "baseline: core replaces an expired cache row written by published legacy"
+      },
+      {
+        "projectName": "chromium",
+        "title": "aligned: legacy to core preserves valid cached translation"
+      },
+      {
+        "projectName": "chromium",
+        "title": "aligned: core to legacy preserves valid cached translation"
+      },
+      {
+        "projectName": "chromium",
+        "title": "aligned: core replaces an expired cache row written by published legacy"
+      },
+      {
+        "projectName": "chromium",
+        "title": "direct: baseline core to aligned core preserves valid cached translation"
+      },
+      {
+        "projectName": "chromium",
+        "title": "direct: aligned core to baseline core preserves valid cached translation"
+      },
+      {
+        "projectName": "chromium",
+        "title": "installed core keeps literal values out of requests and IndexedDB after reload"
       }
     ]
   }

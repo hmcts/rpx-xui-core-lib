@@ -1,9 +1,12 @@
+import { createHash } from 'node:crypto';
+import { currentIdentity } from './evidence-identity.mjs';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const contracts = JSON.parse(readFileSync(new URL('../tests/contracts.json', import.meta.url), 'utf8'));
+const expectedJasmineVersion = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).devDependencies['jasmine-core'];
 
 function unitOutcomes(text) {
   // This slice has only top-level node:test scenarios; nested suites need a native structured reporter.
@@ -12,8 +15,16 @@ function unitOutcomes(text) {
     return { id, passed: match[1] === 'ok' && !directive, number: Number(match[2]) };
   });
   const plans = [...text.matchAll(/^1\.\.(\d+)$/gm)];
+  const summaries = ['tests', 'pass', 'fail', 'suites', 'cancelled', 'skipped', 'todo'];
+  const inconsistentSummary = summaries.some((name) => {
+    const matches = [...text.matchAll(new RegExp(`^# ${name} (\\d+)$`, 'gm'))];
+    const expected = name === 'tests' || name === 'pass' ? outcomes.length : 0;
+    return matches.length > 1 || (['tests', 'pass', 'fail'].includes(name) && matches.length !== 1) ||
+      (matches.length === 1 && Number(matches[0][1]) !== expected);
+  });
   if (
-    !text.startsWith('TAP version 13\n') || plans.length !== 1 ||
+    !text.startsWith('TAP version 13\n') || plans.length !== 1 || inconsistentSummary ||
+    /^\s+(?:ok|not ok) \d+/m.test(text) ||
     Number(plans[0][1]) !== outcomes.length || !outcomes.length ||
     outcomes.some((entry, index) => entry.number !== index + 1) ||
     /^Bail out!/m.test(text) || /^# (?:fail|cancelled|skipped|todo) [1-9]\d*$/m.test(text)
@@ -45,41 +56,80 @@ function browserOutcomes(report) {
   return outcomes;
 }
 
-function karmaOutcomes(text) {
-  const suites = [...text.matchAll(/<testsuite\b([^>]*)>/g)];
-  const attributes = (value) => Object.fromEntries([...value.matchAll(/\s([\w.-]+)="([^"]*)"/g)].map((match) => [match[1], match[2]]));
-  if (suites.length !== 1 || !text.trimEnd().endsWith('</testsuite>')) throw new Error('Incomplete native Karma report');
-  const suite = attributes(` ${suites[0][1]}`);
-  const cases = [...text.matchAll(/<testcase\b([^>]*?)(?:\/>|>([\s\S]*?)<\/testcase>)/g)];
-  if (!suite.name?.startsWith('Chrome Headless') || suite.errors !== '0' || suite.failures !== '0' ||
-    !cases.length || Number(suite.tests) !== cases.length) throw new Error('Unsuccessful or inconsistent native Karma report');
-  const entities = { quot: '"', apos: "'", amp: '&', lt: '<', gt: '>' };
-  return cases.map((entry) => ({
-    id: attributes(` ${entry[1]}`).name?.replace(/&(quot|apos|amp|lt|gt);/g, (_, key) => entities[key]),
-    passed: !/<(?:failure|error|skipped)\b/.test(entry[2] ?? ''),
-  }));
+function invalidJasmineReport() {
+  throw new Error('Malformed or unsuccessful native Jasmine report');
 }
 
-function jestOutcomes(report) {
-  if (report.success !== true || !Array.isArray(report.testResults) || !report.testResults.length ||
-    report.numFailedTests !== 0 || report.numPendingTests !== 0 || report.numTodoTests !== 0 ||
-    report.testResults.some((suite) => suite.status !== 'passed' || !Array.isArray(suite.assertionResults) || !suite.assertionResults.length)) {
-    throw new Error('Incomplete or unsuccessful native Jest report');
-  }
-  const outcomes = report.testResults.flatMap((suite) => suite.assertionResults.map((test) => ({ id: test.fullName, passed: test.status === 'passed' })));
-  if (report.numTotalTests !== outcomes.length || report.numPassedTests !== outcomes.length) throw new Error('Inconsistent native Jest totals');
-  return outcomes;
+function validateJasmineEnvelope(report) {
+  if (!report || report.schemaVersion !== 1 || report.complete !== true ||
+    report.jasmineVersion !== expectedJasmineVersion || !Array.isArray(report.browserErrors) || report.browserErrors.length ||
+    (report.driverError !== undefined && report.driverError !== null && report.driverError !== '') ||
+    !Array.isArray(report.events) || report.events.length < 3) invalidJasmineReport();
+  const events = report.events;
+  if (events[0]?.type !== 'jasmineStarted' || events.at(-1)?.type !== 'jasmineDone') invalidJasmineReport();
+  const defined = events[0].result?.totalSpecsDefined;
+  if (!Number.isSafeInteger(defined) || defined < 1) invalidJasmineReport();
+  return defined;
 }
 
-function packageOutcomes(report) {
-  if (report.schemaVersion !== 1 || !/^[a-f0-9]{64}$/.test(report.package?.sha256 ?? '') || !Array.isArray(report.tests)) {
-    throw new Error('Malformed package contract report or missing artifact hash');
+function validateJasmineEvent(event, index, eventCount) {
+  const result = event?.result;
+  if (!result || typeof result !== 'object' || Array.isArray(result)) invalidJasmineReport();
+  if (event.type === 'jasmineStarted') {
+    if (index !== 0) invalidJasmineReport();
+    return;
   }
+  if (!Array.isArray(result.failedExpectations) || result.failedExpectations.length ||
+    !Array.isArray(result.deprecationWarnings) || result.deprecationWarnings.length) invalidJasmineReport();
+  if (event.type === 'jasmineDone') {
+    if (index !== eventCount - 1 || result.overallStatus !== 'passed' || result.incompleteReason) invalidJasmineReport();
+  } else if (event.type !== 'specDone' && event.type !== 'suiteDone') invalidJasmineReport();
+}
+
+function recordJasmineResult(event, state) {
+  const result = event.result;
+  if (typeof result.id !== 'string' || !result.id || typeof result.fullName !== 'string' ||
+    !result.fullName.trim() || result.status !== 'passed') invalidJasmineReport();
+  const ids = event.type === 'specDone' ? state.specs : state.suites;
+  if (ids.has(result.id)) invalidJasmineReport();
+  ids.add(result.id);
+  if (event.type === 'specDone') {
+    if (state.names.has(result.fullName)) invalidJasmineReport();
+    state.names.add(result.fullName);
+    state.outcomes.push({ id: result.fullName, passed: true });
+  }
+}
+
+function jasmineOutcomes(text) {
+  const report = JSON.parse(text);
+  const defined = validateJasmineEnvelope(report);
+  const events = report.events;
+  const state = { specs: new Set(), names: new Set(), suites: new Set(), outcomes: [] };
+  for (let index = 0; index < events.length; index += 1) {
+    const event = events[index];
+    validateJasmineEvent(event, index, events.length);
+    if (event.type === 'jasmineStarted' || event.type === 'jasmineDone') continue;
+    recordJasmineResult(event, state);
+  }
+  if (!state.suites.size || state.specs.size !== defined) invalidJasmineReport();
+  return state.outcomes;
+}
+
+function packageOutcomes(report, reportRoot, expectedIdentity) {
+  const pkg = report.package;
+  if (report.schemaVersion !== 1 || !/^[a-f0-9]{64}$/.test(pkg?.sha256 ?? '') ||
+    typeof pkg.dirty !== 'boolean' || !Array.isArray(report.tests) ||
+    ['sourceSha', 'runId', 'attempt'].some((key) => typeof pkg[key] !== 'string' || !pkg[key] || pkg[key] !== expectedIdentity[key])) {
+    throw new Error('Malformed package contract report or mismatched identity');
+  }
+  const candidate = readFileSync(resolve(reportRoot, 'test-results/package-evidence/candidate.tgz'));
+  if (createHash('sha256').update(candidate).digest('hex') !== pkg.sha256) throw new Error('Package artifact hash mismatch');
   return report.tests.map((test) => ({ id: test.id, passed: test.status === 'passed' }));
 }
 
-export function checkContracts(reportRoot = root) {
-  const parsers = { i18nUnit: karmaOutcomes, nodeUnit: (text) => jestOutcomes(JSON.parse(text)), unit: unitOutcomes, browser: (text) => browserOutcomes(JSON.parse(text)), cacheBrowser: (text) => browserOutcomes(JSON.parse(text)), package: (text) => packageOutcomes(JSON.parse(text)) };
+export function checkContracts(reportRoot = root, expectedIdentity) {
+  if (!expectedIdentity || ['sourceSha', 'runId', 'attempt'].some((key) => typeof expectedIdentity[key] !== 'string' || !expectedIdentity[key])) throw new Error('Expected run identity is required');
+  const parsers = { i18nUnit: jasmineOutcomes, nodeUnit: unitOutcomes, unit: unitOutcomes, browser: (text) => browserOutcomes(JSON.parse(text)), cacheBrowser: (text) => browserOutcomes(JSON.parse(text)), package: (text) => packageOutcomes(JSON.parse(text), reportRoot, expectedIdentity) };
   let count = 0;
   for (const [kind, inventory] of Object.entries(contracts)) {
     const outcomes = parsers[kind](readFileSync(resolve(reportRoot, inventory.report), 'utf8'));
@@ -98,7 +148,17 @@ export function checkContracts(reportRoot = root) {
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   try {
-    console.log(`Required contracts passed: ${checkContracts()}`);
+    const args = process.argv.slice(2);
+    const options = {};
+    const names = ['--report-root', '--source-sha', '--run-id', '--attempt'];
+    for (let index = 0; index < args.length; index += 2) {
+      const key = args[index];
+      if (!names.includes(key) || Object.hasOwn(options, key) || !args[index + 1] || args[index + 1].startsWith('--')) throw new Error('Invalid replay arguments');
+      options[key] = args[index + 1];
+    }
+    if (args.length && (args.length !== 8 || names.some((key) => !options[key]))) throw new Error('Replay requires --report-root, --source-sha, --run-id and --attempt');
+    const expected = args.length ? { sourceSha: options['--source-sha'], runId: options['--run-id'], attempt: options['--attempt'] } : currentIdentity(root);
+    console.log(`Required contracts passed: ${checkContracts(options['--report-root'] ?? root, expected)}`);
   } catch (error) {
     console.error(`Required-contract gate failed: ${error.message}`);
     process.exitCode = 1;

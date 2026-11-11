@@ -6,6 +6,7 @@ const javascript = ['eslint.config.mjs', ...['scripts', 'tests', 'apps/test-host
 const commands = [
   ['node_modules/eslint/bin/eslint.js', '.'],
   ['node_modules/typescript/bin/tsc', '-p', 'projects/core-lib/tsconfig.lib.json', '--noEmit'],
+  ['node_modules/typescript/bin/tsc', '-p', 'projects/core-lib/forms/tsconfig.strict.json'],
   ['node_modules/typescript/bin/tsc', '-p', 'projects/core-lib/node/tsconfig.json', '--noEmit'],
   ['node_modules/typescript/bin/tsc', '-p', 'tests/node/tsconfig.json', '--noEmit'],
   ['node_modules/typescript/bin/tsc', '-p', 'tests/i18n/tsconfig.json', '--noEmit'],

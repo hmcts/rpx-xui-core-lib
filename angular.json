@@ -47,19 +47,37 @@
       "root": "tests/i18n",
       "sourceRoot": "tests/i18n",
       "architect": {
-        "test": {
-          "builder": "@angular/build:karma",
+        "build": {
+          "builder": "@angular/build:application",
           "options": {
+            "browser": "tests/i18n/main.ts",
+            "index": "tests/i18n/index.html",
             "tsConfig": "tests/i18n/tsconfig.json",
-            "karmaConfig": "tests/i18n/karma.conf.cjs",
+            "outputPath": "dist/i18n-tests",
+            "styles": [],
             "polyfills": [
               "zone.js",
               "zone.js/testing"
             ],
-            "include": [
-              "tests/i18n/**/*.spec.ts"
+            "assets": [
+              {
+                "glob": "{jasmine.js,jasmine-html.js,boot0.js}",
+                "input": "node_modules/jasmine-core/lib/jasmine-core",
+                "output": "/"
+              }
             ],
-            "watch": false
+            "optimization": false,
+            "sourceMap": true,
+            "outputHashing": "none"
+          }
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "options": {
+            "buildTarget": "translation-tests:build",
+            "host": "127.0.0.1",
+            "port": 4314,
+            "prebundle": false
           }
         }
       }

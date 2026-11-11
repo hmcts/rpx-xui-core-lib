@@ -1,12 +1,52 @@
 import assert from 'node:assert/strict';
+import yaml from 'js-yaml';
 import { test } from 'node:test';
-import { readFileSync } from 'node:fs';
+import * as compatibility from '../scripts/check-compatibility.mjs';
+import { cpSync, existsSync, mkdtempSync, mkdirSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { verifySourceHashes } from './fixtures/compatibility/verify-source-contract.mjs';
+import * as sourceVerification from './fixtures/compatibility/verify-source-contract.mjs';
 import { createHash } from 'node:crypto';
 import { checkInstallResult, validateManifest, hostDependencies, checkMatrixReport, validateHostProfile, hostManifest, hostInstallSettings, hostLockBytes, checkLockedTelemetry } from '../scripts/check-compatibility.mjs';
 
 const fixture = (name) => JSON.parse(readFileSync(new URL(`./fixtures/compatibility/${name}`, import.meta.url), 'utf8'));
 const manifest = fixture('prospective-package.json');
 const ledger = fixture('dependency-ledger.json');
+
+test('source identity cannot execute a Git replacement from PATH', (t) => {
+  const directory = mkdtempSync(join(tmpdir(), 'core-untrusted-git-'));
+  t.after(() => rmSync(directory, { recursive: true, force: true }));
+  const marker = join(directory, 'executed');
+  writeFileSync(join(directory, 'git'), '#!/bin/sh\nprintf called > "$POISON_MARKER"\nprintf "poisoned\\n"\n', { mode: 0o755 });
+  const root = fileURLToPath(new URL('../', import.meta.url));
+  const module = new URL('../scripts/evidence-identity.mjs', import.meta.url).href;
+  const result = spawnSync(process.execPath, ['--input-type=module', '-e', `import { currentIdentity } from ${JSON.stringify(module)}; console.log(JSON.stringify(currentIdentity(process.cwd())));`], {
+    cwd: root, encoding: 'utf8',
+    env: { ...process.env, PATH: directory, POISON_MARKER: marker, GITHUB_SHA: '', GITHUB_RUN_ID: '', GITHUB_RUN_ATTEMPT: '' },
+  });
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(existsSync(marker), false, 'A caller-controlled Git executable was run');
+  const actual = spawnSync('/usr/bin/git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' });
+  assert.equal(actual.status, 0, actual.stderr);
+  assert.equal(JSON.parse(result.stdout).sourceSha, actual.stdout.trim());
+});
+
+test('source projections retain canonical UTF-16 dependency ordering', () => {
+  const names = ['é-package', 'package-2', '.dot-package', 'Z-package', 'package-10', 'a-package'];
+  const requested = Object.fromEntries(names.map(name => [name, '1.0.0']));
+  const dependencies = { ...requested, '@angular-devkit/build-angular': '20.3.35', '@angular/cli': '20.3.35', '@angular/compiler': '20.3.35', '@angular/compiler-cli': '20.3.35', typescript: '5.9.3' };
+  const projection = sourceVerification.deriveConsumerProjection(
+    'rpx-xui-manage-organisations', 'source', { dependencies },
+    Object.fromEntries(Object.entries(dependencies).map(([name, version]) => [`${name}@npm:${version}`, { version }])),
+    { yarnPath: '.yarn/releases/yarn-4.18.1.cjs' },
+    { projects: { host: { architect: { build: { builder: '@angular-devkit/build-angular:application' } } } } },
+    { dependencies: requested, peerDependencies: {} }, {}, Buffer.from('manager')
+  );
+  assert.deepEqual(Object.keys(projection.actual_requirements), ['.dot-package', 'Z-package', 'a-package', 'package-10', 'package-2', 'é-package']);
+});
 
 test('the complete prospective manifest classifies each required module without duplicated implementations', () => {
   validateManifest(manifest, ledger);
@@ -113,7 +153,7 @@ test('standalone MC API retains declared runtime dependencies and explicit inher
   assert.deepEqual(profile.locked_peer_versions, { applicationinsights: '3.17.0', express: '5.3.0' });
   assert.equal(profile.lock_source, 'yarn.lock (root); no api/yarn.lock exists');
   assert.equal(profile.manager, '4.7.0');
-  assert.equal(profile.install_settings, undefined);
+  assert.deepEqual(profile.install_settings, {});
   const dependencies = hostDependencies(manifest, profile);
   assert.equal(dependencies.applicationinsights, '3.17.0');
   assert.equal(dependencies.express, '5.3.0');
@@ -122,7 +162,7 @@ test('standalone MC API retains declared runtime dependencies and explicit inher
 
 test('only frozen source-owned MC resolutions enter the generated root and peer errors still block', () => {
   const profiles = fixture('profiles.json');
-  const source = fixture('mc-source-contract.json');
+  const source = fixture('source-contract.json');
   const mc = profiles.profiles.find((profile) => profile.id === 'rpx-xui-webapp');
   validateHostProfile(mc, source);
   const generated = hostManifest(manifest, mc);
@@ -142,21 +182,21 @@ test('only frozen source-owned MC resolutions enter the generated root and peer 
   assert.throws(() => validateHostProfile({ ...mc, install_settings: { ...mc.install_settings, packageExtensions: { 'mutable-div@*': { peerDependencies: { '@angular/core': '*' } } } } }, source), /install setting/i);
   validateHostProfile(profiles.standalone_mc_api, source);
   assert.equal(hostManifest(manifest, profiles.standalone_mc_api).resolutions, undefined);
-  assert.throws(() => validateHostProfile({ id: 'core', host_resolutions: { express: '5.3.0' } }, source), /resolution/i);
+  assert.throws(() => validateHostProfile({ id: 'core', host_resolutions: { express: '5.3.0' } }, source));
 });
 
 
 test('MC root seeds the exact committed host lock before resolving prospective additions', () => {
   const profile = fixture('profiles.json').profiles.find((entry) => entry.id === 'rpx-xui-webapp');
-  const source = fixture('mc-source-contract.json');
+  const source = fixture('source-contract.json');
   assert.equal(profile.lock_source_url, 'https://raw.githubusercontent.com/hmcts/rpx-xui-webapp/67cda3e943a69fd57a692189941863b1c6d5c3f9/yarn.lock');
-  assert.equal(profile.lock_sha256, source.source_file_sha256['yarn.lock']);
+  assert.equal(profile.lock_sha256, source.sources['rpx-xui-webapp'].files['yarn.lock']);
   assert.equal(profile.host_resolutions['@opentelemetry/core'], '^2.12.0');
 });
 
 
 test('host lock bytes and configuration must match the frozen committed source', async () => {
-  const source = fixture('mc-source-contract.json');
+  const source = fixture('source-contract.json');
   const profile = fixture('profiles.json').profiles.find((entry) => entry.id === 'rpx-xui-webapp');
   validateHostProfile(profile, source);
   for (const change of [{ lock_source_url: 'https://example.invalid/other.lock' }, { lock_sha256: 'a'.repeat(64) }]) {
@@ -181,4 +221,247 @@ test('every installed telemetry descriptor stays within frozen source versions',
   skipped.profiles[1].hostLockSource = 'frozen lock';
   skipped.profiles[1].lockedTelemetryVerified = false;
   assert.throws(() => checkMatrixReport(skipped), /telemetry lock/i);
+});
+
+
+test('complete decisions are validated against the actual candidate before acceptance', () => {
+  const expected = { sourceSha: 'a'.repeat(40), artifactSha256: 'b'.repeat(64) };
+  const decisions = fixture('decisions.json');
+  const accepted = { ...decisions[0], status: 'accepted', owner: 'owner', reviewer: 'reviewer', evidence: 'evidence', ...expected };
+  const collection = [accepted, ...decisions.slice(1)];
+  compatibility.validateDecisions(collection, expected);
+  for (const field of ['owner', 'reviewer', 'evidence', 'sourceSha', 'artifactSha256']) {
+    const bad = structuredClone(collection);
+    delete bad[0][field];
+    assert.throws(() => compatibility.validateDecisions(bad, expected));
+  }
+  for (const change of [{status: 'unknown'}, {sourceSha: 'c'.repeat(40)}, {artifactSha256: 'd'.repeat(64)}, {owner: '  '}]) {
+    assert.throws(() => compatibility.validateDecisions([{...accepted, ...change}, ...decisions.slice(1)], expected));
+  }
+  compatibility.validateDecisions(decisions, expected);
+  for (const incomplete of [[], decisions.slice(1), [...decisions, decisions[0]], [{ ...decisions[0], id: 'invented' }, ...decisions.slice(1)]]) {
+    assert.throws(() => compatibility.validateDecisions(incomplete, expected));
+  }
+});
+
+
+test('matrix CLI rejects invalid decisions and profiles before any host install', () => {
+  const dir = realpathSync(mkdtempSync(join(tmpdir(), 'compatibility-cli-')));
+  try {
+    mkdirSync(join(dir, 'scripts'), { recursive: true });
+    mkdirSync(join(dir, 'tests/fixtures'), { recursive: true });
+    mkdirSync(join(dir, 'dist/core-lib'), { recursive: true });
+    mkdirSync(join(dir, '.yarn/releases'), { recursive: true });
+    mkdirSync(join(dir, 'projects/core-lib'), { recursive: true });
+    symlinkSync(fileURLToPath(new URL('../node_modules', import.meta.url)), join(dir, 'node_modules'));
+
+    for (const file of ['package.json', 'yarn.lock', '.yarnrc.yml', 'projects/core-lib/package.json', 'projects/core-lib/ng-package.json']) cpSync(new URL(`../${file}`, import.meta.url), join(dir, file));
+    cpSync(new URL('../scripts/check-compatibility.mjs', import.meta.url), join(dir, 'scripts/check-compatibility.mjs'));
+    cpSync(new URL('./fixtures/compatibility', import.meta.url), join(dir, 'tests/fixtures/compatibility'), { recursive: true });
+    writeFileSync(join(dir, 'dist/core-lib/package.json'), '{}');
+    writeFileSync(join(dir, '.yarn/releases/yarn-4.18.1.cjs'), "require('fs').writeFileSync(process.argv[process.argv.indexOf('--out') + 1], 'candidate');\n");
+    const coreHash = createHash('sha256').update(readFileSync(join(dir, '.yarn/releases/yarn-4.18.1.cjs'))).digest('hex');
+    const source = fixture('source-contract.json');
+    source.sources.core.files['.yarn/releases/yarn-4.18.1.cjs'] = coreHash;
+    source.profiles.core.manager_sha256 = coreHash;
+    writeFileSync(join(dir, 'tests/fixtures/compatibility/source-contract.json'), JSON.stringify(source));
+    const baseProfiles = fixture('profiles.json');
+    baseProfiles.core.manager_sha256 = coreHash;
+    writeFileSync(join(dir, 'tests/fixtures/compatibility/profiles.json'), JSON.stringify(baseProfiles));
+    assert.equal(spawnSync('git', ['init', '-q', dir]).status, 0);
+    assert.equal(spawnSync('git', ['-C', dir, '-c', 'user.name=Test', '-c', 'user.email=test@example.invalid', 'commit', '--allow-empty', '-qm', 'fixture']).status, 0);
+    const sourceSha = spawnSync('git', ['-C', dir, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).stdout.trim();
+    const artifactSha256 = createHash('sha256').update('candidate').digest('hex');
+    const decisions = fixture('decisions.json');
+    const accepted = { ...decisions[0], status: 'accepted', owner: 'owner', reviewer: 'reviewer', evidence: 'proof', sourceSha, artifactSha256 };
+    const variants = ['owner', 'reviewer', 'evidence', 'sourceSha', 'artifactSha256'].map((field) => { const value = { ...accepted }; delete value[field]; return value; });
+    variants.push({ ...accepted, status: 'unknown' }, { ...accepted, artifactSha256: 'd'.repeat(64) });
+    for (const invalid of variants) {
+      writeFileSync(join(dir, 'tests/fixtures/compatibility/decisions.json'), JSON.stringify([invalid, ...decisions.slice(1)]));
+      const run = spawnSync(process.execPath, [join(dir, 'scripts/check-compatibility.mjs')], { encoding: 'utf8' });
+      assert.notEqual(run.status, 0);
+      assert.match(run.stderr, /decision/i);
+      const report = JSON.parse(readFileSync(join(dir, 'test-results/compatibility/report.json'), 'utf8'));
+      assert.equal(report.status, 'failed');
+      assert.equal(report.profiles.length, 0);
+      assert.equal(report.unresolvedDecisions.length, decisions.length);
+    }
+    writeFileSync(join(dir, 'tests/fixtures/compatibility/decisions.json'), JSON.stringify(decisions));
+    for (let index = 0; index < 5; index++) {
+      const changed = structuredClone(baseProfiles);
+      const matrix = [changed.core, ...changed.profiles, changed.standalone_mc_api];
+      matrix[index].manager = '0.0.0';
+      writeFileSync(join(dir, 'tests/fixtures/compatibility/profiles.json'), JSON.stringify(changed));
+      const run = spawnSync(process.execPath, [join(dir, 'scripts/check-compatibility.mjs')], { encoding: 'utf8' });
+      assert.notEqual(run.status, 0);
+      assert.match(run.stderr, /manager|contract/i);
+      const report = JSON.parse(readFileSync(join(dir, 'test-results/compatibility/report.json'), 'utf8'));
+      assert.equal(report.status, 'failed');
+      assert.equal(report.profiles.length, 0);
+    }
+    writeFileSync(join(dir, 'tests/fixtures/compatibility/profiles.json'), JSON.stringify(baseProfiles));
+    const coreVersion = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')).devDependencies['@angular/core'];
+    /** @type {Array<[string, (body: string) => string]>} */
+    const mutations = [
+      ['package.json', (body) => { const value = JSON.parse(body); value.devDependencies['@angular/core'] = '99.0.0'; return JSON.stringify(value); }],
+      ['projects/core-lib/package.json', (body) => { const value = JSON.parse(body); value.peerDependencies['@angular/core'] = '99.0.0'; return JSON.stringify(value); }],
+      ['.yarnrc.yml', (body) => body.replace('nodeLinker: node-modules', 'nodeLinker: pnp')],
+      ['yarn.lock', (body) => {
+        const lock = yaml.load(body);
+        const key = Object.keys(lock).find((descriptor) => descriptor.split(', ').includes(`@angular/core@npm:${coreVersion}`));
+        assert.ok(key, 'current Angular core descriptor exists');
+        lock[key].version = '99.0.0';
+        return yaml.dump(lock);
+      }],
+    ];
+    for (const [name, mutate] of mutations) {
+      const path = join(dir, name);
+      const original = readFileSync(path, 'utf8');
+      const changed = mutate(original);
+      assert.notEqual(changed, original, `fixture mutation applied: ${name}`);
+      writeFileSync(path, changed);
+      const run = spawnSync(process.execPath, [join(dir, 'scripts/check-compatibility.mjs')], { encoding: 'utf8' });
+      assert.notEqual(run.status, 0);
+      assert.match(run.stderr, /core/i);
+      writeFileSync(path, original);
+    }
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('every constructed profile rejects drift from its complete source contract', () => {
+  const source = fixture('source-contract.json');
+  const profiles = compatibility.constructProfiles(fixture('profiles.json'), source);
+  assert.equal(profiles.length, 5);
+  for (const profile of profiles) {
+    validateHostProfile(profile, source);
+    const missing = structuredClone(source);
+    delete missing.profiles[profile.id];
+    assert.throws(() => validateHostProfile(profile, missing), /contract/i);
+    for (const field of ['gitHead', 'manager', 'manager_sha256', 'manifest_packageManager', 'engine', 'builder_family', 'actual_requirements', 'locked_peer_versions', 'locked_toolchain', 'install_settings', 'host_resolutions', 'scope']) {
+      const changed = structuredClone(profile);
+      if (changed[field] && typeof changed[field] === 'object') changed[field].unapproved = 'changed';
+      else changed[field] = 'changed';
+      assert.throws(() => validateHostProfile(changed, source), undefined, `${profile.id}: ${field}`);
+    }
+    for (const field of ['actual_requirements', 'locked_peer_versions', 'locked_toolchain', 'install_settings', 'host_resolutions']) {
+      const changed = structuredClone(profile);
+      const first = Object.keys(changed[field] ?? {})[0];
+      if (first) {
+        changed[field][first] = 'altered';
+        assert.throws(() => validateHostProfile(changed, source), undefined, `${profile.id}: changed ${field}.${first}`);
+        delete changed[field][first];
+        assert.throws(() => validateHostProfile(changed, source), undefined, `${profile.id}: missing ${field}.${first}`);
+      }
+    }
+    assert.throws(() => validateHostProfile({ ...profile, unexpected: 'setting' }, source));
+    assert.throws(() => validateHostProfile({ ...profile, install_settings: { ...profile.install_settings, packageExtensions: { 'x@*': {} } } }, source));
+    assert.throws(() => validateHostProfile({ ...profile, id: 'unknown' }, source));
+    for (const field of ['manager_source_url', 'lock_source_url', 'lock_sha256']) {
+      assert.throws(() => validateHostProfile({ ...profile, [field]: 'changed' }, source));
+    }
+  }
+  assert.throws(() => compatibility.constructProfiles({ ...fixture('profiles.json'), profiles: [profiles[1], profiles[1]] }, source), /profile/i);
+  const changedCore = fixture('profiles.json');
+  changedCore.core.id = 'unknown';
+  assert.throws(() => compatibility.constructProfiles(changedCore, source), /profile/i);
+});
+
+test('host configuration cannot override runner-owned isolation settings', () => {
+  const settings = hostInstallSettings({ install_settings: { nodeLinker: 'pnp', enableGlobalCache: true, cacheFolder: '/other', globalFolder: '/other', enableTelemetry: true } }, '/cache', '/global');
+  assert.deepEqual(settings, { nodeLinker: 'node-modules', enableGlobalCache: false, cacheFolder: '/cache', globalFolder: '/global', enableTelemetry: false });
+});
+
+
+test('source verification rejects changed committed object bytes and manager evidence', () => {
+  const source = fixture('source-contract.json');
+  const bytes = Buffer.from('source');
+  const digest = createHash('sha256').update(bytes).digest('hex');
+  const contract = structuredClone(source);
+  for (const entry of Object.values(contract.sources)) for (const path of Object.keys(entry.files)) entry.files[path] = digest;
+  contract.harness.standalone_api_manager.sha256 = digest;
+  verifySourceHashes(contract, () => bytes, bytes);
+  assert.throws(() => verifySourceHashes(contract, () => Buffer.from('changed'), bytes), /hash/i);
+  assert.throws(() => verifySourceHashes(contract, () => bytes, Buffer.from('changed')), /hash/i);
+  const changed = structuredClone(source);
+  changed.sources['rpx-xui-webapp'].files['.yarn/releases/yarn-4.17.1.cjs'] = 'a'.repeat(64);
+  assert.throws(() => validateHostProfile(fixture('profiles.json').profiles[0], changed), /hash/i);
+  changed.harness.standalone_api_manager.sha256 = 'b'.repeat(64);
+  assert.throws(() => validateHostProfile(fixture('profiles.json').standalone_mc_api, changed), /hash/i);
+});
+
+test('the local core manager bytes must match the pinned source hash', () => {
+  const bytes = Buffer.from('manager');
+  const expected = createHash('sha256').update(bytes).digest('hex');
+  compatibility.checkManagerBytes(bytes, expected);
+  assert.throws(() => compatibility.checkManagerBytes(Buffer.from('changed'), expected), /manager.*hash/i);
+});
+
+test('fixed profile schemas reject matching omissions and unknown fields in both copies', () => {
+  const profiles = fixture('profiles.json');
+  const source = fixture('source-contract.json');
+  for (const profile of compatibility.constructProfiles(profiles, source)) {
+    for (const field of ['manifest_packageManager', 'engine', 'locked_toolchain', 'install_settings', 'actual_requirements']) {
+      const changed = structuredClone(profile);
+      const contract = structuredClone(source);
+      delete changed[field];
+      delete contract.profiles[profile.id][field];
+      assert.throws(() => validateHostProfile(changed, contract), undefined, `${profile.id}: missing ${field}`);
+    }
+    const changed = { ...profile, invented: 'value' };
+    const contract = structuredClone(source);
+    contract.profiles[profile.id].invented = 'value';
+    assert.throws(() => validateHostProfile(changed, contract), undefined, `${profile.id}: unknown field`);
+  }
+});
+
+
+test('source-derived projections reject the same invented lock and resolution in both copies', () => {
+  const deps = { '@angular/core': '20.3.31', '@angular-devkit/build-angular': '20.3.32', '@angular/cli': '20.3.32', '@angular/compiler': '20.3.31', '@angular/compiler-cli': '20.3.31', typescript: '5.9.3' };
+  const manifest = { dependencies: { '@angular/core': deps['@angular/core'] }, devDependencies: deps, packageManager: 'yarn@4.9.2', engines: { node: '>=24' }, resolutions: { webpack: '5.112.0' } };
+  const lock = Object.fromEntries(Object.entries(deps).map(([name, version]) => [`${name}@npm:${version}`, { version }]));
+  const angular = { projects: { app: { architect: { build: { builder: '@angular-devkit/build-angular:application' } } } } };
+  const rawProjection = sourceVerification.deriveConsumerProjection('rpx-xui-manage-organisations', 'a'.repeat(40), manifest, lock, { yarnPath: '.yarn/releases/yarn-4.9.2.cjs' }, angular, { dependencies: {}, peerDependencies: { '@angular/core': '20.3.31' } }, {}, Buffer.from('manager'));
+  const profile = structuredClone(rawProjection);
+  const source = structuredClone(rawProjection);
+  sourceVerification.compareSourceProjection(profile, source, rawProjection);
+  for (const [field, key] of [['locked_peer_versions', '@angular/core'], ['host_resolutions', 'webpack']]) {
+    const changedProfile = structuredClone(profile);
+    const changedSource = structuredClone(source);
+    changedProfile[field][key] = '99.0.0';
+    changedSource[field][key] = '99.0.0';
+    assert.throws(() => sourceVerification.compareSourceProjection(changedProfile, changedSource, rawProjection), /source/i);
+  }
+});
+
+test('source verification requires every fixed repository and mandatory file', () => {
+  const contract = fixture('source-contract.json');
+  sourceVerification.validateSourceInventory(contract);
+  const missingRepo = structuredClone(contract);
+  delete missingRepo.sources.core;
+  assert.throws(() => sourceVerification.validateSourceInventory(missingRepo), /source/i);
+  const missingFile = structuredClone(contract);
+  delete missingFile.sources['rpx-xui-webapp'].files['yarn.lock'];
+  assert.throws(() => sourceVerification.validateSourceInventory(missingFile), /source/i);
+});
+
+test('current core cohort rejects source and lock drift independently of git HEAD', () => {
+  const current = fixture('core-current-contract.json');
+  const actual = structuredClone(current);
+  delete actual.scope;
+  compatibility.validateCurrentCore(actual, current);
+  for (const change of [
+    (value) => { value.devCohort['@angular/core'] = '99.0.0'; },
+    (value) => { value.lockedVersions['@angular/core'] = '99.0.0'; },
+    (value) => { value.libraryPeerDependencies['@angular/core'] = '99.0.0'; },
+    (value) => { value.yarnConfig.nodeLinker = 'pnp'; },
+    (value) => { value.packageManager = 'yarn@99.0.0'; },
+    (value) => { value.engine.node = '>=1'; },
+    (value) => { value.resolutions.unapproved = '1.0.0'; },
+    (value) => { value.libraryPeerDependenciesMeta['@angular/core'] = { optional: true }; },
+    (value) => { value.libraryOverrides['@angular/core'] = '1.0.0'; },
+  ]) {
+    const changed = structuredClone(actual);
+    change(changed);
+    assert.throws(() => compatibility.validateCurrentCore(changed, current), /core/i);
+  }
 });

@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { currentIdentity } from '../../scripts/evidence-identity.mjs';
 import { buildSync } from 'esbuild';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
@@ -59,6 +60,9 @@ try {
   await check('package.physical-secondary-declaration', async () => {
     assert.ok((await stat(join(dist, declaration))).isFile());
     assert.ok((await stat(join(dist, 'forms/validation/LICENCE'))).isFile());
+    for (const entry of ['ui/contact-details', 'ui/loading-spinner', 'case/models', 'case/reference']) {
+      assert.equal(await readFile(join(dist, entry, 'LICENCE'), 'utf8'), await readFile(join(root, 'projects/core-lib', entry, 'LICENCE'), 'utf8'), 'Copied source licence must survive packaging');
+    }
   });
 
   await check('package.physical-node', async () => {
@@ -81,9 +85,10 @@ try {
   await run('pack', [yarn, 'pack', '--out', candidate], staged);
   report.package = {
     sha256: createHash('sha256').update(await readFile(candidate)).digest('hex'),
+    ...currentIdentity(root),
     node: process.versions.node,
     yarn: '4.18.1',
-    angular: '20.3.31',
+    angular: '20.3.35',
     typescript: '5.9.3',
   };
   await cp(candidate, join(evidence, 'candidate.tgz'));
@@ -110,10 +115,76 @@ try {
   const compiler = join(consumer, 'node_modules/typescript/bin/tsc');
   await check('package.strict-node', () => run('strict-node', [compiler, '-p', 'tsconfig.node.json'], consumer));
   await check('package.strict-bundler', () => run('strict-bundler', [compiler, '-p', 'tsconfig.bundler.json'], consumer));
-  await check('package.installed-runtime', () => run('installed-runtime', ['runtime.mjs'], consumer));
+  await check('package.installed-runtime', async () => {
+    await run('installed-runtime', ['runtime.mjs'], consumer);
+    for (const entry of ['ui/contact-details', 'ui/loading-spinner', 'case/models', 'case/reference']) {
+      assert.equal(await readFile(join(installed, entry, 'LICENCE'), 'utf8'), await readFile(join(root, 'projects/core-lib', entry, 'LICENCE'), 'utf8'), 'Copied source licence must survive immutable installation');
+    }
+  });
+
+  const graph = () => {
+    const result = buildSync({ entryPoints: ['validation-graph.mjs'], absWorkingDir: consumer, bundle: true, platform: 'browser', format: 'esm', metafile: true, write: false, logLevel: 'silent' });
+    const used = Object.values(result.metafile.outputs).flatMap((output) => Object.entries(output.inputs).filter(([, value]) => value.bytesInOutput > 0).map(([path]) => path.replaceAll('\\', '/')));
+    assert.ok(used.some((path) => path.endsWith('/fesm2022/hmcts-rpx-xui-core-lib-forms-validation.mjs')), 'Installed validation FESM must contribute bytes');
+    assert.ok(!used.some((path) => /hmcts-rpx-xui-core-lib-i18n\.mjs|(?:^|\/)dexie(?:\/|$)|(?:^|\/)luxon(?:\/|$)|(?:^|\/)node(?:\/|$)|^node:/.test(path)), 'Validation graph must exclude i18n, Dexie, Luxon and Node');
+    return result.metafile;
+  };
+  await check('package.root-runtime-empty', () => run('root-runtime-empty', ['runtime-root.mjs'], consumer));
+  await check('package.validation-graph', async () => {
+    await writeFile(join(evidence, 'validation-metafile.json'), JSON.stringify(graph(), null, 2));
+  });
+
+  const canonicalManifest = await readFile(join(consumer, 'package.json'));
+  async function faultCandidate(name, relative, mutate, probe) {
+    const faulty = join(scratch, name);
+    await cp(staged, faulty, { recursive: true });
+    const file = join(faulty, relative);
+    await writeFile(file, mutate(await readFile(file, 'utf8')));
+    const archive = join(consumer, `${name}.tgz`);
+    await run(`pack-${name}`, [yarn, 'pack', '--out', archive], faulty);
+    await cp(archive, join(evidence, `${name}.tgz`));
+    manifest.dependencies['@hmcts/rpx-xui-core-lib'] = `file:./${name}.tgz`;
+    await writeFile(join(consumer, 'package.json'), `${JSON.stringify(manifest, null, 2)}\n`);
+    try {
+      await run(`${name}-lock`, [yarn, 'install', '--mode=update-lockfile'], consumer);
+      await run(`${name}-install`, [yarn, 'install', '--immutable'], consumer);
+      await probe();
+    } finally {
+      await writeFile(join(consumer, 'package.json'), canonicalManifest);
+      await writeFile(join(consumer, 'yarn.lock'), locked);
+      await run(`${name}-restore`, [yarn, 'install', '--immutable'], consumer);
+    }
+  }
+  await check('package.root-export-fault', () => faultCandidate('root-export-fault', 'fesm2022/hmcts-rpx-xui-core-lib.mjs', (text) => `${text}\nexport const unexpected = true;\n`, async () => {
+    const diagnostic = await run('root-export-red', ['runtime-root.mjs'], consumer, 1);
+    assert.match(diagnostic, /AssertionError/);
+  }));
+  await check('package.validation-i18n-fault', () => faultCandidate('validation-i18n-fault', 'fesm2022/hmcts-rpx-xui-core-lib-forms-validation.mjs', (text) => `import { RpxTranslationService } from './hmcts-rpx-xui-core-lib-i18n.mjs';\n${text.replace('return function validate(formGroup) {', 'return function validate(formGroup) { new RpxTranslationService();')}`, async () => {
+    assert.throws(graph, /Validation graph must exclude/);
+    await writeFile(join(evidence, 'validation-i18n-red.log'), 'Validation graph rejected real i18n runtime call\n');
+  }));
+  await check('package.restored-runtime-graph', async () => {
+    await run('restored-root-runtime', ['runtime-root.mjs'], consumer);
+    graph();
+  });
 
   await check('package.staged-i18n-identity', () => run('staged-i18n-identity', ['i18n-runtime.mjs'], consumer));
   await check('package.installed-node-runtime', () => run('installed-node-runtime', ['node-runtime.cjs'], consumer));
+  await check('package.node-loading-fault', async () => {
+    const entry = join(installed, 'node/index.js');
+    const original = await readFile(entry, 'utf8');
+    const fault = join(installed, 'node/legacy/auth/loading-fault.cjs');
+    await mkdir(dirname(fault), { recursive: true });
+    await writeFile(fault, 'module.exports = {};\n', { flag: 'wx' });
+    try {
+      await writeFile(entry, `require('./legacy/auth/loading-fault.cjs');\n${original}`);
+      const diagnostic = await run('node-loading-fault', ['node-runtime.cjs'], consumer, 1);
+      assert.match(diagnostic, /Lightweight Node entry must not load authentication or session dependencies/);
+    } finally {
+      await writeFile(entry, original);
+      await rm(fault, { force: true });
+    }
+  });
   await check('package.browser-denied', async () => {
     const diagnostic = await run('browser-condition-denied', ['--conditions=browser', 'node-runtime.cjs'], consumer, 1);
     assert.match(diagnostic, /ERR_PACKAGE_PATH_NOT_EXPORTED/);
@@ -127,7 +198,6 @@ try {
     }
   });
 
-  const canonicalManifest = await readFile(join(consumer, 'package.json'));
   await check('package.missing-declaration-fault', async () => {
     const faulty = join(scratch, 'missing-declaration-package');
     await cp(staged, faulty, { recursive: true });

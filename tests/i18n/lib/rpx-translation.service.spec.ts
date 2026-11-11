@@ -2,7 +2,6 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { BehaviorSubject } from 'rxjs';
 import { db } from '../../../projects/core-lib/i18n/lib/db';
-import { YesOrNoValue } from '../../../projects/core-lib/i18n/lib/rpx-language.enum';
 import { RpxTranslationConfig } from '../../../projects/core-lib/i18n/lib/rpx-translation.config';
 import { RpxTranslationService } from '../../../projects/core-lib/i18n/lib/rpx-translation.service';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
@@ -12,6 +11,7 @@ describe('RpxTranslationService', () => {
   let httpMock: HttpTestingController;
 
   beforeEach(() => {
+    document.cookie = 'exui-preferred-language=; Max-Age=0; SameSite=Strict;';
     TestBed.configureTestingModule({
       imports: [],
       providers: [
@@ -32,9 +32,22 @@ describe('RpxTranslationService', () => {
     httpMock = TestBed.inject(HttpTestingController);
   });
 
-  afterEach(() => {
-    httpMock.verify();
-    db.delete().catch((error) => console.error('Error deleting db', error));
+  afterEach(async () => {
+    let verificationError: unknown;
+    try {
+      httpMock.verify();
+    } catch (error) {
+      verificationError = error;
+    }
+    service.ngOnDestroy();
+    document.cookie = 'exui-preferred-language=; Max-Age=0; SameSite=Strict;';
+    try {
+      await db.delete();
+    } catch (cleanupError) {
+      if (verificationError) throw new AggregateError([verificationError, cleanupError], 'HTTP verification and database cleanup failed');
+      throw cleanupError;
+    }
+    if (verificationError) throw verificationError;
   });
 
   it('should be created', () => {
@@ -84,19 +97,13 @@ describe('RpxTranslationService', () => {
     });
   }));
 
-  it('should not call load method with given phrase, language, and yesOrNo value when translation not found in DB', (done) => {
-    const spy = jasmine.createSpyObj('RpxTranslationService', ['load']);
-    const phrase = 'Hello, world!';
-    const language = 'en';
-    const yesOrNo = YesOrNoValue.YES;
-
-    // @ts-ignore-error - private method
-    const observable = service.translate(phrase);
-
-    observable.subscribe(() => {
-      expect(spy.load).not.toHaveBeenCalledWith(phrase, language, yesOrNo);
-      done();
-    });
+  it('returns English without loading a translation', () => {
+    const load = spyOn<any>(service, 'load').and.callThrough();
+    const values: string[] = [];
+    service.getTranslation$('Hello, world!').subscribe(value => values.push(value));
+    expect(values).toEqual(['Hello, world!']);
+    expect(load).not.toHaveBeenCalled();
+    httpMock.expectNone('translations/cy');
   });
 
   describe('shouldTranslate', () => {
@@ -233,17 +240,19 @@ describe('RpxTranslationService', () => {
     });
 
     it('should handle getTranslationWithYesOrNo$ with null yesOrNoValue', (done) => {
-      const phrase = 'Test';
-      service.getTranslationWithYesOrNo$(phrase, null as any).subscribe(
-        (translation) => {
-          expect(translation).toBeDefined();
-          done();
-        },
-        () => {
-          // Should not error, should handle gracefully
-          done();
-        }
-      );
+      service.language = 'cy';
+      service.getTranslationWithYesOrNo$('Test', null as any).subscribe({
+        next: value => { expect(value).toBe(''); httpMock.expectNone('translations/cy'); done(); },
+        error: done.fail
+      });
+    });
+
+    it('returns an empty string for undefined yesOrNoValue without a request', (done) => {
+      service.language = 'cy';
+      service.getTranslationWithYesOrNo$('Test', undefined as any).subscribe({
+        next: value => { expect(value).toBe(''); httpMock.expectNone('translations/cy'); done(); },
+        error: done.fail
+      });
     });
 
     it('should handle getTranslationWithReplacements$ with empty replacements', (done) => {

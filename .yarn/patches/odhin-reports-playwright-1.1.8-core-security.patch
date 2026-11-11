@@ -1,0 +1,655 @@
+--- a/lib/generate.js
++++ b/lib/generate.js
+@@ -8,11 +8,15 @@
+ const help_1 = __importDefault(require("./help"));
+ const picocolors_1 = require("picocolors");
+ const lodash_1 = require("lodash");
+-const child_process_1 = require("child_process");
+-const node_util_1 = __importDefault(require("node:util"));
+ const process_1 = require("process");
+ class Generate {
+     constructor(execOptions) {
++        for (const option of ["startServer", "embedAssets", "embedAttachments"]) {
++            if (execOptions[option] !== undefined && execOptions[option] !== false) {
++                throw new Error("Core Odhín does not support " + option + "; serve external report assets explicitly");
++            }
++            execOptions[option] = false;
++        }
+         // Constants
+         this.OUTPUT_FOLDER = "odhin-reports";
+         this.TITLE = "Odhin Reports";
+@@ -602,29 +606,27 @@
+         this.execInfo.execFiles.forEach((file, index) => {
+             let chartRow = this.chartInfo;
+             if (index == 0) {
+-                chartRow = chartRow.replace("{{.Label}}", file.filename);
++                chartRow = chartRow.replace("{{.Label}}", () => this.help.escapeHTML(file.filename));
+                 chartRow = chartRow.replace("{{.Value}}", file.totalTests.toString());
+                 chartRow = chartRow.replace("{{.Percentage}}", (0, lodash_1.round)((file.totalTests / this.execInfo.totalTests) * 100, 2).toString());
+-                chartJsFileLabels +=
+-                    "'" + file.filename + " (" + file.totalTests.toString() + ")" + "'";
++                chartJsFileLabels += "" + JSON.stringify(file.filename + " (" + file.totalTests + ")");
+                 chartJsFileData += file.totalTests.toString();
+                 chartJsFileDataColor += "'" + file.color + "'";
+             }
+             else {
+-                chartRow = chartRow.replace("{{.Label}}", file.filename);
++                chartRow = chartRow.replace("{{.Label}}", () => this.help.escapeHTML(file.filename));
+                 chartRow = chartRow.replace("{{.Value}}", file.totalTests.toString());
+                 chartRow = chartRow.replace("{{.Percentage}}", (0, lodash_1.round)((file.totalTests / this.execInfo.totalTests) * 100, 2).toString());
+-                chartJsFileLabels +=
+-                    ",'" + file.filename + " (" + file.totalTests.toString() + ")" + "'";
++                chartJsFileLabels += "," + JSON.stringify(file.filename + " (" + file.totalTests + ")");
+                 chartJsFileData += "," + file.totalTests.toString();
+                 chartJsFileDataColor += ",'" + file.color + "'";
+             }
+             chartRow = chartRow.replaceAll("{{.Color}}", file.color);
+             chartFileRows += chartRow;
+         });
+-        this.chartFile = this.chartFile.replace("{{.Chart}}", chartFileDetail);
+-        this.chartFile = this.chartFile.replaceAll("{{.ChartFile}}", chartFileRows);
+-        this.chartJs = this.chartJs.replaceAll("{{.FilesChartLabels}}", chartJsFileLabels);
++        this.chartFile = this.chartFile.replace("{{.Chart}}", () => (chartFileDetail));
++        this.chartFile = this.chartFile.replaceAll("{{.ChartFile}}", () => (chartFileRows));
++        this.chartJs = this.chartJs.replaceAll("{{.FilesChartLabels}}", () => chartJsFileLabels);
+         this.chartJs = this.chartJs.replaceAll("{{.FilesChartData}}", chartJsFileData);
+         this.chartJs = this.chartJs.replaceAll("{{.FilesChartDataColor}}", chartJsFileDataColor);
+         // Edit Chart Project
+@@ -639,39 +641,27 @@
+         this.execInfo.execProjects.forEach((project, index) => {
+             let chartRow = this.chartInfo;
+             if (index == 0) {
+-                chartRow = chartRow.replace("{{.Label}}", project.project);
++                chartRow = chartRow.replace("{{.Label}}", () => this.help.escapeHTML(project.project));
+                 chartRow = chartRow.replace("{{.Value}}", project.totalTests.toString());
+                 chartRow = chartRow.replace("{{.Percentage}}", (0, lodash_1.round)((project.totalTests / this.execInfo.totalTests) * 100, 2).toString());
+-                chartJsProjectLabels +=
+-                    "'" +
+-                        project.project +
+-                        " (" +
+-                        project.totalTests.toString() +
+-                        ")" +
+-                        "'";
++                chartJsProjectLabels += "" + JSON.stringify(project.project + " (" + project.totalTests + ")");
+                 chartJsProjectData += project.totalTests.toString();
+                 chartJsProjectDataColor += "'" + project.color + "'";
+             }
+             else {
+-                chartRow = chartRow.replace("{{.Label}}", project.project);
++                chartRow = chartRow.replace("{{.Label}}", () => this.help.escapeHTML(project.project));
+                 chartRow = chartRow.replace("{{.Value}}", project.totalTests.toString());
+                 chartRow = chartRow.replace("{{.Percentage}}", (0, lodash_1.round)((project.totalTests / this.execInfo.totalTests) * 100, 2).toString());
+-                chartJsProjectLabels +=
+-                    ",'" +
+-                        project.project +
+-                        " (" +
+-                        project.totalTests.toString() +
+-                        ")" +
+-                        "'";
++                chartJsProjectLabels += "," + JSON.stringify(project.project + " (" + project.totalTests + ")");
+                 chartJsProjectData += "," + project.totalTests.toString();
+                 chartJsProjectDataColor += ",'" + project.color + "'";
+             }
+             chartRow = chartRow.replaceAll("{{.Color}}", project.color);
+             chartProjectRows += chartRow;
+         });
+-        this.chartProject = this.chartProject.replace("{{.Chart}}", chartProjectDetail);
+-        this.chartProject = this.chartProject.replaceAll("{{.ChartProject}}", chartProjectRows);
+-        this.chartJs = this.chartJs.replaceAll("{{.ProjectsChartLabels}}", chartJsProjectLabels);
++        this.chartProject = this.chartProject.replace("{{.Chart}}", () => (chartProjectDetail));
++        this.chartProject = this.chartProject.replaceAll("{{.ChartProject}}", () => (chartProjectRows));
++        this.chartJs = this.chartJs.replaceAll("{{.ProjectsChartLabels}}", () => chartJsProjectLabels);
+         this.chartJs = this.chartJs.replaceAll("{{.ProjectsChartData}}", chartJsProjectData);
+         this.chartJs = this.chartJs.replaceAll("{{.ProjectsChartDataColor}}", chartJsProjectDataColor);
+         // Edit Summary Files
+@@ -681,7 +671,7 @@
+         let filesSummaryRows = "";
+         this.execInfo.execFiles.forEach((file) => {
+             let filesSummaryRow = this.summaryRow;
+-            filesSummaryRow = filesSummaryRow.replace("{{.Name}}", file.filename);
++            filesSummaryRow = filesSummaryRow.replace("{{.Name}}", () => this.help.escapeHTML(file.filename));
+             filesSummaryRow = filesSummaryRow.replace("{{.TotalTests}}", file.totalTests.toString());
+             filesSummaryRow = filesSummaryRow.replace("{{.TotalExecutionTime}}", this.help.convertMsToTime(new Date(file.endTime).getTime() - new Date(file.startTime).getTime()));
+             filesSummaryRow = filesSummaryRow.replace("{{.PassedValue}}", file.totalPassed.toString());
+@@ -698,7 +688,7 @@
+             filesSummaryRow = filesSummaryRow.replace("{{.FlakyPercentage}}", (0, lodash_1.round)((file.totalFlaky / file.totalTests) * 100, 2).toString());
+             filesSummaryRows += filesSummaryRow;
+         });
+-        summaryFiles = summaryFiles.replace("{{.Data}}", filesSummaryRows);
++        summaryFiles = summaryFiles.replace("{{.Data}}", () => (filesSummaryRows));
+         // Edit Summary Projects
+         let summaryProjects = this.summary;
+         summaryProjects = summaryProjects.replace("{{.SummaryTitleName}}", "Status by project");
+@@ -706,7 +696,7 @@
+         let projectsSummaryRows = "";
+         this.execInfo.execProjects.forEach((project) => {
+             let projectSummaryRow = this.summaryRow;
+-            projectSummaryRow = projectSummaryRow.replace("{{.Name}}", project.project);
++            projectSummaryRow = projectSummaryRow.replace("{{.Name}}", () => this.help.escapeHTML(project.project));
+             projectSummaryRow = projectSummaryRow.replace("{{.TotalTests}}", project.totalTests.toString());
+             projectSummaryRow = projectSummaryRow.replace("{{.TotalExecutionTime}}", this.help.convertMsToTime(new Date(project.endTime).getTime() -
+                 new Date(project.startTime).getTime()));
+@@ -724,11 +714,11 @@
+             projectSummaryRow = projectSummaryRow.replace("{{.FlakyPercentage}}", (0, lodash_1.round)((project.totalFlaky / project.totalTests) * 100, 2).toString());
+             projectsSummaryRows += projectSummaryRow;
+         });
+-        summaryProjects = summaryProjects.replace("{{.Data}}", projectsSummaryRows);
++        summaryProjects = summaryProjects.replace("{{.Data}}", () => (projectsSummaryRows));
+         // Edit RunInfo
+-        this.runInfo = this.runInfo.replaceAll("{{.Project}}", this.execOptions.project);
+-        this.runInfo = this.runInfo.replaceAll("{{.Release}}", this.execOptions.release);
+-        this.runInfo = this.runInfo.replaceAll("{{.TestEnvironment}}", this.execOptions.testEnvironment);
++        this.runInfo = this.runInfo.replaceAll("{{.Project}}", () => this.help.escapeHTML(this.execOptions.project));
++        this.runInfo = this.runInfo.replaceAll("{{.Release}}", () => this.help.escapeHTML(this.execOptions.release));
++        this.runInfo = this.runInfo.replaceAll("{{.TestEnvironment}}", () => this.help.escapeHTML(this.execOptions.testEnvironment));
+         this.runInfo = this.runInfo.replaceAll("{{.StartTime}}", this.execInfo.startTime);
+         this.runInfo = this.runInfo.replaceAll("{{.EndTime}}", this.execInfo.endTime);
+         this.runInfo = this.runInfo.replaceAll("{{.TotalExecutionTime}}", this.help.convertMsToTime(new Date(this.execInfo.endTime).getTime() -
+@@ -798,34 +788,34 @@
+             let testCaseHtml = this.testCaseTemplate;
+             testCaseHtml = testCaseHtml.replaceAll("{{.ModalID}}", testCaseId);
+             if (showRetries) {
+-                testCaseHtml = testCaseHtml.replaceAll("{{.Retry}}", '<td class="{{.TDClassesCss}}">' +
++                testCaseHtml = testCaseHtml.replaceAll("{{.Retry}}", () => ('<td class="{{.TDClassesCss}}">' +
+                     (testCase.result.retry > 0
+                         ? testCase.result.retry.toString()
+                         : "") +
+-                    "</td>");
++                    "</td>"));
+             }
+             else {
+                 testCaseHtml = testCaseHtml.replaceAll("{{.Retry}}", "");
+             }
+-            testCaseHtml = testCaseHtml.replaceAll("{{.Title}}", testCase.testCase.title);
++            testCaseHtml = testCaseHtml.replaceAll("{{.Title}}", () => this.help.escapeHTML(testCase.testCase.title));
+             testCaseHtml = testCaseHtml.replaceAll("{{.Status}}", testCase.result.status);
+             testCaseHtml = testCaseHtml.replaceAll("{{.Duration}}", this.help.convertMsToTime(testCase.result.duration));
+             let testCaseGroup = testCase.testCase.title !== testCase.testCase.titlePath[3]
+                 ? '<td class="{{.TDClassesCss}}">' +
+-                    testCase.testCase.titlePath[3] +
++                    this.help.escapeHTML(testCase.testCase.titlePath[3]) +
+                     "</td>"
+                 : '<td class="{{.TDClassesCss}}"></td>';
+-            testCaseHtml = testCaseHtml.replaceAll("{{.Group}}", this.execOptions.testListColumns.includes("GROUP") ? testCaseGroup : "");
++            testCaseHtml = testCaseHtml.replaceAll("{{.Group}}", () => (this.execOptions.testListColumns.includes("GROUP") ? testCaseGroup : ""));
+             let testCaseProject = '<td class="{{.TDClassesCss}}">' +
+-                testCase.testCase.projectId +
++                this.help.escapeHTML(testCase.testCase.projectId) +
+                 "</td>";
+-            testCaseHtml = testCaseHtml.replaceAll("{{.Project}}", this.execOptions.testListColumns.includes("PROJECT")
++            testCaseHtml = testCaseHtml.replaceAll("{{.Project}}", () => (this.execOptions.testListColumns.includes("PROJECT")
+                 ? testCaseProject
+-                : "");
++                : ""));
+             let testCaseFile = '<td class="{{.TDClassesCss}}">' +
+-                this.help.getShortFilePath(testCase.testCase.filename, this.execOptions.testFolder) +
++                this.help.escapeHTML(this.help.getShortFilePath(testCase.testCase.filename, this.execOptions.testFolder)) +
+                 "</td>";
+-            testCaseHtml = testCaseHtml.replaceAll("{{.File}}", this.execOptions.testListColumns.includes("FILE") ? testCaseFile : "");
++            testCaseHtml = testCaseHtml.replaceAll("{{.File}}", () => (this.execOptions.testListColumns.includes("FILE") ? testCaseFile : ""));
+             testCaseHtml = testCaseHtml.replaceAll("{{.TRClassesCss}}", "result-status-" + testCase.result.status);
+             testCaseHtml = testCaseHtml.replaceAll("{{.TDClassesCss}}", "result-status-" + testCase.result.status);
+             testCases += testCaseHtml;
+@@ -833,45 +823,45 @@
+             testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.ModalID}}", testCaseId);
+             testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.ModalHeaderClassesCss}}", "label-status-" + testCase.result.status);
+             testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.ModalHeaderStatus}}", testCase.result.status);
+-            testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.Title}}", testCase.testCase.title);
++            testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.Title}}", () => this.help.escapeHTML(testCase.testCase.title));
+             // Add run info
+-            testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.Group}}", testCase.testCase.title !== testCase.testCase.titlePath[3]
++            testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.Group}}", () => (testCase.testCase.title !== testCase.testCase.titlePath[3]
+                 ? '<tr><th class="odhin-text-2">Group</th><td class="text-secondary-emphasis fst-italic">' +
+-                    testCase.testCase.titlePath[3] +
++                    this.help.escapeHTML(testCase.testCase.titlePath[3]) +
+                     "</td></tr>"
+-                : "");
+-            testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.InfoFilename}}", this.help.getShortFilePath(testCase.testCase.filename, this.execOptions.testFolder));
+-            testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.InfoProject}}", testCase.testCase.projectId);
++                : ""));
++            testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.InfoFilename}}", () => this.help.escapeHTML(this.help.getShortFilePath(testCase.testCase.filename, this.execOptions.testFolder)));
++            testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.InfoProject}}", () => this.help.escapeHTML(testCase.testCase.projectId));
+             testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.InfoStartTime}}", testCase.result.startTime.toUTCString());
+             testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.InfoTotalExecutionTime}}", this.help.convertMsToTime(testCase.result.duration));
+-            testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.InfoRetry}}", showRetries
++            testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.InfoRetry}}", () => (showRetries
+                 ? '<tr><th class="odhin-text-2">Retry</th><td class="text-secondary-emphasis fst-italic">' +
+                     testCase.result.retry.toString() +
+                     "</td></tr>"
+-                : "");
+-            testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.InfoTags}}", testCase.testCase.tags.length > 0
++                : ""));
++            testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.InfoTags}}", () => (testCase.testCase.tags.length > 0
+                 ? '<tr><th class="odhin-text-2">Tags</th><td class="text-secondary-emphasis fst-italic">' +
+-                    testCase.testCase.tags.join(', ').toString() +
++                    this.help.escapeHTML(testCase.testCase.tags.join(', ').toString()) +
+                     "</td></tr>"
+-                : "");
++                : ""));
+             if (testCase.testCase.annotations.length > 0) {
+                 let annotations = '<tr><th class="odhin-text-2 info-tr-space">Annotations</th><td class="text-secondary-emphasis fst-italic info-tr-space" ></td></tr>';
+                 testCase.testCase.annotations.forEach((annotation) => {
+                     annotations +=
+                         '<tr><th class="odhin-text-2">' +
+-                            annotation.type +
++                            this.help.escapeHTML(annotation.type) +
+                             '</th><td class="text-secondary-emphasis fst-italic">' +
+                             (this.help.isValidURL(annotation.description)
+                                 ? '<a target="_Blank" class="link-annotation" href="' +
+-                                    annotation.description +
++                                    this.help.escapeHTML(annotation.description) +
+                                     '">' +
+-                                    annotation.description +
++                                    this.help.escapeHTML(annotation.description) +
+                                     "</a>"
+-                                : annotation.description) +
++                                : this.help.escapeHTML(annotation.description)) +
+                             "</td></tr>";
+                 });
+                 annotations += "<tr><th></th><td></td></tr>";
+-                testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.InfoAnnotations}}", annotations);
++                testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.InfoAnnotations}}", () => (annotations));
+             }
+             else {
+                 testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.InfoAnnotations}}", "<tr><th></th><td></td></tr>");
+@@ -896,11 +886,11 @@
+                     });
+                 }
+                 testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.ErrorsTabButton}}", this.help.printErrorsTabButton(testCaseId));
+-                testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.Errors}}", this.help.printErrors(errors, errorFile !== undefined
++                testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.Errors}}", () => (this.help.printErrors(errors, errorFile !== undefined
+                     ? errorFile.length > 1
+                         ? this.help.printErrorCode(errorFile)
+                         : ""
+-                    : "", testCaseId));
++                    : "", testCaseId)));
+             }
+             else {
+                 testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.ErrorsTabButton}}", "");
+@@ -911,9 +901,9 @@
+             testCase.result.steps.forEach((step, index) => {
+                 steps += this.help.printStep(testCaseId, index, step, 10);
+             });
+-            testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.Steps}}", `<div class="row m-0 p-0"><div class="col m-0 p-0">` +
++            testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.Steps}}", () => (`<div class="row m-0 p-0"><div class="col m-0 p-0">` +
+                 steps +
+-                `</div></div>`);
++                `</div></div>`));
+             // Add Attachments
+             let screenshots = "";
+             let screenshotsComparison = "";
+@@ -974,23 +964,23 @@
+             testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.ScreenshotsTabButton}}", screenshotsComparison !== "" || screenshots !== ""
+                 ? this.help.printScreenshotsTabButton(testCaseId)
+                 : "");
+-            testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.Screenshots}}", screenshotsComparison !== "" || screenshots !== ""
++            testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.Screenshots}}", () => (screenshotsComparison !== "" || screenshots !== ""
+                 ? this.help.printScreenshots(screenshotsComparison + screenshots, testCaseId)
+-                : "");
++                : ""));
+             testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.VideosTabButton}}", videos !== "" ? this.help.printVideosTabButton(testCaseId) : "");
+-            testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.Videos}}", videos !== "" ? this.help.printVideos(videos, testCaseId) : "");
++            testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.Videos}}", () => (videos !== "" ? this.help.printVideos(videos, testCaseId) : ""));
+             testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.TraceTabButton}}", trace !== "" ? this.help.printTraceTabButton(testCaseId) : "");
+-            testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.Trace}}", trace);
++            testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.Trace}}", () => (trace));
+             let stdout = testCase.result.stdout.toString();
+             if (stdout !== "" && this.execOptions.testOutput) {
+                 testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.StdoutTabButton}}", this.help.printStdoutTabButton(testCaseId));
+-                testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.Stdout}}", this.help.printStdout(testCaseId, stdout));
++                testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.Stdout}}", () => (this.help.printStdout(testCaseId, stdout)));
+             }
+             else if (stdout !== "" &&
+                 this.execOptions.testOutput === "only-on-failure" &&
+                 testCase.result.status === "failed") {
+                 testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.StdoutTabButton}}", this.help.printStdoutTabButton(testCaseId));
+-                testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.Stdout}}", this.help.printStdout(testCaseId, stdout));
++                testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.Stdout}}", () => (this.help.printStdout(testCaseId, stdout)));
+             }
+             else {
+                 testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.StdoutTabButton}}", "");
+@@ -999,13 +989,13 @@
+             let stderr = testCase.result.stderr.toString();
+             if (stderr !== "" && this.execOptions.testOutput) {
+                 testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.StderrTabButton}}", this.help.printStderrTabButton(testCaseId));
+-                testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.Stderr}}", this.help.printStderr(testCaseId, stderr));
++                testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.Stderr}}", () => (this.help.printStderr(testCaseId, stderr)));
+             }
+             else if (stderr !== "" &&
+                 this.execOptions.testOutput === "only-on-failure" &&
+                 testCase.result.status === "failed") {
+                 testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.StderrTabButton}}", this.help.printStderrTabButton(testCaseId));
+-                testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.Stderr}}", this.help.printStderr(testCaseId, stderr));
++                testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.Stderr}}", () => (this.help.printStderr(testCaseId, stderr)));
+             }
+             else {
+                 testCaseDetailsHtml = testCaseDetailsHtml.replaceAll("{{.StderrTabButton}}", "");
+@@ -1013,8 +1003,8 @@
+             }
+             testCasesDetails += testCaseDetailsHtml;
+         });
+-        this.content = this.content.replace("{{.TestCases}}", testCases);
+-        this.content = this.content.replaceAll("{{.TestCasesDetails}}", testCasesDetails);
++        this.content = this.content.replace("{{.TestCases}}", () => (testCases));
++        this.content = this.content.replaceAll("{{.TestCasesDetails}}", () => (testCasesDetails));
+         this.content = this.content.replaceAll("{{.GroupColumn}}", this.execOptions.testListColumns.includes("GROUP") ? "<th>Group</th>" : "");
+         this.content = this.content.replaceAll("{{.ProjectColumn}}", this.execOptions.testListColumns.includes("PROJECT")
+             ? "<th>Project</th>"
+@@ -1041,14 +1031,14 @@
+         this.base = this.help.updateHtml(this.base, "{{.ThemeJs}}", this.themeJs, "js", "theme.js");
+         this.base = this.help.updateHtml(this.base, "{{.BootstrapJs}}", this.bootstrapJs, "js", "bootstrap.js");
+         this.base = this.help.updateHtml(this.base, "{{.PrismJs}}", this.prismJs, "js", "prism.js");
+-        this.base = this.base.replaceAll("{{.Title}}", this.execOptions.title);
+-        this.base = this.base.replace("{{.RunInfo}}", this.runInfo);
+-        this.base = this.base.replace("{{.ChartStatus}}", this.chartStatus);
+-        this.base = this.base.replace("{{.ChartFile}}", this.chartFile);
+-        this.base = this.base.replace("{{.ChartProject}}", this.chartProject);
+-        this.base = this.base.replace("{{.SummaryFiles}}", summaryFiles);
+-        this.base = this.base.replace("{{.SummaryProjects}}", summaryProjects);
+-        this.base = this.base.replace("{{.Content}}", this.content);
++        this.base = this.base.replaceAll("{{.Title}}", () => this.help.escapeHTML(this.execOptions.title));
++        this.base = this.base.replace("{{.RunInfo}}", () => (this.runInfo));
++        this.base = this.base.replace("{{.ChartStatus}}", () => (this.chartStatus));
++        this.base = this.base.replace("{{.ChartFile}}", () => (this.chartFile));
++        this.base = this.base.replace("{{.ChartProject}}", () => (this.chartProject));
++        this.base = this.base.replace("{{.SummaryFiles}}", () => (summaryFiles));
++        this.base = this.base.replace("{{.SummaryProjects}}", () => (summaryProjects));
++        this.base = this.base.replace("{{.Content}}", () => (this.content));
+         this.base = this.base.replaceAll("{{.Version}}", this.CURRENT_VERSION);
+         this.base = this.base.replaceAll("{{.ShortVersion}}", "v1");
+         // Create the final HTML report file
+@@ -1063,45 +1053,6 @@
+                 console.log(`${(0, picocolors_1.bold)((0, picocolors_1.blue)(`-------------------------------------`))}`);
+             }
+         }
+-        if (this.execOptions.startServer) {
+-            let port = await this.help.getPortFree();
+-            const execPromise = node_util_1.default.promisify(child_process_1.exec);
+-            try {
+-                if (this.execOptions.consoleLog) {
+-                    let text = `Serving HTML report at http://localhost:${port}. Press Ctrl+C to quit.`;
+-                    if (this.execOptions.simpleConsoleLog) {
+-                        console.log(` `);
+-                        console.log(text);
+-                        console.log(` `);
+-                    }
+-                    else {
+-                        console.log(`${(0, picocolors_1.bold)((0, picocolors_1.blue)(` `))}`);
+-                        console.log(`${(0, picocolors_1.bold)((0, picocolors_1.blue)(text))}`);
+-                        console.log(`${(0, picocolors_1.bold)((0, picocolors_1.blue)(` `))}`);
+-                    }
+-                }
+-                const cmd = "node " +
+-                    path_1.default.resolve(__dirname, "") +
+-                    "/server.mjs " +
+-                    port +
+-                    " " +
+-                    this.execOptions.outputFolder +
+-                    " " +
+-                    this.execOptions.indexFilename;
+-                const { stdout, stderr } = await execPromise(cmd);
+-                if (this.execOptions.consoleLog) {
+-                    console.log(stdout);
+-                }
+-                if (this.execOptions.consoleError) {
+-                    console.error(stderr);
+-                }
+-            }
+-            catch (error) {
+-                if (this.execOptions.consoleError) {
+-                    console.error(error);
+-                }
+-            }
+-        }
+     }
+     async onStdOut(chunk) {
+         if (this.execOptions.consoleTestOutput) {
+--- a/lib/help.js
++++ b/lib/help.js
+@@ -7,7 +7,6 @@
+ const path_1 = __importDefault(require("path"));
+ const fs_1 = __importDefault(require("fs"));
+ const fs_extra_1 = __importDefault(require("fs-extra"));
+-const portfinder_1 = __importDefault(require("portfinder"));
+ class Help {
+     constructor(execOptions) {
+         this.ansiRegex = new RegExp("[\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:[a-zA-Z\\d]*(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]*)*)?\\u0007)|(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TZcf-ntqry=><~]))", "g");
+@@ -69,7 +68,7 @@
+         return str.replace(this.ansiRegex, "");
+     }
+     escapeHTML(text) {
+-        return text.replace(/[&"<>]/g, (c) => ({ "&": "&amp;", '"': "&quot;", "<": "&lt;", ">": "&gt;" }[c]));
++        return String(text ?? "").replace(/[&'"<>]/g, (c) => ({ "&": "&amp;", "\'": "&#39;", '"': "&quot;", "<": "&lt;", ">": "&gt;" }[c]));
+     }
+     ansi2htmlMarkup(text) {
+         const config = {
+@@ -95,9 +94,9 @@
+         if (testStep.location !== undefined) {
+             title = `<p class="stepLine" style="padding-left: ${space}px">${icon +
+                 " " +
+-                testStep.title +
++                this.escapeHTML(testStep.title) +
+                 " | <span class='fst-italic'>" +
+-                testStep.location.file.replace(path_1.default.resolve("./") + "/", "") +
++                this.escapeHTML(testStep.location.file.replace(path_1.default.resolve("./") + "/", "")) +
+                 ":" +
+                 testStep.location.line}</span><label class="stepLineDuration">${this.convertMsToTime(testStep.duration)}</label></p>`;
+             let code = this.printCode(testStep.location.file, testStep.location.line, this.stepCodeLinesToPrint);
+@@ -107,7 +106,7 @@
+             body += `<pre style="margin-left: ${space + 20}px;" class="line-numbers" data-start="${startLine}" >${code}</pre>`;
+         }
+         else {
+-            title = `<p class="stepLine" style="padding-left: ${space}px">${icon + " " + testStep.title}<label class="stepLineDuration">${this.convertMsToTime(testStep.duration)}</label></p>`;
++            title = `<p class="stepLine" style="padding-left: ${space}px">${icon + " " + this.escapeHTML(testStep.title)}<label class="stepLineDuration">${this.convertMsToTime(testStep.duration)}</label></p>`;
+         }
+         if (testStep.steps !== undefined) {
+             testStep.steps.forEach((step, index) => {
+@@ -224,18 +223,18 @@
+ 					</div></div>
+ 
+ 					<div class="row ms-3 me-3">					
+-					<div class="col text-end odhin-attachments-label">${attachmentExpected.name + "." + expectedFileType}</div>
+-					<div class="col text-start odhin-attachments-buttons-card"><a class="download-btn" target="_Blank" download="${attachmentExpected.name + "." + expectedFileType}" href="data:${attachmentExpected.contentType};base64,${base64ExpectedImage}">Download Expected <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1z"/><path fill-rule="evenodd" d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708z"/></svg></a></div>
++					<div class="col text-end odhin-attachments-label">${this.escapeHTML(attachmentExpected.name + "." + expectedFileType)}</div>
++					<div class="col text-start odhin-attachments-buttons-card"><a class="download-btn" target="_Blank" download="${this.escapeHTML(attachmentExpected.name + "." + expectedFileType)}" href="data:${attachmentExpected.contentType};base64,${base64ExpectedImage}">Download Expected <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1z"/><path fill-rule="evenodd" d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708z"/></svg></a></div>
+ 					</div>
+ 					
+ 					<div class="row ms-3 me-3">	
+-					<div class="col text-end odhin-attachments-label">${attachmentActual.name + "." + actualFileType}</div>
+-					<div class="col text-start odhin-attachments-buttons-card"><a class="download-btn" target="_Blank" download="${attachmentActual.name + "." + actualFileType}" href="data:${attachmentActual.contentType};base64,${base64ActualImage}">Download Actual <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1z"/><path fill-rule="evenodd" d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708z"/></svg></a></div>
++					<div class="col text-end odhin-attachments-label">${this.escapeHTML(attachmentActual.name + "." + actualFileType)}</div>
++					<div class="col text-start odhin-attachments-buttons-card"><a class="download-btn" target="_Blank" download="${this.escapeHTML(attachmentActual.name + "." + actualFileType)}" href="data:${attachmentActual.contentType};base64,${base64ActualImage}">Download Actual <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1z"/><path fill-rule="evenodd" d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708z"/></svg></a></div>
+ 					</div>
+ 					
+ 					<div class="row ms-3 me-3 mb-5 odhin-thin-border-bottom">	
+-					<div class="col text-end odhin-attachments-label">${attachmentDiff.name + "." + actualFileType}</div>
+-					<div class="col text-start odhin-attachments-buttons-card"><a class="download-btn" target="_Blank" download="${attachmentDiff.name + "." + actualFileType}" href="data:${attachmentDiff.contentType};base64,${base64DiffImage}">Download Diff <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1z"/><path fill-rule="evenodd" d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708z"/></svg></a></div>
++					<div class="col text-end odhin-attachments-label">${this.escapeHTML(attachmentDiff.name + "." + actualFileType)}</div>
++					<div class="col text-start odhin-attachments-buttons-card"><a class="download-btn" target="_Blank" download="${this.escapeHTML(attachmentDiff.name + "." + actualFileType)}" href="data:${attachmentDiff.contentType};base64,${base64DiffImage}">Download Diff <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1z"/><path fill-rule="evenodd" d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708z"/></svg></a></div>
+ 					</div>`;
+             }
+             else {
+@@ -264,29 +263,29 @@
+ 					<div class="row ms-3 me-3"><div class="col text-center">			 
+ 					<img-comparison-slider tabindex="0" class="rendered odhin-thin-border coloured-slider">
+ 					<figure slot="first" class="before">
+-					<img src="screenshots/${id + "/" + finalExpectedFilename}" class="control-attachment-size">
++					<img src="screenshots/${this.escapeHTML(id + "/" + finalExpectedFilename)}" class="control-attachment-size">
+ 					<figcaption>Expected</figcaption>
+ 					</figure>
+ 					<figure slot="second" class="after">
+-					<img src="screenshots/${id + "/" + finalActualFilename}" class="control-attachment-size">
++					<img src="screenshots/${this.escapeHTML(id + "/" + finalActualFilename)}" class="control-attachment-size">
+ 					<figcaption>Actual</figcaption>
+ 					</figure>
+ 					</img-comparison-slider>	 
+ 					</div></div>
+ 
+ 					<div class="row ms-3 me-3">					
+-					<div class="col text-end odhin-attachments-label">${finalExpectedFilename}</div>
+-					<div class="col text-start odhin-attachments-buttons-card"><a class="download-btn" target="_Blank" download="${finalExpectedFilename}" href="screenshots/${id + "/" + finalExpectedFilename}">Download Expected <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1z"/><path fill-rule="evenodd" d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708z"/></svg></a></div>
++					<div class="col text-end odhin-attachments-label">${this.escapeHTML(finalExpectedFilename)}</div>
++					<div class="col text-start odhin-attachments-buttons-card"><a class="download-btn" target="_Blank" download="${this.escapeHTML(finalExpectedFilename)}" href="screenshots/${this.escapeHTML(id + "/" + finalExpectedFilename)}">Download Expected <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1z"/><path fill-rule="evenodd" d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708z"/></svg></a></div>
+ 					</div>
+ 					
+ 					<div class="row ms-3 me-3">	
+-					<div class="col text-end odhin-attachments-label">${finalActualFilename}</div>
+-					<div class="col text-start odhin-attachments-buttons-card"><a class="download-btn" target="_Blank" download="${finalActualFilename}" href="screenshots/${id + "/" + finalActualFilename}">Download Actual <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1z"/><path fill-rule="evenodd" d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708z"/></svg></a></div>
++					<div class="col text-end odhin-attachments-label">${this.escapeHTML(finalActualFilename)}</div>
++					<div class="col text-start odhin-attachments-buttons-card"><a class="download-btn" target="_Blank" download="${this.escapeHTML(finalActualFilename)}" href="screenshots/${this.escapeHTML(id + "/" + finalActualFilename)}">Download Actual <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1z"/><path fill-rule="evenodd" d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708z"/></svg></a></div>
+ 					</div>
+ 					
+ 					<div class="row ms-3 me-3 mb-5 odhin-thin-border-bottom">	
+-					<div class="col text-end odhin-attachments-label">${finalDiffFilename}</div>
+-					<div class="col text-start odhin-attachments-buttons-card"><a class="download-btn" target="_Blank" download="${finalDiffFilename}" href="screenshots/${id + "/" + finalDiffFilename}">Download Diff <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1z"/><path fill-rule="evenodd" d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708z"/></svg></a></div>
++					<div class="col text-end odhin-attachments-label">${this.escapeHTML(finalDiffFilename)}</div>
++					<div class="col text-start odhin-attachments-buttons-card"><a class="download-btn" target="_Blank" download="${this.escapeHTML(finalDiffFilename)}" href="screenshots/${this.escapeHTML(id + "/" + finalDiffFilename)}">Download Diff <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1z"/><path fill-rule="evenodd" d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708z"/></svg></a></div>
+ 					</div>`;
+             }
+         }
+@@ -302,7 +301,7 @@
+         if (base64Image !== "") {
+             if (this.execOptions.embedAttachments === true) {
+                 output = `
+-					<div class="row ms-3 me-3"><div class="col text-center"><img src="data:${attachment.contentType};base64,${base64Image}" class="img-fluid mt-3 odhin-thin-border control-attachment-size" alt="Screenshot"></div></div><div class="row ms-3 me-3 mb-5 odhin-thin-border-bottom"><div class="col text-end odhin-attachments-label">${screenshotFilename}</div><div class="col text-left odhin-attachments-buttons-card"><a class="download-btn" target="_Blank" download="${attachment.name}" href="data:${attachment.contentType};base64,${base64Image}">Download <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1z"/><path fill-rule="evenodd" d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708z"/></svg></a></div></div>`;
++					<div class="row ms-3 me-3"><div class="col text-center"><img src="data:${attachment.contentType};base64,${base64Image}" class="img-fluid mt-3 odhin-thin-border control-attachment-size" alt="Screenshot"></div></div><div class="row ms-3 me-3 mb-5 odhin-thin-border-bottom"><div class="col text-end odhin-attachments-label">${this.escapeHTML(screenshotFilename)}</div><div class="col text-left odhin-attachments-buttons-card"><a class="download-btn" target="_Blank" download="${this.escapeHTML(attachment.name)}" href="data:${attachment.contentType};base64,${base64Image}">Download <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1z"/><path fill-rule="evenodd" d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708z"/></svg></a></div></div>`;
+             }
+             else {
+                 let finalFilename = this.base64ToFile(base64Image, this.execOptions.outputFolder +
+@@ -311,9 +310,9 @@
+                     "/" +
+                     screenshotFilename);
+                 output = `
+-				<div class="row ms-3 me-3"><div class="col text-center"><img src="screenshots/${id + "/" + finalFilename}" class="img-fluid mt-3 odhin-thin-border control-attachment-size" alt="Screenshot"></div></div>
+-				<div class="row ms-3 me-3 mb-5 odhin-thin-border-bottom"><div class="col text-end odhin-attachments-label">${screenshotFilename}</div>
+-				<div class="col text-left odhin-attachments-buttons-card"><a class="download-btn" target="_Blank" download="${finalFilename}" href="screenshots/${id + "/" + finalFilename}">Download <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1z"/><path fill-rule="evenodd" d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708z"/></svg></a></div></div>`;
++				<div class="row ms-3 me-3"><div class="col text-center"><img src="screenshots/${this.escapeHTML(id + "/" + finalFilename)}" class="img-fluid mt-3 odhin-thin-border control-attachment-size" alt="Screenshot"></div></div>
++				<div class="row ms-3 me-3 mb-5 odhin-thin-border-bottom"><div class="col text-end odhin-attachments-label">${this.escapeHTML(screenshotFilename)}</div>
++				<div class="col text-left odhin-attachments-buttons-card"><a class="download-btn" target="_Blank" download="${this.escapeHTML(finalFilename)}" href="screenshots/${this.escapeHTML(id + "/" + finalFilename)}">Download <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1z"/><path fill-rule="evenodd" d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708z"/></svg></a></div></div>`;
+             }
+         }
+         return output;
+@@ -326,7 +325,7 @@
+             if (this.execOptions.embedAttachments === true) {
+                 output = `
+ 					<div class="row ms-3 me-3"><div class="col text-center"><img src="data:${attachment.contentType};base64,${base64Image}" class="img-fluid mt-3 odhin-thin-border control-attachment-size" alt="Screenshot"></div></div>
+-					<div class="row ms-3 me-3 mb-5 odhin-thin-border-bottom"><div class="col text-end odhin-attachments-label">${attachment.name + "." + fileType}</div><div class="col text-left odhin-attachments-buttons-card"><a class="download-btn" target="_Blank" download="${attachment.name + "." + fileType}" href="data:${attachment.contentType};base64,${base64Image}">Download <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1z"/><path fill-rule="evenodd" d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708z"/></svg></a></div></div>`;
++					<div class="row ms-3 me-3 mb-5 odhin-thin-border-bottom"><div class="col text-end odhin-attachments-label">${this.escapeHTML(attachment.name + "." + fileType)}</div><div class="col text-left odhin-attachments-buttons-card"><a class="download-btn" target="_Blank" download="${this.escapeHTML(attachment.name + "." + fileType)}" href="data:${attachment.contentType};base64,${base64Image}">Download <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1z"/><path fill-rule="evenodd" d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708z"/></svg></a></div></div>`;
+             }
+             else {
+                 let finalFilename = this.base64ToFile(base64Image, this.execOptions.outputFolder +
+@@ -337,9 +336,9 @@
+                     "." +
+                     fileType);
+                 output = `
+-				<div class="row ms-3 me-3"><div class="col text-center"><img src="screenshots/${id + "/" + finalFilename}" class="img-fluid mt-3 odhin-thin-border control-attachment-size" alt="Screenshot"></div></div>
+-				<div class="row ms-3 me-3 mb-5 odhin-thin-border-bottom"><div class="col text-end odhin-attachments-label">${attachment.name + "." + fileType}</div>
+-				<div class="col text-left odhin-attachments-buttons-card"><a class="download-btn" target="_Blank" download="${finalFilename}" href="screenshots/${id + "/" + finalFilename}">Download <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1z"/><path fill-rule="evenodd" d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708z"/></svg></a></div></div>`;
++				<div class="row ms-3 me-3"><div class="col text-center"><img src="screenshots/${this.escapeHTML(id + "/" + finalFilename)}" class="img-fluid mt-3 odhin-thin-border control-attachment-size" alt="Screenshot"></div></div>
++				<div class="row ms-3 me-3 mb-5 odhin-thin-border-bottom"><div class="col text-end odhin-attachments-label">${this.escapeHTML(attachment.name + "." + fileType)}</div>
++				<div class="col text-left odhin-attachments-buttons-card"><a class="download-btn" target="_Blank" download="${this.escapeHTML(finalFilename)}" href="screenshots/${this.escapeHTML(id + "/" + finalFilename)}">Download <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1z"/><path fill-rule="evenodd" d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708z"/></svg></a></div></div>`;
+             }
+         }
+         return output;
+@@ -358,15 +357,15 @@
+             if (this.execOptions.embedAttachments === true) {
+                 output = `
+ 					<div class="row ms-3 me-3"><div class="col text-center"><video controls playsinline autoplay muted loop src="data:${attachment.contentType};base64,${base64Video}" class="object-fit-contain mt-3 odhin-thin-border control-attachment-size" autoplay></video></div></div>
+-					<div class="row ms-3 me-3 mb-5 odhin-thin-border-bottom"><div class="col text-end odhin-attachments-label">${videoFilename}</div>
+-					<div class="col text-left odhin-attachments-buttons-card"><a class="download-btn" target="_Blank" download="${videoFilename}" href="data:${attachment.contentType};base64,${base64Video}">Download <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1z"/><path fill-rule="evenodd" d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708z"/></svg></a></div></div>`;
++					<div class="row ms-3 me-3 mb-5 odhin-thin-border-bottom"><div class="col text-end odhin-attachments-label">${this.escapeHTML(videoFilename)}</div>
++					<div class="col text-left odhin-attachments-buttons-card"><a class="download-btn" target="_Blank" download="${this.escapeHTML(videoFilename)}" href="data:${attachment.contentType};base64,${base64Video}">Download <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1z"/><path fill-rule="evenodd" d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708z"/></svg></a></div></div>`;
+             }
+             else {
+                 let finalFilename = this.base64ToFile(base64Video, this.execOptions.outputFolder + "/videos/" + id + "/" + videoFilename);
+                 output = `
+-					<div class="row ms-3 me-3"><div class="col text-center"><video controls playsinline autoplay muted loop src="videos/${id + "/" + finalFilename}" class="object-fit-contain mt-3 odhin-thin-border control-attachment-size" autoplay></video></div></div>
+-					<div class="row ms-3 me-3 mb-5 odhin-thin-border-bottom"><div class="col text-end odhin-attachments-label">${videoFilename}</div>
+-					<div class="col text-left odhin-attachments-buttons-card"><a class="download-btn" target="_Blank" download="${finalFilename}" href="videos/${id + "/" + finalFilename}">Download <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1z"/><path fill-rule="evenodd" d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708z"/></svg></a></div></div>`;
++					<div class="row ms-3 me-3"><div class="col text-center"><video controls playsinline autoplay muted loop src="videos/${this.escapeHTML(id + "/" + finalFilename)}" class="object-fit-contain mt-3 odhin-thin-border control-attachment-size" autoplay></video></div></div>
++					<div class="row ms-3 me-3 mb-5 odhin-thin-border-bottom"><div class="col text-end odhin-attachments-label">${this.escapeHTML(videoFilename)}</div>
++					<div class="col text-left odhin-attachments-buttons-card"><a class="download-btn" target="_Blank" download="${this.escapeHTML(finalFilename)}" href="videos/${this.escapeHTML(id + "/" + finalFilename)}">Download <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1z"/><path fill-rule="evenodd" d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708z"/></svg></a></div></div>`;
+             }
+         }
+         return output;
+@@ -403,7 +402,7 @@
+         if (base64trace !== "") {
+             if (this.execOptions.embedAttachments === true) {
+                 output = `
+-					<div class="row ms-3 me-3 mb-5"><div class="col text-center odhin-attachments-buttons-card-no-bottom"><a class="download-btn" target="_Blank" download="${attachment.name}" href="data:${attachment.contentType};base64,${base64trace}">Download Trace <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1z"/><path fill-rule="evenodd" d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708z"/></svg></a></div></div>`;
++					<div class="row ms-3 me-3 mb-5"><div class="col text-center odhin-attachments-buttons-card-no-bottom"><a class="download-btn" target="_Blank" download="${this.escapeHTML(attachment.name)}" href="data:${attachment.contentType};base64,${base64trace}">Download Trace <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1z"/><path fill-rule="evenodd" d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708z"/></svg></a></div></div>`;
+             }
+             else {
+                 let finalFilename = this.base64ToFile(base64trace, this.execOptions.outputFolder +
+@@ -414,7 +413,7 @@
+                     "." +
+                     fileType);
+                 output = `
+-					<div class="row ms-3 me-3 mb-1"><div class="col text-center odhin-attachments-buttons-card-no-bottom"><a class="download-btn" target="_Blank" download="${finalFilename}" href="traces/${id + "/" + finalFilename}">Download Trace <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1z"/><path fill-rule="evenodd" d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708z"/></svg></a></div></div>`;
++					<div class="row ms-3 me-3 mb-1"><div class="col text-center odhin-attachments-buttons-card-no-bottom"><a class="download-btn" target="_Blank" download="${this.escapeHTML(finalFilename)}" href="traces/${this.escapeHTML(id + "/" + finalFilename)}">Download Trace <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1z"/><path fill-rule="evenodd" d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708z"/></svg></a></div></div>`;
+             }
+         }
+         return `<div id="TabTrace-${id}" style="display: none" class="result-tabcontent result-tabcontent-${id}">${output}</div>`;
+@@ -488,15 +487,7 @@
+         }
+     }
+     async getPortFree() {
+-        await portfinder_1.default
+-            .getPortPromise()
+-            .then((port) => {
+-            this.freePort = port;
+-        })
+-            .catch((err) => {
+-            throw err;
+-        });
+-        return this.freePort.toString();
++        throw new Error("Core Odhín does not start a report server");
+     }
+     isValidURL(url) {
+         const urlPattern = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i;
+--- a/lib/server.mjs
++++ b/lib/server.mjs
+@@ -1,8 +1 @@
+-import express from 'express';
+-import serveStatic from 'serve-static';
+-import openBrowser from 'open';
+-
+-const app = express();
+-app.use(serveStatic(process.argv[3], { index: [process.argv[4]] }));
+-app.listen(process.argv[2]);
+-openBrowser('http://localhost:'+process.argv[2]);
+\ No newline at end of file
++throw new Error("Core Odhín does not start a report server; serve the report directory explicitly");
+--- a/package.json
++++ b/package.json
+@@ -36,29 +36,9 @@
+   },
+   "dependencies": {
+     "ansi-to-html": "^0.7.2",
+-    "autoprefixer": "^10.4.14",
+-    "axios": "^0.24.0",
+-    "connect": "^3.7.0",
+-    "dayjs": "^1.11.7",
+-    "expres": "^0.0.5",
+-    "express": "^4.18.2",
+-    "fetch-base64": "^2.1.2",
+     "fs-extra": "^11.1.1",
+-    "html-minifier": "^4.0.0",
+-    "http-server": "^14.1.1",
+-    "js-base64-file": "^2.0.3",
+     "lodash": "^4.17.21",
+-    "node-html-to-image": "^3.3.0",
+-    "open": "^9.1.0",
+-    "picocolors": "^1.0.0",
+-    "portfinder": "^1.0.32",
+-    "prismjs": "^1.29.0",
+-    "serve-static": "^1.15.0",
+-    "static-server": "^2.2.1",
+-    "tunnel": "^0.0.6",
+-    "typescript": "^5.1.6",
+-    "xhr2": "^0.2.1",
+-    "xmlhttprequest": "^1.8.0"
++    "picocolors": "^1.0.0"
+   },
+   "directories": {
+     "doc": "docs",

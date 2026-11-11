@@ -1,10 +1,20 @@
 import { test, expect } from '@playwright/test';
 import { expireCachedTranslation, readCache } from './cache.mjs';
 
-for (const [from, to] of [['legacy', 'core'], ['core', 'legacy']]) {
-  test(`${from} to ${to} preserves valid cached translation`, async ({ page }) => {
+const transitions = [
+  ['baseline: legacy to core', 'legacy', 'core-baseline'],
+  ['baseline: core to legacy', 'core-baseline', 'legacy'],
+  ['aligned: legacy to core', 'legacy', 'core'],
+  ['aligned: core to legacy', 'core', 'legacy'],
+  ['direct: baseline core to aligned core', 'core-baseline', 'core'],
+  ['direct: aligned core to baseline core', 'core', 'core-baseline'],
+];
+for (const [label, from, to] of transitions) {
+  test(`${label} preserves valid cached translation`, async ({ page }) => {
     const requests = [];
+    const scripts = [];
     const errors = [];
+    page.on('request', request => { if (request.resourceType() === 'script') scripts.push(new URL(request.url()).pathname); });
     page.on('pageerror', (error) => errors.push(error.message));
     await page.route('**/translations/cy', async (route) => {
       requests.push({ url: route.request().url(), body: route.request().postDataJSON() });
@@ -28,26 +38,61 @@ for (const [from, to] of [['legacy', 'core'], ['core', 'legacy']]) {
     await page.waitForTimeout(75);
     expect(requests).toHaveLength(1);
     expect(after).toEqual(before);
+    expect(scripts).toContain(`/${from}/main.js`);
+    expect(scripts).toContain(`/${to}/main.js`);
     expect(errors).toEqual([]);
   });
 }
 
-test('core replaces an expired cache row written by published legacy', async ({ page }) => {
+for (const [cohort, core] of [['baseline', 'core-baseline'], ['aligned', 'core']]) {
+  test(`${cohort}: core replaces an expired cache row written by published legacy`, async ({ page }) => {
+    const requests = [];
+    const scripts = [];
+    const errors = [];
+    page.on('request', request => { if (request.resourceType() === 'script') scripts.push(new URL(request.url()).pathname); });
+    page.on('pageerror', (error) => errors.push(error.message));
+    await page.route('**/translations/cy', async (route) => {
+      requests.push(route.request().postDataJSON());
+      await route.fulfill({ json: { translations: { 'Hello world': requests.length === 1 ? 'Helo byd' : 'Helo newydd' } } });
+    });
+    await page.goto('/?app=legacy');
+    await page.getByRole('button', { name: 'Cymraeg' }).click();
+    await expect(page.getByTestId('phrase')).toHaveText('Helo byd');
+    await expect.poll(async () => (await readCache(page)).rows.length).toBe(1);
+    await expireCachedTranslation(page);
+    await page.goto(`/?app=${core}`);
+    await expect(page.getByTestId('phrase')).toHaveText('Helo newydd');
+    await expect.poll(async () => (await readCache(page)).rows.map((row) => row.translation.translation)).toEqual(['Helo newydd']);
+    expect(requests).toEqual([{ phrases: ['Hello world'] }, { phrases: ['Hello world'] }]);
+    expect(scripts).toContain('/legacy/main.js');
+    expect(scripts).toContain(`/${core}/main.js`);
+    expect(errors).toEqual([]);
+  });
+}
+
+test('installed core keeps literal values out of requests and IndexedDB after reload', async ({ page }) => {
   const requests = [];
   const errors = [];
-  page.on('pageerror', (error) => errors.push(error.message));
-  await page.route('**/translations/cy', async (route) => {
+  page.on('pageerror', error => errors.push(error.message));
+  await page.route('**/translations/cy', async route => {
     requests.push(route.request().postDataJSON());
-    await route.fulfill({ json: { translations: { 'Hello world': requests.length === 1 ? 'Helo byd' : 'Helo newydd' } } });
+    await route.fulfill({ json: { translations: { Details: 'Manylion', for: 'am' } } });
   });
-  await page.goto('/?app=legacy');
+  await page.goto('/?app=core&privacy=1');
+  await expect(page.getByTestId('literal-phrase')).toHaveText('Details for Fictional Person: CASE-123 / Fictional Person');
   await page.getByRole('button', { name: 'Cymraeg' }).click();
-  await expect(page.getByTestId('phrase')).toHaveText('Helo byd');
-  await expect.poll(async () => (await readCache(page)).rows.length).toBe(1);
-  await expireCachedTranslation(page);
-  await page.goto('/?app=core');
-  await expect(page.getByTestId('phrase')).toHaveText('Helo newydd');
-  await expect.poll(async () => (await readCache(page)).rows.map((row) => row.translation.translation)).toEqual(['Helo newydd']);
-  expect(requests).toEqual([{ phrases: ['Hello world'] }, { phrases: ['Hello world'] }]);
+  await expect(page.getByTestId('literal-phrase')).toHaveText('Manylion am Fictional Person: CASE-123 / Fictional Person');
+  expect(requests).toEqual([{ phrases: ['Details', 'for'] }]);
+  await expect.poll(async () => (await readCache(page)).rows.length).toBe(2);
+  const before = await readCache(page);
+  expect(before.rows.map(row => row.phrase).sort()).toEqual(['Details', 'for']);
+  expect(JSON.stringify(before)).not.toMatch(/Fictional Person|CASE-123/);
+  await page.getByRole('button', { name: 'English' }).click();
+  await expect(page.getByTestId('literal-phrase')).toHaveText('Details for Fictional Person: CASE-123 / Fictional Person');
+  await page.getByRole('button', { name: 'Cymraeg' }).click();
+  await page.reload();
+  await expect(page.getByTestId('literal-phrase')).toHaveText('Manylion am Fictional Person: CASE-123 / Fictional Person');
+  expect(await readCache(page)).toEqual(before);
+  expect(requests).toHaveLength(1);
   expect(errors).toEqual([]);
 });

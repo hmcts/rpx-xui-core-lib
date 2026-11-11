@@ -17,7 +17,7 @@ describe('RpxTranslationService phrase dictionary keys', () => {
     reply = new Subject();
     post = jasmine.createSpy('post').and.returnValue(reply);
     spyOn(db.translations, 'where').and.returnValue({
-      equals: () => ({ first: () => Promise.resolve(undefined) })
+      equals: () => ({ last: () => Promise.resolve(undefined) })
     } as unknown as ReturnType<typeof db.translations.where>);
     writes = spyOn(db.translations, 'bulkAdd').and.stub();
     service = new RpxTranslationService(

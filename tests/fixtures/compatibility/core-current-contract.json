@@ -1,0 +1,115 @@
+{
+  "scope": "Current checked-in core library and root development cohort; separate from the synthetic prospective host and historical consumer source snapshots.",
+  "packageManager": "yarn@4.18.1",
+  "engine": {
+    "node": ">=24.22.2 <25"
+  },
+  "devCohort": {
+    "@angular/build": "20.3.42",
+    "@angular/cli": "20.3.42",
+    "@angular/common": "20.3.35",
+    "@angular/compiler": "20.3.35",
+    "@angular/compiler-cli": "20.3.35",
+    "@angular/core": "20.3.35",
+    "@angular/forms": "20.3.35",
+    "@angular/platform-browser": "20.3.35",
+    "ng-packagr": "20.3.2",
+    "rxjs": "7.8.2",
+    "typescript": "5.9.3",
+    "zone.js": "0.15.1"
+  },
+  "resolutions": {
+    "eslint@npm:10.14.0/minimatch": "11.0.8",
+    "@eslint/config-array@npm:0.23.5/minimatch": "11.0.8",
+    "@typescript-eslint/typescript-estree@npm:8.72.2/minimatch": "11.0.8",
+    "@npmcli/package-json@npm:7.0.5/glob": "14.0.4",
+    "cacache@npm:20.0.4/glob": "14.0.4",
+    "ignore-walk@npm:8.0.0/minimatch": "11.0.8",
+    "@tufjs/models@npm:4.1.0/minimatch": "11.0.8"
+  },
+  "overrides": {},
+  "libraryPeerDependencies": {
+    "@angular/common": "20.3.35",
+    "@angular/core": "20.3.35",
+    "@angular/forms": "20.3.35",
+    "rxjs": "7.8.2"
+  },
+  "libraryPeerDependenciesMeta": {},
+  "libraryDependencies": {
+    "dexie": "4.4.7",
+    "luxon": "2.5.2"
+  },
+  "libraryResolutions": {},
+  "libraryOverrides": {},
+  "ngPackage": {
+    "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
+    "dest": "../../dist/core-lib",
+    "lib": {
+      "entryFile": "public-api.ts"
+    },
+    "assets": [
+      {
+        "input": "forms/validation",
+        "glob": "LICENCE",
+        "output": "forms/validation"
+      },
+      {
+        "input": "node",
+        "glob": "{LICENCE,package.json}",
+        "output": "node"
+      },
+      {
+        "input": "i18n",
+        "glob": "LICENCE",
+        "output": "i18n"
+      },
+      {
+        "input": "ui/contact-details",
+        "glob": "LICENCE",
+        "output": "ui/contact-details"
+      },
+      {
+        "input": "ui/loading-spinner",
+        "glob": "LICENCE",
+        "output": "ui/loading-spinner"
+      },
+      {
+        "input": "case/models",
+        "glob": "LICENCE",
+        "output": "case/models"
+      },
+      {
+        "input": "case/reference",
+        "glob": "LICENCE",
+        "output": "case/reference"
+      }
+    ],
+    "allowedNonPeerDependencies": [
+      "dexie",
+      "luxon"
+    ]
+  },
+  "yarnConfig": {
+    "nodeLinker": "node-modules",
+    "yarnPath": ".yarn/releases/yarn-4.18.1.cjs",
+    "npmPreapprovedPackages": [
+      "minimatch@11.0.8"
+    ]
+  },
+  "lockedVersions": {
+    "@angular/build": "20.3.42",
+    "@angular/cli": "20.3.42",
+    "@angular/common": "20.3.35",
+    "@angular/compiler": "20.3.35",
+    "@angular/compiler-cli": "20.3.35",
+    "@angular/core": "20.3.35",
+    "@angular/forms": "20.3.35",
+    "@angular/platform-browser": "20.3.35",
+    "ng-packagr": "20.3.2",
+    "rxjs": "7.8.2",
+    "typescript": "5.9.3",
+    "zone.js": "0.15.1",
+    "dexie": "4.4.7",
+    "luxon": "2.5.2"
+  }
+}

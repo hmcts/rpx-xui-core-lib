@@ -22,9 +22,9 @@ describe('RpxTranslationService language changes', () => {
     document.cookie = 'exui-preferred-language=; Max-Age=0; SameSite=Strict;';
     reply = new Subject<TranslationReply>();
     post = jasmine.createSpy('post').and.returnValue(reply);
-    lookup = jasmine.createSpy('first').and.callFake(() => Promise.resolve(undefined));
+    lookup = jasmine.createSpy('last').and.callFake(() => Promise.resolve(undefined));
     spyOn(db.translations, 'where').and.returnValue({
-      equals: () => ({ first: lookup })
+      equals: () => ({ last: lookup })
     } as unknown as ReturnType<typeof db.translations.where>);
     writes = spyOn(db.translations, 'bulkAdd').and.stub();
     subscriptions = [];
