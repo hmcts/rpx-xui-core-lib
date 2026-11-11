@@ -653,3 +653,50 @@
    },
    "directories": {
      "doc": "docs",
+diff --git a/lib/help.js b/lib/help.js
+index d5af566..be8bdb4 100644
+--- a/lib/help.js
++++ b/lib/help.js
+@@ -473,17 +473,32 @@ class Help {
+         return output;
+     }
+     base64ToFile(base64data, filePath, index) {
+-        if (fs_1.default.existsSync(filePath)) {
+-            let newIndex = index !== undefined && index > 0 ? index + 1 : 1;
+-            let filename = filePath.split("/").pop();
+-            let splitName = filename.split(".");
+-            let newFilePath = filePath.replaceAll(filename, splitName[0] + "_" + newIndex + "." + splitName[1]);
+-            return this.base64ToFile(base64data, newFilePath, newIndex);
++        const requestedRoot = path_1.default.resolve(this.execOptions.outputFolder);
++        const relative = path_1.default.relative(requestedRoot, path_1.default.resolve(filePath));
++        if (relative === ".." || relative.startsWith(".." + path_1.default.sep) || path_1.default.isAbsolute(relative)) {
++            throw new Error("Attachment path escapes the report directory");
+         }
+-        else {
+-            let buf = Buffer.from(base64data, "base64");
+-            fs_extra_1.default.outputFileSync(filePath, buf);
+-            return filePath.split("/").pop()?.toString();
++        fs_extra_1.default.ensureDirSync(requestedRoot);
++        const root = fs_1.default.realpathSync(requestedRoot);
++        let directory = root;
++        for (const part of path_1.default.dirname(relative).split(path_1.default.sep).filter(part => part && part !== ".")) {
++            directory = path_1.default.join(directory, part);
++            try { fs_1.default.mkdirSync(directory); } catch (error) { if (error.code !== "EEXIST") throw error; }
++            const stat = fs_1.default.lstatSync(directory);
++            if (stat.isSymbolicLink() || !stat.isDirectory()) throw new Error("Attachment directory must not be a symbolic link");
++        }
++        const parsed = path_1.default.parse(relative);
++        const filename = index ? `${parsed.name}_${index}${parsed.ext}` : parsed.base;
++        const target = path_1.default.join(directory, filename);
++        try {
++            const descriptor = fs_1.default.openSync(target, "wx");
++            try { fs_1.default.writeFileSync(descriptor, Buffer.from(base64data, "base64")); }
++            finally { fs_1.default.closeSync(descriptor); }
++            return filename;
++        } catch (error) {
++            if (error.code !== "EEXIST") throw error;
++            if (fs_1.default.lstatSync(target).isSymbolicLink()) throw new Error("Attachment file must not be a symbolic link");
++            return this.base64ToFile(base64data, filePath, (index || 0) + 1);
+         }
+     }
+     async getPortFree() {

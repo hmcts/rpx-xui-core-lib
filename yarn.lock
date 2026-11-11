@@ -5778,13 +5778,13 @@ __metadata:
 
 "odhin-reports-playwright@file:.yarn/patches/odhin-reports-playwright-1.1.8-core.tgz::locator=%40hmcts%2Frpx-xui-core-lib%40workspace%3A.":
   version: 1.1.8
-  resolution: "odhin-reports-playwright@file:.yarn/patches/odhin-reports-playwright-1.1.8-core.tgz#.yarn/patches/odhin-reports-playwright-1.1.8-core.tgz::hash=b72aa5&locator=%40hmcts%2Frpx-xui-core-lib%40workspace%3A."
+  resolution: "odhin-reports-playwright@file:.yarn/patches/odhin-reports-playwright-1.1.8-core.tgz#.yarn/patches/odhin-reports-playwright-1.1.8-core.tgz::hash=e4e2a7&locator=%40hmcts%2Frpx-xui-core-lib%40workspace%3A."
   dependencies:
     ansi-to-html: "npm:^0.7.2"
     fs-extra: "npm:^11.1.1"
     lodash: "npm:^4.17.21"
     picocolors: "npm:^1.0.0"
-  checksum: 10c0/027decb33904bcc4b2a2bdbc47a50ca3dc7b4983d268d5fff6ca23c1864b0231e4c8025678b8549f4b37983c70381d182f3182389fa680957f38ad842ebe8bbb
+  checksum: 10c0/75cc0a243ad54384833fe45bedc0be779b363bfa714f9978a154c8187b4eaca39c2bc3300631d7edc64214e8a2c58e8d93ba46e396e70659e5b8a924851be6a8
   languageName: node
   linkType: hard
 
