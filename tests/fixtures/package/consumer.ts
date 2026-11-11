@@ -20,5 +20,4 @@ const replacements: Replacements = { name: 'Example' };
 const configuration = new RpxTranslationConfig();
 void [translationConstructor, language, replacements, configuration, RpxTranslationModule, RpxTranslatePipe];
 
-const timeout: RoleGroupSessionTimeout = getUserSessionTimeout(['role'], [{ pattern: 'role', idleModalDisplayTime: 2, totalIdleTime: 10 }]);
-void timeout;
+export const timeout: RoleGroupSessionTimeout = getUserSessionTimeout(['role'], [{ pattern: 'role', idleModalDisplayTime: 2, totalIdleTime: 10 }]);

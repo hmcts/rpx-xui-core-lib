@@ -94,7 +94,14 @@ export const anyRolesMatch = (roles: string[], pattern: string): boolean => {
  * 'pui-finance-manager',
  * ]
  */
-export const sortUserRoles = (roles: string[]) => roles.sort()
+export const sortUserRoles = (roles: string[]) => {
+    roles.sort((left, right) => {
+        const leftText = `${left}`
+        const rightText = `${right}`
+        return leftText < rightText ? -1 : leftText > rightText ? 1 : 0
+    })
+    return roles
+}
 
 export interface RoleGroupSessionTimeout {
     idleModalDisplayTime: number

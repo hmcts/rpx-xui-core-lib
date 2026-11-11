@@ -11,6 +11,17 @@ describe('getUserSessionTimeout', () => {
     expect(getUserSessionTimeout(['admin'], [first, second])).toBe(second);
     const wildcard = { ...second, pattern: '.' };
     expect(getUserSessionTimeout(['other'], [first, wildcard])).toBe(wildcard);
+    const unicodeRoles = ['é', 'a', '😀', 'Z', '\uE000', 'A', 'z', 'a'];
+    const legacyOrder = [...unicodeRoles].sort();
+    getUserSessionTimeout(unicodeRoles, []);
+    expect(unicodeRoles).toEqual(legacyOrder);
+    expect(unicodeRoles).toEqual(['A', 'Z', 'a', 'a', 'z', 'é', '😀', '\uE000']);
+    const mixed = [2, 10, '3', null, undefined] as unknown as string[];
+    const legacyMixed = [...mixed].sort();
+    getUserSessionTimeout(mixed, []);
+    expect(mixed).toEqual(legacyMixed);
+    const invalidRoles = [Symbol('role'), 'x'] as unknown as string[];
+    expect(() => getUserSessionTimeout(invalidRoles, [])).toThrow(TypeError);
   });
 
   test('returns the same mutable fallback for unmatched and empty roles', () => {
