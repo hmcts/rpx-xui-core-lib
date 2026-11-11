@@ -32,6 +32,7 @@
             "buildTarget": "test-host:build:development",
             "host": "127.0.0.1",
             "port": 4307,
+            "proxyConfig": "apps/test-host/local-translations.mjs",
             "prebundle": {
               "exclude": [
                 "@hmcts/rpx-xui-core-lib"

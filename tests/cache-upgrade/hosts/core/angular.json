@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "cli": {
+    "analytics": false
+  },
+  "projects": {
+    "cache-probe": {
+      "projectType": "application",
+      "root": "app",
+      "sourceRoot": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "app/main.ts",
+            "index": "app/index.html",
+            "tsConfig": "app/tsconfig.app.json",
+            "outputPath": "dist",
+            "styles": [],
+            "polyfills": [
+              "zone.js"
+            ],
+            "optimization": false,
+            "sourceMap": true,
+            "preserveSymlinks": true
+          }
+        }
+      }
+    }
+  }
+}
