@@ -29,6 +29,7 @@ test('contact details show optional fields and translate labels', async ({ page 
 
 test('contact links are keyboard reachable and remain accessible through data changes', async ({ page }) => {
   await page.goto('/contact');
+  await expect(page.getByRole('button', { name: 'Show contact' })).toBeVisible();
   await page.keyboard.press('Tab');
   await expect(page.getByRole('button', { name: 'Show contact' })).toBeFocused();
   await page.keyboard.press('Enter');
