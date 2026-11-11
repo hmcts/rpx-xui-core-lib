@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import yaml from 'js-yaml';
 import { test } from 'node:test';
 import * as compatibility from '../scripts/check-compatibility.mjs';
-import { cpSync, mkdtempSync, mkdirSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdtempSync, mkdirSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -15,6 +15,38 @@ import { checkInstallResult, validateManifest, hostDependencies, checkMatrixRepo
 const fixture = (name) => JSON.parse(readFileSync(new URL(`./fixtures/compatibility/${name}`, import.meta.url), 'utf8'));
 const manifest = fixture('prospective-package.json');
 const ledger = fixture('dependency-ledger.json');
+
+test('source identity cannot execute a Git replacement from PATH', (t) => {
+  const directory = mkdtempSync(join(tmpdir(), 'core-untrusted-git-'));
+  t.after(() => rmSync(directory, { recursive: true, force: true }));
+  const marker = join(directory, 'executed');
+  writeFileSync(join(directory, 'git'), '#!/bin/sh\nprintf called > "$POISON_MARKER"\nprintf "poisoned\\n"\n', { mode: 0o755 });
+  const root = fileURLToPath(new URL('../', import.meta.url));
+  const module = new URL('../scripts/evidence-identity.mjs', import.meta.url).href;
+  const result = spawnSync(process.execPath, ['--input-type=module', '-e', `import { currentIdentity } from ${JSON.stringify(module)}; console.log(JSON.stringify(currentIdentity(process.cwd())));`], {
+    cwd: root, encoding: 'utf8',
+    env: { ...process.env, PATH: directory, POISON_MARKER: marker, GITHUB_SHA: '', GITHUB_RUN_ID: '', GITHUB_RUN_ATTEMPT: '' },
+  });
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(existsSync(marker), false, 'A caller-controlled Git executable was run');
+  const actual = spawnSync('/usr/bin/git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' });
+  assert.equal(actual.status, 0, actual.stderr);
+  assert.equal(JSON.parse(result.stdout).sourceSha, actual.stdout.trim());
+});
+
+test('source projections retain canonical UTF-16 dependency ordering', () => {
+  const names = ['é-package', 'package-2', '.dot-package', 'Z-package', 'package-10', 'a-package'];
+  const requested = Object.fromEntries(names.map(name => [name, '1.0.0']));
+  const dependencies = { ...requested, '@angular-devkit/build-angular': '20.3.35', '@angular/cli': '20.3.35', '@angular/compiler': '20.3.35', '@angular/compiler-cli': '20.3.35', typescript: '5.9.3' };
+  const projection = sourceVerification.deriveConsumerProjection(
+    'rpx-xui-manage-organisations', 'source', { dependencies },
+    Object.fromEntries(Object.entries(dependencies).map(([name, version]) => [`${name}@npm:${version}`, { version }])),
+    { yarnPath: '.yarn/releases/yarn-4.18.1.cjs' },
+    { projects: { host: { architect: { build: { builder: '@angular-devkit/build-angular:application' } } } } },
+    { dependencies: requested, peerDependencies: {} }, {}, Buffer.from('manager')
+  );
+  assert.deepEqual(Object.keys(projection.actual_requirements), ['.dot-package', 'Z-package', 'a-package', 'package-10', 'package-2', 'é-package']);
+});
 
 test('the complete prospective manifest classifies each required module without duplicated implementations', () => {
   validateManifest(manifest, ledger);

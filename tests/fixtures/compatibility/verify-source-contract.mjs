@@ -16,14 +16,14 @@ const sources = {
 const hash = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
 export function validateSourceInventory(contract) {
-  assert.deepEqual(Object.keys(contract.sources).sort(), Object.keys(sources).sort(), 'Invalid source repository inventory');
+  assert.deepEqual(Object.keys(contract.sources).sort((left, right) => { if (left < right) return -1; return left > right ? 1 : 0; }), Object.keys(sources).sort((left, right) => { if (left < right) return -1; return left > right ? 1 : 0; }), 'Invalid source repository inventory');
   for (const [id, expected] of Object.entries(sources)) {
     const source = contract.sources[id];
     assert.equal(source.gitHead, expected.sha, `Invalid source SHA: ${id}`);
     assert.equal(source.repository, `hmcts/rpx-xui-${id === 'core' ? 'core-lib' : id.slice('rpx-xui-'.length)}`, `Invalid source repository: ${id}`);
     const paths = ['package.json', 'yarn.lock', '.yarnrc.yml', `.yarn/releases/yarn-${expected.manager}.cjs`, id === 'core' ? 'projects/core-lib/ng-package.json' : 'angular.json'];
     if (id === 'rpx-xui-webapp') paths.push('api/package.json', 'api/webpack-node.config.js');
-    assert.deepEqual(Object.keys(source.files).sort(), paths.sort(), `Invalid source file inventory: ${id}`);
+    assert.deepEqual(Object.keys(source.files).sort((left, right) => { if (left < right) return -1; return left > right ? 1 : 0; }), paths.sort((left, right) => { if (left < right) return -1; return left > right ? 1 : 0; }), `Invalid source file inventory: ${id}`);
   }
 }
 
@@ -56,7 +56,7 @@ export function deriveConsumerProjection(id, sha, manifest, lock, config, angula
   const dependencies = { ...manifest.dependencies, ...manifest.devDependencies };
   const graph = new Set([...Object.keys(prospective.dependencies), ...Object.keys(prospective.peerDependencies), ...Object.keys(providers), 'rpx-xui-translation', '@ngrx/router-store']);
   if (id === 'rpx-xui-webapp') { graph.add('applicationinsights'); graph.add('global-agent'); }
-  const names = [...graph].filter((name) => name in dependencies).sort();
+  const names = [...graph].filter((name) => name in dependencies).sort((left, right) => { if (left < right) return -1; return left > right ? 1 : 0; });
   const toolchain = ['@angular-devkit/build-angular', '@angular/cli', '@angular/compiler', '@angular/compiler-cli', 'typescript'];
   if (id === 'rpx-xui-webapp') toolchain.push('webpack', 'webpack-cli', 'webpack-node-externals', 'ts-loader', 'terser-webpack-plugin');
   const managerPath = config.yarnPath;
@@ -129,7 +129,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   assert.ok(workspace && core && apiManager && process.argv.length === 5, 'Usage: node verify-source-contract.mjs WORKSPACE CORE_REPOSITORY YARN_4_7_BINARY');
   const json = (name) => JSON.parse(readFileSync(new URL(`./${name}`, import.meta.url), 'utf8'));
   const contract = json('source-contract.json');
-  const readSource = (id, sha, path) => execFileSync('git', ['-C', id === 'core' ? core : join(workspace, id), 'show', `${sha}:${path}`], { maxBuffer: 20 * 1024 * 1024, stdio: ['ignore', 'pipe', 'pipe'] });
+  const readSource = (id, sha, path) => execFileSync('/usr/bin/git', ['-C', id === 'core' ? core : join(workspace, id), 'show', `${sha}:${path}`], { maxBuffer: 20 * 1024 * 1024, stdio: ['ignore', 'pipe', 'pipe'] });
   const managerBytes = readFileSync(apiManager);
   verifySourceHashes(contract, readSource, managerBytes);
   verifySourceProjections(contract, json('profiles.json'), json('prospective-package.json'), json('peer-providers.json'), readSource, managerBytes);

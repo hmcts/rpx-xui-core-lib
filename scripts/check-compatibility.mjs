@@ -40,7 +40,7 @@ export function hostDependencies(manifest, profile, peerProviders = {}) {
 export function constructProfiles(profiles, sourceContract) {
   const matrix = [profiles.core, ...profiles.profiles, profiles.standalone_mc_api];
   const required = ['core', 'rpx-xui-webapp', 'rpx-xui-manage-organisations', 'rpx-xui-approve-org', 'mc-api-standalone'];
-  assert.deepEqual(matrix.map((profile) => profile.id).sort(), required.sort(), 'Missing or duplicated required profile');
+  assert.deepEqual(matrix.map((profile) => profile.id).sort((left, right) => { if (left < right) return -1; return left > right ? 1 : 0; }), required.sort((left, right) => { if (left < right) return -1; return left > right ? 1 : 0; }), 'Missing or duplicated required profile');
   for (const profile of matrix) validateHostProfile(profile, sourceContract);
   return matrix;
 }
@@ -58,10 +58,10 @@ const profileFields = {
 export function validateHostProfile(profile, sourceContract) {
   const expectedFields = profileFields[profile.id];
   assert.ok(expectedFields, `Unknown profile: ${profile.id}`);
-  assert.deepEqual(Object.keys(profile).sort(), [...expectedFields].sort(), `Invalid profile fields: ${profile.id}`);
+  assert.deepEqual(Object.keys(profile).sort((left, right) => { if (left < right) return -1; return left > right ? 1 : 0; }), [...expectedFields].sort((left, right) => { if (left < right) return -1; return left > right ? 1 : 0; }), `Invalid profile fields: ${profile.id}`);
   const source = sourceContract.profiles[profile.id];
   assert.ok(source, `Missing source contract: ${profile.id}`);
-  assert.deepEqual(Object.keys(source).sort(), [...expectedFields].sort(), `Invalid source contract fields: ${profile.id}`);
+  assert.deepEqual(Object.keys(source).sort((left, right) => { if (left < right) return -1; return left > right ? 1 : 0; }), [...expectedFields].sort((left, right) => { if (left < right) return -1; return left > right ? 1 : 0; }), `Invalid source contract fields: ${profile.id}`);
   const sourceId = profile.id === 'mc-api-standalone' ? 'rpx-xui-webapp' : profile.id;
   const metadata = sourceContract.sources[sourceId];
   assert.ok(metadata, `Missing source metadata: ${profile.id}`);
@@ -218,7 +218,7 @@ async function runMatrix() {
     const packed = await command('pack-prospective', [coreYarn, 'pack', '--out', candidate], staged);
     assert.equal(packed.status, 0, 'Prospective artifact pack failed');
     report.artifactSha256 = createHash('sha256').update(await readFile(candidate)).digest('hex');
-    const source = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' });
+    const source = spawnSync('/usr/bin/git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' });
     assert.equal(source.status, 0, 'Cannot identify candidate source');
     const expected = { sourceSha: source.stdout.trim(), artifactSha256: report.artifactSha256 };
     validateDecisions(decisions, expected);

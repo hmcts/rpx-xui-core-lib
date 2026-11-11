@@ -187,7 +187,7 @@
         panel.style.transform = `translate(${pointer.clientX - startX}px, ${pointer.clientY - startY}px)`;
         target?.classList.remove('panel-drop-target');
         target = document.elementFromPoint(pointer.clientX, pointer.clientY)?.closest('.report-panel');
-        if (!target || target === panel || target.parentElement !== dashboard) {
+        if (!target || target === panel || !dashboard.isSameNode(target.parentElement)) {
           target = null;
           return;
         }
@@ -396,7 +396,7 @@ if (window.jQuery)
                   .toArray()
                   .flatMap((cell) => (name === 'Tags' ? cell.textContent.split(', ').filter(Boolean) : [cell.textContent.trim()]))
               ),
-            ].sort();
+            ].sort((left, right) => { if (left < right) return -1; return left > right ? 1 : 0; });
       values.filter(Boolean).forEach((value) => select.add(new Option(value, value)));
       const searchPattern = (value) => {
         const escaped = $.fn.dataTable.util.escapeRegex(value);
@@ -571,72 +571,4 @@ document.querySelectorAll('[id^="TabTrace-"]').forEach((panel) => {
     ? 'If authentication or CORS prevents loading, download the trace and select it in the viewer.'
     : 'Download the trace, then select the downloaded file in the viewer.';
   download.parentElement.append(note);
-});
-
-// Perfetto's documented PING/PONG handshake avoids a race while its new tab loads.
-document.querySelectorAll('.perfetto-open').forEach((button) => {
-  button.addEventListener('click', async () => {
-    const origin = 'https://ui.perfetto.dev';
-    const file = button.closest('.perfetto-file');
-    const download = file.querySelector('a[download]');
-    const status = file.querySelector('.perfetto-status');
-    const popup = window.open(origin, '_blank');
-    if (!popup) {
-      status.textContent = 'Allow pop-ups to open Perfetto, or use Download JSON.';
-      return;
-    }
-    button.disabled = true;
-    status.textContent = 'Opening timeline…';
-    const controller = new AbortController();
-    let onMessage;
-    let interval;
-    let timeout;
-    try {
-      let cancellationError;
-      let perfettoReady = false;
-      const ready = new Promise((resolve, reject) => {
-        const cancelOperation = (message) => {
-          cancellationError = new Error(message);
-          controller.abort();
-          reject(cancellationError);
-        };
-        onMessage = (event) => {
-          if (event.origin === origin && event.source === popup && event.data === 'PONG') {
-            perfettoReady = true;
-            resolve();
-          }
-        };
-        window.addEventListener('message', onMessage);
-        interval = setInterval(() => {
-          if (popup.closed) cancelOperation('Perfetto was closed.');
-          else popup.postMessage('PING', origin);
-        }, 250);
-        timeout = setTimeout(
-          () => cancelOperation(perfettoReady ? 'Trace download did not finish.' : 'Perfetto did not respond.'),
-          30_000
-        );
-      });
-      const [buffer] = await Promise.all([
-        fetch(download.href, { signal: controller.signal })
-          .then((response) => {
-            if (!response.ok) throw new Error(`Trace download failed (${response.status}).`);
-            return response.arrayBuffer();
-          })
-          .catch((error) => {
-            throw cancellationError || error;
-          }),
-        ready,
-      ]);
-      popup.postMessage({ perfetto: { buffer, title: download.download, fileName: download.download } }, origin);
-      status.textContent = 'Timeline sent to Perfetto. Continue in the new tab.';
-    } catch (error) {
-      status.textContent = `${error.message} Use Download JSON, then open the file in Perfetto.`;
-    } finally {
-      controller.abort();
-      clearInterval(interval);
-      clearTimeout(timeout);
-      window.removeEventListener('message', onMessage);
-      button.disabled = false;
-    }
-  });
 });

@@ -774,36 +774,6 @@ body#body-content {
   }
 }
 
-.perfetto-file {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 16px;
-  padding: 20px;
-  text-align: left;
-}
-.perfetto-file strong {
-  margin-right: auto;
-}
-.perfetto-file a,
-.perfetto-open {
-  border: 1px solid var(--report-line);
-  border-radius: 8px;
-  padding: 10px 16px;
-  background: var(--report-surface);
-  color: var(--report-accent);
-  font: inherit;
-  cursor: pointer;
-}
-.perfetto-open {
-  background: var(--report-accent);
-  color: var(--report-surface);
-}
-.perfetto-status {
-  flex-basis: 100%;
-  color: var(--report-muted);
-}
-
 .trace-open {
   display: inline-block;
   margin: 8px 12px;
@@ -841,7 +811,7 @@ body#body-content {
   ) {
   font-size: 14px;
 }
-#body-content :is(.test-detail-link, .perfetto-file a, .perfetto-open, .trace-open) {
+#body-content :is(.test-detail-link, .trace-open) {
   font-weight: 600;
 }
 
