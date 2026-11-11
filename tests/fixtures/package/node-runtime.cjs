@@ -1,9 +1,10 @@
 const assert = require('node:assert/strict');
-const { arrayPatternMatch, isStringPatternMatch, getUserSessionTimeout, hasKey, sortArray, AUTH, OAUTH2, OIDC, SESSION } = require('@hmcts/rpx-xui-core-lib/node');
+const { arrayPatternMatch, isStringPatternMatch, getUserSessionTimeout, hasKey, sortArray, AUTH, OAUTH2, OIDC, SESSION, SECURITY_POLICY } = require('@hmcts/rpx-xui-core-lib/node');
 assert.equal(AUTH.EVENT.AUTHENTICATE_SUCCESS, 'auth.authenticate.success');
 assert.equal(OAUTH2.STRATEGY_NAME, 'oauth2');
 assert.equal(OIDC.STRATEGY_NAME, 'oidc');
 assert.equal(SESSION.EVENT.REDIS_CLIENT_READY, 'redisStore.ClientReady');
+assert.deepEqual(SECURITY_POLICY.directives.formAction, ["'none'"]);
 assert.equal(isStringPatternMatch('pui-user-manager', '^pui-'), true);
 assert.equal(arrayPatternMatch(['pui-user-manager'], 'user-manager'), true);
 assert.equal(arrayPatternMatch([], '['), false);

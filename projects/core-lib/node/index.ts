@@ -10,3 +10,4 @@ export { AUTH } from './constants/auth';
 export { OAUTH2 } from './constants/oauth2';
 export { OIDC } from './constants/oidc';
 export { SESSION } from './constants/session';
+export { SECURITY_POLICY } from './constants/securityPolicy';
