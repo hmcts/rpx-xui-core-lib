@@ -1051,7 +1051,7 @@
         }
       ],
       "classification": "dependency",
-      "selection": "4.4.4",
+      "selection": "4.4.7",
       "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
     },
     {

@@ -25,7 +25,7 @@
     "node/package.json"
   ],
   "dependencies": {
-    "dexie": "4.4.4",
+    "dexie": "4.4.7",
     "luxon": "2.5.2"
   }
 }

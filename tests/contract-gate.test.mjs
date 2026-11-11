@@ -21,6 +21,13 @@ const unitNames = [
   'rejects use on a non-group control with a clear error',
 ];
 const nodeNames = [
+  "getUserSessionTimeout matches configuration order and sorts roles in place",
+  "getUserSessionTimeout returns the same mutable fallback for unmatched and empty roles",
+  "getUserSessionTimeout throws for an invalid pattern only when there are roles to examine",
+  "getUserSessionTimeout throws on missing roles or configuration",
+  "hasKey includes inherited keys and rejects absent keys",
+  "sortArray returns the same array sorted in place",
+
   'arrayPatternMatch() matches ["pui-organisation-manager", "pui-user-manager", "pui-finance-manager"] to user-manager expecting true',
   'arrayPatternMatch() matches ["pui-organisation-manager", "pui-user-manager", "pui-finance-manager"] to . expecting true',
   'arrayPatternMatch() matches ["pui-organisation-manager", "pui-user-manager", "pui-finance-manager"] to dwp expecting false',
@@ -121,10 +128,15 @@ const i18nNames = [
 ];
 const i18nJourneys = ['a late Welsh response preserves English and is reused after switching back', 'locale switches reuse persisted translations across English and page reloads', 'a translation HTTP failure returns and caches the original phrase', 'local gallery translates through its own synthetic service', 'local gallery demonstrates a synthetic service failure', 'local translation endpoint validates requests'];
 const cacheJourneys = [
-  'installed core keeps literal values out of requests and IndexedDB after reload',
-  'legacy to core preserves valid cached translation',
-  'core to legacy preserves valid cached translation',
-  'core replaces an expired cache row written by published legacy',
+  "baseline: legacy to core preserves valid cached translation",
+  "baseline: core to legacy preserves valid cached translation",
+  "baseline: core replaces an expired cache row written by published legacy",
+  "aligned: legacy to core preserves valid cached translation",
+  "aligned: core to legacy preserves valid cached translation",
+  "aligned: core replaces an expired cache row written by published legacy",
+  "direct: baseline core to aligned core preserves valid cached translation",
+  "direct: aligned core to baseline core preserves valid cached translation",
+  "installed core keeps literal values out of requests and IndexedDB after reload"
 ];
 const journey = 'keyboard checkbox toggles update real FormGroup validity and submitted errors';
 const validationJourneys = [

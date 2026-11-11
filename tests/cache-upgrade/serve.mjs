@@ -1,5 +1,5 @@
 import {createServer} from 'node:http';
 import {readFile} from 'node:fs/promises';
 import {extname,resolve,sep} from 'node:path';
-const roots={legacy:resolve('.angular/cache-upgrade/legacy/dist/browser'),core:resolve('.angular/cache-upgrade/core/dist/browser')};
+const roots={legacy:resolve('.angular/cache-upgrade/legacy/dist/browser'),core:resolve('.angular/cache-upgrade/core/dist/browser'),'core-baseline':resolve('.angular/cache-upgrade/core-baseline/dist/browser')};
 createServer(async(req,res)=>{try{const pathname=new URL(req.url,'http://127.0.0.1').pathname;let [,name,...rest]=pathname.split('/');if(pathname==='/'){name=new URL(req.url,'http://127.0.0.1').searchParams.get('app');rest=[];}const root=roots[name];if(!root){res.writeHead(404).end();return;}const file=resolve(root,rest.join('/')||'index.html');if(file!==root&&!file.startsWith(root+sep)){res.writeHead(400).end();return;}const body=await readFile(file);res.setHeader('content-type',({'.html':'text/html','.js':'application/javascript','.map':'application/json'})[extname(file)]??'application/octet-stream');res.end(body);}catch{res.writeHead(404).end();}}).listen(4414,'127.0.0.1');

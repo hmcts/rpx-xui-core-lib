@@ -99,7 +99,13 @@
       "isRoleMatch() matches pui-case-manager to dwp-",
       "isRoleMatch() matches pui to .",
       "empty roles do not match, including an invalid unused pattern",
-      "invalid patterns throw SyntaxError for a string or nonempty roles"
+      "invalid patterns throw SyntaxError for a string or nonempty roles",
+      "getUserSessionTimeout matches configuration order and sorts roles in place",
+      "getUserSessionTimeout returns the same mutable fallback for unmatched and empty roles",
+      "getUserSessionTimeout throws for an invalid pattern only when there are roles to examine",
+      "getUserSessionTimeout throws on missing roles or configuration",
+      "hasKey includes inherited keys and rejects absent keys",
+      "sortArray returns the same array sorted in place"
     ]
   },
   "i18nUnit": {
@@ -198,15 +204,35 @@
     "required": [
       {
         "projectName": "chromium",
-        "title": "legacy to core preserves valid cached translation"
+        "title": "baseline: legacy to core preserves valid cached translation"
       },
       {
         "projectName": "chromium",
-        "title": "core to legacy preserves valid cached translation"
+        "title": "baseline: core to legacy preserves valid cached translation"
       },
       {
         "projectName": "chromium",
-        "title": "core replaces an expired cache row written by published legacy"
+        "title": "baseline: core replaces an expired cache row written by published legacy"
+      },
+      {
+        "projectName": "chromium",
+        "title": "aligned: legacy to core preserves valid cached translation"
+      },
+      {
+        "projectName": "chromium",
+        "title": "aligned: core to legacy preserves valid cached translation"
+      },
+      {
+        "projectName": "chromium",
+        "title": "aligned: core replaces an expired cache row written by published legacy"
+      },
+      {
+        "projectName": "chromium",
+        "title": "direct: baseline core to aligned core preserves valid cached translation"
+      },
+      {
+        "projectName": "chromium",
+        "title": "direct: aligned core to baseline core preserves valid cached translation"
       },
       {
         "projectName": "chromium",
