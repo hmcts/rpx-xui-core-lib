@@ -26,7 +26,7 @@ function validateSource(sourceDir) {
   if (!available.length) throw new Error('No browser Odhín report is available');
   for (const lane of available) {
     const html = fs.readFileSync(path.join(sourceDir, lane, 'index.html'), 'utf8');
-    if (!/<body\b/i.test(html) || !html.includes('odhin-feature-summary')) throw new Error(`Incomplete ${lane} Odhín report`);
+    if (!/<body\b/i.test(html) || !html.includes('odhin-feature-summary') || !html.includes('id="core-lib-report-ui" src="./presentation/report.js"')) throw new Error(`Incomplete ${lane} Odhín report`);
     for (const asset of ['presentation/report.css', 'presentation/report.js', 'presentation/feature.css', 'js/chartjs.js']) {
       if (!fs.statSync(path.join(sourceDir, lane, asset)).isFile() || !fs.statSync(path.join(sourceDir, lane, asset)).size) throw new Error(`Missing ${lane} presentation asset`);
     }

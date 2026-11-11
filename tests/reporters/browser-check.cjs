@@ -9,6 +9,10 @@ async function main() {
   try {
     const page = await browser.newPage();
     const errors = [];
+    const unsafeRequests = [];
+    page.on('request', request => {
+      if (request.url().includes('report-injection.invalid')) unsafeRequests.push(request.url());
+    });
     page.on('console', (message) => {
       if (message.type() === 'error') {
         errors.push(`console: ${message.text()}`);
@@ -16,6 +20,8 @@ async function main() {
     });
     page.on('pageerror', (error) => errors.push(error.message));
     await page.goto(pathToFileURL(report).href);
+    assert.equal(await page.locator('#report-injected').count(), 0, 'metadata cannot inject HTML elements');
+    assert.equal(await page.evaluate(() => Boolean(globalThis['__reportInjected'])), false, 'metadata cannot execute scripts');
     await page.locator('.report-metric').first().waitFor();
     assert.equal(await page.locator('.report-metric').count(), 4, 'four dashboard metrics render');
     assert.deepEqual(await page.locator('.report-grid .report-panel .info-box-header').allTextContents().then((titles) => titles.map((title) => title.replace(/[⠿↗]/g, '').trim())),
@@ -50,12 +56,16 @@ async function main() {
     await modal.waitFor();
     assert.equal(await modal.locator('.result-tab-header button.active').textContent().then((text) => text.trim()), 'Steps', 'View steps opens the native test steps tab');
     assert.ok(await modal.locator('.result-tabcontent[style*="display: block"] .stepLine').count(), 'native test steps render');
+    if ((await page.locator('#test-list-table').textContent()).includes('axe label')) {
+      assert.ok((await modal.locator('.stepLine').allTextContents()).some(text => text.includes('</body>') && text.includes('<script')), 'hostile step metadata remains literal text');
+    }
     await modal.locator('[data-bs-dismiss="modal"]').first().click();
     for (const width of [390, 1280]) {
       await page.setViewportSize({ width, height: 900 });
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), `report fits the ${width}px viewport`);
     }
     assert.deepEqual(errors, [], 'report JavaScript has no console or page errors');
+    assert.deepEqual(unsafeRequests, [], 'metadata cannot initiate network requests');
   } finally {
     await browser.close();
   }

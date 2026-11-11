@@ -74,19 +74,19 @@ def main():
                     target = source.joinpath(*parts[1:])
                     target.parent.mkdir(parents=True, exist_ok=True)
                     target.write_bytes(tar.extractfile(member).read())
-            apply_patch(source, reverse=True, patch=UI_PATCH)
             apply_patch(source, reverse=True)
+            apply_patch(source, reverse=True, patch=UI_PATCH)
             validate_upstream(source)
-            apply_patch(source)
             apply_patch(source, patch=UI_PATCH)
+            apply_patch(source)
             if archive(source) != args.verify.read_bytes():
                 raise ValueError('Archive does not match deterministic regeneration')
             print('Verified upstream file hashes, security patch, license and deterministic archive')
         elif args.source and args.output:
             validate_upstream(args.source)
             shutil.copytree(args.source, source)
-            apply_patch(source)
             apply_patch(source, patch=UI_PATCH)
+            apply_patch(source)
             args.output.write_bytes(archive(source))
             print(hashlib.sha256(args.output.read_bytes()).hexdigest())
         else:
