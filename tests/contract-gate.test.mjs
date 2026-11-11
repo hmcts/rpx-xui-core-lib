@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { test } from 'node:test';
@@ -9,6 +9,7 @@ import { checkContracts } from '../scripts/check-contracts.mjs';
 
 const identity = { sourceSha: 'a'.repeat(40), runId: 'fixture', attempt: '1' };
 const candidate = Buffer.from('candidate bytes');
+const jasmineVersion = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).devDependencies['jasmine-core'];
 
 const unitNames = [
   'rejects an empty group with the default minimum',
@@ -166,12 +167,26 @@ function nativeTap(names) {
   return `TAP version 13\n${names.map((name, index) => `ok ${index + 1} - ${name}`).join('\n')}\n1..${names.length}\n# tests ${names.length}\n# suites 0\n# pass ${names.length}\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n`;
 }
 
+function nativeJasmine() {
+  return {
+    schemaVersion: 1, jasmineVersion, complete: true, browserErrors: [],
+    events: [
+      { type: 'jasmineStarted', result: { totalSpecsDefined: i18nNames.length } },
+      ...i18nNames.map((fullName, index) => ({ type: 'specDone', result: {
+        id: `spec${index}`, fullName, status: 'passed', failedExpectations: [], deprecationWarnings: []
+      } })),
+      { type: 'suiteDone', result: { id: 'suite0', fullName: 'fixture suite', status: 'passed', failedExpectations: [], deprecationWarnings: [] } },
+      { type: 'jasmineDone', result: { overallStatus: 'passed', failedExpectations: [], deprecationWarnings: [] } }
+    ]
+  };
+}
+
 /** @returns {Record<string, any>} */
 function reports() {
   return {
     'validation.tap': nativeTap(unitNames),
     'node.tap': nativeTap(nodeNames),
-    'i18n/junit.xml': `<?xml version="1.0"?><testsuite name="Chrome Headless" tests="${i18nNames.length}" errors="0" failures="0">${i18nNames.map((name) => `<testcase name="${name.replaceAll('&', '&amp;').replaceAll('\"', '&quot;')}"/>`).join('')}</testsuite>`,
+    'i18n/jasmine.json': nativeJasmine(),
     'browser.json': { errors: [], suites: [{ specs: [journey, ...validationJourneys, ...i18nJourneys].map((title) => ({ title, tests: [{ projectName: 'chromium', expectedStatus: 'passed', status: 'expected', results: [{ status: 'passed' }] }] })) }] },
     'cache-upgrade-report.json': { errors: [], suites: [{ specs: cacheJourneys.map((title) => ({ title, tests: [{ projectName: 'chromium', expectedStatus: 'passed', status: 'expected', results: [{ status: 'passed' }] }] })) }] },
     'package.json': { schemaVersion: 1, package: { sha256: createHash('sha256').update(candidate).digest('hex'), ...identity, dirty: false }, tests: packageIds.map((id) => ({ id, status: 'passed' })) },
@@ -197,7 +212,7 @@ test('accepts all independently required successful contracts', (t) => {
   assert.equal(checkFixture(t, reports())(), expectedContracts);
 });
 
-for (const file of ['validation.tap', 'browser.json', 'cache-upgrade-report.json', 'package.json', 'node.tap', 'i18n/junit.xml']) {
+for (const file of ['validation.tap', 'browser.json', 'cache-upgrade-report.json', 'package.json', 'node.tap', 'i18n/jasmine.json']) {
   test(`rejects missing ${file} even when other reports pass`, (t) => {
     const files = reports();
     delete files[file];
@@ -423,34 +438,40 @@ test('accepts the real native Node report without transforming it', (t) => {
   assert.equal(checkFixture(t, files)(), expectedContracts);
 });
 
-for (const status of ['failure', 'error', 'skipped']) {
-  test(`rejects a ${status} native Karma outcome`, (t) => {
+for (const status of ['failed', 'pending', 'excluded', 'disabled', 'unknown']) {
+  test(`rejects a ${status} native Jasmine outcome`, (t) => {
     const files = reports();
-    files['i18n/junit.xml'] = files['i18n/junit.xml'].replace('/>', `><${status}/></testcase>`);
-    assert.throws(checkFixture(t, files), /pass|Karma|report/i);
+    files['i18n/jasmine.json'].events[1].result.status = status;
+    assert.throws(checkFixture(t, files), /pass|Jasmine|report/i);
   });
 }
 
-test('rejects a filtered native Karma contract and contradictory totals', (t) => {
-  for (const change of [
-    (xml) => xml.replace(/<testcase [^>]+\/>/, '').replace(`tests="${i18nNames.length}"`, `tests="${i18nNames.length - 1}"`),
-    (xml) => xml.replace(`tests="${i18nNames.length}"`, `tests="${i18nNames.length + 1}"`),
-    (xml) => xml.replace('failures="0"', 'failures="1"'),
-    (xml) => xml.replace('</testsuite>', ''),
+test('rejects incomplete, contradictory, browser, global and suite failures', (t) => {
+  for (const mutate of [
+    report => report.complete = false,
+    report => report.browserErrors.push('page error'),
+    report => report.driverError = 'driver failed',
+    report => report.events.shift(),
+    report => report.events.pop(),
+    report => report.events[0].result.totalSpecsDefined += 1,
+    report => report.events.at(-1).result.overallStatus = 'failed',
+    report => report.events.at(-1).result.failedExpectations.push({ message: 'global afterAll failed' }),
+    report => report.events.at(-2).result.failedExpectations.push({ message: 'suite afterAll failed' }),
+    report => report.events.at(-2).result.status = 'failed',
+    report => report.events[1].result.failedExpectations.push({ message: 'spec failed despite passed status' }),
+    report => report.events[1].result.deprecationWarnings.push({ message: 'deprecated API' })
   ]) {
-    const files = reports();
-    files['i18n/junit.xml'] = change(files['i18n/junit.xml']);
-    assert.throws(checkFixture(t, files), /missing|required|Karma|report/i);
+    const files = reports(); mutate(files['i18n/jasmine.json']);
+    assert.throws(checkFixture(t, files), /Jasmine|report/i);
   }
 });
 
-test('rejects each omitted i18n contract', (t) => {
+test('rejects each omitted i18n contract even when native totals agree', (t) => {
   for (const name of i18nNames) {
-    const files = reports();
-    files['i18n/junit.xml'] = files['i18n/junit.xml']
-      .replace(`<testcase name="${name.replaceAll('&', '&amp;').replaceAll('"', '&quot;')}"/>`, '')
-      .replace(`tests="${i18nNames.length}"`, `tests="${i18nNames.length - 1}"`);
-    assert.throws(checkFixture(t, files), /missing|required|Karma|report/i);
+    const files = reports(); const report = files['i18n/jasmine.json'];
+    report.events = report.events.filter(event => event.type !== 'specDone' || event.result.fullName !== name);
+    report.events[0].result.totalSpecsDefined -= 1;
+    assert.throws(checkFixture(t, files), /missing|required|Jasmine|report/i);
   }
 });
 
@@ -463,17 +484,18 @@ for (const name of cacheJourneys) {
 }
 
 
-test('rejects XML comments, malformed documents, DTDs and unknown structure', (t) => {
+test('rejects malformed JSON, unknown events, duplicate outcomes and wrong runner identity', (t) => {
   for (const mutate of [
-    xml => xml.replace(/(<testcase[^>]*\/>)/g, '<!--$1-->'),
-    xml => xml.replace('</testsuite>', ''),
-    xml => xml.replace('<testsuite', '<!DOCTYPE testsuite><testsuite'),
-    xml => xml.replace('</testsuite>', '<unexpected/></testsuite>'),
-    xml => xml.replace('</testsuite>', '<testcase name="duplicate"/><testcase name="duplicate"/></testsuite>').replace(`tests="${i18nNames.length}"`, `tests="${i18nNames.length + 2}"`),
+    report => report.events[1].type = 'unknown',
+    report => report.jasmineVersion = 'wrong-version',
+    report => { report.events.splice(2, 0, structuredClone(report.events[1])); report.events[0].result.totalSpecsDefined += 1; },
+    report => report.events.push(structuredClone(report.events.at(-1))),
+    report => report.events.unshift(structuredClone(report.events[0]))
   ]) {
-    const files = reports();
-    files['i18n/junit.xml'] = mutate(files['i18n/junit.xml']);
-    assert.throws(checkFixture(t, files));
+    const files = reports(); mutate(files['i18n/jasmine.json']); assert.throws(checkFixture(t, files));
+  }
+  for (const malformed of ['<!-- specDone passed -->', '{"schemaVersion":1,', '{}', 'null', '[]']) {
+    const files = reports(); files['i18n/jasmine.json'] = malformed; assert.throws(checkFixture(t, files));
   }
 });
 
@@ -516,14 +538,11 @@ test('replay CLI requires a complete unique argument set', (t) => {
   }
 });
 
-test('accepts native Karma properties and output with encoded names', (t) => {
+test('native Jasmine metadata cannot inject fake outcome names', (t) => {
   const files = reports();
-  files['i18n/junit.xml'] = files['i18n/junit.xml']
-    .replace('<testcase', '<properties><property name="browser.fullName" value="Chrome"/></properties><testcase')
-    .replace('</testsuite>', '<system-out><![CDATA[<testcase name="not a test"/>]]></system-out><system-err/></testsuite>');
+  files['i18n/jasmine.json'].events[1].result.description = '<testcase name="fake"/><script>specDone</script>';
   assert.equal(checkFixture(t, files)(), expectedContracts);
 });
-
 
 test('identity uses complete CI context and rejects a partial context', () => {
   const module = new URL('../scripts/evidence-identity.mjs', import.meta.url).href;

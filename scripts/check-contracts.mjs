@@ -1,5 +1,4 @@
 import { createHash } from 'node:crypto';
-import sax from 'sax';
 import { currentIdentity } from './evidence-identity.mjs';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -7,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const contracts = JSON.parse(readFileSync(new URL('../tests/contracts.json', import.meta.url), 'utf8'));
+const expectedJasmineVersion = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).devDependencies['jasmine-core'];
 
 function unitOutcomes(text) {
   // This slice has only top-level node:test scenarios; nested suites need a native structured reporter.
@@ -56,35 +56,47 @@ function browserOutcomes(report) {
   return outcomes;
 }
 
-function karmaOutcomes(text) {
-  const parser = sax.parser(true);
-  const stack = [];
+function jasmineOutcomes(text) {
+  const report = JSON.parse(text);
+  const invalid = () => { throw new Error('Malformed or unsuccessful native Jasmine report'); };
+  if (!report || report.schemaVersion !== 1 || report.complete !== true ||
+    report.jasmineVersion !== expectedJasmineVersion || !Array.isArray(report.browserErrors) || report.browserErrors.length ||
+    (report.driverError !== undefined && report.driverError !== null && report.driverError !== '') ||
+    !Array.isArray(report.events) || report.events.length < 3) invalid();
+  const events = report.events;
+  if (events[0]?.type !== 'jasmineStarted' || events.at(-1)?.type !== 'jasmineDone') invalid();
+  const defined = events[0].result?.totalSpecsDefined;
+  if (!Number.isSafeInteger(defined) || defined < 1) invalid();
+  const specs = new Set();
+  const names = new Set();
+  const suites = new Set();
   const outcomes = [];
-  const state = { suite: /** @type {Record<string, string> | undefined} */ (undefined) };
-  let roots = 0;
-  const invalid = () => { throw new Error('Malformed or unsuccessful native Karma report'); };
-  parser.ondoctype = invalid;
-  parser.onerror = invalid;
-  parser.onopentag = ({ name, attributes }) => {
-    const parent = stack.at(-1);
-    if (!parent && name === 'testsuite' && ++roots === 1) state.suite = /** @type {Record<string, string>} */ (attributes);
-    else if (parent === 'testsuite' && name === 'testcase') {
-      if (typeof attributes.name !== 'string' || !attributes.name.trim()) invalid();
-      outcomes.push({ id: attributes.name, passed: true });
-    } else if (!(parent === 'testsuite' && ['properties', 'system-out', 'system-err'].includes(name)) &&
-      !(parent === 'properties' && name === 'property')) invalid();
-    stack.push(name);
-  };
-  parser.onclosetag = () => { stack.pop(); };
-  parser.ontext = (value) => {
-    if (value.trim() && !['system-out', 'system-err'].includes(stack.at(-1))) invalid();
-  };
-  parser.oncdata = parser.ontext;
-  parser.write(text).close();
-  const suite = state.suite;
-  if (roots !== 1 || stack.length || !suite?.name?.startsWith('Chrome Headless') ||
-    !/^(0|[1-9]\d*)$/.test(suite.tests ?? '') || suite.errors !== '0' || suite.failures !== '0' ||
-    !outcomes.length || Number(suite.tests) !== outcomes.length || new Set(outcomes.map(({ id }) => id)).size !== outcomes.length) invalid();
+  for (let index = 0; index < events.length; index += 1) {
+    const event = events[index];
+    const result = event?.result;
+    if (!result || typeof result !== 'object' || Array.isArray(result)) invalid();
+    if (event.type === 'jasmineStarted') {
+      if (index !== 0) invalid();
+      continue;
+    }
+    if (!Array.isArray(result.failedExpectations) || result.failedExpectations.length ||
+      !Array.isArray(result.deprecationWarnings) || result.deprecationWarnings.length) invalid();
+    if (event.type === 'jasmineDone') {
+      if (index !== events.length - 1 || result.overallStatus !== 'passed' || result.incompleteReason) invalid();
+    } else if (event.type === 'specDone' || event.type === 'suiteDone') {
+      if (typeof result.id !== 'string' || !result.id || typeof result.fullName !== 'string' ||
+        !result.fullName.trim() || result.status !== 'passed') invalid();
+      const ids = event.type === 'specDone' ? specs : suites;
+      if (ids.has(result.id)) invalid();
+      ids.add(result.id);
+      if (event.type === 'specDone') {
+        if (names.has(result.fullName)) invalid();
+        names.add(result.fullName);
+        outcomes.push({ id: result.fullName, passed: true });
+      }
+    } else invalid();
+  }
+  if (!suites.size || specs.size !== defined) invalid();
   return outcomes;
 }
 
@@ -102,7 +114,7 @@ function packageOutcomes(report, reportRoot, expectedIdentity) {
 
 export function checkContracts(reportRoot = root, expectedIdentity) {
   if (!expectedIdentity || ['sourceSha', 'runId', 'attempt'].some((key) => typeof expectedIdentity[key] !== 'string' || !expectedIdentity[key])) throw new Error('Expected run identity is required');
-  const parsers = { i18nUnit: karmaOutcomes, nodeUnit: unitOutcomes, unit: unitOutcomes, browser: (text) => browserOutcomes(JSON.parse(text)), cacheBrowser: (text) => browserOutcomes(JSON.parse(text)), package: (text) => packageOutcomes(JSON.parse(text), reportRoot, expectedIdentity) };
+  const parsers = { i18nUnit: jasmineOutcomes, nodeUnit: unitOutcomes, unit: unitOutcomes, browser: (text) => browserOutcomes(JSON.parse(text)), cacheBrowser: (text) => browserOutcomes(JSON.parse(text)), package: (text) => packageOutcomes(JSON.parse(text), reportRoot, expectedIdentity) };
   let count = 0;
   for (const [kind, inventory] of Object.entries(contracts)) {
     const outcomes = parsers[kind](readFileSync(resolve(reportRoot, inventory.report), 'utf8'));
