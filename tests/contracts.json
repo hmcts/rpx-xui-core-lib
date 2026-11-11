@@ -74,6 +74,10 @@
       {
         "projectName": "chromium",
         "title": "case reference formatting preserves links and handles drafts"
+      },
+      {
+        "projectName": "chromium",
+        "title": "contact links are keyboard reachable and remain accessible through data changes"
       }
     ]
   },

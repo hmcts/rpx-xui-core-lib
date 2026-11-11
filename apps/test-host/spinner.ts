@@ -11,6 +11,7 @@ import { LoadingSpinnerModule } from '@hmcts/rpx-xui-core-lib/ui/loading-spinner
       <button type="button" (click)="message = 'Searching'">Custom message</button>
       <button type="button" (click)="translations.language = 'cy'">Cymraeg</button>
       <button type="button" (click)="visible = false">Hide spinner</button>
+      <button type="button" (click)="visible = true">Show spinner</button>
     </div>
     @if (visible) {
       <xuilib-loading-spinner />

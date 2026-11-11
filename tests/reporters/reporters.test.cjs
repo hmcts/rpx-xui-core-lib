@@ -4,23 +4,40 @@ const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 const { test } = require('node:test');
+const { parse } = require('node-html-parser');
 const OdhinReporter = require('odhin-reports-playwright').default;
 const AdaptiveReporter = require('./odhin-adaptive.reporter.cjs');
+const { deriveFeatureName } = require('./odhin-report-enhancer.cjs');
 const { publishReport, slugifyBranch, validateSource } = require('./odhin-site-publisher.cjs');
 
 const root = path.resolve(__dirname, '../..');
 const workspace = fs.mkdtempSync(path.join(os.tmpdir(), 'core-odhin-self-check-'));
 const hostileText = '</body><script id="report-injected">globalThis.__reportInjected=true;fetch("https://report-injection.invalid/")</script><label>axe label</label><input> $& $` $\'';
 
+test('core browser features use the feature directory while preserving other naming rules', () => {
+  const posix = '/work/core/tests/browser/validation/accessibility.spec.mjs';
+  const windows = 'C:\\work\\core\\tests\\browser\\i18n\\translation.spec.mjs';
+  assert.equal(deriveFeatureName(posix), 'validation');
+  assert.equal(deriveFeatureName(windows), 'i18n');
+  assert.equal(deriveFeatureName(posix, ['chromium', posix, 'outer suite', 'nested suite', 'test']), 'nested suite');
+  assert.equal(deriveFeatureName('/work/core/tests/cache-upgrade/cache.spec.mjs'), 'cache-upgrade');
+  assert.equal(deriveFeatureName('/work/playwright_tests_new/integration/test/cases/flow.spec.ts'), 'cases');
+});
+
 for (const failing of [false, true]) {
   test(`real patched reporter renders ${failing ? 'failed' : 'passed'} test evidence`, { timeout: 60_000 }, async () => {
     const fixture = path.join(workspace, failing ? 'failed' : 'passed');
     fs.mkdirSync(fixture);
-    fs.writeFileSync(path.join(fixture, 'report<metadata>.spec.cjs'), `const {test, expect} = require(${JSON.stringify(require.resolve('@playwright/test'))});
+    const validationDir = path.join(fixture, 'tests/browser/validation');
+    const i18nDir = path.join(fixture, 'tests/browser/i18n');
+    fs.mkdirSync(validationDir, { recursive: true });
+    fs.mkdirSync(i18nDir, { recursive: true });
+    fs.writeFileSync(path.join(validationDir, 'report<metadata>.spec.cjs'), `const {test, expect} = require(${JSON.stringify(require.resolve('@playwright/test'))});
 test(${JSON.stringify('representative report case ' + hostileText)}, async ({}, testInfo) => {
   testInfo.annotations.push({ type: ${JSON.stringify(hostileText)}, description: ${JSON.stringify(hostileText)} });
   await test.step(${JSON.stringify('check expected result ' + hostileText)}, async () => { console.log('self-check output'); expect(1, ${JSON.stringify(hostileText)}).toBe(${failing ? 2 : 1}); });
 });\n`);
+    if (!failing) fs.writeFileSync(path.join(i18nDir, 'translation.spec.cjs'), `const {test} = require(${JSON.stringify(require.resolve('@playwright/test'))}); test('translation case', async () => { await test.step(${JSON.stringify('check ' + hostileText)}, async () => {}); });\n`);
     const { reporters } = await import('./config.mjs');
     const productionReporters = reporters('browser').map(([name, options]) => {
       if (!options) return [name];
@@ -42,6 +59,10 @@ test(${JSON.stringify('representative report case ' + hostileText)}, async ({}, 
     assert.ok(html.includes('&lt;script'));
     assert.ok(!html.includes('{{.TestCases}}'), 'replacement tokens in metadata remain literal');
     assert.ok(!html.includes('data:image/'));
+    if (!failing) {
+      const features = parse(html).querySelectorAll('#odhin-feature-summary tbody tr').map((row) => row.querySelector('td')?.text.trim());
+      assert.deepEqual(features.sort(), ['i18n', 'validation']);
+    }
     if (failing) {
       const logs = fs.readdirSync(path.join(fixture, 'report/browser/logs'));
       assert.equal(logs.length, 1);

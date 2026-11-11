@@ -26,6 +26,7 @@ function deriveFeatureName(filePath, titlePath = []) {
   }
 
   const rootedPatterns = [
+    /\/tests\/browser\/([^/]+)\//i,
     /\/playwright_tests_new\/integration\/test\/([^/]+)\//i,
     /\/playwright_tests_new\/E2E\/tests?\/([^/]+)\//i,
     /\/playwright_tests_new\/e2e\/tests?\/([^/]+)\//i,
