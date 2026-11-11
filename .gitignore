@@ -5,6 +5,7 @@ coverage/
 !.yarn/releases/
 !.yarn/patches/
 *.tgz
+!.yarn/patches/odhin-reports-playwright-1.1.8-core.tgz
 .env
 .env.*
 !.env.example

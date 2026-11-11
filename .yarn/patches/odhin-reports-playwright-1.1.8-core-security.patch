@@ -1,0 +1,139 @@
+--- a/package.json
++++ b/package.json
+@@ -36,29 +36,9 @@
+   },
+   "dependencies": {
+     "ansi-to-html": "^0.7.2",
+-    "autoprefixer": "^10.4.14",
+-    "axios": "^0.24.0",
+-    "connect": "^3.7.0",
+-    "dayjs": "^1.11.7",
+-    "expres": "^0.0.5",
+-    "express": "^4.18.2",
+-    "fetch-base64": "^2.1.2",
+     "fs-extra": "^11.1.1",
+-    "html-minifier": "^4.0.0",
+-    "http-server": "^14.1.1",
+-    "js-base64-file": "^2.0.3",
+     "lodash": "^4.17.21",
+-    "node-html-to-image": "^3.3.0",
+-    "open": "^9.1.0",
+-    "picocolors": "^1.0.0",
+-    "portfinder": "^1.0.32",
+-    "prismjs": "^1.29.0",
+-    "serve-static": "^1.15.0",
+-    "static-server": "^2.2.1",
+-    "tunnel": "^0.0.6",
+-    "typescript": "^5.1.6",
+-    "xhr2": "^0.2.1",
+-    "xmlhttprequest": "^1.8.0"
++    "picocolors": "^1.0.0"
+   },
+   "directories": {
+     "doc": "docs",
+--- a/lib/generate.js
++++ b/lib/generate.js
+@@ -8,11 +8,15 @@
+ const help_1 = __importDefault(require("./help"));
+ const picocolors_1 = require("picocolors");
+ const lodash_1 = require("lodash");
+-const child_process_1 = require("child_process");
+-const node_util_1 = __importDefault(require("node:util"));
+ const process_1 = require("process");
+ class Generate {
+     constructor(execOptions) {
++        for (const option of ["startServer", "embedAssets", "embedAttachments"]) {
++            if (execOptions[option] !== undefined && execOptions[option] !== false) {
++                throw new Error("Core Odhín does not support " + option + "; serve external report assets explicitly");
++            }
++            execOptions[option] = false;
++        }
+         // Constants
+         this.OUTPUT_FOLDER = "odhin-reports";
+         this.TITLE = "Odhin Reports";
+@@ -1008,45 +1012,6 @@
+                 console.log(`${(0, picocolors_1.bold)((0, picocolors_1.blue)(`-------------------------------------`))}`);
+             }
+         }
+-        if (this.execOptions.startServer) {
+-            let port = await this.help.getPortFree();
+-            const execPromise = node_util_1.default.promisify(child_process_1.exec);
+-            try {
+-                if (this.execOptions.consoleLog) {
+-                    let text = `Serving HTML report at http://localhost:${port}. Press Ctrl+C to quit.`;
+-                    if (this.execOptions.simpleConsoleLog) {
+-                        console.log(` `);
+-                        console.log(text);
+-                        console.log(` `);
+-                    }
+-                    else {
+-                        console.log(`${(0, picocolors_1.bold)((0, picocolors_1.blue)(` `))}`);
+-                        console.log(`${(0, picocolors_1.bold)((0, picocolors_1.blue)(text))}`);
+-                        console.log(`${(0, picocolors_1.bold)((0, picocolors_1.blue)(` `))}`);
+-                    }
+-                }
+-                const cmd = "node " +
+-                    path_1.default.resolve(__dirname, "") +
+-                    "/server.mjs " +
+-                    port +
+-                    " " +
+-                    this.execOptions.outputFolder +
+-                    " " +
+-                    this.execOptions.indexFilename;
+-                const { stdout, stderr } = await execPromise(cmd);
+-                if (this.execOptions.consoleLog) {
+-                    console.log(stdout);
+-                }
+-                if (this.execOptions.consoleError) {
+-                    console.error(stderr);
+-                }
+-            }
+-            catch (error) {
+-                if (this.execOptions.consoleError) {
+-                    console.error(error);
+-                }
+-            }
+-        }
+     }
+     async onStdOut(chunk) {
+         if (this.execOptions.consoleTestOutput) {
+--- a/lib/help.js
++++ b/lib/help.js
+@@ -7,7 +7,6 @@
+ const path_1 = __importDefault(require("path"));
+ const fs_1 = __importDefault(require("fs"));
+ const fs_extra_1 = __importDefault(require("fs-extra"));
+-const portfinder_1 = __importDefault(require("portfinder"));
+ class Help {
+     constructor(execOptions) {
+         this.ansiRegex = new RegExp("[\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:[a-zA-Z\\d]*(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]*)*)?\\u0007)|(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TZcf-ntqry=><~]))", "g");
+@@ -488,15 +487,7 @@
+         }
+     }
+     async getPortFree() {
+-        await portfinder_1.default
+-            .getPortPromise()
+-            .then((port) => {
+-            this.freePort = port;
+-        })
+-            .catch((err) => {
+-            throw err;
+-        });
+-        return this.freePort.toString();
++        throw new Error("Core Odhín does not start a report server");
+     }
+     isValidURL(url) {
+         const urlPattern = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i;
+--- a/lib/server.mjs
++++ b/lib/server.mjs
+@@ -1,8 +1 @@
+-import express from 'express';
+-import serveStatic from 'serve-static';
+-import openBrowser from 'open';
+-
+-const app = express();
+-app.use(serveStatic(process.argv[3], { index: [process.argv[4]] }));
+-app.listen(process.argv[2]);
+-openBrowser('http://localhost:'+process.argv[2]);
+\ No newline at end of file
++throw new Error("Core Odhín does not start a report server; serve the report directory explicitly");

@@ -1,0 +1,117 @@
+name: Publish Odhín reports
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: core-lib-odhin-publication
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    # PR code runs only in read-only CI; publishing consumes default-branch runs.
+    if: >-
+      ${{ github.event.workflow_run.head_repository.full_name == github.repository &&
+      github.event.workflow_run.head_branch == github.event.repository.default_branch &&
+      (github.event.workflow_run.event == 'push' || github.event.workflow_run.event == 'workflow_dispatch') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      actions: read
+      contents: write
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+      - name: Locate this run's report artifact
+        id: artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_RUN: ${{ github.event.workflow_run.id }}
+        run: |
+          set -euo pipefail
+          artifact_id=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN/artifacts" --jq '.artifacts[] | select(.name == "core-lib-odhin" and .expired == false) | .id')
+          if [ -n "$artifact_id" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            printf 'No browser Odhín artifact was generated. [Open source run](%s/actions/runs/%s).\n' "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" "$SOURCE_RUN" >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Download report from the exact source run
+        if: steps.artifact.outputs.available == 'true'
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: core-lib-odhin
+          path: odhin-source
+          github-token: ${{ github.token }}
+          run-id: ${{ github.event.workflow_run.id }}
+      - name: Archive report with branch and run navigation
+        if: steps.artifact.outputs.available == 'true'
+        id: report
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          SOURCE_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          SOURCE_SHA: ${{ github.event.workflow_run.head_sha }}
+          SOURCE_RUN: ${{ github.event.workflow_run.id }}
+          SOURCE_ATTEMPT: ${{ github.event.workflow_run.run_attempt }}
+        run: |
+          set -euo pipefail
+          node tests/reporters/odhin-site-publisher.cjs --check-source odhin-source
+          report_repo_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git"
+          auth_header="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GITHUB_TOKEN" | base64 | tr -d '\n')"
+          echo "::add-mask::$auth_header"
+          if git -c http.extraheader="$auth_header" ls-remote --exit-code --heads "$report_repo_url" odhin-reports >/dev/null 2>&1; then
+            git -c http.extraheader="$auth_header" clone --branch odhin-reports --single-branch "$report_repo_url" odhin-site
+          else
+            git init -b odhin-reports odhin-site
+            git -C odhin-site remote add origin "$report_repo_url"
+          fi
+          node tests/reporters/odhin-site-publisher.cjs \
+            --source odhin-source --site odhin-site --branch "$SOURCE_BRANCH" \
+            --run-key "$SOURCE_RUN-attempt-$SOURCE_ATTEMPT" --run-id "$SOURCE_RUN" \
+            --run-attempt "$SOURCE_ATTEMPT" --sha "$SOURCE_SHA" \
+            --run-url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN/attempts/$SOURCE_ATTEMPT" > report-paths.json
+          node -e 'const p = require("./report-paths.json"); console.log(`branch_path=${p.branchUrlPath}\nrun_path=${p.runUrlPath}`)' >> "$GITHUB_OUTPUT"
+          git -C odhin-site config user.name github-actions[bot]
+          git -C odhin-site config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git -C odhin-site add .nojekyll index.html reports
+          if ! git -C odhin-site diff --cached --quiet; then
+            git -C odhin-site commit -m "ci: publish Odhín run $SOURCE_RUN attempt $SOURCE_ATTEMPT"
+            git -c http.extraheader="$auth_header" -C odhin-site push origin HEAD:odhin-reports
+          fi
+      - name: Configure existing GitHub Pages
+        if: steps.artifact.outputs.available == 'true'
+        uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
+      - name: Upload report site
+        if: steps.artifact.outputs.available == 'true'
+        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
+        with:
+          path: odhin-site
+      - name: Deploy report site
+        if: steps.artifact.outputs.available == 'true'
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
+      - name: Link published reports
+        if: steps.artifact.outputs.available == 'true'
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+          BRANCH_PATH: ${{ steps.report.outputs.branch_path }}
+          RUN_PATH: ${{ steps.report.outputs.run_path }}
+          SOURCE_RUN: ${{ github.event.workflow_run.id }}
+        run: |
+          printf '[Report index](%s) · [Branch history](%s%s) · [This run](%s%s)\n\n' "$PAGE_URL" "$PAGE_URL" "$BRANCH_PATH" "$PAGE_URL" "$RUN_PATH" >> "$GITHUB_STEP_SUMMARY"
+          printf '[Source run and downloadable evidence](%s/actions/runs/%s)\n' "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" "$SOURCE_RUN" >> "$GITHUB_STEP_SUMMARY"

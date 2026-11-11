@@ -22,13 +22,14 @@
     "test:package": "node tests/package/verify-package.mjs",
     "test:contracts": "node --test tests/contract-gate.test.mjs",
     "check:contracts": "node scripts/check-contracts.mjs",
-    "test:all": "rm -rf test-results && mkdir -p test-results && yarn build && yarn lint && yarn test:contracts && yarn test:compatibility:contracts && yarn test && yarn test:node && yarn test:i18n && yarn test:package && yarn build:host && yarn test:browser:support && yarn test:browser && yarn test:cache-upgrade && yarn check:contracts",
+    "test:all": "rm -rf test-results && mkdir -p test-results && yarn build && yarn lint && yarn test:reporters && yarn test:contracts && yarn test:compatibility:contracts && yarn test && yarn test:node && yarn test:i18n && yarn test:package && yarn build:host && yarn test:browser:support && yarn test:browser && yarn test:cache-upgrade && yarn check:contracts",
     "test:node": "rm -rf test-results/node-unit test-results/node-jest.json && tsc -p tests/node/tsconfig.json && jest --config tests/node/jest.config.mjs --runInBand --json --outputFile=test-results/node-jest.json",
     "test:i18n": "rm -rf test-results/i18n && ng test translation-tests --watch=false",
     "test:compatibility": "node scripts/check-compatibility.mjs",
     "test:compatibility:contracts": "node --test tests/compatibility.test.mjs",
     "test:browser:support": "node --test tests/browser-cache.test.mjs tests/cache-upgrade-support.test.mjs",
-    "test:cache-upgrade": "node scripts/build-cache-upgrade.mjs && playwright test -c tests/cache-upgrade/playwright.config.mjs"
+    "test:cache-upgrade": "node scripts/build-cache-upgrade.mjs && playwright test -c tests/cache-upgrade/playwright.config.mjs",
+    "test:reporters": "node --test tests/reporters/*.test.cjs"
   },
   "devDependencies": {
     "@angular/build": "20.3.42",
@@ -58,6 +59,8 @@
     "karma-junit-reporter": "2.0.1",
     "luxon": "2.5.2",
     "ng-packagr": "20.3.2",
+    "node-html-parser": "7.0.1",
+    "odhin-reports-playwright": "file:.yarn/patches/odhin-reports-playwright-1.1.8-core.tgz",
     "playwright-core": "1.65.0",
     "rpx-xui-translation": "1.2.18",
     "rxjs": "7.8.2",
