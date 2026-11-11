@@ -30,8 +30,8 @@
     "test:browser:support": "node --test tests/browser-cache.test.mjs"
   },
   "devDependencies": {
-    "@angular/build": "20.3.32",
-    "@angular/cli": "20.3.32",
+    "@angular/build": "20.3.42",
+    "@angular/cli": "20.3.42",
     "@angular/common": "20.3.31",
     "@angular/compiler": "20.3.31",
     "@angular/compiler-cli": "20.3.31",
