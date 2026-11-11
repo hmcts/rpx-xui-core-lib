@@ -64,25 +64,25 @@ function publishReport({ sourceDir, siteDir, rawBranch, runKey, runId, runAttemp
   if (fs.existsSync(runDir)) {
     const existing = JSON.parse(fs.readFileSync(path.join(runDir, 'odhin-run.json'), 'utf8'));
     if (!Object.entries(identity).every(([key, value]) => existing[key] === value)) throw new Error('An existing report run differs and must not be overwritten');
-    return paths;
-  }
-  fs.mkdirSync(path.dirname(runDir), { recursive: true });
-  const staging = fs.mkdtempSync(path.join(path.dirname(runDir), '.odhin-'));
-  try {
-    for (const lane of available) fs.cpSync(path.join(source, lane), path.join(staging, lane), { recursive: true });
-    const links = available.map(lane => `<li><a href="./${lane}/index.html">${lane === 'browser' ? 'Gallery browser' : 'Installed package and cache'} report</a></li>`).join('');
-    fs.writeFileSync(path.join(staging, 'index.html'), page('RPX XUI Core Odhín reports', `<p>Branch: ${escapeHtml(rawBranch)} · commit: ${escapeHtml(sha)}</p><ul>${links}</ul><p><a href="${escapeHtml(runUrl)}">Open this Actions run and all validation evidence</a></p><p>Only generated browser reports are listed. The Actions result determines whether all required checks passed.</p>`));
-    fs.mkdirSync(path.join(staging, 'presentation'), { recursive: true });
-    fs.copyFileSync(path.join(__dirname, 'presentation/report-navigation.css'), path.join(staging, 'presentation/report-navigation.css'));
-    for (const lane of available) {
-      const file = path.join(staging, lane, 'index.html');
-      const nav = '<link rel="stylesheet" href="../presentation/report-navigation.css"><nav class="odhin-report-navigation" aria-label="Odhín reports"><a href="../index.html">All reports for this run</a><a href="../../../index.html">Branch history</a><a href="../../../../../index.html">Report index</a></nav>';
-      fs.writeFileSync(file, fs.readFileSync(file, 'utf8').replace(/<body\b[^>]*>/i, match => match + nav));
+  } else {
+    fs.mkdirSync(path.dirname(runDir), { recursive: true });
+    const staging = fs.mkdtempSync(path.join(path.dirname(runDir), '.odhin-'));
+    try {
+      for (const lane of available) fs.cpSync(path.join(source, lane), path.join(staging, lane), { recursive: true });
+      const links = available.map(lane => `<li><a href="./${lane}/index.html">${lane === 'browser' ? 'Gallery browser' : 'Installed package and cache'} report</a></li>`).join('');
+      fs.writeFileSync(path.join(staging, 'index.html'), page('RPX XUI Core Odhín reports', `<p>Branch: ${escapeHtml(rawBranch)} · commit: ${escapeHtml(sha)}</p><ul>${links}</ul><p><a href="${escapeHtml(runUrl)}">Open this Actions run and all validation evidence</a></p><p>Only generated browser reports are listed. The Actions result determines whether all required checks passed.</p>`));
+      fs.mkdirSync(path.join(staging, 'presentation'), { recursive: true });
+      fs.copyFileSync(path.join(__dirname, 'presentation/report-navigation.css'), path.join(staging, 'presentation/report-navigation.css'));
+      for (const lane of available) {
+        const file = path.join(staging, lane, 'index.html');
+        const nav = '<link rel="stylesheet" href="../presentation/report-navigation.css"><nav class="odhin-report-navigation" aria-label="Odhín reports"><a href="../index.html">All reports for this run</a><a href="../../../index.html">Branch history</a><a href="../../../../../index.html">Report index</a></nav>';
+        fs.writeFileSync(file, fs.readFileSync(file, 'utf8').replace(/<body\b[^>]*>/i, match => match + nav));
+      }
+      fs.writeFileSync(path.join(staging, 'odhin-run.json'), JSON.stringify({ ...identity, available }, null, 2));
+      fs.renameSync(staging, runDir);
+    } finally {
+      fs.rmSync(staging, { recursive: true, force: true });
     }
-    fs.writeFileSync(path.join(staging, 'odhin-run.json'), JSON.stringify({ ...identity, available }, null, 2));
-    fs.renameSync(staging, runDir);
-  } finally {
-    fs.rmSync(staging, { recursive: true, force: true });
   }
   const runs = fs.readdirSync(path.join(branchDir, 'runs')).filter(name => fs.existsSync(path.join(branchDir, 'runs', name, 'odhin-run.json'))).map(name => JSON.parse(fs.readFileSync(path.join(branchDir, 'runs', name, 'odhin-run.json'), 'utf8'))).sort((a, b) => Number(b.runId) - Number(a.runId) || Number(b.runAttempt) - Number(a.runAttempt));
   fs.writeFileSync(path.join(branchDir, 'index.html'), page(`Odhín · ${rawBranch}`, `<p><a href="./runs/${runs[0].runKey}/index.html">Latest run</a></p><ul>${runs.map(run => `<li><a href="./runs/${run.runKey}/index.html">Run ${run.runKey}</a> · ${escapeHtml(run.sha)}</li>`).join('')}</ul>`));

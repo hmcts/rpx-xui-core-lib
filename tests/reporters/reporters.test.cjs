@@ -89,9 +89,31 @@ test('publisher escapes branch metadata, preserves history, and rejects traversa
   assert.ok(branchHtml.indexOf('101-attempt-1') < branchHtml.indexOf('100-attempt-1'));
   assert.throws(() => publishReport({ ...options, runKey: '../escape' }), /Invalid run identifier/);
   assert.throws(() => publishReport({ ...options, runUrl: 'javascript:alert(1)' }), /HTTPS/);
+  const cleanSourceDir = path.join(workspace, 'publisher-clean-source');
+  fs.cpSync(sourceDir, cleanSourceDir, { recursive: true });
   fs.symlinkSync(siteDir, path.join(sourceDir, 'linked-site'));
   assert.throws(() => validateSource(sourceDir), /symbolic links/);
-  assert.throws(() => publishReport({ ...options, sourceDir: path.join(workspace, 'passed/report'), siteDir: sourceDir, runKey: '102-attempt-1', runId: '102' }), /symbolic links/);
+  assert.throws(() => publishReport({ ...options, sourceDir: cleanSourceDir, siteDir: sourceDir, runKey: '102-attempt-1', runId: '102' }), /symbolic links/);
+});
+
+test('publisher retries incomplete index creation after a run is archived', () => {
+  const sourceDir = path.join(workspace, 'retry-source');
+  const siteDir = path.join(workspace, 'retry-site');
+  const browser = path.join(sourceDir, 'browser');
+  fs.mkdirSync(path.join(browser, 'presentation'), { recursive: true });
+  fs.mkdirSync(path.join(browser, 'js'));
+  fs.writeFileSync(path.join(browser, 'index.html'), '<html><body><div id="odhin-feature-summary"></div><script id="core-lib-report-ui" src="./presentation/report.js"></script></body></html>');
+  for (const asset of ['presentation/report.css', 'presentation/report.js', 'presentation/feature.css', 'js/chartjs.js']) fs.writeFileSync(path.join(browser, asset), 'asset');
+  const options = { sourceDir, siteDir, rawBranch: 'master', runKey: '1-attempt-1', runId: '1', runAttempt: '1', sha: 'abc', runUrl: 'https://github.com/hmcts/rpx-xui-core-lib/actions/runs/1' };
+  const invalidRun = path.join(siteDir, 'reports/master/runs/0-attempt-1');
+  fs.mkdirSync(invalidRun, { recursive: true });
+  fs.writeFileSync(path.join(invalidRun, 'odhin-run.json'), '{');
+  assert.throws(() => publishReport(options), SyntaxError);
+  assert.ok(fs.existsSync(path.join(siteDir, 'reports/master/runs/1-attempt-1/odhin-run.json')));
+  fs.rmSync(invalidRun, { recursive: true });
+  const result = publishReport(options);
+  assert.match(fs.readFileSync(path.join(siteDir, result.branchUrlPath, 'index.html'), 'utf8'), /1-attempt-1/);
+  assert.match(fs.readFileSync(path.join(siteDir, 'index.html'), 'utf8'), /reports\/master/);
 });
 
 test('steps without source locations escape metadata and preserve literal text', () => {
