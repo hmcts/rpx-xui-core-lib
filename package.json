@@ -22,7 +22,7 @@
     "test:package": "node tests/package/verify-package.mjs",
     "test:contracts": "node --test tests/contract-gate.test.mjs",
     "check:contracts": "node scripts/check-contracts.mjs",
-    "test:all": "rm -rf test-results && mkdir -p test-results && yarn build && yarn lint && yarn test:reporters && yarn test:contracts && yarn test:compatibility:contracts && yarn test && yarn test:node && yarn test:i18n && yarn test:package && yarn build:host && yarn test:browser:support && yarn test:browser && yarn test:cache-upgrade && yarn check:contracts && node tests/reporters/odhin-site-publisher.cjs --check-source test-results/odhin",
+    "test:all": "rm -rf test-results && mkdir -p test-results && yarn build && yarn lint && yarn test:reporters && yarn test:contracts && yarn test:compatibility:contracts && yarn test && yarn test:node && yarn test:i18n && yarn test:package && yarn build:host && yarn test:browser:support && yarn test:browser && yarn test:cache-upgrade && yarn check:contracts && node tests/reporters/odhin-site-publisher.cjs --check-source test-results/odhin && node tests/reporters/browser-check.cjs test-results/odhin/browser/index.html && node tests/reporters/browser-check.cjs test-results/odhin/cache-upgrade/index.html",
     "test:node": "rm -rf test-results/node-unit test-results/node.tap && tsc -p tests/node/tsconfig.json && node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=tap --test-reporter-destination=test-results/node.tap test-results/node-unit/tests/node/*.spec.js",
     "test:i18n": "node --test tests/i18n-imports.test.mjs && rm -rf test-results/i18n && playwright test -c tests/i18n/playwright.config.mjs",
     "test:compatibility": "node scripts/check-compatibility.mjs",
