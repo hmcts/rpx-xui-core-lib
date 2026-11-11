@@ -162,11 +162,15 @@ const packageIds = [
 
 const expectedContracts = unitNames.length + nodeNames.length + i18nNames.length + i18nJourneys.length + cacheJourneys.length + validationJourneys.length + packageIds.length + 1;
 
+function nativeTap(names) {
+  return `TAP version 13\n${names.map((name, index) => `ok ${index + 1} - ${name}`).join('\n')}\n1..${names.length}\n# tests ${names.length}\n# suites 0\n# pass ${names.length}\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n`;
+}
+
 /** @returns {Record<string, any>} */
 function reports() {
   return {
-    'validation.tap': `TAP version 13\n${unitNames.map((name, index) => `ok ${index + 1} - ${name}`).join('\n')}\n1..${unitNames.length}\n# tests ${unitNames.length}\n# pass ${unitNames.length}\n# fail 0\n`,
-    'node-jest.json': { success: true, numTotalTests: nodeNames.length, numPassedTests: nodeNames.length, numFailedTests: 0, numPendingTests: 0, numTodoTests: 0, testResults: [{ status: 'passed', assertionResults: nodeNames.map((fullName) => ({ fullName, status: 'passed' })) }] },
+    'validation.tap': nativeTap(unitNames),
+    'node.tap': nativeTap(nodeNames),
     'i18n/junit.xml': `<?xml version="1.0"?><testsuite name="Chrome Headless" tests="${i18nNames.length}" errors="0" failures="0">${i18nNames.map((name) => `<testcase name="${name.replaceAll('&', '&amp;').replaceAll('\"', '&quot;')}"/>`).join('')}</testsuite>`,
     'browser.json': { errors: [], suites: [{ specs: [journey, ...validationJourneys, ...i18nJourneys].map((title) => ({ title, tests: [{ projectName: 'chromium', expectedStatus: 'passed', status: 'expected', results: [{ status: 'passed' }] }] })) }] },
     'cache-upgrade-report.json': { errors: [], suites: [{ specs: cacheJourneys.map((title) => ({ title, tests: [{ projectName: 'chromium', expectedStatus: 'passed', status: 'expected', results: [{ status: 'passed' }] }] })) }] },
@@ -193,7 +197,7 @@ test('accepts all independently required successful contracts', (t) => {
   assert.equal(checkFixture(t, reports())(), expectedContracts);
 });
 
-for (const file of ['validation.tap', 'browser.json', 'cache-upgrade-report.json', 'package.json', 'node-jest.json', 'i18n/junit.xml']) {
+for (const file of ['validation.tap', 'browser.json', 'cache-upgrade-report.json', 'package.json', 'node.tap', 'i18n/junit.xml']) {
   test(`rejects missing ${file} even when other reports pass`, (t) => {
     const files = reports();
     delete files[file];
@@ -209,7 +213,7 @@ for (const file of ['validation.tap', 'browser.json', 'cache-upgrade-report.json
 for (const name of unitNames) {
   test(`rejects a filtered-out unit contract: ${name}`, (t) => {
     const files = reports();
-    files['validation.tap'] = `TAP version 13\n${unitNames.filter((value) => value !== name).map((value, index) => `ok ${index + 1} - ${value}`).join('\n')}\n1..${unitNames.length - 1}\n`;
+    files['validation.tap'] = nativeTap(unitNames.filter((value) => value !== name));
     assert.throws(checkFixture(t, files), /missing|required/i);
   });
 }
@@ -230,7 +234,7 @@ test('rejects truncated TAP without a complete plan', (t) => {
 
 test('rejects duplicate native outcomes', (t) => {
   const files = reports();
-  files['validation.tap'] = files['validation.tap'].replace(`1..${unitNames.length}`, `ok ${unitNames.length + 1} - ${unitNames[0]}\n1..${unitNames.length + 1}`);
+  files['validation.tap'] = nativeTap([...unitNames, unitNames[0]]);
   assert.throws(checkFixture(t, files), /duplicate|once/i);
 });
 
@@ -360,29 +364,63 @@ test('rejects an absent or empty browser project name', (t) => {
 });
 
 for (const name of nodeNames) {
-  test(`rejects a filtered-out Jest contract: ${name}`, (t) => {
+  test(`rejects a filtered-out Node contract: ${name}`, (t) => {
     const files = reports();
-    files['node-jest.json'].testResults[0].assertionResults = files['node-jest.json'].testResults[0].assertionResults.filter((result) => result.fullName !== name);
-    files['node-jest.json'].numTotalTests -= 1;
-    files['node-jest.json'].numPassedTests -= 1;
+    files['node.tap'] = nativeTap(nodeNames.filter((value) => value !== name));
     assert.throws(checkFixture(t, files), /missing|required/i);
   });
 }
 
-for (const status of ['failed', 'pending', 'todo']) {
-  test(`rejects a ${status} Jest contract`, (t) => {
+for (const outcome of ['not ok', 'SKIP', 'TODO']) {
+  test(`rejects a ${outcome} native Node outcome`, (t) => {
     const files = reports();
-    files['node-jest.json'].testResults[0].assertionResults[0].status = status;
-    assert.throws(checkFixture(t, files), /pass|Jest|contract/i);
+    files['node.tap'] = files['node.tap'].replace(`ok 1 - ${nodeNames[0]}`,
+      outcome === 'not ok' ? `not ok 1 - ${nodeNames[0]}` : `ok 1 - ${nodeNames[0]} # ${outcome}`);
+    assert.throws(checkFixture(t, files), /pass|TAP|contract/i);
   });
 }
 
-test('rejects Jest failure summaries and interrupted suites', (t) => {
-  for (const change of [{ success: false }, { numFailedTests: 1 }, { numPendingTests: 1 }, { numTodoTests: 1 }, { numTotalTests: 10 }, { testResults: [] }]) {
+test('rejects inconsistent or interrupted native Node reports', (t) => {
+  for (const change of [
+    (tap) => tap.replace(`1..${nodeNames.length}\n`, ''),
+    (tap) => tap.replace(`1..${nodeNames.length}`, `1..${nodeNames.length + 1}`),
+    (tap) => tap.replace(`# tests ${nodeNames.length}`, `# tests ${nodeNames.length + 1}`),
+    (tap) => tap.replace(`# pass ${nodeNames.length}`, `# pass ${nodeNames.length - 1}`),
+    (tap) => tap.replace('# fail 0', '# fail 1'),
+    (tap) => tap.replace('# cancelled 0', '# cancelled 1'),
+    (tap) => tap.replace('# skipped 0', '# skipped 1'),
+    (tap) => tap.replace('# todo 0', '# todo 1'),
+    (tap) => tap.replace('# suites 0', '# suites 1'),
+    (tap) => tap.replace('# fail 0\n', ''),
+    (tap) => `${tap}# pass ${nodeNames.length}\n`,
+    (tap) => `${tap}Bail out! interrupted\n`,
+    (tap) => tap.replace('ok 2 - ', 'ok 1 - '),
+    (tap) => tap.replace('ok 2 - ', '    ok 2 - '),
+  ]) {
     const files = reports();
-    Object.assign(files['node-jest.json'], change);
-    assert.throws(checkFixture(t, files), /Jest|pass|report|missing|required/i);
+    files['node.tap'] = change(files['node.tap']);
+    assert.throws(checkFixture(t, files), /TAP|pass|report|missing|required/i);
   }
+});
+
+test('rejects duplicate native Node contracts even with consistent totals', (t) => {
+  const files = reports();
+  files['node.tap'] = nativeTap([...nodeNames, nodeNames[0]]);
+  assert.throws(checkFixture(t, files), /duplicate|once/i);
+});
+
+test('accepts the real native Node report without transforming it', (t) => {
+  const directory = mkdtempSync(join(tmpdir(), 'core-native-node-'));
+  t.after(() => rmSync(directory, { recursive: true, force: true }));
+  const file = join(directory, 'native.test.mjs');
+  writeFileSync(file, `import { test } from 'node:test';\nfor (const name of ${JSON.stringify(nodeNames)}) test(name, () => {});`);
+  const env = { ...process.env };
+  delete env.NODE_TEST_CONTEXT;
+  const result = spawnSync(process.execPath, ['--test', '--test-reporter=tap', file], { encoding: 'utf8', env });
+  assert.equal(result.status, 0, result.stderr);
+  const files = reports();
+  files['node.tap'] = result.stdout;
+  assert.equal(checkFixture(t, files)(), expectedContracts);
 });
 
 for (const status of ['failure', 'error', 'skipped']) {

@@ -15,8 +15,16 @@ function unitOutcomes(text) {
     return { id, passed: match[1] === 'ok' && !directive, number: Number(match[2]) };
   });
   const plans = [...text.matchAll(/^1\.\.(\d+)$/gm)];
+  const summaries = ['tests', 'pass', 'fail', 'suites', 'cancelled', 'skipped', 'todo'];
+  const inconsistentSummary = summaries.some((name) => {
+    const matches = [...text.matchAll(new RegExp(`^# ${name} (\\d+)$`, 'gm'))];
+    const expected = name === 'tests' || name === 'pass' ? outcomes.length : 0;
+    return matches.length > 1 || (['tests', 'pass', 'fail'].includes(name) && matches.length !== 1) ||
+      (matches.length === 1 && Number(matches[0][1]) !== expected);
+  });
   if (
-    !text.startsWith('TAP version 13\n') || plans.length !== 1 ||
+    !text.startsWith('TAP version 13\n') || plans.length !== 1 || inconsistentSummary ||
+    /^\s+(?:ok|not ok) \d+/m.test(text) ||
     Number(plans[0][1]) !== outcomes.length || !outcomes.length ||
     outcomes.some((entry, index) => entry.number !== index + 1) ||
     /^Bail out!/m.test(text) || /^# (?:fail|cancelled|skipped|todo) [1-9]\d*$/m.test(text)
@@ -80,17 +88,6 @@ function karmaOutcomes(text) {
   return outcomes;
 }
 
-function jestOutcomes(report) {
-  if (report.success !== true || !Array.isArray(report.testResults) || !report.testResults.length ||
-    report.numFailedTests !== 0 || report.numPendingTests !== 0 || report.numTodoTests !== 0 ||
-    report.testResults.some((suite) => suite.status !== 'passed' || !Array.isArray(suite.assertionResults) || !suite.assertionResults.length)) {
-    throw new Error('Incomplete or unsuccessful native Jest report');
-  }
-  const outcomes = report.testResults.flatMap((suite) => suite.assertionResults.map((test) => ({ id: test.fullName, passed: test.status === 'passed' })));
-  if (report.numTotalTests !== outcomes.length || report.numPassedTests !== outcomes.length) throw new Error('Inconsistent native Jest totals');
-  return outcomes;
-}
-
 function packageOutcomes(report, reportRoot, expectedIdentity) {
   const pkg = report.package;
   if (report.schemaVersion !== 1 || !/^[a-f0-9]{64}$/.test(pkg?.sha256 ?? '') ||
@@ -105,7 +102,7 @@ function packageOutcomes(report, reportRoot, expectedIdentity) {
 
 export function checkContracts(reportRoot = root, expectedIdentity) {
   if (!expectedIdentity || ['sourceSha', 'runId', 'attempt'].some((key) => typeof expectedIdentity[key] !== 'string' || !expectedIdentity[key])) throw new Error('Expected run identity is required');
-  const parsers = { i18nUnit: karmaOutcomes, nodeUnit: (text) => jestOutcomes(JSON.parse(text)), unit: unitOutcomes, browser: (text) => browserOutcomes(JSON.parse(text)), cacheBrowser: (text) => browserOutcomes(JSON.parse(text)), package: (text) => packageOutcomes(JSON.parse(text), reportRoot, expectedIdentity) };
+  const parsers = { i18nUnit: karmaOutcomes, nodeUnit: unitOutcomes, unit: unitOutcomes, browser: (text) => browserOutcomes(JSON.parse(text)), cacheBrowser: (text) => browserOutcomes(JSON.parse(text)), package: (text) => packageOutcomes(JSON.parse(text), reportRoot, expectedIdentity) };
   let count = 0;
   for (const [kind, inventory] of Object.entries(contracts)) {
     const outcomes = parsers[kind](readFileSync(resolve(reportRoot, inventory.report), 'utf8'));

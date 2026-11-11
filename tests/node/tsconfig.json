@@ -6,7 +6,7 @@
     "strict": true,
     "skipLibCheck": false,
     "types": [
-      "jest"
+      "node"
     ],
     "rootDir": "../..",
     "outDir": "../../test-results/node-unit"

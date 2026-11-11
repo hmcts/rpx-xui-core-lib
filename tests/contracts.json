@@ -90,7 +90,7 @@
     ]
   },
   "nodeUnit": {
-    "report": "test-results/node-jest.json",
+    "report": "test-results/node.tap",
     "required": [
       "arrayPatternMatch() matches [\"pui-organisation-manager\", \"pui-user-manager\", \"pui-finance-manager\"] to user-manager expecting true",
       "arrayPatternMatch() matches [\"pui-organisation-manager\", \"pui-user-manager\", \"pui-finance-manager\"] to . expecting true",

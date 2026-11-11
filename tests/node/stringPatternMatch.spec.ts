@@ -1,13 +1,14 @@
-import { isStringPatternMatch } from '../../projects/core-lib/node'
+import { test } from 'node:test';
+import { strict as assert } from 'node:assert';
+import { isStringPatternMatch } from '../../projects/core-lib/node';
 
-describe('isRoleMatch()', () => {
-    test.each`
-        string                | pattern    | expectedResult
-        ${'pui-case-manager'} | ${'case-'} | ${true}
-        ${'pui-case-manager'} | ${'pui'}   | ${true}
-        ${'pui-case-manager'} | ${'dwp-'}  | ${false}
-        ${'pui'}              | ${'.'}     | ${true}
-    `('matches $string to $pattern', ({ string, pattern, expectedResult }) => {
-        expect(isStringPatternMatch(string, pattern)).toBe(expectedResult)
-    })
-})
+for (const [role, pattern, expected] of [
+  ['pui-case-manager', 'case-', true],
+  ['pui-case-manager', 'pui', true],
+  ['pui-case-manager', 'dwp-', false],
+  ['pui', '.', true],
+] as const) {
+  test(`isRoleMatch() matches ${role} to ${pattern}`, () => {
+    assert.equal(isStringPatternMatch(role, pattern), expected);
+  });
+}
