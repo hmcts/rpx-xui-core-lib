@@ -1,0 +1,25 @@
+import { spawnSync } from 'node:child_process';
+import { readFileSync, writeFileSync, renameSync, rmSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { currentIdentity } from './evidence-identity.mjs';
+import { makeLaneReceipt } from './evidence-lane-receipts.mjs';
+import { sourceSnapshot } from './evidence-source-snapshot.mjs';
+
+const [lane, command] = process.argv.slice(2);
+const inventory = JSON.parse(readFileSync(new URL('../tests/contracts.json', import.meta.url), 'utf8'));
+const allowed = { unit: 'test', nodeUnit: 'test:node', i18nUnit: 'test:i18n', package: 'test:package', browser: 'test:browser', cacheBrowser: 'test:cache-upgrade' };
+if (!process.env.CORE_EVIDENCE_RUN_ID || allowed[lane] !== command) throw new Error('Evidence lane must run under the supervised full suite');
+const identity = currentIdentity(process.cwd());
+const run = JSON.parse(readFileSync('test-results/lane-provenance/run.json', 'utf8'));
+if (['sourceSha', 'runId', 'attempt', 'invocationId'].some(key => run[key] !== identity[key])) throw new Error('Evidence run identity mismatch');
+if (sourceSnapshot(process.cwd()) !== run.sourceSnapshot) throw new Error('Source changed before evidence lane');
+const destination = resolve('test-results/lane-provenance', `${lane}.json`);
+rmSync(destination, { force: true });
+rmSync(resolve(inventory[lane].report), { force: true });
+const result = spawnSync(process.execPath, ['.yarn/releases/yarn-4.18.1.cjs', command], { stdio: 'inherit' });
+if (result.error) throw result.error;
+if (result.status !== 0) process.exit(result.status ?? 1);
+if (sourceSnapshot(process.cwd()) !== run.sourceSnapshot) throw new Error('Source changed during evidence lane');
+const receipt = makeLaneReceipt(lane, { ...identity, sourceSnapshot: run.sourceSnapshot }, readFileSync(resolve(inventory[lane].report)), true);
+writeFileSync(`${destination}.tmp`, JSON.stringify(receipt) + '\n');
+renameSync(`${destination}.tmp`, destination);

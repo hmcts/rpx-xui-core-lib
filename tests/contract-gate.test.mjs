@@ -6,8 +6,11 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { test } from 'node:test';
 import { checkContracts } from '../scripts/check-contracts.mjs';
+import { makeLaneReceipt } from '../scripts/evidence-lane-receipts.mjs';
 
-const identity = { sourceSha: 'a'.repeat(40), runId: 'fixture', attempt: '1' };
+const contractInventory = JSON.parse(readFileSync(new URL('./contracts.json', import.meta.url), 'utf8'));
+
+const identity = { sourceSha: 'a'.repeat(40), runId: 'fixture', attempt: '1', invocationId: '12345678-1234-4123-8123-123456789abc', sourceSnapshot: 'b'.repeat(64) };
 const candidate = Buffer.from('candidate bytes');
 const jasmineVersion = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).devDependencies['jasmine-core'];
 
@@ -206,6 +209,15 @@ function checkFixture(t, files) {
   }
   mkdirSync(join(root, 'test-results/package-evidence'), { recursive: true });
   writeFileSync(join(root, 'test-results/package-evidence/candidate.tgz'), candidate);
+  mkdirSync(join(root, 'test-results/lane-provenance'));
+  writeFileSync(join(root, 'test-results/lane-provenance/run.json'), JSON.stringify(identity));
+  for (const [lane, config] of Object.entries(contractInventory)) {
+    const name = config.report.replace(/^test-results\//, '');
+    if (Object.hasOwn(files, name)) {
+      const raw = readFileSync(join(root, config.report));
+      writeFileSync(join(root, 'test-results/lane-provenance', `${lane}.json`), JSON.stringify(makeLaneReceipt(lane, identity, raw, true)));
+    }
+  }
   const check = (expected = identity) => checkContracts(root, expected);
   check.root = root;
   return check;
@@ -569,8 +581,22 @@ test('identity uses complete CI context and rejects a partial context', () => {
   const complete = spawnSync(process.execPath, ['--input-type=module', '-e', script], { env, encoding: 'utf8' });
   assert.equal(complete.status, 0, complete.stderr);
   const value = JSON.parse(complete.stdout);
-  assert.deepEqual({ sourceSha: value.sourceSha, runId: value.runId, attempt: value.attempt }, identity);
+  assert.deepEqual({ sourceSha: value.sourceSha, runId: value.runId, attempt: value.attempt }, { sourceSha: identity.sourceSha, runId: identity.runId, attempt: identity.attempt });
   assert.equal(typeof value.dirty, 'boolean');
   delete env.GITHUB_RUN_ATTEMPT;
   assert.notEqual(spawnSync(process.execPath, ['--input-type=module', '-e', script], { env }).status, 0);
+});
+
+test('the contract gate rejects report bytes rebound from another run', (t) => {
+  const check = checkFixture(t, reports());
+  assert.equal(check(), expectedContracts);
+  const report = join(check.root, 'test-results/node.tap');
+  const original = readFileSync(report, 'utf8');
+  writeFileSync(report, original + '# another run\n');
+  assert.throws(check, /Unbound nodeUnit/);
+  writeFileSync(report, original);
+  assert.equal(check(), expectedContracts);
+  const runPath = join(check.root, 'test-results/lane-provenance/run.json');
+  writeFileSync(runPath, JSON.stringify({ ...identity, invocationId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa' }));
+  assert.throws(check, /Unbound/);
 });

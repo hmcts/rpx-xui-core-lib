@@ -20,9 +20,9 @@
     "start": "node scripts/dev.mjs",
     "test:browser": "playwright test -c tests/browser/playwright.config.mjs",
     "test:package": "node tests/package/verify-package.mjs",
-    "test:contracts": "node --test tests/contract-gate.test.mjs",
+    "test:contracts": "node --test tests/contract-gate.test.mjs tests/evidence-source-snapshot.test.mjs tests/evidence-lane.test.mjs",
     "check:contracts": "node scripts/check-contracts.mjs",
-    "test:all": "rm -rf test-results && mkdir -p test-results && yarn build && yarn lint && yarn test:tooling-security && yarn test:reporters && yarn test:contracts && yarn test:compatibility:contracts && yarn test && yarn test:node && yarn test:i18n && yarn test:package && yarn build:host && yarn test:browser:support && PW_ODHIN_LIGHTWEIGHT=false yarn test:browser && PW_ODHIN_LIGHTWEIGHT=false yarn test:cache-upgrade && yarn check:contracts && node tests/reporters/odhin-site-publisher.cjs --check-source test-results/odhin && node tests/reporters/browser-check.cjs test-results/odhin/browser/index.html && node tests/reporters/browser-check.cjs test-results/odhin/cache-upgrade/index.html",
+    "test:all": "node scripts/run-evidence-suite.mjs",
     "test:node": "rm -rf test-results/node-unit test-results/node.tap && tsc -p tests/node/tsconfig.json && node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=tap --test-reporter-destination=test-results/node.tap test-results/node-unit/tests/node/*.spec.js",
     "test:i18n": "node --test tests/i18n-imports.test.mjs && rm -rf test-results/i18n && playwright test -c tests/i18n/playwright.config.mjs",
     "test:compatibility": "node scripts/check-compatibility.mjs",
@@ -30,7 +30,8 @@
     "test:browser:support": "node --test tests/browser-cache.test.mjs tests/cache-upgrade-support.test.mjs tests/local-translations.test.mjs",
     "test:cache-upgrade": "node --test tests/cache-upgrade-source-mismatch.test.mjs && node scripts/build-cache-upgrade.mjs && playwright test -c tests/cache-upgrade/playwright.config.mjs",
     "test:reporters": "node --test tests/reporters/*.test.cjs",
-    "test:tooling-security": "node --test tests/tooling-security.test.mjs"
+    "test:tooling-security": "node --test tests/tooling-security.test.mjs",
+    "test:all:sequence": "yarn build && yarn lint && yarn test:tooling-security && yarn test:reporters && yarn test:contracts && yarn test:compatibility:contracts && node scripts/run-evidence-lane.mjs unit test && node scripts/run-evidence-lane.mjs nodeUnit test:node && node scripts/run-evidence-lane.mjs i18nUnit test:i18n && node scripts/run-evidence-lane.mjs package test:package && yarn build:host && yarn test:browser:support && PW_ODHIN_LIGHTWEIGHT=false node scripts/run-evidence-lane.mjs browser test:browser && PW_ODHIN_LIGHTWEIGHT=false node scripts/run-evidence-lane.mjs cacheBrowser test:cache-upgrade && yarn check:contracts && node tests/reporters/odhin-site-publisher.cjs --check-source test-results/odhin && node tests/reporters/browser-check.cjs test-results/odhin/browser/index.html && node tests/reporters/browser-check.cjs test-results/odhin/cache-upgrade/index.html"
   },
   "devDependencies": {
     "@angular/build": "20.3.42",

@@ -41,7 +41,7 @@ For individual checks, run `yarn build` before `yarn lint`, `yarn test`, `yarn t
 
 ## Replaying contract evidence
 
-`check:contracts` validates native Node TAP and complete Jasmine event receipts, rejecting browser, suite and global failures, verifies the actual `test-results/package-evidence/candidate.tgz` digest, and compares the package report with independently supplied source/run identity. The package report records `sourceSha`, `runId`, `attempt` and whether the source tree was dirty. CI uses `GITHUB_SHA`, `GITHUB_RUN_ID` and `GITHUB_RUN_ATTEMPT`; a local run uses the current commit and `local`/`1`. Keep the local diff with any dirty-tree evidence.
+`check:contracts` validates native Node TAP and complete Jasmine event receipts, rejecting browser, suite and global failures, verifies the actual `test-results/package-evidence/candidate.tgz` digest, and checks each required lane's receipt against its report bytes and run identity. CI retains `GITHUB_SHA`, `GITHUB_RUN_ID` and `GITHUB_RUN_ATTEMPT`; a local full run uses the current commit, a newly generated UUID as its run ID, and attempt `1`. Each full run also has a distinct invocation UUID. Keep the local diff with any dirty-tree evidence.
 
 For downloaded evidence, use the complete replay argument set, taking the expected values from the trusted workflow run rather than its report:
 
@@ -49,7 +49,7 @@ For downloaded evidence, use the complete replay argument set, taking the expect
 yarn check:contracts --report-root /path/to/extracted-evidence --source-sha <tested-commit> --run-id <workflow-run-id> --attempt <run-attempt>
 ```
 
-Missing, partial or mismatched identity and missing or altered candidate bytes fail the gate. Preserve `test-results/` intact, including the candidate and native reports; `test:all` deletes prior reports. Historical receipts without identity fields need the matching historical gate. Digest consistency does not authenticate the source or prove independently copied reports belong to one run; verify the workflow/artifact identity separately.
+Missing, partial or mismatched identity, lane receipts, report bytes or candidate bytes fail the gate. Preserve `test-results/` intact, including the candidate, native reports and lane receipts; `test:all` deletes prior reports. Historical receipts without lane provenance require their matching historical gate; there is no fallback to unbound receipts. The source snapshot covers tracked and nonignored working-tree files at the recorded checks, not ignored files or installed dependencies, and cannot detect a transient edit restored between checks. The self-asserted digests and identifiers correlate evidence but do not authenticate its producer or run; verify workflow and artifact provenance separately.
 
 ## Package layout and initial build cohort
 
