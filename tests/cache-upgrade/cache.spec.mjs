@@ -1,10 +1,20 @@
 import { test, expect } from '@playwright/test';
 import { expireCachedTranslation, readCache } from './cache.mjs';
 
-for (const [from, to] of [['legacy', 'core'], ['core', 'legacy']]) {
-  test(`${from} to ${to} preserves valid cached translation`, async ({ page }) => {
+const transitions = [
+  ['baseline: legacy to core', 'legacy', 'core-baseline'],
+  ['baseline: core to legacy', 'core-baseline', 'legacy'],
+  ['aligned: legacy to core', 'legacy', 'core'],
+  ['aligned: core to legacy', 'core', 'legacy'],
+  ['direct: baseline core to aligned core', 'core-baseline', 'core'],
+  ['direct: aligned core to baseline core', 'core', 'core-baseline'],
+];
+for (const [label, from, to] of transitions) {
+  test(`${label} preserves valid cached translation`, async ({ page }) => {
     const requests = [];
+    const scripts = [];
     const errors = [];
+    page.on('request', request => { if (request.resourceType() === 'script') scripts.push(new URL(request.url()).pathname); });
     page.on('pageerror', (error) => errors.push(error.message));
     await page.route('**/translations/cy', async (route) => {
       requests.push({ url: route.request().url(), body: route.request().postDataJSON() });
@@ -28,13 +38,18 @@ for (const [from, to] of [['legacy', 'core'], ['core', 'legacy']]) {
     await page.waitForTimeout(75);
     expect(requests).toHaveLength(1);
     expect(after).toEqual(before);
+    expect(scripts).toContain(`/${from}/main.js`);
+    expect(scripts).toContain(`/${to}/main.js`);
     expect(errors).toEqual([]);
   });
 }
 
-test('core replaces an expired cache row written by published legacy', async ({ page }) => {
+for (const [cohort, core] of [['baseline', 'core-baseline'], ['aligned', 'core']]) {
+test(`${cohort}: core replaces an expired cache row written by published legacy`, async ({ page }) => {
   const requests = [];
+  const scripts = [];
   const errors = [];
+  page.on('request', request => { if (request.resourceType() === 'script') scripts.push(new URL(request.url()).pathname); });
   page.on('pageerror', (error) => errors.push(error.message));
   await page.route('**/translations/cy', async (route) => {
     requests.push(route.request().postDataJSON());
@@ -45,9 +60,13 @@ test('core replaces an expired cache row written by published legacy', async ({ 
   await expect(page.getByTestId('phrase')).toHaveText('Helo byd');
   await expect.poll(async () => (await readCache(page)).rows.length).toBe(1);
   await expireCachedTranslation(page);
-  await page.goto('/?app=core');
+  await page.goto(`/?app=${core}`);
   await expect(page.getByTestId('phrase')).toHaveText('Helo newydd');
   await expect.poll(async () => (await readCache(page)).rows.map((row) => row.translation.translation)).toEqual(['Helo newydd']);
   expect(requests).toEqual([{ phrases: ['Hello world'] }, { phrases: ['Hello world'] }]);
+  expect(scripts).toContain('/legacy/main.js');
+  expect(scripts).toContain(`/${core}/main.js`);
   expect(errors).toEqual([]);
 });
+
+}

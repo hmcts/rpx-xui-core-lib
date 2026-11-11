@@ -28,7 +28,7 @@
     "test:compatibility": "node scripts/check-compatibility.mjs",
     "test:compatibility:contracts": "node --test tests/compatibility.test.mjs",
     "test:browser:support": "node --test tests/browser-cache.test.mjs tests/cache-upgrade-support.test.mjs",
-    "test:cache-upgrade": "node scripts/build-cache-upgrade.mjs && playwright test -c tests/cache-upgrade/playwright.config.mjs"
+    "test:cache-upgrade": "node --test tests/cache-upgrade-source-mismatch.test.mjs && node scripts/build-cache-upgrade.mjs && playwright test -c tests/cache-upgrade/playwright.config.mjs"
   },
   "devDependencies": {
     "@angular/build": "20.3.32",
@@ -45,7 +45,8 @@
     "@types/jest": "30.0.0",
     "@types/luxon": "2.4.0",
     "@types/node": "24.10.1",
-    "dexie": "4.4.4",
+    "dexie": "4.4.7",
+    "dexie-baseline": "npm:dexie@4.4.4",
     "esbuild": "0.28.1",
     "eslint": "9.39.1",
     "jasmine-core": "5.1.2",

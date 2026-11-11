@@ -181,15 +181,35 @@
     "required": [
       {
         "projectName": "chromium",
-        "title": "legacy to core preserves valid cached translation"
+        "title": "baseline: legacy to core preserves valid cached translation"
       },
       {
         "projectName": "chromium",
-        "title": "core to legacy preserves valid cached translation"
+        "title": "baseline: core to legacy preserves valid cached translation"
       },
       {
         "projectName": "chromium",
-        "title": "core replaces an expired cache row written by published legacy"
+        "title": "baseline: core replaces an expired cache row written by published legacy"
+      },
+      {
+        "projectName": "chromium",
+        "title": "aligned: legacy to core preserves valid cached translation"
+      },
+      {
+        "projectName": "chromium",
+        "title": "aligned: core to legacy preserves valid cached translation"
+      },
+      {
+        "projectName": "chromium",
+        "title": "aligned: core replaces an expired cache row written by published legacy"
+      },
+      {
+        "projectName": "chromium",
+        "title": "direct: baseline core to aligned core preserves valid cached translation"
+      },
+      {
+        "projectName": "chromium",
+        "title": "direct: aligned core to baseline core preserves valid cached translation"
       }
     ]
   }

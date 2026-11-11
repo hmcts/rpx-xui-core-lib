@@ -27,35 +27,73 @@ assert.equal(JSON.parse(readFileSync(join(legacyPackage, 'package.json'), 'utf8'
 assert.equal(sha256(join(legacyPackage, 'fesm2022/rpx-xui-translation.mjs')), '3d0c32d072a80768b8e638e930e531f5474a0520cd8f7fd5a9750b3754c5dbdf');
 const coreDexie = JSON.parse(readFileSync(resolve('node_modules/dexie/package.json'), 'utf8')).version;
 const legacyDexie = createRequire(join(legacyPackage, 'package.json'))('dexie/package.json').version;
-assert.equal(coreDexie, '4.4.4');
+assert.equal(coreDexie, '4.4.7');
 assert.equal(legacyDexie, '4.4.7');
+const baselineDexie = JSON.parse(readFileSync(resolve('node_modules/dexie-baseline/package.json'), 'utf8')).version;
+assert.equal(baselineDexie, '4.4.4');
+// Rebuild the identical core source with the historical Dexie dependency in an isolated stage.
+const baselineStage = join(output, 'baseline-source');
+mkdirSync(join(baselineStage, 'projects'), { recursive: true });
+cpSync(join(root, 'projects/core-lib'), join(baselineStage, 'projects/core-lib'), { recursive: true });
+mkdirSync(join(baselineStage, 'scripts'));
+copyFileSync(join(root, 'scripts/build.mjs'), join(baselineStage, 'scripts/build.mjs'));
+for (const file of ['tsconfig.json', 'LICENCE']) copyFileSync(join(root, file), join(baselineStage, file));
+const baselineManifest = join(baselineStage, 'projects/core-lib/package.json');
+const baselinePackage = JSON.parse(readFileSync(baselineManifest, 'utf8'));
+assert.equal(baselinePackage.dependencies.dexie, coreDexie);
+baselinePackage.dependencies.dexie = baselineDexie;
+writeFileSync(baselineManifest, JSON.stringify(baselinePackage, null, 2));
+mkdirSync(join(baselineStage, 'node_modules/@hmcts'), { recursive: true });
+for (const entry of readdirSync(join(root, 'node_modules'))) {
+  if (entry === '@hmcts') continue;
+  symlinkSync(join(root, 'node_modules', entry), join(baselineStage, 'node_modules', entry));
+}
+run(process.execPath, [join(baselineStage, 'scripts/build.mjs')], baselineStage);
+const baselineCorePackage = join(baselineStage, 'dist/core-lib');
+assert.equal(JSON.parse(readFileSync(join(baselineCorePackage, 'package.json'), 'utf8')).dependencies.dexie, '4.4.4');
+assert.equal(sha256(join(baselineCorePackage, 'fesm2022/hmcts-rpx-xui-core-lib-i18n.mjs')), sha256(join(corePackage, 'fesm2022/hmcts-rpx-xui-core-lib-i18n.mjs')), 'Baseline source must match packaged core');
 const sources = {};
-for (const name of ['legacy', 'core']) {
+for (const name of ['legacy', 'core', 'core-baseline']) {
   const host = join(output, name);
-  cpSync(join(root, 'tests/cache-upgrade/hosts', name), host, { recursive: true });
+  const sourceHost = name === 'core-baseline' ? 'core' : name;
+  cpSync(join(root, 'tests/cache-upgrade/hosts', sourceHost), host, { recursive: true });
+  if (name === 'core-baseline') {
+    const index = join(host, 'app/index.html');
+    const html = readFileSync(index, 'utf8');
+    assert.ok(html.includes('href="/core/"'));
+    writeFileSync(index, html.replace('href="/core/"', 'href="/core-baseline/"'));
+  }
   const modules = join(host, 'node_modules');
   mkdirSync(modules);
   for (const entry of readdirSync(join(root, 'node_modules'))) {
-    if (entry === '@hmcts') continue;
+    if (entry === '@hmcts' || (name === 'core-baseline' && entry === 'dexie')) continue;
     symlinkSync(join(root, 'node_modules', entry), join(modules, entry));
   }
+  if (name === 'core-baseline') symlinkSync(join(root, 'node_modules/dexie-baseline'), join(modules, 'dexie'));
   mkdirSync(join(modules, '@hmcts'));
-  symlinkSync(corePackage, join(modules, '@hmcts/rpx-xui-core-lib'));
+  symlinkSync(name === 'core-baseline' ? baselineCorePackage : corePackage, join(modules, '@hmcts/rpx-xui-core-lib'));
   run(process.execPath, [join(root, 'node_modules/@angular/cli/bin/ng.js'), 'build'], host);
   const map = JSON.parse(readFileSync(join(host, 'dist/browser/main.js.map'), 'utf8'));
   sources[name] = map.sources;
   const old = map.sources.some((/** @type {string} */ source) => source.includes('rpx-xui-translation/fesm2022/rpx-xui-translation.mjs'));
   const current = map.sources.some((/** @type {string} */ source) => source.includes('rpx-xui-core-lib/fesm2022/hmcts-rpx-xui-core-lib-i18n.mjs'));
   assert.equal(old, name === 'legacy', `${name} bundle legacy implementation`);
-  assert.equal(current, name === 'core', `${name} bundle core implementation`);
+  assert.equal(current, name !== 'legacy', `${name} bundle core implementation`);
+  const dexieIndex = map.sources.findIndex((/** @type {string} */ source) => source.endsWith('dexie/dist/dexie.js'));
+  assert.notEqual(dexieIndex, -1, `${name} bundle includes Dexie`);
+  const expectedDexie = name === 'core-baseline' ? baselineDexie : '4.4.7';
+  assert.ok(map.sourcesContent[dexieIndex].includes(`DEXIE_VERSION = '${expectedDexie}'`), `${name} bundle Dexie version`);
 }
 writeFileSync(join(output, 'receipt.json'), JSON.stringify({
   coreTarSha256: sha256(tarball),
   coreFesmSha256: sha256(join(corePackage, 'fesm2022/hmcts-rpx-xui-core-lib-i18n.mjs')),
-  legacyVersion: '1.2.18', coreDexie, legacyDexie,
+  baselineCoreFesmSha256: sha256(join(baselineCorePackage, 'fesm2022/hmcts-rpx-xui-core-lib-i18n.mjs')),
+  baselineCoreManifestSha256: sha256(join(baselineCorePackage, 'package.json')),
+  legacyVersion: '1.2.18', coreDexie, legacyDexie, baselineDexie,
   legacyFesmSha256: sha256(join(legacyPackage, 'fesm2022/rpx-xui-translation.mjs')),
   legacyBundleSha256: sha256(join(output, 'legacy/dist/browser/main.js')),
   coreBundleSha256: sha256(join(output, 'core/dist/browser/main.js')),
+  baselineBundleSha256: sha256(join(output, 'core-baseline/dist/browser/main.js')),
   sources,
 }, null, 2));
 
