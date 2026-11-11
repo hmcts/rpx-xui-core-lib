@@ -46,10 +46,12 @@ def apply_patch(source, reverse=False, patch=SECURITY_PATCH):
     newline_file = source / 'lib/html/assets/js/dataTables.min.js'
     if patch == UI_PATCH and not reverse and not newline_file.read_bytes().endswith(b'\n'):
         newline_file.write_bytes(newline_file.read_bytes() + b'\n')
-    command = ['patch', '-p1', '--fuzz=0', '--batch', '--no-backup-if-mismatch', '-i', str(patch)]
+    command = ['git', 'apply', '--whitespace=nowarn', str(patch)]
     if reverse:
-        command.append('-R')
-    subprocess.run(command, cwd=source, check=True, stdout=subprocess.DEVNULL)
+        command.append('--reverse')
+    result = subprocess.run(command, cwd=source, capture_output=True, text=True)
+    if result.returncode:
+        raise RuntimeError(f'Git patch application failed:\n{result.stdout}\n{result.stderr}')
     if patch == UI_PATCH and reverse:
         data = newline_file.read_bytes()
         if hashlib.sha256(data[:-1]).hexdigest() == EXPECTED['lib/html/assets/js/dataTables.min.js']:
