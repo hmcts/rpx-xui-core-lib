@@ -36,22 +36,35 @@ export function hostDependencies(manifest, profile, peerProviders = {}) {
   return { ...manifest.peerDependencies, ...peerProviders, 'rpx-xui-translation': '1.2.18', typescript: '5.9.3', ...profile.actual_requirements, ...profile.locked_peer_versions, ...profile.locked_toolchain };
 }
 
+export function constructProfiles(profiles, sourceContract) {
+  const matrix = [profiles.core, ...profiles.profiles, profiles.standalone_mc_api];
+  const required = ['core', 'rpx-xui-webapp', 'rpx-xui-manage-organisations', 'rpx-xui-approve-org', 'mc-api-standalone'];
+  assert.deepEqual(matrix.map((profile) => profile.id).sort(), required.sort(), 'Missing or duplicated required profile');
+  for (const profile of matrix) validateHostProfile(profile, sourceContract);
+  return matrix;
+}
+
 export function validateHostProfile(profile, sourceContract) {
-  assert.ok(!profile.resolutions && !profile.overrides, 'Host overrides must use the frozen source contract');
   const source = sourceContract.profiles[profile.id];
   assert.ok(source, `Missing source contract: ${profile.id}`);
-  assert.deepEqual(profile.host_resolutions ?? {}, source?.host_resolutions ?? {}, 'Unapproved extra or altered host resolution');
-  assert.equal(profile.lock_source_url, source?.seed_root_lock ? `https://raw.githubusercontent.com/hmcts/rpx-xui-webapp/${sourceContract.gitHead}/yarn.lock` : undefined, 'Unapproved host lock source');
-  assert.equal(profile.lock_sha256, source?.seed_root_lock ? sourceContract.source_file_sha256['yarn.lock'] : undefined, 'Host lock hash differs from committed source');
-  assert.equal(profile.gitHead, source.gitHead, 'Host source head differs from its frozen contract');
-  assert.deepEqual(profile.install_settings ?? {}, source.install_settings ?? {}, 'Unapproved or altered host install setting');
-  for (const [name, declared] of Object.entries(source.runtime_declarations)) {
-    assert.equal(profile.actual_requirements[name], declared, `Changed host declaration: ${name}`);
-    assert.equal(profile.locked_peer_versions[name], source.runtime_locked_versions[name], `Changed host lock selection: ${name}`);
+  const sourceId = profile.id === 'mc-api-standalone' ? 'rpx-xui-webapp' : profile.id;
+  const metadata = sourceContract.sources[sourceId];
+  assert.ok(metadata, `Missing source metadata: ${profile.id}`);
+  assert.equal(profile.gitHead, metadata.gitHead, 'Host source head differs from its frozen contract');
+  const managerPath = `.yarn/releases/yarn-${profile.manager}.cjs`;
+  if (profile.id === 'mc-api-standalone') {
+    assert.equal(profile.manager_sha256, sourceContract.harness.standalone_api_manager.sha256, 'Synthetic manager hash differs from evidence');
+    assert.equal(profile.manager_source_url, sourceContract.harness.standalone_api_manager.url, 'Synthetic manager URL differs from evidence');
+  } else assert.equal(profile.manager_sha256, metadata.files[managerPath], 'Host manager hash differs from source');
+  if (profile.lock_source_url) assert.equal(profile.lock_sha256, metadata.files['yarn.lock'], 'Host lock hash differs from source');
+  const fields = new Set([...Object.keys(profile), ...Object.keys(source)]);
+  for (const field of fields) {
+    assert.deepEqual(profile[field], source[field], `Host ${field.replaceAll('_', ' ')} differs from source contract`);
   }
-  for (const [name, version] of Object.entries(source.api_toolchain_locked_versions ?? {})) {
-    assert.equal(profile.locked_toolchain[name], version, `Changed host build selection: ${name}`);
-  }
+}
+
+export function checkManagerBytes(bytes, expected) {
+  assert.equal(createHash('sha256').update(bytes).digest('hex'), expected, 'Frozen manager hash differs from source');
 }
 
 export async function hostLockBytes(profile, fetcher = fetch) {
@@ -84,7 +97,7 @@ export function hostManifest(manifest, profile, peerProviders = {}) {
   return {
     name: `compatibility-${profile.id}`, version: '0.0.0', private: true, type: 'module', packageManager: `yarn@${profile.manager}`,
     dependencies: { ...hostDependencies(manifest, profile, peerProviders), '@hmcts/rpx-xui-core-lib': 'file:./prospective.tgz' },
-    ...(profile.host_resolutions ? { resolutions: profile.host_resolutions } : {}),
+    ...(Object.keys(profile.host_resolutions ?? {}).length ? { resolutions: profile.host_resolutions } : {}),
   };
 }
 
@@ -134,7 +147,7 @@ async function runMatrix() {
   const profiles = await json('profiles.json');
   const decisions = await json('decisions.json');
   const peerProviders = await json('peer-providers.json');
-  const sourceContract = await json('mc-source-contract.json');
+  const sourceContract = await json('source-contract.json');
   validateManifest(manifest, ledger);
   const scratch = await mkdtemp(join(tmpdir(), 'core-compatibility-'));
   /** @type {NodeJS.ProcessEnv} */
@@ -155,6 +168,7 @@ async function runMatrix() {
     await writeFile(join(staged, 'yarn.lock'), '');
     const candidate = join(scratch, 'prospective.tgz');
     const coreYarn = join(root, '.yarn/releases/yarn-4.18.1.cjs');
+    checkManagerBytes(await readFile(coreYarn), sourceContract.sources.core.files['.yarn/releases/yarn-4.18.1.cjs']);
     const packed = await command('pack-prospective', [coreYarn, 'pack', '--out', candidate], staged);
     assert.equal(packed.status, 0, 'Prospective artifact pack failed');
     report.artifactSha256 = createHash('sha256').update(await readFile(candidate)).digest('hex');
@@ -164,14 +178,9 @@ async function runMatrix() {
     validateDecisions(decisions, expected);
     report.unresolvedDecisions = decisions.filter((entry) => entry.status !== 'accepted');
     await cp(candidate, join(output, 'prospective.tgz'));
-    for (const name of ['prospective-package.json', 'profiles.json', 'decisions.json', 'peer-providers.json', 'mc-source-contract.json']) await cp(join(fixtures, name), join(output, name));
-    const matrix = [
-      { id: 'core', manager: '4.18.1', actual_requirements: {}, locked_toolchain: {} },
-      ...profiles.profiles,
-      profiles.standalone_mc_api,
-    ];
+    for (const name of ['prospective-package.json', 'profiles.json', 'decisions.json', 'peer-providers.json', 'source-contract.json']) await cp(join(fixtures, name), join(output, name));
+    const matrix = constructProfiles(profiles, sourceContract);
     for (const profile of matrix) {
-      validateHostProfile(profile, sourceContract);
       const cwd = join(scratch, profile.id);
       await mkdir(cwd, { recursive: true });
       const manager = profile.id === 'core' ? coreYarn : join(scratch, `yarn-${profile.manager}.cjs`);
@@ -179,7 +188,7 @@ async function runMatrix() {
         const response = await fetch(profile.manager_source_url);
         assert.equal(response.ok, true, `Missing frozen manager ${profile.id}`);
         const bytes = Buffer.from(await response.arrayBuffer());
-        assert.equal(createHash('sha256').update(bytes).digest('hex'), profile.manager_sha256, 'Frozen manager bytes changed');
+        checkManagerBytes(bytes, profile.manager_sha256);
         await writeFile(manager, bytes);
       }
       await writeFile(join(cwd, 'package.json'), `${JSON.stringify(hostManifest(manifest, profile, peerProviders), null, 2)}\n`);
@@ -199,7 +208,7 @@ async function runMatrix() {
         await command(`${profile.id}-peer-requirements`, [manager, 'explain', 'peer-requirements'], cwd);
         const lock = await readFile(join(cwd, 'yarn.lock'));
         await writeFile(join(output, `${profile.id}-yarn.lock`), lock);
-        const expectedTelemetry = sourceContract.profiles[profile.id]?.locked_telemetry_versions;
+        const expectedTelemetry = sourceContract.locked_telemetry_versions[profile.id];
         if (expectedTelemetry) {
           try {
             const versions = checkLockedTelemetry(lock.toString('utf8'), expectedTelemetry);
