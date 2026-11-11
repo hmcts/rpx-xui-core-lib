@@ -20,3 +20,7 @@ for (const { name, values, minimum, errors } of [
     assert.deepEqual(form.errors, errors);
   });
 }
+
+test('rejects use on a non-group control with a clear error', () => {
+  assert.throws(() => checkboxesBeCheckedValidator()(new FormControl(false)), /checkboxesBeCheckedValidator requires a FormGroup/);
+});

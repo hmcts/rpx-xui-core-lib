@@ -12,12 +12,14 @@ import { RpxTranslationModule, RpxTranslationService } from '@hmcts/rpx-xui-core
     <button type="button" (click)="translations.language = 'en'">English</button>
     <button type="button" (click)="translations.language = 'cy'">Cymraeg</button>
     <p data-testid="language">{{ translations.language }}</p>
-    <p data-testid="translation">{{ phrase | rpxTranslate }}</p>
+    @let translated = phrase | rpxTranslate;
+    <p data-testid="translation" [attr.lang]="translated === 'Helo byd' ? 'cy' : 'en'">{{ translated }}</p>
   </main>`,
 })
 class TranslationGallery {
   readonly failure = new URLSearchParams(window.location.search).get('scenario') === 'failure';
-  readonly phrase = this.failure ? 'Service unavailable' : 'Hello world';
+  // The synthetic gallery has one Welsh response; source, loading and failure text are English.
+  readonly phrase: string = this.failure ? 'Service unavailable' : 'Hello world';
   constructor(public translations: RpxTranslationService) {}
 }
 

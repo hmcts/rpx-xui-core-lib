@@ -8,7 +8,8 @@
       "rejects truthy non-boolean values",
       "rejects fewer than the configured minimum",
       "accepts the exact configured minimum",
-      "accepts zero when zero is explicitly required"
+      "accepts zero when zero is explicitly required",
+      "rejects use on a non-group control with a clear error"
     ]
   },
   "browser": {
@@ -79,7 +80,12 @@
       "package.missing-marker-fault",
       "package.restored-node-runtime",
       "package.physical-i18n",
-      "package.staged-i18n-identity"
+      "package.staged-i18n-identity",
+      "package.root-runtime-empty",
+      "package.validation-graph",
+      "package.root-export-fault",
+      "package.validation-i18n-fault",
+      "package.restored-runtime-graph"
     ]
   },
   "nodeUnit": {
@@ -118,7 +124,7 @@
       "RpxTranslationService should normalise multiple spacing runs before translating a phrase",
       "RpxTranslationService should preserve markdown line breaks while normalising horizontal spacing",
       "RpxTranslationService should request the normalised phrase when loading a phrase with multiple spaces",
-      "RpxTranslationService should not call load method with given phrase, language, and yesOrNo value when translation not found in DB",
+      "RpxTranslationService returns English without loading a translation",
       "RpxTranslationService shouldTranslate should return false for phrases without alphabetic characters",
       "RpxTranslationService shouldTranslate should return true for phrases with alphabetic characters",
       "RpxTranslationService shouldTranslate should return false for phrases containing [Translation in progress]",
@@ -167,7 +173,20 @@
       "translation provider lifecycle stops response processing if a subscriber destroys the owner",
       "translation provider lifecycle stops cache-miss processing if a subscriber destroys the owner",
       "translation provider lifecycle stops a language change when its subscriber destroys the owner",
-      "translation provider lifecycle stops observing cached translations when its owner is destroyed"
+      "translation provider lifecycle stops observing cached translations when its owner is destroyed",
+      "translation boundary validation accepts only supported persisted and assigned languages",
+      "translation boundary validation falls back for malformed response values without caching them and retains valid siblings",
+      "translation boundary validation treats rejected cache reads as misses and preserves output when writes reject",
+      "translation boundary validation rejects malformed cached values and tolerates deletion failure",
+      "translation boundary validation falls back for malformed payloads and metadata, and accepts an empty translation",
+      "translation boundary validation uses valid cached empty strings and metadata without HTTP",
+      "translation boundary validation tolerates an expired cache deletion failure",
+      "translation boundary validation uses own response keys for normalized phrases with inherited property names",
+      "translation boundary validation uses the configured test-mode fallback without caching a malformed response",
+      "RpxTranslationService Null/Undefined handling returns an empty string for undefined yesOrNoValue without a request",
+      "translation real cache recovery recovers from a rejected invalid deletion with real IndexedDB and a fresh service",
+      "translation real cache recovery recovers from a rejected expired deletion with real IndexedDB and a fresh service",
+      "translation real cache recovery keeps a malformed response fallback stable then recovers after a language cycle"
     ]
   },
   "cacheBrowser": {
