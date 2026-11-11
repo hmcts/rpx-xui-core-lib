@@ -166,7 +166,7 @@ const expectedContracts = unitNames.length + nodeNames.length + i18nNames.length
 function reports() {
   return {
     'validation.tap': `TAP version 13\n${unitNames.map((name, index) => `ok ${index + 1} - ${name}`).join('\n')}\n1..${unitNames.length}\n# tests ${unitNames.length}\n# pass ${unitNames.length}\n# fail 0\n`,
-    'node-jest.json': { success: true, numTotalTests: 9, numPassedTests: 9, numFailedTests: 0, numPendingTests: 0, numTodoTests: 0, testResults: [{ status: 'passed', assertionResults: nodeNames.map((fullName) => ({ fullName, status: 'passed' })) }] },
+    'node-jest.json': { success: true, numTotalTests: nodeNames.length, numPassedTests: nodeNames.length, numFailedTests: 0, numPendingTests: 0, numTodoTests: 0, testResults: [{ status: 'passed', assertionResults: nodeNames.map((fullName) => ({ fullName, status: 'passed' })) }] },
     'i18n/junit.xml': `<?xml version="1.0"?><testsuite name="Chrome Headless" tests="${i18nNames.length}" errors="0" failures="0">${i18nNames.map((name) => `<testcase name="${name.replaceAll('&', '&amp;').replaceAll('\"', '&quot;')}"/>`).join('')}</testsuite>`,
     'browser.json': { errors: [], suites: [{ specs: [journey, ...validationJourneys, ...i18nJourneys].map((title) => ({ title, tests: [{ projectName: 'chromium', expectedStatus: 'passed', status: 'expected', results: [{ status: 'passed' }] }] })) }] },
     'cache-upgrade-report.json': { errors: [], suites: [{ specs: cacheJourneys.map((title) => ({ title, tests: [{ projectName: 'chromium', expectedStatus: 'passed', status: 'expected', results: [{ status: 'passed' }] }] })) }] },
