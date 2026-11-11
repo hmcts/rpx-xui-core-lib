@@ -81,5 +81,7 @@ import { GovUkLabelComponent, FormLabelModule } from '@hmcts/rpx-xui-core-lib/ui
 export { HmctsBannerComponent, BannerModule, GovUkLabelComponent, FormLabelModule };
 
 import { LoadingService, HasLoadingState } from '@hmcts/rpx-xui-core-lib/ui/loading-state';
+class DefaultLoadingState extends HasLoadingState {}
+export const defaultLoadingState: HasLoadingState = new DefaultLoadingState();
 export const loadingService: HasLoadingState = new LoadingService();
 export const loadingRegistration: string = loadingService instanceof LoadingService ? loadingService.register() : '';

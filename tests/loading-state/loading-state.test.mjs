@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import '@angular/compiler';
-import { LoadingService } from '@hmcts/rpx-xui-core-lib/ui/loading-state';
+import { HasLoadingState, LoadingService } from '@hmcts/rpx-xui-core-lib/ui/loading-state';
 
 test('overlapping operations remain active until both identical-clock tokens are released', t => {
   const original = Object.getOwnPropertyDescriptor(globalThis, 'window');
@@ -76,4 +76,9 @@ test('unknown releases, late subscriptions and separate service instances preser
   assert.deepEqual(firstValues, [false, true, false]);
   assert.deepEqual(late, [true, false]);
   assert.deepEqual(secondValues, [false]);
+});
+
+test('the inherited loading state getter preserves its default value', () => {
+  class DefaultLoadingState extends HasLoadingState {}
+  assert.equal(new DefaultLoadingState().isLoading, undefined);
 });

@@ -4,7 +4,7 @@ import {distinctUntilChanged} from 'rxjs/operators';
 
 export abstract class HasLoadingState {
   public get isLoading(): Observable<boolean> {
-    return;
+    return undefined;
   }
 }
 

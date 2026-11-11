@@ -5,6 +5,8 @@ test('session dialog displays projected content and preserves close output', asy
   await page.getByRole('button', { name: 'Open session dialog' }).click();
   const dialog = page.locator('xuilib-session-dialog dialog');
   await expect(dialog).toBeVisible();
+  await expect.soft(dialog).not.toHaveAttribute('role');
+  await expect.soft(dialog).not.toHaveAttribute('tabindex');
   await expect(page.getByRole('dialog', { name: 'We are about to sign you out' })).toBeVisible();
   await expect(dialog).toHaveCSS('margin-top', '30px');
   await expect(dialog.getByText('For your security, sign out in 30 seconds.')).toBeVisible();
