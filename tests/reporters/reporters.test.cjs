@@ -116,6 +116,54 @@ test('publisher retries incomplete index creation after a run is archived', () =
   assert.match(fs.readFileSync(path.join(siteDir, 'index.html'), 'utf8'), /reports\/master/);
 });
 
+test('attachment names cannot escape the report directory', { timeout: 60_000 }, () => {
+  const fixture = path.join(workspace, 'attachment-paths');
+  const output = path.join(fixture, 'report');
+  fs.mkdirSync(fixture);
+  const image = path.join(fixture, 'source.png');
+  const trace = path.join(fixture, 'source.zip');
+  fs.writeFileSync(image, Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aN9kAAAAASUVORK5CYII=', 'base64'));
+  fs.writeFileSync(trace, 'controlled trace');
+  fs.writeFileSync(path.join(fixture, 'attachment.spec.cjs'), `const {test} = require(${JSON.stringify(require.resolve('@playwright/test'))});
+test('attachment path', async ({}, info) => {
+  await info.attach('../../../escaped', {body: Buffer.from('controlled'), contentType: 'image/png'});
+  await info.attach(${JSON.stringify('..\\..\\escaped-back')}, {body: Buffer.from('controlled-back'), contentType: 'image/png'});
+  await info.attach('ordinary name', {body: Buffer.from('normal'), contentType: 'image/png'});
+  await info.attach('screenshot', {path: ${JSON.stringify(image)}, contentType: 'image/png'});
+  for (const kind of ['expected', 'actual', 'diff']) await info.attach('../../../comparison-' + kind + '.png', {path: ${JSON.stringify(image)}, contentType: 'image/png'});
+  await info.attach('trace', {path: ${JSON.stringify(trace)}, contentType: 'application/zip'});
+});`);
+  fs.writeFileSync(path.join(fixture, 'playwright.config.cjs'), `module.exports = {testDir: ${JSON.stringify(fixture)}, outputDir: ${JSON.stringify(path.join(fixture, 'artifacts'))}, reporter: [[${JSON.stringify(path.join(__dirname, 'odhin-adaptive.reporter.cjs'))}, {outputFolder: ${JSON.stringify(output)}, indexFilename: 'index.html', lightweight: false, testOutput: false}]]};`);
+  const result = spawnSync(process.execPath, [path.join(root, 'node_modules/@playwright/test/cli.js'), 'test', '-c', path.join(fixture, 'playwright.config.cjs')], { cwd: root, encoding: 'utf8', timeout: 40_000 });
+  assert.equal(result.status, 0, result.stdout + result.stderr);
+  assert.equal(fs.existsSync(path.join(fixture, 'escaped.png')), false);
+  assert.equal(fs.existsSync(path.join(fixture, 'escaped-back.png')), false);
+  const files = fs.readdirSync(path.join(output, 'screenshots'), { recursive: true }).map(String);
+  assert.ok(files.some(file => file.endsWith('.._.._.._escaped.png')));
+  assert.ok(files.some(file => file.endsWith('.._.._escaped-back.png')));
+  assert.ok(files.some(file => file.endsWith('ordinary name.png')));
+  for (const kind of ['expected', 'actual', 'diff']) assert.ok(files.some(file => file.endsWith('.._.._.._comparison-' + kind + '.png')));
+  assert.ok(fs.readdirSync(path.join(output, 'traces'), { recursive: true }).map(String).some(file => file.endsWith('trace.zip')));
+  const Help = require('odhin-reports-playwright/lib/help').default;
+  const helper = Reflect.construct(Help, [{ embedAttachments: false, outputFolder: output }]);
+  assert.throws(() => helper.base64ToFile(Buffer.from('controlled').toString('base64'), path.join(fixture, 'outside.png')), /escapes the report directory/);
+  assert.equal(fs.existsSync(path.join(fixture, 'outside.png')), false);
+  const outside = path.join(fixture, 'outside-directory');
+  fs.mkdirSync(outside);
+  fs.symlinkSync(outside, path.join(output, 'linked'));
+  assert.throws(() => helper.base64ToFile(Buffer.from('controlled').toString('base64'), path.join(output, 'linked', 'escaped.png')), /symbolic link/);
+  assert.equal(fs.existsSync(path.join(outside, 'escaped.png')), false);
+  fs.unlinkSync(path.join(output, 'linked'));
+  fs.symlinkSync(path.join(outside, 'escaped-file.png'), path.join(output, 'linked-file.png'));
+  assert.throws(() => helper.base64ToFile(Buffer.from('controlled').toString('base64'), path.join(output, 'linked-file.png')), /symbolic link/);
+  assert.equal(fs.existsSync(path.join(outside, 'escaped-file.png')), false);
+  const payload = Buffer.from('first').toString('base64');
+  assert.equal(helper.base64ToFile(payload, path.join(output, 'collisions', 'a.b.png')), 'a.b.png');
+  assert.equal(helper.base64ToFile(Buffer.from('second').toString('base64'), path.join(output, 'collisions', 'a.b.png')), 'a.b_1.png');
+  assert.equal(fs.readFileSync(path.join(output, 'collisions', 'a.b.png'), 'utf8'), 'first');
+  assert.equal(fs.readFileSync(path.join(output, 'collisions', 'a.b_1.png'), 'utf8'), 'second');
+});
+
 test('steps without source locations escape metadata and preserve literal text', () => {
   const Help = require('odhin-reports-playwright/lib/help').default;
   const { parse } = require('node-html-parser');

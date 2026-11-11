@@ -132,7 +132,16 @@ class OdhinAdaptiveReporter {
       );
     }
 
-    nextResult = { ...nextResult, stdout: [], stderr: [] };
+    nextResult = {
+      ...nextResult,
+      stdout: [],
+      stderr: [],
+      attachments: result.attachments.map((attachment) => ({
+        ...attachment,
+        name: attachment.name.replace(/[\\/]/g, '_'),
+        contentType: attachment.contentType.replace(/\\/g, '_'),
+      })),
+    };
     if (shouldDropTestOutput) {
       this.trimmedCounts.output += 1;
     }
