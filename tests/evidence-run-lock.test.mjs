@@ -26,7 +26,14 @@ test('strict and diagnostic runs reject a concurrent owner before touching repor
   const child = spawn(process.execPath, ['--input-type=module', '-e', script, root], { stdio: ['ignore', 'pipe', 'pipe'] });
   t.after(() => { if (child.exitCode === null && child.signalCode === null) child.kill('SIGKILL'); });
   assert.match(String((await once(child.stdout, 'data'))[0]), /locked/);
-  assert.throws(() => runDiagnostic(root), /already active or stale lock/);
+  const previousCI = process.env.CI;
+  try {
+    delete process.env.CI;
+    assert.throws(() => runDiagnostic(root), /already active or stale lock/);
+  } finally {
+    if (previousCI === undefined) delete process.env.CI;
+    else process.env.CI = previousCI;
+  }
   const strict = spawnSync(process.execPath, [strictRunner], { cwd: root, encoding: 'utf8' });
   assert.notEqual(strict.status, 0);
   assert.match(strict.stderr, /already active or stale lock/);
