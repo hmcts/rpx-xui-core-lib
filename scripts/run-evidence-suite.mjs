@@ -4,12 +4,15 @@ import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { currentIdentity } from './evidence-identity.mjs';
 import { sourceSnapshot } from './evidence-source-snapshot.mjs';
 import { writeFeatureMatrix } from './feature-evidence-matrix.mjs';
+import { withEvidenceRunLock } from './evidence-run-lock.mjs';
 
+withEvidenceRunLock(process.cwd(), () => {
 const runId = randomUUID();
 process.env.CORE_EVIDENCE_RUN_ID = runId;
 rmSync('test-results', { recursive: true, force: true });
 mkdirSync('test-results/lane-provenance', { recursive: true });
-writeFileSync('test-results/lane-provenance/run.json', JSON.stringify({ ...currentIdentity(process.cwd()), sourceSnapshot: sourceSnapshot(process.cwd()) }) + '\n');
+const identity = { ...currentIdentity(process.cwd()), sourceSnapshot: sourceSnapshot(process.cwd()) };
+writeFileSync('test-results/lane-provenance/run.json', JSON.stringify(identity) + '\n');
 const result = spawnSync(process.execPath, ['.yarn/releases/yarn-4.18.1.cjs', 'test:all:sequence'], { stdio: 'inherit', env: process.env });
 if (result.error) throw result.error;
 if (result.status === 0) {
@@ -23,3 +26,5 @@ if (result.status === 0) {
   }
 }
 process.exitCode = result.status ?? 1;
+
+});

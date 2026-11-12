@@ -163,3 +163,11 @@ Run `yarn build`, `yarn lint`, and `yarn test:all` locally for the supervised co
 These entries introduce new Angular injection tokens even where the service behaviour mirrors CommonLib. Consumers must explicitly coordinate providers and scopes during cutover; synthetic alias tests do not establish application-wide singleton identity. Avoid declaring both versions of the feature-toggle directive in the same Angular scope because they use the same selector. Validate each consumer's routing, providers and actual user journeys before replacing its existing imports.
 
 The selective `@hmcts/rpx-xui-core-lib/case/editor-date` entry exports the migrated Toolkit `DateInputComponent` and a new `DateInputModule`. Import the module once in a form scope using the existing `cut-date-input` selector and provide Core translation. Avoid importing the legacy Toolkit declaration in the same Angular scope: both declare the same selector. This entry alone does not migrate the case editor or establish identity with a separately loaded editor; consumer integration and complete editor testing remain required.
+
+### Broader local diagnostics after a failed gate
+
+If `yarn test:all` stops early, `yarn test:diagnostic` runs independent checks where their prerequisites succeeded and records passed, failed and blocked steps in `test-results/diagnostic-status.json`. Existing `test-results` and `playwright-report` are moved to a printed, unique `.angular/diagnostic-backup-*` directory before the new run. The feature matrix in a diagnostic report is explicitly unavailable; the diagnostic does not establish release readiness or replace the strict gate.
+
+`test:all` and `test:diagnostic` share an exclusive local lock. Focused commands and `test:all:sequence` do not: do not run them concurrently in the same checkout. If a process is abruptly killed, inspect `.angular/evidence-run.lock/owner.json` and its processes before removing a stale lock. A backup failure reports where preserved and remaining files are located; retain both when recovering.
+
+The supervised browser lanes verify a process-owned invocation identity before test traffic. This is a setup-time check; source snapshot checks still govern each lane, and it does not continuously authenticate the server or make a local result release-ready.

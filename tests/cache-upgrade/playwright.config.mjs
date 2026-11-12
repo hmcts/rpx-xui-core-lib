@@ -4,6 +4,7 @@ import { reporters } from '../reporters/config.mjs';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 export default defineConfig({
+  globalSetup: '../evidence-host/setup.mjs',
   projects: [{ name: 'chromium', use: { browserName: 'chromium' } }],
   testDir: '.', testMatch: 'cache.spec.mjs', workers: 1, retries: 0,
   outputDir: `${root}/test-results/cache-upgrade-browser`,
