@@ -17,7 +17,15 @@ class ValidationGallery {
   submitted = false;
 }
 
-const application = window.location.pathname === '/primitives'
+const application = window.location.pathname === '/window'
+  ? import('./window').then(({ startWindowGallery }) => startWindowGallery())
+  : window.location.pathname.startsWith('/session-storage')
+  ? import('./session-storage').then(({ startSessionStorageGallery }) => startSessionStorageGallery())
+  : window.location.pathname.startsWith('/cookie')
+  ? import('./cookie').then(({ startCookieGallery }) => startCookieGallery())
+  : window.location.pathname === '/feature-toggle'
+  ? import('./feature-toggle').then(({ startFeatureToggleGallery }) => startFeatureToggleGallery())
+  : window.location.pathname === '/primitives'
   ? import('./primitives').then(({ startPrimitivesGallery }) => startPrimitivesGallery())
   : window.location.pathname === '/session-dialog'
   ? import('./session-dialog').then(({ startSessionDialogGallery }) => startSessionDialogGallery())
