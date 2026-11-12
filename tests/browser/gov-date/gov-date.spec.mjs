@@ -47,3 +47,30 @@ test('rejects an impossible day and recovers when the month changes', async ({pa
  await page.getByRole('textbox',{name:'Month'}).fill('5');
  await expect(page.getByTestId('date-errors')).toHaveText('null');
 });
+
+test('date errors describe the correct fieldset without duplicate or missing targets', async ({page})=>{
+ await page.goto('/gov-date');
+ await page.getByRole('button',{name:'Show date errors'}).click();
+ const first=page.getByRole('group',{name:'Synthetic date'});
+ const second=page.getByRole('group',{name:'Other date'});
+ await expect(first).toHaveAccessibleDescription('Synthetic hint Error:First date error');
+ await expect(second).toHaveAccessibleDescription('Other hint Error:Second date error');
+ await expect(page.locator('#date-error')).toHaveCount(1);
+ await expect(page.locator('#other-error')).toHaveCount(1);
+ const select=page.getByRole('combobox',{name:'Synthetic service'});
+ await expect(select).toHaveAccessibleDescription('Error:Select error');
+});
+
+test('empty date and select messages never reference absent error elements', async ({page})=>{
+ await page.goto('/gov-date');
+ await page.getByRole('button',{name:'Show date errors'}).click();
+ const first=page.getByRole('group',{name:'Synthetic date'});
+ const second=page.getByRole('group',{name:'Other date'});
+ const select=page.getByRole('combobox',{name:'Synthetic service'});
+ await page.getByRole('button',{name:'Clear date messages'}).click();
+ await expect(first).toHaveAccessibleDescription('Synthetic hint');
+ await expect(second).toHaveAccessibleDescription('Other hint');
+ await expect(first).toHaveAttribute('aria-describedby','date-hint');
+ await expect(second).toHaveAttribute('aria-describedby','other-hint');
+ await expect(select).not.toHaveAttribute('aria-describedby');
+});

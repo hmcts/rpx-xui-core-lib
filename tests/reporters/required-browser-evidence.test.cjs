@@ -109,7 +109,9 @@ gov-date-select|date updates validation as month and year change
 gov-date-select|select changes the reactive form value
 gov-date-select|fieldset exposes its legend, hint and projected content
 gov-date-select|optional date accepts all empty parts but rejects an incomplete date
-gov-date-select|rejects an impossible day and recovers when the month changes`.split('\n').map(row => {
+gov-date-select|rejects an impossible day and recovers when the month changes
+gov-date-select|date errors describe the correct fieldset without duplicate or missing targets
+gov-date-select|empty date and select messages never reference absent error elements`.split('\n').map(row => {
   const [feature, title] = row.split('|');
   return ['chromium', title, feature];
 });

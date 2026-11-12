@@ -21,6 +21,6 @@ export class GovUkFieldsetComponent {
   @Input() public errorMessage: ErrorMessagesModel;
 
   public setDescribedBy(): string {
-    return HtmlTemplatesHelper.setDescribedBy(this.errorMessage, this.config);
+    return HtmlTemplatesHelper.setDescribedBy(this.errorMessage?.messages?.length ? this.errorMessage : null, this.config);
   }
 }

@@ -404,6 +404,16 @@
         "projectName": "chromium",
         "title": "rejects an impossible day and recovers when the month changes",
         "feature": "gov-date-select"
+      },
+      {
+        "projectName": "chromium",
+        "title": "date errors describe the correct fieldset without duplicate or missing targets",
+        "feature": "gov-date-select"
+      },
+      {
+        "projectName": "chromium",
+        "title": "empty date and select messages never reference absent error elements",
+        "feature": "gov-date-select"
       }
     ]
   },
