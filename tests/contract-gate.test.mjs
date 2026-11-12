@@ -23,7 +23,81 @@ const unitNames = [
   'accepts the exact configured minimum',
   'accepts zero when zero is explicitly required',
   'rejects use on a non-group control with a clear error',
+  "case sharing initializes and copies selected cases while preserving nested references",
+  "case sharing emits deduplicated pending shares and host must synchronize emitted state",
+  "case sharing unshares and cancels only the selected case",
+  "case sharing removes a case only when more than one exists",
+  "case sharing DI supports one instance with a synthetic alias",
+  "case sharing removal mutates the same array and distinct state does not emit again",
+  "case sharing pending additions and access use email while unshare uses user id",
+  "case sharing removes a pending share by user id only for the requested case",
+  "case sharing cancels pending unshare by email and emits the updated state",
+  "storage forwards set, get, remove and clear with exact values",
+  "storage propagates read failures without removing data",
+  "storage supports one DI instance with a synthetic token alias",
+  "task names cache is scoped by service and cache hits do not call HTTP",
+  "task name malformed cache throws and storage errors propagate",
+  "task HTTP failure does not write cache and work types use exact request",
+  "task service DI uses the explicit shared storage instance",
+  "task names accept an empty cached array without requesting HTTP",
+  "task names propagate cache write errors from HTTP response",
+  "task name cancellation tears down the HTTP subscription without writing",
+  "task service sends and caches through the Angular HTTP testing backend",
 ];
+const addedLaneNames = {
+  "refDataUnit": [
+    "reference data HTTP endpoints and encoded service-code parameter match the source",
+    "reference data shares duplicate codes, retains input order and reuses successful cache",
+    "reference data service-code errors cache the empty fallback without retry",
+    "reference data direct region stream propagates errors and retries on a later subscription",
+    "reference data empty service codes complete without emitting or making a request",
+    "reference data shared request survives one consumer cancellation and populates the cache",
+    "both reference data token alias directions share one service across injector boundaries",
+    "reference data shares one in-flight HTTP request across concurrent consumers"
+  ],
+  "locationUnit": [
+    "locations POST retains caller URL, request body and response ordering",
+    "locations GET preserves source query interpolation and response",
+    "locations HTTP errors reach the subscriber without a fallback",
+    "locations request cancellation aborts the Angular test request",
+    "location booking enum retains source values",
+    "locations GET retains raw query metacharacters from the caller",
+    "locations GET errors propagate and POST cancellation aborts the request"
+  ],
+  "windowUnit": [
+    "window provider retains the source ReferenceError when no browser window exists",
+    "window provider returns the exact browser global rather than a copy",
+    "both alias directions share one supplied window across root and child injectors",
+    "a child injector override intentionally shadows the parent window token"
+  ],
+  "cookieUnit": [
+    "cookie setter preserves legacy expiry and SameSite formatting",
+    "cookie reads preserve exact-name, missing-key and equals-sign behavior",
+    "cookie deletion preserves provided path and domain and the legacy prefix match",
+    "cookie service injects the provided document and supports explicit token aliasing"
+  ],
+  "featureToggleUnit": [
+    "unconfigured feature service fails explicitly for all operations",
+    "both alias directions use one provided feature service across parent and unshadowed child",
+    "child provider shadowing creates a distinct feature service",
+    "directive releases the previous and final feature subscriptions",
+    "directive releases the previous feature and clears its view if the next provider throws",
+    "directive does not retain previous content when the new observable errors",
+    "directive clears enabled content if the active feature stream later errors",
+    "directive retains only the reentrant replacement subscription",
+    "directive stops a synchronous source when destroyed during rendering",
+    "directive ignores assignments after destruction and a reentrant provider switch",
+    "directive does not overwrite a replacement created by previous-source teardown",
+    "directive does not resubscribe when teardown reenters during destruction"
+  ],
+  "roleUnit": [
+    "role state suppresses its initial null and emits each assigned array without copying",
+    "both bridge directions reuse the chosen state in root and unshadowed child injectors",
+    "a child role provider intentionally shadows root state and must be accounted for during cutover",
+    "role matching preserves source ALL, ANY and default regex behavior",
+    "role matching preserves invalid regex and short-circuit behavior"
+  ]
+};
 const nodeNames = [
   'Node authentication and session constants retain the legacy values',
   'Node security policy retains the legacy directives',
@@ -162,6 +236,16 @@ const primitiveJourneys = [
   "primitives pass scoped serious accessibility checks",
   "non-heading label preserves supplied text when language changes",
 ];
+const addedBrowserJourneys = [
+  "cookie service writes a strict cookie with the current default path and expiry",
+  "cookie deletion requires the matching real browser path and domain",
+  "cookie reads and prefix deletion preserve the legacy boundaries in a browser",
+  "window provider injects the real browser global without copying it",
+  "session storage isolates independent tabs and supports remove-after-read",
+  "feature directive shows at most one view and removes it when disabled",
+  "feature directive switches subscriptions and clears stale content while waiting",
+  "feature directive unsubscribes on removal and subscribes again on remount"
+];
 const cacheJourneys = [
   "baseline: legacy to core preserves valid cached translation",
   "baseline: core to legacy preserves valid cached translation",
@@ -202,7 +286,11 @@ const packageIds = [
 
 ];
 
-const expectedContracts = unitNames.length + nodeNames.length + i18nNames.length + i18nJourneys.length + dueDateJourneys.length + accessibilityJourneys.length + sessionDialogJourneys.length + primitiveJourneys.length + cacheJourneys.length + validationJourneys.length + packageIds.length + 1;
+packageIds.push("package.session-storage-behavior", "package.session-storage-graph", "package.task-data-behavior", "package.task-data-graph", "package.case-sharing-state-graph", "package.case-sharing-state-behavior", "package.cookie-behavior", "package.cookie-graph", "package.terms-type", "package.terms-graph", "package.window-behavior", "package.window-graph", "package.locations-behavior", "package.locations-graph", "package.ref-data-behavior", "package.ref-data-graph");
+
+packageIds.push("package.feature-toggle-graph", "package.feature-directive-graph", "package.role-state-graph", "package.feature-toggle-behavior", "package.role-state-behavior");
+
+const expectedContracts = addedBrowserJourneys.length + Object.values(addedLaneNames).reduce((sum, names) => sum + names.length, 0) + unitNames.length + nodeNames.length + i18nNames.length + i18nJourneys.length + dueDateJourneys.length + accessibilityJourneys.length + sessionDialogJourneys.length + primitiveJourneys.length + cacheJourneys.length + validationJourneys.length + packageIds.length + 1;
 
 function nativeTap(names) {
   return `TAP version 13\n${names.map((name, index) => `ok ${index + 1} - ${name}`).join('\n')}\n1..${names.length}\n# tests ${names.length}\n# suites 0\n# pass ${names.length}\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n`;
@@ -226,9 +314,15 @@ function nativeJasmine() {
 function reports() {
   return {
     'validation.tap': nativeTap(unitNames),
+    'ref-data.tap': nativeTap(addedLaneNames.refDataUnit),
+    'locations.tap': nativeTap(addedLaneNames.locationUnit),
+    'window.tap': nativeTap(addedLaneNames.windowUnit),
+    'cookie.tap': nativeTap(addedLaneNames.cookieUnit),
+    'feature-toggle.tap': nativeTap(addedLaneNames.featureToggleUnit),
+    'roles.tap': nativeTap(addedLaneNames.roleUnit),
     'node.tap': nativeTap(nodeNames),
     'i18n/jasmine.json': nativeJasmine(),
-    'browser.json': { errors: [], suites: [{ specs: [journey, ...validationJourneys, ...i18nJourneys, ...dueDateJourneys, ...accessibilityJourneys, ...sessionDialogJourneys, ...primitiveJourneys].map((title) => ({ title, tests: [{ projectName: 'chromium', expectedStatus: 'passed', status: 'expected', results: [{ status: 'passed' }] }] })) }] },
+    'browser.json': { errors: [], suites: [{ specs: [journey, ...validationJourneys, ...i18nJourneys, ...dueDateJourneys, ...accessibilityJourneys, ...sessionDialogJourneys, ...primitiveJourneys, ...addedBrowserJourneys].map((title) => ({ title, tests: [{ projectName: 'chromium', expectedStatus: 'passed', status: 'expected', results: [{ status: 'passed' }] }] })) }] },
     'cache-upgrade-report.json': { errors: [], suites: [{ specs: cacheJourneys.map((title) => ({ title, tests: [{ projectName: 'chromium', expectedStatus: 'passed', status: 'expected', results: [{ status: 'passed' }] }] })) }] },
     'package.json': { schemaVersion: 1, package: { sha256: createHash('sha256').update(candidate).digest('hex'), ...identity, dirty: false }, tests: packageIds.map((id) => ({ id, status: 'passed' })) },
   };
@@ -659,3 +753,20 @@ test('the contract gate rejects report bytes rebound from another run', (t) => {
   writeFileSync(runPath, JSON.stringify({ ...identity, invocationId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa' }));
   assert.throws(check, /Unbound/);
 });
+
+for (const [lane, names] of Object.entries(addedLaneNames)) {
+  test(`missing ${lane} case fails the required evidence gate`, t => {
+    const files = reports();
+    const report = contractInventory[lane].report.replace(/^test-results\//, '');
+    files[report] = nativeTap(names.slice(1));
+    assert.throws(() => checkFixture(t, files)(), /Missing|required|contract/i);
+  });
+}
+
+for (const title of addedBrowserJourneys) {
+  test(`missing browser contract ${title} fails the required evidence gate`, t => {
+    const files = reports();
+    files['browser.json'].suites[0].specs = files['browser.json'].suites[0].specs.filter(spec => spec.title !== title);
+    assert.throws(() => checkFixture(t, files)(), /Missing|required|contract/i);
+  });
+}

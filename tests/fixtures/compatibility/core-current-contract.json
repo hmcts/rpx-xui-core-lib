@@ -119,6 +119,61 @@
         "input": "ui/loading-state",
         "glob": "LICENCE",
         "output": "ui/loading-state"
+      },
+      {
+        "input": "ui/role-state",
+        "glob": "LICENCE",
+        "output": "ui/role-state"
+      },
+      {
+        "input": "ui/feature-toggle",
+        "glob": "LICENCE",
+        "output": "ui/feature-toggle"
+      },
+      {
+        "input": "ui/feature-toggle-directive",
+        "glob": "LICENCE",
+        "output": "ui/feature-toggle-directive"
+      },
+      {
+        "input": "ui/cookie",
+        "glob": "LICENCE",
+        "output": "ui/cookie"
+      },
+      {
+        "input": "terms/models",
+        "glob": "LICENCE",
+        "output": "terms/models"
+      },
+      {
+        "input": "browser/window",
+        "glob": "LICENCE",
+        "output": "browser/window"
+      },
+      {
+        "input": "reference/locations",
+        "glob": "LICENCE",
+        "output": "reference/locations"
+      },
+      {
+        "input": "reference/ref-data",
+        "glob": "LICENCE",
+        "output": "reference/ref-data"
+      },
+      {
+        "input": "browser/session-storage",
+        "glob": "LICENCE",
+        "output": "browser/session-storage"
+      },
+      {
+        "input": "ui/task-data",
+        "glob": "LICENCE",
+        "output": "ui/task-data"
+      },
+      {
+        "input": "case/sharing-state",
+        "glob": "LICENCE",
+        "output": "case/sharing-state"
       }
     ],
     "allowedNonPeerDependencies": [

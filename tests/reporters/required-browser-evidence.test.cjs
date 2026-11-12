@@ -39,13 +39,58 @@ test('malformed and duplicate inventory and absent suite do not yield success', 
   assert.match(render(snapshot, null, true), /Summary unavailable/);
 });
 
-test('all 36 current required contracts are mapped including UI primitives', () => {
+const reviewedContracts = `validation|keyboard checkbox toggles update real FormGroup validity and submitted errors
+validation|validation keyboard traversal toggles roles and submits with Enter and Space
+validation|validation initial exposes accessible roles and passes axe
+validation|validation invalid-submit exposes accessible roles and passes axe
+validation|validation valid exposes accessible roles and passes axe
+validation|validation axe detects the label rule when a checkbox label is removed
+i18n|locale switches reuse persisted translations across English and page reloads
+i18n|a translation HTTP failure returns and caches the original phrase
+i18n|a late Welsh response preserves English and is reused after switching back
+i18n|local gallery translates through its own synthetic service
+i18n|local gallery demonstrates a synthetic service failure
+i18n|local translation endpoint validates requests
+spinner|spinner displays default, updated and translated text
+contact|contact details show optional fields and translate labels
+case-reference|case reference formatting preserves links and handles drafts
+contact|contact links are keyboard reachable and remain accessible through data changes
+due-date|due-date displays urgency, date and accessible labels at cutoff boundaries
+due-date|due-date updates urgency when thresholds change and high urgency wins
+due-date|due-date translates visible and accessible labels
+accessibility|accessibility statement selects the application context and exposes service links
+accessibility|accessibility statement translates its visible heading
+session-dialog|session dialog displays projected content and preserves close output
+session-dialog|session dialog translates the sign-out message
+session-dialog|session dialog passes serious accessibility checks
+session-dialog|session dialog is modal and keeps keyboard focus away from background
+session-dialog|destroying the dialog after its opener is removed does not restore focus to a detached node
+session-dialog|nested modal restoration returns focus to its own opener
+ui-primitives|banner renders and removes the configured success message and icon
+ui-primitives|form label associates the field and retains optional heading variants
+ui-primitives|heading label and banner use translated messages
+ui-primitives|primitives pass scoped serious accessibility checks
+ui-primitives|non-heading label preserves supplied text when language changes
+session-dialog|session dialog remains visible when a long page is scrolled
+session-dialog|session dialog keeps tall content reachable
+session-dialog|session dialog with a large top offset remains usable in a short viewport
+session-dialog|session dialog preserves the legacy viewport layout while using native modality
+cookie|cookie service writes a strict cookie with the current default path and expiry
+cookie|cookie deletion requires the matching real browser path and domain
+cookie|cookie reads and prefix deletion preserve the legacy boundaries in a browser
+window|window provider injects the real browser global without copying it
+session-storage|session storage isolates independent tabs and supports remove-after-read
+feature-toggle-directive|feature directive shows at most one view and removes it when disabled
+feature-toggle-directive|feature directive switches subscriptions and clears stale content while waiting
+feature-toggle-directive|feature directive unsubscribes on removal and subscribes again on remount`.split('\n').map(row => {
+  const [feature, title] = row.split('|');
+  return ['chromium', title, feature];
+});
+
+test('all required browser contracts are independently mapped', () => {
   const inventory = require('../contracts.json').browser.required;
-  assert.equal(inventory.length, 36);
-  assert.equal(inventory.filter(item => item.feature === 'contact').length, 2);
-  assert.equal(inventory.filter(item => item.feature === 'due-date').length, 3);
-  assert.equal(inventory.filter(item => item.feature === 'accessibility').length, 2);
-  assert.equal(inventory.filter(item => item.feature === 'session-dialog').length, 10);
-  assert.equal(inventory.filter(item => item.feature === 'ui-primitives').length, 5);
-  assert.equal([...summarize(snapshotInventory(inventory), suite()).values()].reduce((sum, counts) => sum + counts.missing, 0), 36);
+  const triples = inventory.map(({projectName, title, feature}) => [projectName, title, feature]);
+  assert.deepEqual(triples, reviewedContracts);
+  assert.notDeepEqual(triples.slice(1), reviewedContracts);
+  assert.equal([...summarize(snapshotInventory(inventory), suite()).values()].reduce((sum, counts) => sum + counts.missing, 0), reviewedContracts.length);
 });
