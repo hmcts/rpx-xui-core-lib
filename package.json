@@ -20,7 +20,7 @@
     "start": "node scripts/dev.mjs",
     "test:browser": "playwright test -c tests/browser/playwright.config.mjs",
     "test:package": "node tests/package/verify-package.mjs",
-    "test:contracts": "node --test tests/contract-gate.test.mjs tests/evidence-source-snapshot.test.mjs tests/evidence-lane.test.mjs tests/feature-evidence-matrix.test.mjs tests/feature-evidence-expanded.test.mjs tests/diagnostic-current.test.mjs tests/diagnostic-lanes.test.mjs tests/evidence-run-lock.test.mjs tests/evidence-host.test.mjs",
+    "test:contracts": "node --test tests/contract-gate.test.mjs tests/evidence-source-snapshot.test.mjs tests/evidence-lane.test.mjs tests/feature-evidence-matrix.test.mjs tests/feature-evidence-expanded.test.mjs tests/diagnostic-current.test.mjs tests/diagnostic-lanes.test.mjs tests/evidence-run-lock.test.mjs tests/evidence-host.test.mjs tests/packed-loading.test.mjs",
     "check:contracts": "node scripts/check-contracts.mjs",
     "test:all": "node scripts/run-evidence-suite.mjs",
     "test:node": "rm -rf test-results/node-unit test-results/node.tap && tsc -p tests/node/tsconfig.json && node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=tap --test-reporter-destination=test-results/node.tap test-results/node-unit/tests/node/*.spec.js && node --test tests/build-watch.test.mjs",

@@ -295,6 +295,8 @@ addedBrowserJourneys.push('date input preserves validation and values across tra
 packageIds.push('package.session-error-graph');
 addedBrowserJourneys.push("session error page shows default content and supports custom messages", "session error page has an accessible main landmark and heading");
 
+packageIds.push('package.loading-angular-build', 'package.loading-eager-fault');
+
 const expectedContracts = addedBrowserJourneys.length + Object.values(addedLaneNames).reduce((sum, names) => sum + names.length, 0) + unitNames.length + nodeNames.length + i18nNames.length + i18nJourneys.length + dueDateJourneys.length + accessibilityJourneys.length + sessionDialogJourneys.length + primitiveJourneys.length + cacheJourneys.length + validationJourneys.length + packageIds.length + 1;
 
 function nativeTap(names) {
