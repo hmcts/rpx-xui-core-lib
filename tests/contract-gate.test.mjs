@@ -295,6 +295,13 @@ addedBrowserJourneys.push('date input preserves validation and values across tra
 packageIds.push('package.session-error-graph');
 addedBrowserJourneys.push("session error page shows default content and supports custom messages", "session error page has an accessible main landmark and heading");
 
+unitNames.push('search requires three characters and cancels previous in-flight request', 'lookup failure emits null and selection retains object identity', 'keyboard validation preserves supported navigation and rejects numeric input', 'service-code filtering excludes selected and duplicate locations', 'reset and booking session inputs retain source behavior');
+unitNames.push('constructor uses the supplied location and session instances without copying');
+unitNames.push('input change emits both source events with the entered term', 'lookup uses configured arguments and excludes previously selected locations', 'service lookup handles empty search and filters by configured property', 'keyboard input preserves legacy accepted keys and legacy keyCode fallback');
+addedBrowserJourneys.push('keyboard search presents and selects a location', 'a caller supplied label gives the location search an accessible name');
+addedBrowserJourneys.push('unlabelled booking-style host exposes the existing accessible-name gap');
+packageIds.push('package.search-location-graph');
+
 packageIds.push('package.loading-angular-build', 'package.loading-eager-fault');
 
 const expectedContracts = addedBrowserJourneys.length + Object.values(addedLaneNames).reduce((sum, names) => sum + names.length, 0) + unitNames.length + nodeNames.length + i18nNames.length + i18nJourneys.length + dueDateJourneys.length + accessibilityJourneys.length + sessionDialogJourneys.length + primitiveJourneys.length + cacheJourneys.length + validationJourneys.length + packageIds.length + 1;

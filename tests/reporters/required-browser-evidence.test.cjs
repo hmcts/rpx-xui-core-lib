@@ -83,7 +83,10 @@ feature-toggle-directive|feature directive unsubscribes on removal and subscribe
 date-input|date input preserves validation and values across translations
 date-input|date input has accessible keyboard reachable date fields
 session-error|session error page shows default content and supports custom messages
-session-error|session error page has an accessible main landmark and heading`.split('\n').map(row => {
+session-error|session error page has an accessible main landmark and heading
+search-location|keyboard search presents and selects a location
+search-location|a caller supplied label gives the location search an accessible name
+search-location-accessibility-gap|unlabelled booking-style host exposes the existing accessible-name gap`.split('\n').map(row => {
   const [feature, title] = row.split('|');
   return ['chromium', title, feature];
 });

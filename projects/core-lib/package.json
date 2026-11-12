@@ -8,7 +8,9 @@
     "@angular/common": "20.3.35",
     "@angular/core": "20.3.35",
     "@angular/forms": "20.3.35",
-    "rxjs": "7.8.2"
+    "rxjs": "7.8.2",
+    "@angular/material": "20.2.14",
+    "@angular/cdk": "20.2.14"
   },
   "exports": {
     "./node": {
