@@ -980,3 +980,12 @@ body#body-content {
 #body-content .a11y-workspace a {
   color: var(--report-accent);
 }
+
+.feature-evidence-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.feature-evidence-scroll:focus-visible {
+  outline: 3px solid #0b0c0c;
+  outline-offset: 2px;
+}
