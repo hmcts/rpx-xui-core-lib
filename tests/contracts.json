@@ -43,6 +43,8 @@
       "lookup uses configured arguments and excludes previously selected locations",
       "service lookup handles empty search and filters by configured property",
       "keyboard input preserves legacy accepted keys and legacy keyCode fallback",
+      "date revalidates on month and year changes and stops after destruction",
+      "date preserves legacy required and optional empty-value validation",
       "checkbox list maps preselection to actual options and removes unavailable selections",
       "checkbox list emits user selection and select-all transitions",
       "checkbox list keeps an active user selection when preselection later changes"
@@ -383,6 +385,41 @@
       },
       {
         "projectName": "chromium",
+        "title": "date updates validation as month and year change",
+        "feature": "gov-date-select"
+      },
+      {
+        "projectName": "chromium",
+        "title": "select changes the reactive form value",
+        "feature": "gov-date-select"
+      },
+      {
+        "projectName": "chromium",
+        "title": "fieldset exposes its legend, hint and projected content",
+        "feature": "gov-date-select"
+      },
+      {
+        "projectName": "chromium",
+        "title": "optional date accepts all empty parts but rejects an incomplete date",
+        "feature": "gov-date-select"
+      },
+      {
+        "projectName": "chromium",
+        "title": "rejects an impossible day and recovers when the month changes",
+        "feature": "gov-date-select"
+      },
+      {
+        "projectName": "chromium",
+        "title": "date errors describe the correct fieldset without duplicate or missing targets",
+        "feature": "gov-date-select"
+      },
+      {
+        "projectName": "chromium",
+        "title": "empty date and select messages never reference absent error elements",
+        "feature": "gov-date-select"
+      },
+      {
+        "projectName": "chromium",
         "title": "checkbox list instances keep labels and selections independent",
         "feature": "checkbox-list"
       },
@@ -452,6 +489,9 @@
       "package.terms-display-graph",
       "package.gov-input-graph",
       "package.gov-input-behavior",
+      "package.gov-date-graph",
+      "package.gov-select-graph",
+      "package.gov-date-behavior",
       "package.checkbox-list-graph"
     ]
   },

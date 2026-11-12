@@ -99,6 +99,8 @@ const addedLaneNames = {
   ]
 };
 unitNames.push("date input reports mandatory and partial values through the legacy validator", "date input write and callback preserve the legacy padded value", "date input retains legacy touched callback and destruction behavior");
+unitNames.push('date revalidates on month and year changes and stops after destruction');
+unitNames.push('date preserves legacy required and optional empty-value validation');
 
 const nodeNames = [
   'Node authentication and session constants retain the legacy values',
@@ -311,8 +313,11 @@ packageIds.push('package.loading-angular-build', 'package.loading-eager-fault');
 
 
 packageIds.push("package.gov-input-graph", "package.gov-input-behavior");
+packageIds.push('package.gov-date-graph', 'package.gov-select-graph', 'package.gov-date-behavior');
 addedBrowserJourneys.push("GOV.UK input connects its label and hint and updates the reactive form", "GOV.UK input associates an error and restores hint-only state", "non-heading label follows Welsh language", "two errors have one unique described-by target", "both validation messages contribute to the accessible description", "invalid input without messages does not reference a missing error", "invalid input with no hint or messages has no description target");
+addedBrowserJourneys.push('date updates validation as month and year change', 'select changes the reactive form value', 'fieldset exposes its legend, hint and projected content', 'optional date accepts all empty parts but rejects an incomplete date', 'rejects an impossible day and recovers when the month changes');
 
+addedBrowserJourneys.push('date errors describe the correct fieldset without duplicate or missing targets', 'empty date and select messages never reference absent error elements');
 unitNames.push('checkbox list maps preselection to actual options and removes unavailable selections', 'checkbox list emits user selection and select-all transitions', 'checkbox list keeps an active user selection when preselection later changes');
 addedBrowserJourneys.push('checkbox list instances keep labels and selections independent', 'checkbox list supports keyboard selection and select-all transitions');
 packageIds.push('package.checkbox-list-graph');

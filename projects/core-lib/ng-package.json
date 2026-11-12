@@ -156,6 +156,16 @@
       "output": "ui/gov-input"
     },
     {
+      "input": "ui/gov-date",
+      "glob": "LICENCE",
+      "output": "ui/gov-date"
+    },
+    {
+      "input": "ui/gov-select",
+      "glob": "LICENCE",
+      "output": "ui/gov-select"
+    },
+    {
       "input": "ui/checkbox-list",
       "glob": "LICENCE",
       "output": "ui/checkbox-list"
