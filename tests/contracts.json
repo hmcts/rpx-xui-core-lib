@@ -322,6 +322,26 @@
         "projectName": "chromium",
         "title": "blank opt-in preserves the external name and explicit text takes precedence",
         "feature": "search-location"
+      },
+      {
+        "projectName": "chromium",
+        "title": "terms display renders sanitized HTML and excludes unsafe attributes",
+        "feature": "terms-display"
+      },
+      {
+        "projectName": "chromium",
+        "title": "terms display treats plain text as text and handles unsupported MIME types",
+        "feature": "terms-display"
+      },
+      {
+        "projectName": "chromium",
+        "title": "terms display uses the shared translation service for language changes",
+        "feature": "terms-display"
+      },
+      {
+        "projectName": "chromium",
+        "title": "translated HTML is rendered through Angular sanitization",
+        "feature": "terms-display"
       }
     ]
   },
@@ -380,7 +400,8 @@
       "package.session-error-graph",
       "package.loading-angular-build",
       "package.loading-eager-fault",
-      "package.search-location-graph"
+      "package.search-location-graph",
+      "package.terms-display-graph"
     ]
   },
   "nodeUnit": {

@@ -325,6 +325,19 @@ try {
   await cp(join(root, 'tests/roles/roles.test.mjs'), join(consumer, 'roles.test.mjs'));
   await check('package.role-state-behavior', () => run('role-state-behavior', ['--test', 'roles.test.mjs'], consumer));
 
+  await check('package.terms-display-graph', async () => {
+    const graph = contents => buildSync({ stdin: { contents, resolveDir: consumer }, absWorkingDir: consumer, bundle: true, platform: 'browser', format: 'esm', metafile: true, write: false, logLevel: 'silent' });
+    const verify = result => {
+      const used = Object.values(result.metafile.outputs).flatMap(output => Object.entries(output.inputs).filter(([, value]) => value.bytesInOutput > 0).map(([input]) => input.replaceAll('\\', '/')));
+      const core = used.filter(input => input.includes('/@hmcts/rpx-xui-core-lib/'));
+      assert.deepEqual(core.map(input => input.split('/').at(-1)).sort(), ['hmcts-rpx-xui-core-lib-i18n.mjs', 'hmcts-rpx-xui-core-lib-terms-display.mjs']);
+      assert.ok(!used.some(input => /(?:^|\/)node(?:\/|$)|^node:|@angular\/router/.test(input)));
+    };
+    const source = await readFile(join(consumer, 'terms-display-graph.mjs'), 'utf8');
+    verify(graph(source));
+    assert.throws(() => verify(graph(source + "\nimport { windowToken } from '@hmcts/rpx-xui-core-lib/browser/window'; console.log(windowToken);")));
+  });
+
   await check('package.editor-date-graph', async () => {
     const graph = contents => buildSync({ stdin: { contents, resolveDir: consumer }, absWorkingDir: consumer, bundle: true, platform: 'browser', format: 'esm', metafile: true, write: false, logLevel: 'silent' });
     const verify = result => {

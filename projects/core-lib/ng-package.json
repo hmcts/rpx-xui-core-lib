@@ -144,6 +144,11 @@
       "input": "ui/search-location",
       "glob": "LICENCE",
       "output": "ui/search-location"
+    },
+    {
+      "input": "terms/display",
+      "glob": "LICENCE",
+      "output": "terms/display"
     }
   ],
   "allowedNonPeerDependencies": [

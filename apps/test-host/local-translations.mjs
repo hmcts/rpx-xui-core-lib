@@ -1,5 +1,7 @@
 // This proxy is used only by the loopback development gallery.
 const welsh = new Map([
+  ['<strong>Synthetic terms</strong><a href="javascript:alert(1)">Link</a><script>ignored</script>', '<strong>Telerau synthetig</strong><script>ignored</script>'],
+  ['<strong>Synthetic text</strong>', 'Testun synthetig'],
   ['Accessibility statement for MyHMCTS', 'Datganiad hygyrchedd MyHMCTS'],
   ['We are about to sign you out', 'Rydym ar fin eich allgofnodi'],
   ['Saved', 'Wedi cadw'],

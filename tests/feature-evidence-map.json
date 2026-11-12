@@ -825,6 +825,36 @@
           }
         ]
       }
+    },
+    {
+      "feature": "Terms display",
+      "contracts": {
+        "browser": [
+          {
+            "projectName": "chromium",
+            "title": "terms display renders sanitized HTML and excludes unsafe attributes",
+            "feature": "terms-display"
+          },
+          {
+            "projectName": "chromium",
+            "title": "terms display treats plain text as text and handles unsupported MIME types",
+            "feature": "terms-display"
+          },
+          {
+            "projectName": "chromium",
+            "title": "terms display uses the shared translation service for language changes",
+            "feature": "terms-display"
+          },
+          {
+            "projectName": "chromium",
+            "title": "translated HTML is rendered through Angular sanitization",
+            "feature": "terms-display"
+          }
+        ],
+        "package": [
+          "package.terms-display-graph"
+        ]
+      }
     }
   ],
   "suiteGroups": [],

@@ -295,8 +295,8 @@ packageIds.push("package.feature-toggle-graph", "package.feature-directive-graph
 packageIds.push('package.editor-date-graph');
 addedBrowserJourneys.push('date input preserves validation and values across translations', 'date input has accessible keyboard reachable date fields');
 
-packageIds.push('package.session-error-graph');
-addedBrowserJourneys.push("session error page shows default content and supports custom messages", "session error page has an accessible main landmark and heading");
+packageIds.push('package.session-error-graph', 'package.terms-display-graph');
+addedBrowserJourneys.push("session error page shows default content and supports custom messages", "session error page has an accessible main landmark and heading", "terms display renders sanitized HTML and excludes unsafe attributes", "terms display treats plain text as text and handles unsupported MIME types", "terms display uses the shared translation service for language changes", "translated HTML is rendered through Angular sanitization");
 
 unitNames.push('search requires three characters and cancels previous in-flight request', 'lookup failure emits null and selection retains object identity', 'keyboard validation preserves supported navigation and rejects numeric input', 'service-code filtering excludes selected and duplicate locations', 'reset and booking session inputs retain source behavior');
 unitNames.push('constructor uses the supplied location and session instances without copying');
