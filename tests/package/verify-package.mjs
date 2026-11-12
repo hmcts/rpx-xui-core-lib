@@ -330,7 +330,7 @@ try {
     const verify = result => {
       const used = Object.values(result.metafile.outputs).flatMap(output => Object.entries(output.inputs).filter(([, value]) => value.bytesInOutput > 0).map(([input]) => input.replaceAll('\\', '/')));
       const core = used.filter(input => input.includes('/@hmcts/rpx-xui-core-lib/'));
-      assert.deepEqual(core.map(input => input.split('/').at(-1)).sort(), ['hmcts-rpx-xui-core-lib-i18n.mjs', 'hmcts-rpx-xui-core-lib-terms-display.mjs']);
+      assert.deepEqual(core.map(input => input.split('/').at(-1)).sort((a, b) => a.localeCompare(b)), ['hmcts-rpx-xui-core-lib-i18n.mjs', 'hmcts-rpx-xui-core-lib-terms-display.mjs']);
       assert.ok(!used.some(input => /(?:^|\/)node(?:\/|$)|^node:|@angular\/router/.test(input)));
     };
     const source = await readFile(join(consumer, 'terms-display-graph.mjs'), 'utf8');
