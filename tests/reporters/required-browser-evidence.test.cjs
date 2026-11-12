@@ -104,7 +104,14 @@ gov-input|non-heading label follows Welsh language
 gov-input|two errors have one unique described-by target
 gov-input|both validation messages contribute to the accessible description
 gov-input|invalid input without messages does not reference a missing error
-gov-input|invalid input with no hint or messages has no description target`.split('\n').map(row => {
+gov-input|invalid input with no hint or messages has no description target
+gov-date-select|date updates validation as month and year change
+gov-date-select|select changes the reactive form value
+gov-date-select|fieldset exposes its legend, hint and projected content
+gov-date-select|optional date accepts all empty parts but rejects an incomplete date
+gov-date-select|rejects an impossible day and recovers when the month changes
+gov-date-select|date errors describe the correct fieldset without duplicate or missing targets
+gov-date-select|empty date and select messages never reference absent error elements`.split('\n').map(row => {
   const [feature, title] = row.split('|');
   return ['chromium', title, feature];
 });

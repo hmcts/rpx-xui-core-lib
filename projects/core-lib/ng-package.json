@@ -154,6 +154,16 @@
       "input": "ui/gov-input",
       "glob": "LICENCE",
       "output": "ui/gov-input"
+    },
+    {
+      "input": "ui/gov-date",
+      "glob": "LICENCE",
+      "output": "ui/gov-date"
+    },
+    {
+      "input": "ui/gov-select",
+      "glob": "LICENCE",
+      "output": "ui/gov-select"
     }
   ],
   "allowedNonPeerDependencies": [

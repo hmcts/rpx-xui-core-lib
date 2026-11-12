@@ -57,7 +57,7 @@ try {
   const consumer = join(scratch, 'consumer');
   const dist = join(root, 'dist/core-lib');
   const declaration = 'forms/validation/index.d.ts';
-  const sourceLicenceEntries = ['ui/search-location', 'terms/display', 'ui/gov-input', 'case/session-error', 'case/editor-date', 'browser/window', 'browser/session-storage', 'reference/locations', 'reference/ref-data', 'terms/models', 'ui/cookie', 'ui/feature-toggle', 'ui/feature-toggle-directive', 'ui/role-state', 'ui/task-data', 'case/sharing-state', 'ui/contact-details', 'ui/loading-spinner', 'ui/loading-state', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog', 'ui/banner', 'ui/form-label', 'case/models', 'case/reference', 'case/sharing'];
+  const sourceLicenceEntries = ['ui/gov-date', 'ui/gov-select', 'ui/search-location', 'terms/display', 'ui/gov-input', 'case/session-error', 'case/editor-date', 'browser/window', 'browser/session-storage', 'reference/locations', 'reference/ref-data', 'terms/models', 'ui/cookie', 'ui/feature-toggle', 'ui/feature-toggle-directive', 'ui/role-state', 'ui/task-data', 'case/sharing-state', 'ui/contact-details', 'ui/loading-spinner', 'ui/loading-state', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog', 'ui/banner', 'ui/form-label', 'case/models', 'case/reference', 'case/sharing'];
 
   // Fail before dependency setup when the legacy TypeScript entry point is absent.
   await check('package.physical-secondary-declaration', async () => {
@@ -300,6 +300,8 @@ try {
     ['window', 'window-graph.mjs', ['browser-window']],
     ['search-location', 'search-location-graph.mjs', ['ui-search-location', 'reference-locations', 'reference-ref-data', 'browser-session-storage', 'i18n']],
     ['gov-input', 'gov-input-graph.mjs', ['ui-gov-input', 'i18n']],
+    ['gov-date', 'gov-date-graph.mjs', ['ui-gov-date', 'ui-gov-input', 'i18n']],
+    ['gov-select', 'gov-select-graph.mjs', ['ui-gov-select', 'ui-gov-input', 'i18n']],
     ['locations', 'location-graph.mjs', ['reference-locations']],
     ['ref-data', 'ref-data-graph.mjs', ['reference-ref-data']],
     ['feature-toggle', 'feature-toggle-graph.mjs', ['ui-feature-toggle']],
@@ -329,6 +331,8 @@ try {
   await check('package.role-state-behavior', () => run('role-state-behavior', ['--test', 'roles.test.mjs'], consumer));
 
   await check('package.gov-input-behavior', () => run('gov-input-behavior', ['--test', 'gov-input-behavior.test.mjs'], consumer));
+  await cp(join(root, 'tests/gov-date/lifecycle.test.mjs'), join(consumer, 'gov-date-lifecycle.test.mjs'));
+  await check('package.gov-date-behavior', () => run('gov-date-behavior', ['--test', 'gov-date-lifecycle.test.mjs'], consumer));
 
   await check('package.terms-display-graph', async () => {
     const graph = contents => buildSync({ stdin: { contents, resolveDir: consumer }, absWorkingDir: consumer, bundle: true, platform: 'browser', format: 'esm', metafile: true, write: false, logLevel: 'silent' });
