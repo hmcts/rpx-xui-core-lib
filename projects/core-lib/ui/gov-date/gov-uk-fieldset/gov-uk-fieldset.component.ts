@@ -1,7 +1,5 @@
 import {Component, Input} from '@angular/core';
-import { ErrorMessagesModel } from '@hmcts/rpx-xui-core-lib/ui/gov-input';
-import { GovUiConfigModel } from '@hmcts/rpx-xui-core-lib/ui/gov-input';
-import {HtmlTemplatesHelper} from '@hmcts/rpx-xui-core-lib/ui/gov-input';
+import { ErrorMessagesModel, GovUiConfigModel, HtmlTemplatesHelper } from '@hmcts/rpx-xui-core-lib/ui/gov-input';
 /*
 * Gov Uk Fieldset Component
 * Used to wrap group fieldset elements

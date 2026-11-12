@@ -6,8 +6,7 @@ import {
 } from '@angular/core';
 import { ValidationErrors, ValidatorFn } from '@angular/forms';
 import { merge, Subscription } from 'rxjs';
-import { ErrorMessagesModel } from '@hmcts/rpx-xui-core-lib/ui/gov-input';
-import { GovUiConfigModel } from '@hmcts/rpx-xui-core-lib/ui/gov-input';
+import { ErrorMessagesModel, GovUiConfigModel } from '@hmcts/rpx-xui-core-lib/ui/gov-input';
 /*
  * Gov UK Date Component
  * Responsible for displaying 3 input fields:
@@ -55,7 +54,7 @@ export class GovUkDateComponent implements OnInit, OnDestroy {
   }
 
   private isValidDate(d: Date, month: number, year: number): boolean {
-    const dateCheck = !isNaN(d.getTime());
+    const dateCheck = !Number.isNaN(d.getTime());
     // Month mismatch occurs if the provided day or month are invalid, or either is omitted. **Note:** This is insufficient for
     // checking date validity when the year is omitted because it defaults to 1900 - an extra check is required
     const monthMatch = d.getMonth() === month;
