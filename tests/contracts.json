@@ -32,7 +32,17 @@
       "task service sends and caches through the Angular HTTP testing backend",
       "date input reports mandatory and partial values through the legacy validator",
       "date input write and callback preserve the legacy padded value",
-      "date input retains legacy touched callback and destruction behavior"
+      "date input retains legacy touched callback and destruction behavior",
+      "search requires three characters and cancels previous in-flight request",
+      "lookup failure emits null and selection retains object identity",
+      "keyboard validation preserves supported navigation and rejects numeric input",
+      "service-code filtering excludes selected and duplicate locations",
+      "reset and booking session inputs retain source behavior",
+      "constructor uses the supplied location and session instances without copying",
+      "input change emits both source events with the entered term",
+      "lookup uses configured arguments and excludes previously selected locations",
+      "service lookup handles empty search and filters by configured property",
+      "keyboard input preserves legacy accepted keys and legacy keyCode fallback"
     ]
   },
   "browser": {
@@ -277,6 +287,96 @@
         "projectName": "chromium",
         "title": "session error page has an accessible main landmark and heading",
         "feature": "session-error"
+      },
+      {
+        "projectName": "chromium",
+        "title": "keyboard search presents and selects a location",
+        "feature": "search-location"
+      },
+      {
+        "projectName": "chromium",
+        "title": "a caller supplied label gives the location search an accessible name",
+        "feature": "search-location"
+      },
+      {
+        "projectName": "chromium",
+        "title": "unlabelled booking-style host exposes the existing accessible-name gap",
+        "feature": "search-location-accessibility-gap"
+      },
+      {
+        "projectName": "chromium",
+        "title": "explicit labels preserve caller context and distinct input identifiers",
+        "feature": "search-location"
+      },
+      {
+        "projectName": "chromium",
+        "title": "changing, clearing and removing a supplied label updates the input name",
+        "feature": "search-location"
+      },
+      {
+        "projectName": "chromium",
+        "title": "synthetic Welsh responses update explicit names without replacing an external label",
+        "feature": "search-location"
+      },
+      {
+        "projectName": "chromium",
+        "title": "blank opt-in preserves the external name and explicit text takes precedence",
+        "feature": "search-location"
+      },
+      {
+        "projectName": "chromium",
+        "title": "terms display renders sanitized HTML and excludes unsafe attributes",
+        "feature": "terms-display"
+      },
+      {
+        "projectName": "chromium",
+        "title": "terms display treats plain text as text and handles unsupported MIME types",
+        "feature": "terms-display"
+      },
+      {
+        "projectName": "chromium",
+        "title": "terms display uses the shared translation service for language changes",
+        "feature": "terms-display"
+      },
+      {
+        "projectName": "chromium",
+        "title": "translated HTML is rendered through Angular sanitization",
+        "feature": "terms-display"
+      },
+      {
+        "projectName": "chromium",
+        "title": "GOV.UK input connects its label and hint and updates the reactive form",
+        "feature": "gov-input"
+      },
+      {
+        "projectName": "chromium",
+        "title": "GOV.UK input associates an error and restores hint-only state",
+        "feature": "gov-input"
+      },
+      {
+        "projectName": "chromium",
+        "title": "non-heading label follows Welsh language",
+        "feature": "gov-input"
+      },
+      {
+        "projectName": "chromium",
+        "title": "two errors have one unique described-by target",
+        "feature": "gov-input"
+      },
+      {
+        "projectName": "chromium",
+        "title": "both validation messages contribute to the accessible description",
+        "feature": "gov-input"
+      },
+      {
+        "projectName": "chromium",
+        "title": "invalid input without messages does not reference a missing error",
+        "feature": "gov-input"
+      },
+      {
+        "projectName": "chromium",
+        "title": "invalid input with no hint or messages has no description target",
+        "feature": "gov-input"
       }
     ]
   },
@@ -334,7 +434,11 @@
       "package.editor-date-graph",
       "package.session-error-graph",
       "package.loading-angular-build",
-      "package.loading-eager-fault"
+      "package.loading-eager-fault",
+      "package.search-location-graph",
+      "package.terms-display-graph",
+      "package.gov-input-graph",
+      "package.gov-input-behavior"
     ]
   },
   "nodeUnit": {
@@ -408,7 +512,7 @@
       "RpxTranslationService language changes does not replace English with a stale failed-request fallback",
       "RpxTranslationService language changes returns English for phrases matching inherited Object property names",
       "RpxTranslationService public API composition translates only static fragments and preserves repeated numeric replacements and spacing",
-      "RpxTranslationService public API composition selects Yes/No metadata and matches each input’s initial letter case from one request",
+      "RpxTranslationService public API composition selects Yes/No metadata and matches each input\u2019s initial letter case from one request",
       "RpxTranslationService public API composition restores original Yes/No inputs after a successful response without answer metadata",
       "RpxTranslationService request lifecycle batches distinct phrases and deduplicates repeated subscriptions and normalized aliases",
       "RpxTranslationService request lifecycle uses source fallback in production mode and allows a subsequent phrase to translate",

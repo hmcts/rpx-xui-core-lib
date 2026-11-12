@@ -295,10 +295,23 @@ packageIds.push("package.feature-toggle-graph", "package.feature-directive-graph
 packageIds.push('package.editor-date-graph');
 addedBrowserJourneys.push('date input preserves validation and values across translations', 'date input has accessible keyboard reachable date fields');
 
-packageIds.push('package.session-error-graph');
-addedBrowserJourneys.push("session error page shows default content and supports custom messages", "session error page has an accessible main landmark and heading");
+packageIds.push('package.session-error-graph', 'package.terms-display-graph');
+addedBrowserJourneys.push("session error page shows default content and supports custom messages", "session error page has an accessible main landmark and heading", "terms display renders sanitized HTML and excludes unsafe attributes", "terms display treats plain text as text and handles unsupported MIME types", "terms display uses the shared translation service for language changes", "translated HTML is rendered through Angular sanitization");
+
+unitNames.push('search requires three characters and cancels previous in-flight request', 'lookup failure emits null and selection retains object identity', 'keyboard validation preserves supported navigation and rejects numeric input', 'service-code filtering excludes selected and duplicate locations', 'reset and booking session inputs retain source behavior');
+unitNames.push('constructor uses the supplied location and session instances without copying');
+unitNames.push('input change emits both source events with the entered term', 'lookup uses configured arguments and excludes previously selected locations', 'service lookup handles empty search and filters by configured property', 'keyboard input preserves legacy accepted keys and legacy keyCode fallback');
+addedBrowserJourneys.push('keyboard search presents and selects a location', 'a caller supplied label gives the location search an accessible name');
+addedBrowserJourneys.push('unlabelled booking-style host exposes the existing accessible-name gap');
+addedBrowserJourneys.push('explicit labels preserve caller context and distinct input identifiers', 'changing, clearing and removing a supplied label updates the input name', 'synthetic Welsh responses update explicit names without replacing an external label');
+addedBrowserJourneys.push('blank opt-in preserves the external name and explicit text takes precedence');
+packageIds.push('package.search-location-graph');
 
 packageIds.push('package.loading-angular-build', 'package.loading-eager-fault');
+
+
+packageIds.push("package.gov-input-graph", "package.gov-input-behavior");
+addedBrowserJourneys.push("GOV.UK input connects its label and hint and updates the reactive form", "GOV.UK input associates an error and restores hint-only state", "non-heading label follows Welsh language", "two errors have one unique described-by target", "both validation messages contribute to the accessible description", "invalid input without messages does not reference a missing error", "invalid input with no hint or messages has no description target");
 
 const expectedContracts = addedBrowserJourneys.length + Object.values(addedLaneNames).reduce((sum, names) => sum + names.length, 0) + unitNames.length + nodeNames.length + i18nNames.length + i18nJourneys.length + dueDateJourneys.length + accessibilityJourneys.length + sessionDialogJourneys.length + primitiveJourneys.length + cacheJourneys.length + validationJourneys.length + packageIds.length + 1;
 

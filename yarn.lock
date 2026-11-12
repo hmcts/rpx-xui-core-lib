@@ -291,6 +291,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@angular/cdk@npm:20.2.14":
+  version: 20.2.14
+  resolution: "@angular/cdk@npm:20.2.14"
+  dependencies:
+    parse5: "npm:^8.0.0"
+    tslib: "npm:^2.3.0"
+  peerDependencies:
+    "@angular/common": ^20.0.0 || ^21.0.0
+    "@angular/core": ^20.0.0 || ^21.0.0
+    rxjs: ^6.5.3 || ^7.4.0
+  checksum: 10c0/8f6463252d942cc2a62b861fcb206abeca097e89018191c7d8f390187a7ff6917ee42918e53b4da40e2f9d407fb42bb94b515d82e1daa17fa0c7be4d4fce6de8
+  languageName: node
+  linkType: hard
+
 "@angular/cli@npm:20.3.42":
   version: 20.3.42
   resolution: "@angular/cli@npm:20.3.42"
@@ -394,6 +408,22 @@ __metadata:
     "@angular/platform-browser": 20.3.35
     rxjs: ^6.5.3 || ^7.4.0
   checksum: 10c0/f113db73f360e664ebedbb686f941f4d004006d494e13a9c9b250aa71aa9d59990fb126f629443e3420ee8713dd956b10973f46c13d239e73d754e38ff1cd724
+  languageName: node
+  linkType: hard
+
+"@angular/material@npm:20.2.14":
+  version: 20.2.14
+  resolution: "@angular/material@npm:20.2.14"
+  dependencies:
+    tslib: "npm:^2.3.0"
+  peerDependencies:
+    "@angular/cdk": 20.2.14
+    "@angular/common": ^20.0.0 || ^21.0.0
+    "@angular/core": ^20.0.0 || ^21.0.0
+    "@angular/forms": ^20.0.0 || ^21.0.0
+    "@angular/platform-browser": ^20.0.0 || ^21.0.0
+    rxjs: ^6.5.3 || ^7.4.0
+  checksum: 10c0/6acfc033f7817f0237968fcc5e24500d949afecf88e3d6e20fcbcdeeac4747942a97e210475511d96db1157519df4e5089d8a36e2f1ad53fad5169bb452c0b40
   languageName: node
   linkType: hard
 
@@ -1301,12 +1331,14 @@ __metadata:
   resolution: "@hmcts/rpx-xui-core-lib@workspace:."
   dependencies:
     "@angular/build": "npm:20.3.42"
+    "@angular/cdk": "npm:20.2.14"
     "@angular/cli": "npm:20.3.42"
     "@angular/common": "npm:20.3.35"
     "@angular/compiler": "npm:20.3.35"
     "@angular/compiler-cli": "npm:20.3.35"
     "@angular/core": "npm:20.3.35"
     "@angular/forms": "npm:20.3.35"
+    "@angular/material": "npm:20.2.14"
     "@angular/platform-browser": "npm:20.3.35"
     "@axe-core/playwright": "npm:4.14.0"
     "@playwright/test": "npm:1.65.0"

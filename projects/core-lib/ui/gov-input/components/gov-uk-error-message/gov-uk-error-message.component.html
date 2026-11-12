@@ -1,0 +1,9 @@
+@if (errorMessage?.messages?.length) {
+  <span [id]="config.id + '-error'">
+    @for (message of errorMessage.messages; track message) {
+      <span class="govuk-error-message">
+        <span class="govuk-visually-hidden">{{'Error' | rpxTranslate}}:</span>{{message | rpxTranslate}}
+      </span>
+    }
+  </span>
+}

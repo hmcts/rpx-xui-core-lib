@@ -86,7 +86,25 @@ feature-toggle-directive|feature directive unsubscribes on removal and subscribe
 date-input|date input preserves validation and values across translations
 date-input|date input has accessible keyboard reachable date fields
 session-error|session error page shows default content and supports custom messages
-session-error|session error page has an accessible main landmark and heading`.split('\n').map(row => {
+session-error|session error page has an accessible main landmark and heading
+search-location|keyboard search presents and selects a location
+search-location|a caller supplied label gives the location search an accessible name
+search-location-accessibility-gap|unlabelled booking-style host exposes the existing accessible-name gap
+search-location|explicit labels preserve caller context and distinct input identifiers
+search-location|changing, clearing and removing a supplied label updates the input name
+search-location|synthetic Welsh responses update explicit names without replacing an external label
+search-location|blank opt-in preserves the external name and explicit text takes precedence
+terms-display|terms display renders sanitized HTML and excludes unsafe attributes
+terms-display|terms display treats plain text as text and handles unsupported MIME types
+terms-display|terms display uses the shared translation service for language changes
+terms-display|translated HTML is rendered through Angular sanitization
+gov-input|GOV.UK input connects its label and hint and updates the reactive form
+gov-input|GOV.UK input associates an error and restores hint-only state
+gov-input|non-heading label follows Welsh language
+gov-input|two errors have one unique described-by target
+gov-input|both validation messages contribute to the accessible description
+gov-input|invalid input without messages does not reference a missing error
+gov-input|invalid input with no hint or messages has no description target`.split('\n').map(row => {
   const [feature, title] = row.split('|');
   return ['chromium', title, feature];
 });

@@ -1,0 +1,26 @@
+<div class="auto-complete-container">
+  <input
+    [id]="inputId"
+    [attr.aria-label]="accessibleLabel ? (accessibleLabel | rpxTranslate) : null"
+    #char
+    (keydown)="removeInvalidString($event)"
+    (input)="onInput()"
+    [formControl]="searchTermFormControl"
+    [matAutocomplete]="autoSearchLocation"
+    class="govuk-input"
+    [attr.disabled]="disabled">
+  <mat-autocomplete class="mat-autocomplete-panel-extend" autoActiveFirstOption #autoSearchLocation="matAutocomplete">
+    @if (filteredList$ | async; as filteredList) {
+      @if (filteredList !== null) {
+        @for (location of filteredList; track location) {
+          <mat-option (onSelectionChange)="onSelectedLocation(location)">
+            {{ location[propertyNameFilter] }}
+          </mat-option>
+        }
+        @if (filteredList.length === 0) {
+          <mat-option>{{ 'No results found' | rpxTranslate }}</mat-option>
+        }
+      }
+    }
+  </mat-autocomplete>
+</div>
