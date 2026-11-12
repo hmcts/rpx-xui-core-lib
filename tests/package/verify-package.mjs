@@ -298,6 +298,7 @@ try {
     ['cookie', 'cookie-graph.mjs', ['ui-cookie']],
     ['window', 'window-graph.mjs', ['browser-window']],
     ['search-location', 'search-location-graph.mjs', ['ui-search-location', 'reference-locations', 'reference-ref-data', 'browser-session-storage', 'i18n']],
+    ['gov-input', 'gov-input-graph.mjs', ['ui-gov-input', 'i18n']],
     ['locations', 'location-graph.mjs', ['reference-locations']],
     ['ref-data', 'ref-data-graph.mjs', ['reference-ref-data']],
     ['feature-toggle', 'feature-toggle-graph.mjs', ['ui-feature-toggle']],
@@ -313,6 +314,7 @@ try {
         assert.equal(core.length, entries.length, 'Unexpected Core entries in graph');
         for (const entry of entries) assert.ok(core.some(input => input.endsWith('/fesm2022/hmcts-rpx-xui-core-lib-' + entry + '.mjs')));
         assert.ok(!used.some(input => /(?:^|\/)node(?:\/|$)|^node:/.test(input)));
+        if (id === 'gov-input') assert.ok(!used.some(input => input.includes('@angular/router')));
       };
       const source = await readFile(join(consumer, file), 'utf8');
       verify(graph(source));
@@ -326,19 +328,6 @@ try {
   await check('package.role-state-behavior', () => run('role-state-behavior', ['--test', 'roles.test.mjs'], consumer));
 
   await check('package.gov-input-behavior', () => run('gov-input-behavior', ['--test', 'gov-input-behavior.test.mjs'], consumer));
-
-  await check('package.gov-input-graph', async () => {
-    const graph = contents => buildSync({ stdin: { contents, resolveDir: consumer }, absWorkingDir: consumer, bundle: true, platform: 'browser', format: 'esm', metafile: true, write: false, logLevel: 'silent' });
-    const verify = result => {
-      const used = Object.values(result.metafile.outputs).flatMap(output => Object.entries(output.inputs).filter(([, value]) => value.bytesInOutput > 0).map(([input]) => input.replaceAll('\\', '/')));
-      const core = used.filter(input => input.includes('/@hmcts/rpx-xui-core-lib/'));
-      assert.deepEqual(core.map(input => input.split('/').at(-1)).sort((a, b) => a.localeCompare(b)), ['hmcts-rpx-xui-core-lib-i18n.mjs', 'hmcts-rpx-xui-core-lib-ui-gov-input.mjs']);
-      assert.ok(!used.some(input => /(?:^|\/)node(?:\/|$)|^node:|@angular\/router/.test(input)));
-    };
-    const source = await readFile(join(consumer, 'gov-input-graph.mjs'), 'utf8');
-    verify(graph(source));
-    assert.throws(() => verify(graph(source + "\nimport { windowToken } from '@hmcts/rpx-xui-core-lib/browser/window'; console.log(windowToken);")));
-  });
 
   await check('package.terms-display-graph', async () => {
     const graph = contents => buildSync({ stdin: { contents, resolveDir: consumer }, absWorkingDir: consumer, bundle: true, platform: 'browser', format: 'esm', metafile: true, write: false, logLevel: 'silent' });
