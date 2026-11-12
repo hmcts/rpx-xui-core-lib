@@ -71,6 +71,9 @@ ui-primitives|form label associates the field and retains optional heading varia
 ui-primitives|heading label and banner use translated messages
 ui-primitives|primitives pass scoped serious accessibility checks
 ui-primitives|non-heading label preserves supplied text when language changes
+session-dialog|session dialog remains visible when a long page is scrolled
+session-dialog|session dialog keeps tall content reachable
+session-dialog|session dialog with a large top offset remains usable in a short viewport
 session-dialog|session dialog preserves the legacy viewport layout while using native modality
 cookie|cookie service writes a strict cookie with the current default path and expiry
 cookie|cookie deletion requires the matching real browser path and domain

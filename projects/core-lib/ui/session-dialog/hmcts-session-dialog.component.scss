@@ -212,6 +212,10 @@
 
 @media (min-width: 40.0625em) {
   .gem-c-modal-dialogue__box:modal {
+    position: fixed;
+    margin-top: min(var(--dialog-position-top, 30px), 50vh) !important;
+    max-height: calc(100vh - min(var(--dialog-position-top, 30px), 50vh));
+    overflow-y: auto;
     left: 0;
     right: 0;
     width: min(640px, calc(100% - 4px));
