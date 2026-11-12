@@ -19,7 +19,7 @@ The `/ui/accessibility` entry provides the original CommonLib accessibility stat
 
 ## Develop locally
 
-For agent-assisted local startup, checks and failure diagnosis, ask your repository-aware agent to read [the core local test skill](.agents/skills/core-local-test/SKILL.md). It uses the same repository commands and reports; it does not replace human review or remote CI.
+For agent-assisted local startup, checks and failure diagnosis, ask your repository-aware agent to read [the core local test skill](.agents/skills/core-local-test/SKILL.md). It uses the same repository commands and reports; it does not replace human review or remote CI. For example: “Use `core-local-test` to run the full local gate for this checkout, inspect the feature report and explain any failures.” The agent checks prerequisites and preserves evidence before running; it reports local results and limits rather than claiming release readiness.
 
 Use Node **24.22.2** and Yarn **4.18.1** for the core integration cohort. Yarn is checked in so setup does not require a global Yarn installation or Corepack.
 
