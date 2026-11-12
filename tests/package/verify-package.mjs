@@ -60,7 +60,7 @@ try {
   await check('package.physical-secondary-declaration', async () => {
     assert.ok((await stat(join(dist, declaration))).isFile());
     assert.ok((await stat(join(dist, 'forms/validation/LICENCE'))).isFile());
-    for (const entry of ['ui/contact-details', 'ui/loading-spinner', 'case/models', 'case/reference', 'case/sharing']) {
+    for (const entry of ['browser/window', 'browser/session-storage', 'reference/locations', 'reference/ref-data', 'terms/models', 'ui/cookie', 'ui/feature-toggle', 'ui/feature-toggle-directive', 'ui/role-state', 'ui/task-data', 'case/sharing-state', 'ui/contact-details', 'ui/loading-spinner', 'ui/loading-state', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog', 'ui/banner', 'ui/form-label', 'case/models', 'case/reference', 'case/sharing']) {
       assert.equal(await readFile(join(dist, entry, 'LICENCE'), 'utf8'), await readFile(join(root, 'projects/core-lib', entry, 'LICENCE'), 'utf8'), 'Copied source licence must survive packaging');
     }
   });
@@ -118,7 +118,7 @@ try {
   await check('package.strict-bundler', () => run('strict-bundler', [compiler, '-p', 'tsconfig.bundler.json'], consumer));
   await check('package.installed-runtime', async () => {
     await run('installed-runtime', ['runtime.mjs'], consumer);
-    for (const entry of ['ui/contact-details', 'ui/loading-spinner', 'case/models', 'case/reference', 'case/sharing']) {
+    for (const entry of ['browser/window', 'browser/session-storage', 'reference/locations', 'reference/ref-data', 'terms/models', 'ui/cookie', 'ui/feature-toggle', 'ui/feature-toggle-directive', 'ui/role-state', 'ui/task-data', 'case/sharing-state', 'ui/contact-details', 'ui/loading-spinner', 'ui/loading-state', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog', 'ui/banner', 'ui/form-label', 'case/models', 'case/reference', 'case/sharing']) {
       assert.equal(await readFile(join(installed, entry, 'LICENCE'), 'utf8'), await readFile(join(root, 'projects/core-lib', entry, 'LICENCE'), 'utf8'), 'Copied source licence must survive immutable installation');
     }
   });
@@ -130,12 +130,163 @@ try {
     assert.ok(!used.some((path) => /hmcts-rpx-xui-core-lib-i18n\.mjs|(?:^|\/)dexie(?:\/|$)|(?:^|\/)luxon(?:\/|$)|(?:^|\/)node(?:\/|$)|^node:/.test(path)), 'Validation graph must exclude i18n, Dexie, Luxon and Node');
     return result.metafile;
   };
+  await cp(join(root, 'tests/loading-state/loading-state.test.mjs'), join(consumer, 'loading-state.test.mjs'));
+  await check('package.loading-state-behavior', () => run('loading-state-behavior', ['--test', 'loading-state.test.mjs'], consumer));
+
+  await check('package.loading-state-graph', async () => {
+    const result = buildSync({ entryPoints: ['loading-state-graph.mjs'], absWorkingDir: consumer, bundle: true, platform: 'browser', format: 'esm', metafile: true, write: false, logLevel: 'silent' });
+    const used = Object.values(result.metafile.outputs).flatMap(output => Object.entries(output.inputs).filter(([, value]) => value.bytesInOutput > 0).map(([path]) => path.replaceAll('\\', '/')));
+    assert.ok(used.some(path => path.endsWith('/fesm2022/hmcts-rpx-xui-core-lib-ui-loading-state.mjs')));
+    assert.ok(!used.some(path => /hmcts-rpx-xui-core-lib-(?:ui-loading-spinner|ui-contact-details|ui-due-date|ui-accessibility|case-|forms-|i18n)|(?:^|\/)node(?:\/|$)|^node:/.test(path)));
+  });
+
+  await cp(join(root, 'tests/session-storage/session-storage.test.mjs'), join(consumer, 'session-storage.test.mjs'));
+  await check('package.session-storage-behavior', () => run('session-storage-behavior', ['--test', 'session-storage.test.mjs'], consumer));
+  await check('package.session-storage-graph', async () => {
+    const graph = (contents) => buildSync({ stdin: { contents, resolveDir: consumer }, absWorkingDir: consumer, bundle: true, platform: 'browser', format: 'esm', metafile: true, write: false, logLevel: 'silent' });
+    const verifyStorageGraph = result => {
+      const used = Object.values(result.metafile.outputs).flatMap(output => Object.entries(output.inputs).filter(([, value]) => value.bytesInOutput > 0).map(([path]) => path.replaceAll('\\', '/')));
+      const core = used.filter(path => path.includes('/@hmcts/rpx-xui-core-lib/'));
+      assert.equal(core.length, 1, 'Storage graph must contain exactly one core module');
+      assert.ok(core[0].endsWith('/fesm2022/hmcts-rpx-xui-core-lib-browser-session-storage.mjs'));
+      assert.ok(!used.some(path => /(?:^|\/)node(?:\/|$)|^node:/.test(path)), 'Storage entry must not pull Node capabilities');
+    };
+    const source = await readFile(join(consumer, 'session-storage-graph.mjs'), 'utf8');
+    verifyStorageGraph(graph(source));
+    assert.throws(() => verifyStorageGraph(graph(`${source}\nimport { windowToken } from '@hmcts/rpx-xui-core-lib/browser/window'; console.log(windowToken);`)), /exactly one core module/);
+  });
+
+  await cp(join(root, 'tests/task-data/task-data.test.mjs'), join(consumer, 'task-data.test.mjs'));
+  await check('package.task-data-behavior', () => run('task-data-behavior', ['--test', 'task-data.test.mjs'], consumer));
+  await check('package.task-data-graph', async () => {
+    const graph = contents => buildSync({ stdin: { contents, resolveDir: consumer }, absWorkingDir: consumer, bundle: true, platform: 'browser', format: 'esm', metafile: true, write: false, logLevel: 'silent' });
+    const verify = result => {
+      const used = Object.values(result.metafile.outputs).flatMap(output => Object.entries(output.inputs).filter(([, value]) => value.bytesInOutput > 0).map(([path]) => path.replaceAll('\\', '/')));
+      const core = used.filter(path => path.includes('/@hmcts/rpx-xui-core-lib/'));
+      assert.equal(core.length, 2, 'Task graph must contain task and storage core modules');
+      assert.ok(core.some(path => path.endsWith('/fesm2022/hmcts-rpx-xui-core-lib-ui-task-data.mjs')));
+      assert.ok(core.some(path => path.endsWith('/fesm2022/hmcts-rpx-xui-core-lib-browser-session-storage.mjs')));
+      assert.ok(!used.some(path => /(?:^|\/)node(?:\/|$)|^node:/.test(path)));
+    };
+    const source = await readFile(join(consumer, 'task-data-graph.mjs'), 'utf8');
+    verify(graph(source));
+    assert.throws(() => verify(graph(`${source}\nimport { windowToken } from '@hmcts/rpx-xui-core-lib/browser/window'; console.log(windowToken);`)), /task and storage/);
+  });
+
+  await check('package.case-sharing-state-graph', async () => {
+    const graph = contents => buildSync({ stdin: { contents, resolveDir: consumer }, absWorkingDir: consumer, bundle: true, platform: 'browser', format: 'esm', metafile: true, write: false, logLevel: 'silent' });
+    const verify = result => {
+      const used = Object.values(result.metafile.outputs).flatMap(output => Object.entries(output.inputs).filter(([, value]) => value.bytesInOutput > 0).map(([path]) => path.replaceAll('\\', '/')));
+      const core = used.filter(path => path.includes('/@hmcts/rpx-xui-core-lib/'));
+      assert.equal(core.length, 1, 'Case sharing state graph must contain exactly one core module');
+      assert.ok(core[0].endsWith('/fesm2022/hmcts-rpx-xui-core-lib-case-sharing-state.mjs'));
+      assert.ok(!used.some(path => /(?:^|\/)node(?:\/|$)|^node:/.test(path)));
+    };
+    const source = await readFile(join(consumer, 'case-sharing-state-graph.mjs'), 'utf8');
+    verify(graph(source));
+    assert.throws(() => verify(graph(`${source}\nimport { windowToken } from '@hmcts/rpx-xui-core-lib/browser/window'; console.log(windowToken);`)), /exactly one core module/);
+  });
+
+  await cp(join(root, 'tests/case-sharing/state.test.mjs'), join(consumer, 'case-sharing-state.test.mjs'));
+  await check('package.case-sharing-state-behavior', () => run('case-sharing-state-behavior', ['--test', 'case-sharing-state.test.mjs'], consumer));
+
+  await cp(join(root, 'tests/cookie/cookie.test.mjs'), join(consumer, 'cookie.test.mjs'));
+  await check('package.cookie-behavior', () => run('cookie-behavior', ['--test', 'cookie.test.mjs'], consumer));
+
+
+  await check('package.terms-type', async () => {
+    await run('terms-type-node', [compiler, '-p', 'tsconfig.terms-node.json'], consumer);
+    await run('terms-type-bundler', [compiler, '-p', 'tsconfig.terms-bundler.json'], consumer);
+  });
+  await check('package.terms-graph', async () => {
+    const result = buildSync({ entryPoints: ['terms-graph.ts'], absWorkingDir: consumer, bundle: true, platform: 'browser', format: 'esm', metafile: true, write: false, logLevel: 'silent' });
+    const inputs = Object.keys(result.metafile.inputs).map(path => path.replaceAll('\\', '/'));
+    assert.ok(!inputs.some(path => path.includes('@hmcts/rpx-xui-core-lib') || /(?:^|\/)node(?:\/|$)|^node:/.test(path)), 'A type-only consumer must not include Core runtime modules');
+    await run('terms-runtime-empty', ['terms-runtime.mjs'], consumer);
+  });
+
+  await cp(join(root, 'tests/window/window.test.mjs'), join(consumer, 'window.test.mjs'));
+  await check('package.window-behavior', () => run('window-behavior', ['--test', 'window.test.mjs'], consumer));
+
+
+  await cp(join(root, 'tests/locations/location.test.mjs'), join(consumer, 'location.test.mjs'));
+  await check('package.locations-behavior', () => run('locations-behavior', ['--test', 'location.test.mjs'], consumer));
+
+
+  await cp(join(root, 'tests/ref-data/ref-data.test.mjs'), join(consumer, 'ref-data.test.mjs'));
+  await check('package.ref-data-behavior', () => run('ref-data-behavior', ['--test', 'ref-data.test.mjs'], consumer));
+
+
+  /** @type {Array<[string, string, string[]]>} */
+  const selectiveEntries = [
+    ['cookie', 'cookie-graph.mjs', ['ui-cookie']],
+    ['window', 'window-graph.mjs', ['browser-window']],
+    ['locations', 'location-graph.mjs', ['reference-locations']],
+    ['ref-data', 'ref-data-graph.mjs', ['reference-ref-data']],
+    ['feature-toggle', 'feature-toggle-graph.mjs', ['ui-feature-toggle']],
+    ['feature-directive', 'feature-directive-graph.mjs', ['ui-feature-toggle-directive', 'ui-feature-toggle']],
+    ['role-state', 'role-state-graph.mjs', ['ui-role-state']],
+  ];
+  for (const [id, file, entries] of selectiveEntries) {
+    await check('package.' + id + '-graph', async () => {
+      const graph = contents => buildSync({ stdin: { contents, resolveDir: consumer }, absWorkingDir: consumer, bundle: true, platform: 'browser', format: 'esm', metafile: true, write: false, logLevel: 'silent' });
+      const verify = result => {
+        const used = Object.values(result.metafile.outputs).flatMap(output => Object.entries(output.inputs).filter(([, value]) => value.bytesInOutput > 0).map(([input]) => input.replaceAll('\\', '/')));
+        const core = used.filter(input => input.includes('/@hmcts/rpx-xui-core-lib/'));
+        assert.equal(core.length, entries.length, 'Unexpected Core entries in graph');
+        for (const entry of entries) assert.ok(core.some(input => input.endsWith('/fesm2022/hmcts-rpx-xui-core-lib-' + entry + '.mjs')));
+        assert.ok(!used.some(input => /(?:^|\/)node(?:\/|$)|^node:/.test(input)));
+      };
+      const source = await readFile(join(consumer, file), 'utf8');
+      verify(graph(source));
+      const extra = id === 'window' ? "\nimport { CookieService } from '@hmcts/rpx-xui-core-lib/ui/cookie'; console.log(CookieService);" : "\nimport { windowToken } from '@hmcts/rpx-xui-core-lib/browser/window'; console.log(windowToken);";
+      assert.throws(() => verify(graph(source + extra)), /Unexpected Core entries/);
+    });
+  }
+  await cp(join(root, 'tests/feature-toggle/feature-toggle.test.mjs'), join(consumer, 'feature-toggle.test.mjs'));
+  await check('package.feature-toggle-behavior', () => run('feature-toggle-behavior', ['--test', 'feature-toggle.test.mjs'], consumer));
+  await cp(join(root, 'tests/roles/roles.test.mjs'), join(consumer, 'roles.test.mjs'));
+  await check('package.role-state-behavior', () => run('role-state-behavior', ['--test', 'roles.test.mjs'], consumer));
+
   await check('package.sharing-graph', async () => {
     const result = buildSync({ entryPoints: ['sharing-graph.mjs'], absWorkingDir: consumer, bundle: true, platform: 'browser', format: 'esm', metafile: true, write: false, logLevel: 'silent' });
     const used = Object.values(result.metafile.outputs).flatMap((output) => Object.entries(output.inputs).filter(([, value]) => value.bytesInOutput > 0).map(([input]) => input.replaceAll('\\', '/')));
     assert.ok(used.some((input) => input.endsWith('/fesm2022/hmcts-rpx-xui-core-lib-case-sharing.mjs')));
     assert.ok(!used.some((input) => /hmcts-rpx-xui-core-lib-(?:i18n|case-models|case-reference|ui-|forms-)|(?:^|\/)dexie(?:\/|$)|(?:^|\/)luxon(?:\/|$)|(?:^|\/)@angular(?:\/|$)/.test(input)), 'Case sharing must not pull unrelated capabilities');
     await writeFile(join(evidence, 'sharing-metafile.json'), JSON.stringify(result.metafile, null, 2));
+  });
+  await check('package.due-date-graph', async () => {
+    const result = buildSync({ entryPoints: ['due-date-graph.mjs'], absWorkingDir: consumer, bundle: true, platform: 'browser', format: 'esm', metafile: true, write: false, logLevel: 'silent' });
+    const used = Object.values(result.metafile.outputs).flatMap((output) => Object.entries(output.inputs).filter(([, value]) => value.bytesInOutput > 0).map(([input]) => input.replaceAll('\\', '/')));
+    assert.ok(used.some((input) => input.endsWith('/fesm2022/hmcts-rpx-xui-core-lib-ui-due-date.mjs')), 'Due-date entry must contribute bytes');
+    assert.ok(!used.some((input) => /hmcts-rpx-xui-core-lib-(?:ui-contact-details|ui-loading-spinner|ui-accessibility|case-|forms-)|(?:^|\/)node(?:\/|$)|^node:/.test(input)), 'Due-date graph must not pull unrelated capabilities');
+    await writeFile(join(evidence, 'due-date-metafile.json'), JSON.stringify(result.metafile, null, 2));
+  });
+  await check('package.accessibility-graph', async () => {
+    const result = buildSync({ entryPoints: ['accessibility-graph.mjs'], absWorkingDir: consumer, bundle: true, platform: 'browser', format: 'esm', metafile: true, write: false, logLevel: 'silent' });
+    const used = Object.values(result.metafile.outputs).flatMap((output) => Object.entries(output.inputs).filter(([, value]) => value.bytesInOutput > 0).map(([input]) => input.replaceAll('\\', '/')));
+    assert.ok(used.some((input) => input.endsWith('/fesm2022/hmcts-rpx-xui-core-lib-ui-accessibility.mjs')), 'Accessibility entry must contribute bytes');
+    assert.ok(!used.some((input) => /hmcts-rpx-xui-core-lib-(?:ui-contact-details|ui-loading-spinner|ui-due-date|case-|forms-)|(?:^|\/)node(?:\/|$)|^node:/.test(input)), 'Accessibility graph must not pull unrelated capabilities');
+    await writeFile(join(evidence, 'accessibility-metafile.json'), JSON.stringify(result.metafile, null, 2));
+  });
+  await check('package.session-dialog-graph', async () => {
+    const result = buildSync({ entryPoints: ['session-dialog-graph.mjs'], absWorkingDir: consumer, bundle: true, platform: 'browser', format: 'esm', metafile: true, write: false, logLevel: 'silent' });
+    const used = Object.values(result.metafile.outputs).flatMap((output) => Object.entries(output.inputs).filter(([, value]) => value.bytesInOutput > 0).map(([input]) => input.replaceAll('\\', '/')));
+    assert.ok(used.some(input => input.endsWith('/fesm2022/hmcts-rpx-xui-core-lib-ui-session-dialog.mjs')));
+    assert.ok(!used.some(input => /hmcts-rpx-xui-core-lib-(?:ui-contact-details|ui-loading-spinner|ui-accessibility|ui-due-date|case-|forms-)|(?:^|\/)node(?:\/|$)|^node:/.test(input)));
+    await writeFile(join(evidence, 'session-dialog-metafile.json'), JSON.stringify(result.metafile, null, 2));
+  });
+  await check('package.primitives-entry-graphs', async () => {
+    for (const entry of ['banner', 'form-label']) {
+      const result = buildSync({ entryPoints: [`${entry}-graph.mjs`], absWorkingDir: consumer, bundle: true, platform: 'browser', format: 'esm', metafile: true, write: false, logLevel: 'silent' });
+      const used = Object.values(result.metafile.outputs).flatMap((output) => Object.entries(output.inputs).filter(([, value]) => value.bytesInOutput > 0).map(([input]) => input.replaceAll('\\', '/')));
+      assert.ok(used.some(input => input.endsWith(`/fesm2022/hmcts-rpx-xui-core-lib-ui-${entry}.mjs`)));
+      const other = entry === 'banner' ? 'form-label' : 'banner';
+      assert.ok(!used.some(input => input.endsWith(`/fesm2022/hmcts-rpx-xui-core-lib-ui-${other}.mjs`)));
+      assert.ok(!used.some(input => /hmcts-rpx-xui-core-lib-(?:ui-contact-details|ui-loading-spinner|ui-accessibility|ui-due-date|ui-session-dialog|case-|forms-)|(?:^|\/)node(?:\/|$)|^node:/.test(input)));
+      assert.ok(!used.some(input => /(?:^|\/)govuk-frontend(?:\/|$)/.test(input)), 'Compiled styles must not require GOV.UK frontend at runtime');
+      await writeFile(join(evidence, `${entry}-metafile.json`), JSON.stringify(result.metafile, null, 2));
+    }
   });
   await check('package.root-runtime-empty', () => run('root-runtime-empty', ['runtime-root.mjs'], consumer));
   await check('package.validation-graph', async () => {

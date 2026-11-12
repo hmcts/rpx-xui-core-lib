@@ -15,6 +15,8 @@ Repository foundation for consolidating four EXUI libraries into one npm package
 
 Media Viewer and payment integrations remain external. The repository configuration follows common-lib; its aggregate runtime module is not the target architecture.
 
+The `/ui/accessibility` entry provides the original CommonLib accessibility statement and selector. The diagnostic gallery at `/accessibility` exercises its application context and Welsh heading with local synthetic translations. The source statement is preserved; this gallery does not establish accessibility conformance or consumer adoption.
+
 ## Develop locally
 
 For agent-assisted local startup, checks and failure diagnosis, ask your repository-aware agent to read [the core local test skill](.agents/skills/core-local-test/SKILL.md). It uses the same repository commands and reports; it does not replace human review or remote CI.
@@ -53,14 +55,14 @@ Missing, partial or mismatched identity, lane receipts, report bytes or candidat
 
 ## Package layout and initial build cohort
 
-Official ng-packagr emits a structural metadata-only primary entry point plus the implemented `forms/validation`, `i18n`, `ui/contact-details`, `ui/loading-spinner`, `case/models` and `case/reference` secondary entries. The root primary exists because Angular Package Format requires it; its source exports no runtime capability and imports no secondary implementation. It must never become an aggregate root module. Native packaging emits physical `forms/validation/index.d.ts` declarations for legacy consumers and an independent validation FESM. No primary-to-secondary export rewriting or old `/validation` alias is used.
+Official ng-packagr emits a structural metadata-only primary entry point plus the implemented `forms/validation`, `i18n`, `ui/contact-details`, `ui/loading-spinner`, `ui/loading-state`, `ui/due-date`, `ui/accessibility`, `ui/session-dialog`, `ui/banner`, `ui/form-label`, `case/models`, `case/reference` and `case/sharing` secondary entries. The root primary exists because Angular Package Format requires it; its source exports no runtime capability and imports no secondary implementation. It must never become an aggregate root module. Native packaging emits physical `forms/validation/index.d.ts` declarations for legacy consumers and an independent validation FESM. No primary-to-secondary export rewriting or old `/validation` alias is used.
 
 The APF build contract is Angular/compiler-cli **20.3.35**, ng-packagr **20.3.2**, TypeScript **5.9.3**, and Node **24.22.3**, with the gallery using Angular CLI/build **20.3.42** and framework **20.3.35**. Exact Angular peers describe this exercised cohort, not a promise of broad version support. Further supported cohorts need their own installed fixtures. The gallery keeps strict TypeScript/template checks. The library build retains `strict: false`, `noImplicitAny: true`, `skipLibCheck: false` for the remaining translation migration. Lint separately checks validation source under full strictness using `projects/core-lib/forms/tsconfig.strict.json`; Node source, consumer fixtures and gallery templates are also strict. Translation class-initialisation diagnostics remain an explicit migration item.
 
 The validator is derived from [rpx-xui-common-lib published revision f23288743831ef13a55b4348f757db74c1a189c8](https://github.com/hmcts/rpx-xui-common-lib/blob/f23288743831ef13a55b4348f757db74c1a189c8/projects/exui-common-lib/src/lib/gov-ui/validators/checkboxes-be-checked.validator.ts). The original source SHA-256 is `095a8cb877b637406efcb175b2d73775a199104c26e2142b307d18f7d94673c3`; core now narrows the generic Angular control at runtime and rejects a non-FormGroup with a clear error so its callback satisfies strict function variance. Its original MIT licence and 2019 Crown Copyright notice are retained at `forms/validation/LICENCE` in the distribution, alongside the core licence. The preserved behavior counts boolean `true` only, defaults to minimum one and returns `requireOneCheckboxToBeChecked`. Existing AO/common/MO source packages and production authority are unchanged.
 
 
-The focused UI entries preserve the common library contact-details and loading-spinner selectors, models and translation labels. The spinner exposes changing text through a status region and respects reduced motion. The gallery routes `/contact` and `/spinner` exercise full, partial, translated and hidden states. Their original 2019 Crown Copyright licences are included in both the built and installed package.
+The focused UI entries preserve the common library contact-details, loading-spinner, due-date, session-dialog, banner and form-label selectors, models and translation labels. The session-dialog adds a translated accessible name and uses native modal focus isolation, restores the previous connected focus target on teardown, and retains explicit stay-signed-in or sign-out actions when Escape is pressed. The spinner exposes changing text through a status region and respects reduced motion. The gallery routes `/contact`, `/spinner`, `/due-date`, `/session-dialog` and `/primitives` exercise component states and translations. Their original 2019 Crown Copyright licences are included in both the built and installed package.
 
 `case/models` owns the shared Draft and CaseDetails classes; `case/reference` imports that same Draft class and preserves the toolkit case-reference pipe's formatting, draft detection and link handling. The `/case-reference` gallery and installed-package checks cover these contracts. Both case entries retain the original toolkit 2017 HMCTS licence. These slices do not establish application adoption or the complete case renderer.
 
@@ -97,6 +99,8 @@ CI uploads native evidence and generated Odhín artifacts even when a test fails
 Before enabling publication, repository owners must configure GitHub Pages to use **GitHub Actions**, allow the `github-pages` environment to deploy the default branch, and permit the workflow token to write the `odhin-reports` archive branch. Keep any required environment approval in place. These settings and remote publication are not changed by the local implementation. Report archives can contain screenshots, traces and failure logs; retain only approved synthetic data in these browser lanes and apply the repository’s access and retention policy to published evidence.
 
 The packed fixture includes a local, private old-name package that only reexports `/i18n`, proving class/provider identity for that staged shape. It is not a released legacy facade or acceptance of existing Media Viewer/payment dependencies. Prefer coordinated direct external cutover where owners can supply compatible releases; retain a pure reexport facade for supported old-name callers. Real external graphs, cancellation/teardown and concurrency behavior, supported consumer adoption, releases and cache/provider continuity across those upgrades remain acceptance gates. No application should initialize an old implementation alongside core translation.
+
+The `ui/loading-state` service tracks overlapping operations with opaque, per-instance tokens. Tokens include a sequence so operations started at the same clock reading remain distinct; return a token to the same service instance that created it. The service retains the original browser `window.performance` requirement.
 
 ## Full package compatibility preparation
 
@@ -149,3 +153,11 @@ Library package publication remains disabled. Before adoption, consumer and rele
 EXUI owns this repository. Changes go through a pull request to `master`, the required `build` check and human review. Licensed under the [MIT licence](LICENCE).
 
 `case/sharing` supplies the case-sharing models and error messages used by webapp and manage organisations. These are copied from CommonLib commit `f8566da8a53bff16177deeef824a0642a631285c`, retain the original 2019 Crown Copyright licence, and remain a selective entry point; application adoption is not implied.
+
+### CommonLib secondary entries
+
+Use selective imports under `@hmcts/rpx-xui-core-lib/` for `browser/window`, `browser/session-storage`, `reference/locations`, `reference/ref-data`, `terms/models`, `ui/cookie`, `ui/feature-toggle`, `ui/feature-toggle-directive`, `ui/role-state`, `ui/task-data`, and `case/sharing-state`. Terms models are types; importing them as types contributes no runtime library code. Task data uses session storage, and the feature directive uses the feature service.
+
+Run `yarn build`, `yarn lint`, and `yarn test:all` locally for the supervised complete evidence gate. For a focused investigation, use `yarn test:locations`, `yarn test:ref-data`, `yarn test:window`, `yarn test:cookie`, `yarn test:feature-toggle`, or `yarn test:roles` after building. Focused runs do not replace the full evidence gate.
+
+These entries introduce new Angular injection tokens even where the service behaviour mirrors CommonLib. Consumers must explicitly coordinate providers and scopes during cutover; synthetic alias tests do not establish application-wide singleton identity. Avoid declaring both versions of the feature-toggle directive in the same Angular scope because they use the same selector. Validate each consumer's routing, providers and actual user journeys before replacing its existing imports.

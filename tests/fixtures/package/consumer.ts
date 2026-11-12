@@ -62,3 +62,26 @@ export const sharingError: SharedCaseErrorMessages = SharedCaseErrorMessages.One
 export const invalidSharedCase: SharedCase = { caseTitle: 'Title' };
 import { http } from '@hmcts/rpx-xui-core-lib/node/http';
 export const get = http.get;
+
+import { DueDateComponent, DueDateModule, DateBadgeColour, SECONDS_IN_A_DAY } from '@hmcts/rpx-xui-core-lib/ui/due-date';
+export { DueDateComponent, DueDateModule, DateBadgeColour, SECONDS_IN_A_DAY };
+
+import { AccessibilityComponent, AccessibilityModule } from '@hmcts/rpx-xui-core-lib/ui/accessibility';
+export { AccessibilityComponent, AccessibilityModule };
+
+import { HmctsSessionDialogComponent, SessionDialogModule } from '@hmcts/rpx-xui-core-lib/ui/session-dialog';
+export { HmctsSessionDialogComponent, SessionDialogModule };
+
+type IsAny<T> = 0 extends (1 & T) ? true : false;
+type SessionCloseValue = Parameters<HmctsSessionDialogComponent['close']['emit']>[0];
+export const legacySessionCloseType: IsAny<SessionCloseValue> = true;
+
+import { HmctsBannerComponent, BannerModule } from '@hmcts/rpx-xui-core-lib/ui/banner';
+import { GovUkLabelComponent, FormLabelModule } from '@hmcts/rpx-xui-core-lib/ui/form-label';
+export { HmctsBannerComponent, BannerModule, GovUkLabelComponent, FormLabelModule };
+
+import { LoadingService, HasLoadingState } from '@hmcts/rpx-xui-core-lib/ui/loading-state';
+class DefaultLoadingState extends HasLoadingState {}
+export const defaultLoadingState: HasLoadingState = new DefaultLoadingState();
+export const loadingService: HasLoadingState = new LoadingService();
+export const loadingRegistration: string = loadingService instanceof LoadingService ? loadingService.register() : '';

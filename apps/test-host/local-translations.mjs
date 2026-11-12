@@ -1,4 +1,16 @@
 // This proxy is used only by the loopback development gallery.
+const welsh = new Map([
+  ['Accessibility statement for MyHMCTS', 'Datganiad hygyrchedd MyHMCTS'],
+  ['We are about to sign you out', 'Rydym ar fin eich allgofnodi'],
+  ['Saved', 'Wedi cadw'],
+  ['Case name', 'Enw achos'],
+  ['Hello world', 'Helo byd'],
+  ['Searching', 'Chwilio'],
+  ['Phone:', 'Ffôn:'],
+  ['TODAY', 'HEDDIW'],
+  ['This task is due to be completed today', 'Mae’r dasg hon i fod i gael ei chwblhau heddiw'],
+]);
+
 export default {
   '/translations': {
     target: 'http://127.0.0.1:9',
@@ -23,7 +35,7 @@ export default {
         }
         const { phrases } = JSON.parse(body);
         if (!Array.isArray(phrases) || !phrases.every((phrase) => typeof phrase === 'string')) throw new Error('Invalid phrases');
-        const translations = Object.fromEntries(phrases.map((phrase) => [phrase, phrase === 'Hello world' ? 'Helo byd' : phrase === 'Searching' ? 'Chwilio' : phrase === 'Phone:' ? 'Ffôn:' : phrase]));
+        const translations = Object.fromEntries(phrases.map((phrase) => [phrase, welsh.get(phrase) ?? phrase]));
         response.writeHead(200).end(JSON.stringify({ translations }));
       } catch {
         response.writeHead(400).end(JSON.stringify({ error: 'Invalid local translation request' }));

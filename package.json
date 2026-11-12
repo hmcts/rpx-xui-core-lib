@@ -14,7 +14,7 @@
   "packageManager": "yarn@4.18.1",
   "scripts": {
     "lint": "node scripts/lint.mjs",
-    "test": "mkdir -p test-results && node scripts/check-repository.mjs && node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=tap --test-reporter-destination=test-results/validation.tap tests/validation.test.mjs",
+    "test": "mkdir -p test-results && node scripts/check-repository.mjs && node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=tap --test-reporter-destination=test-results/validation.tap tests/validation.test.mjs tests/case-sharing/state.test.mjs tests/session-storage/session-storage.test.mjs tests/task-data/task-data.test.mjs",
     "build": "node scripts/build.mjs",
     "build:host": "ng build test-host",
     "start": "node scripts/dev.mjs",
@@ -31,7 +31,13 @@
     "test:cache-upgrade": "node --test tests/cache-upgrade-source-mismatch.test.mjs && node scripts/build-cache-upgrade.mjs && playwright test -c tests/cache-upgrade/playwright.config.mjs",
     "test:reporters": "node --test tests/reporters/*.test.cjs",
     "test:tooling-security": "node --test tests/tooling-security.test.mjs",
-    "test:all:sequence": "yarn build && yarn lint && yarn test:tooling-security && yarn test:reporters && yarn test:contracts && yarn test:compatibility:contracts && node scripts/run-evidence-lane.mjs unit test && node scripts/run-evidence-lane.mjs nodeUnit test:node && node scripts/run-evidence-lane.mjs i18nUnit test:i18n && node scripts/run-evidence-lane.mjs package test:package && yarn build:host && yarn test:browser:support && PW_ODHIN_LIGHTWEIGHT=false node scripts/run-evidence-lane.mjs browser test:browser && PW_ODHIN_LIGHTWEIGHT=false node scripts/run-evidence-lane.mjs cacheBrowser test:cache-upgrade && yarn check:contracts && node tests/reporters/odhin-site-publisher.cjs --check-source test-results/odhin && node tests/reporters/browser-check.cjs test-results/odhin/browser/index.html && node tests/reporters/browser-check.cjs test-results/odhin/cache-upgrade/index.html"
+    "test:all:sequence": "yarn build && yarn lint && yarn test:tooling-security && yarn test:reporters && yarn test:contracts && yarn test:compatibility:contracts && node scripts/run-evidence-lane.mjs refDataUnit test:ref-data && node scripts/run-evidence-lane.mjs locationUnit test:locations && node scripts/run-evidence-lane.mjs windowUnit test:window && node scripts/run-evidence-lane.mjs cookieUnit test:cookie && node scripts/run-evidence-lane.mjs featureToggleUnit test:feature-toggle && node scripts/run-evidence-lane.mjs roleUnit test:roles && node scripts/run-evidence-lane.mjs unit test && node scripts/run-evidence-lane.mjs nodeUnit test:node && node scripts/run-evidence-lane.mjs i18nUnit test:i18n && node scripts/run-evidence-lane.mjs package test:package && yarn build:host && yarn test:browser:support && PW_ODHIN_LIGHTWEIGHT=false node scripts/run-evidence-lane.mjs browser test:browser && PW_ODHIN_LIGHTWEIGHT=false node scripts/run-evidence-lane.mjs cacheBrowser test:cache-upgrade && yarn check:contracts && node tests/reporters/odhin-site-publisher.cjs --check-source test-results/odhin && node tests/reporters/browser-check.cjs test-results/odhin/browser/index.html && node tests/reporters/browser-check.cjs test-results/odhin/cache-upgrade/index.html",
+    "test:ref-data": "node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=tap --test-reporter-destination=test-results/ref-data.tap tests/ref-data/ref-data.test.mjs",
+    "test:locations": "node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=tap --test-reporter-destination=test-results/locations.tap tests/locations/location.test.mjs",
+    "test:window": "node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=tap --test-reporter-destination=test-results/window.tap tests/window/window.test.mjs",
+    "test:cookie": "node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=tap --test-reporter-destination=test-results/cookie.tap tests/cookie/cookie.test.mjs",
+    "test:feature-toggle": "node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=tap --test-reporter-destination=test-results/feature-toggle.tap tests/feature-toggle/feature-toggle.test.mjs",
+    "test:roles": "node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=tap --test-reporter-destination=test-results/roles.tap tests/roles/roles.test.mjs"
   },
   "devDependencies": {
     "@angular/build": "20.3.42",
@@ -52,11 +58,12 @@
     "dexie-baseline": "npm:dexie@4.4.4",
     "esbuild": "0.28.2",
     "eslint": "10.14.0",
+    "govuk-frontend": "5.13.0",
     "jasmine-core": "5.13.0",
     "js-yaml": "4.3.2",
     "luxon": "2.5.2",
     "ng-packagr": "20.3.2",
-    "node-html-parser": "7.0.1",
+    "node-html-parser": "7.1.0",
     "odhin-reports-playwright": "file:.yarn/patches/odhin-reports-playwright-1.1.8-core.tgz",
     "playwright-core": "1.65.0",
     "rpx-xui-translation": "1.2.18",

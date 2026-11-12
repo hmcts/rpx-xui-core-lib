@@ -9,7 +9,27 @@
       "rejects fewer than the configured minimum",
       "accepts the exact configured minimum",
       "accepts zero when zero is explicitly required",
-      "rejects use on a non-group control with a clear error"
+      "rejects use on a non-group control with a clear error",
+      "case sharing initializes and copies selected cases while preserving nested references",
+      "case sharing emits deduplicated pending shares and host must synchronize emitted state",
+      "case sharing unshares and cancels only the selected case",
+      "case sharing removes a case only when more than one exists",
+      "case sharing DI supports one instance with a synthetic alias",
+      "case sharing removal mutates the same array and distinct state does not emit again",
+      "case sharing pending additions and access use email while unshare uses user id",
+      "case sharing removes a pending share by user id only for the requested case",
+      "case sharing cancels pending unshare by email and emits the updated state",
+      "storage forwards set, get, remove and clear with exact values",
+      "storage propagates read failures without removing data",
+      "storage supports one DI instance with a synthetic token alias",
+      "task names cache is scoped by service and cache hits do not call HTTP",
+      "task name malformed cache throws and storage errors propagate",
+      "task HTTP failure does not write cache and work types use exact request",
+      "task service DI uses the explicit shared storage instance",
+      "task names accept an empty cached array without requesting HTTP",
+      "task names propagate cache write errors from HTTP response",
+      "task name cancellation tears down the HTTP subscription without writing",
+      "task service sends and caches through the Angular HTTP testing backend"
     ]
   },
   "browser": {
@@ -94,6 +114,146 @@
         "projectName": "chromium",
         "title": "contact links are keyboard reachable and remain accessible through data changes",
         "feature": "contact"
+      },
+      {
+        "projectName": "chromium",
+        "title": "due-date displays urgency, date and accessible labels at cutoff boundaries",
+        "feature": "due-date"
+      },
+      {
+        "projectName": "chromium",
+        "title": "due-date updates urgency when thresholds change and high urgency wins",
+        "feature": "due-date"
+      },
+      {
+        "projectName": "chromium",
+        "title": "due-date translates visible and accessible labels",
+        "feature": "due-date"
+      },
+      {
+        "projectName": "chromium",
+        "title": "accessibility statement selects the application context and exposes service links",
+        "feature": "accessibility"
+      },
+      {
+        "projectName": "chromium",
+        "title": "accessibility statement translates its visible heading",
+        "feature": "accessibility"
+      },
+      {
+        "projectName": "chromium",
+        "title": "session dialog displays projected content and preserves close output",
+        "feature": "session-dialog"
+      },
+      {
+        "projectName": "chromium",
+        "title": "session dialog translates the sign-out message",
+        "feature": "session-dialog"
+      },
+      {
+        "projectName": "chromium",
+        "title": "session dialog passes serious accessibility checks",
+        "feature": "session-dialog"
+      },
+      {
+        "projectName": "chromium",
+        "title": "session dialog is modal and keeps keyboard focus away from background",
+        "feature": "session-dialog"
+      },
+      {
+        "projectName": "chromium",
+        "title": "destroying the dialog after its opener is removed does not restore focus to a detached node",
+        "feature": "session-dialog"
+      },
+      {
+        "projectName": "chromium",
+        "title": "nested modal restoration returns focus to its own opener",
+        "feature": "session-dialog"
+      },
+      {
+        "projectName": "chromium",
+        "title": "banner renders and removes the configured success message and icon",
+        "feature": "ui-primitives"
+      },
+      {
+        "projectName": "chromium",
+        "title": "form label associates the field and retains optional heading variants",
+        "feature": "ui-primitives"
+      },
+      {
+        "projectName": "chromium",
+        "title": "heading label and banner use translated messages",
+        "feature": "ui-primitives"
+      },
+      {
+        "projectName": "chromium",
+        "title": "primitives pass scoped serious accessibility checks",
+        "feature": "ui-primitives"
+      },
+      {
+        "projectName": "chromium",
+        "title": "non-heading label preserves supplied text when language changes",
+        "feature": "ui-primitives"
+      },
+      {
+        "projectName": "chromium",
+        "title": "session dialog remains visible when a long page is scrolled",
+        "feature": "session-dialog"
+      },
+      {
+        "projectName": "chromium",
+        "title": "session dialog keeps tall content reachable",
+        "feature": "session-dialog"
+      },
+      {
+        "projectName": "chromium",
+        "title": "session dialog with a large top offset remains usable in a short viewport",
+        "feature": "session-dialog"
+      },
+      {
+        "projectName": "chromium",
+        "title": "session dialog preserves the legacy viewport layout while using native modality",
+        "feature": "session-dialog"
+      },
+      {
+        "projectName": "chromium",
+        "title": "cookie service writes a strict cookie with the current default path and expiry",
+        "feature": "cookie"
+      },
+      {
+        "projectName": "chromium",
+        "title": "cookie deletion requires the matching real browser path and domain",
+        "feature": "cookie"
+      },
+      {
+        "projectName": "chromium",
+        "title": "cookie reads and prefix deletion preserve the legacy boundaries in a browser",
+        "feature": "cookie"
+      },
+      {
+        "projectName": "chromium",
+        "title": "window provider injects the real browser global without copying it",
+        "feature": "window"
+      },
+      {
+        "projectName": "chromium",
+        "title": "session storage isolates independent tabs and supports remove-after-read",
+        "feature": "session-storage"
+      },
+      {
+        "projectName": "chromium",
+        "title": "feature directive shows at most one view and removes it when disabled",
+        "feature": "feature-toggle-directive"
+      },
+      {
+        "projectName": "chromium",
+        "title": "feature directive switches subscriptions and clears stale content while waiting",
+        "feature": "feature-toggle-directive"
+      },
+      {
+        "projectName": "chromium",
+        "title": "feature directive unsubscribes on removal and subscribes again on remount",
+        "feature": "feature-toggle-directive"
       }
     ]
   },
@@ -118,9 +278,36 @@
       "package.root-runtime-empty",
       "package.validation-graph",
       "package.sharing-graph",
+      "package.loading-state-graph",
+      "package.loading-state-behavior",
       "package.root-export-fault",
       "package.validation-i18n-fault",
-      "package.restored-runtime-graph"
+      "package.restored-runtime-graph",
+      "package.due-date-graph",
+      "package.accessibility-graph",
+      "package.session-dialog-graph",
+      "package.primitives-entry-graphs",
+      "package.session-storage-behavior",
+      "package.session-storage-graph",
+      "package.task-data-behavior",
+      "package.task-data-graph",
+      "package.case-sharing-state-graph",
+      "package.case-sharing-state-behavior",
+      "package.cookie-behavior",
+      "package.cookie-graph",
+      "package.terms-type",
+      "package.terms-graph",
+      "package.window-behavior",
+      "package.window-graph",
+      "package.locations-behavior",
+      "package.locations-graph",
+      "package.ref-data-behavior",
+      "package.ref-data-graph",
+      "package.feature-toggle-graph",
+      "package.feature-directive-graph",
+      "package.role-state-graph",
+      "package.feature-toggle-behavior",
+      "package.role-state-behavior"
     ]
   },
   "nodeUnit": {
@@ -194,7 +381,7 @@
       "RpxTranslationService language changes does not replace English with a stale failed-request fallback",
       "RpxTranslationService language changes returns English for phrases matching inherited Object property names",
       "RpxTranslationService public API composition translates only static fragments and preserves repeated numeric replacements and spacing",
-      "RpxTranslationService public API composition selects Yes/No metadata and matches each input\u2019s initial letter case from one request",
+      "RpxTranslationService public API composition selects Yes/No metadata and matches each input’s initial letter case from one request",
       "RpxTranslationService public API composition restores original Yes/No inputs after a successful response without answer metadata",
       "RpxTranslationService request lifecycle batches distinct phrases and deduplicates repeated subscriptions and normalized aliases",
       "RpxTranslationService request lifecycle uses source fallback in production mode and allows a subsequent phrase to translate",
@@ -275,6 +462,76 @@
         "projectName": "chromium",
         "title": "installed core keeps literal values out of requests and IndexedDB after reload"
       }
+    ]
+  },
+  "refDataUnit": {
+    "report": "test-results/ref-data.tap",
+    "required": [
+      "reference data HTTP endpoints and encoded service-code parameter match the source",
+      "reference data shares duplicate codes, retains input order and reuses successful cache",
+      "reference data service-code errors cache the empty fallback without retry",
+      "reference data direct region stream propagates errors and retries on a later subscription",
+      "reference data empty service codes complete without emitting or making a request",
+      "reference data shared request survives one consumer cancellation and populates the cache",
+      "both reference data token alias directions share one service across injector boundaries",
+      "reference data shares one in-flight HTTP request across concurrent consumers"
+    ]
+  },
+  "locationUnit": {
+    "report": "test-results/locations.tap",
+    "required": [
+      "locations POST retains caller URL, request body and response ordering",
+      "locations GET preserves source query interpolation and response",
+      "locations HTTP errors reach the subscriber without a fallback",
+      "locations request cancellation aborts the Angular test request",
+      "location booking enum retains source values",
+      "locations GET retains raw query metacharacters from the caller",
+      "locations GET errors propagate and POST cancellation aborts the request"
+    ]
+  },
+  "windowUnit": {
+    "report": "test-results/window.tap",
+    "required": [
+      "window provider retains the source ReferenceError when no browser window exists",
+      "window provider returns the exact browser global rather than a copy",
+      "both alias directions share one supplied window across root and child injectors",
+      "a child injector override intentionally shadows the parent window token"
+    ]
+  },
+  "cookieUnit": {
+    "report": "test-results/cookie.tap",
+    "required": [
+      "cookie setter preserves legacy expiry and SameSite formatting",
+      "cookie reads preserve exact-name, missing-key and equals-sign behavior",
+      "cookie deletion preserves provided path and domain and the legacy prefix match",
+      "cookie service injects the provided document and supports explicit token aliasing"
+    ]
+  },
+  "featureToggleUnit": {
+    "report": "test-results/feature-toggle.tap",
+    "required": [
+      "unconfigured feature service fails explicitly for all operations",
+      "both alias directions use one provided feature service across parent and unshadowed child",
+      "child provider shadowing creates a distinct feature service",
+      "directive releases the previous and final feature subscriptions",
+      "directive releases the previous feature and clears its view if the next provider throws",
+      "directive does not retain previous content when the new observable errors",
+      "directive clears enabled content if the active feature stream later errors",
+      "directive retains only the reentrant replacement subscription",
+      "directive stops a synchronous source when destroyed during rendering",
+      "directive ignores assignments after destruction and a reentrant provider switch",
+      "directive does not overwrite a replacement created by previous-source teardown",
+      "directive does not resubscribe when teardown reenters during destruction"
+    ]
+  },
+  "roleUnit": {
+    "report": "test-results/roles.tap",
+    "required": [
+      "role state suppresses its initial null and emits each assigned array without copying",
+      "both bridge directions reuse the chosen state in root and unshadowed child injectors",
+      "a child role provider intentionally shadows root state and must be accounted for during cutover",
+      "role matching preserves source ALL, ANY and default regex behavior",
+      "role matching preserves invalid regex and short-circuit behavior"
     ]
   }
 }
