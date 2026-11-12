@@ -115,3 +115,43 @@ test('session dialog preserves the legacy viewport layout while using native mod
     expect.soft(geometry.backdrop).toBe('rgba(0, 0, 0, 0)');
   }
 });
+
+
+test('session dialog remains visible when a long page is scrolled', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto('/session-dialog');
+  await page.addStyleTag({ content: 'body { min-height: 3000px; }' });
+  await page.getByRole('button', { name: 'Open session dialog' }).click();
+  const dialog = page.getByRole('dialog', { name: 'We are about to sign you out' });
+  await expect(dialog).toBeVisible();
+  const before = await dialog.boundingBox();
+  await page.mouse.move(1100, 700);
+  await page.mouse.wheel(0, 1000);
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(500);
+  const after = await dialog.boundingBox();
+  expect(after.y).toBeCloseTo(before.y, 0);
+  await expect(dialog.getByRole('button', { name: 'Stay signed in' })).toBeInViewport();
+});
+
+test('session dialog keeps tall content reachable', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 600 });
+  await page.goto('/session-dialog');
+  await page.addStyleTag({ content: '.gem-c-modal-dialogue__content { padding-top: 1000px !important; }' });
+  await page.getByRole('button', { name: 'Open session dialog' }).click();
+  const dialog = page.getByRole('dialog', { name: 'We are about to sign you out' });
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole('button', { name: 'Stay signed in' }).click();
+  await expect(dialog).toHaveCount(0);
+});
+
+
+test('session dialog with a large top offset remains usable in a short viewport', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 300 });
+  await page.goto('/session-dialog');
+  await page.getByRole('button', { name: 'Use large top offset' }).click();
+  await page.getByRole('button', { name: 'Open session dialog' }).click();
+  const dialog = page.getByRole('dialog', { name: 'We are about to sign you out' });
+  await expect(dialog).toHaveCSS('margin-top', '150px');
+  await dialog.getByRole('button', { name: 'Stay signed in' }).click();
+  await expect(dialog).toHaveCount(0);
+});

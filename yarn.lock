@@ -1323,7 +1323,7 @@ __metadata:
     js-yaml: "npm:4.3.2"
     luxon: "npm:2.5.2"
     ng-packagr: "npm:20.3.2"
-    node-html-parser: "npm:7.0.1"
+    node-html-parser: "npm:7.1.0"
     odhin-reports-playwright: "file:.yarn/patches/odhin-reports-playwright-1.1.8-core.tgz"
     playwright-core: "npm:1.65.0"
     rpx-xui-translation: "npm:1.2.18"
@@ -5766,13 +5766,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-html-parser@npm:7.0.1":
-  version: 7.0.1
-  resolution: "node-html-parser@npm:7.0.1"
+"node-html-parser@npm:7.1.0":
+  version: 7.1.0
+  resolution: "node-html-parser@npm:7.1.0"
   dependencies:
     css-select: "npm:^5.1.0"
     he: "npm:1.2.0"
-  checksum: 10c0/70a4d6db83340e1c93be3c9d28b924e8a2d8c53e085805d9a4916132c56e76e105fedc2201682ff20e0af0468893d0f77ecaa69865b78206b02982d0b4a649a4
+  checksum: 10c0/8bee2616de374bb6f43b62cc8523f6d923cd199b2b7a42c6cf2ca503f1e89c32fb44195bd5af17d6fde1b992ad62c24465b29437213ae25f7770261fc9819173
   languageName: node
   linkType: hard
 
