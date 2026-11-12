@@ -27,3 +27,19 @@ test('local translations preserve a UTF-8 phrase split between request chunks', 
   assert.equal(response.statusCode, 200);
   assert.deepEqual(JSON.parse(responseBody), { translations: { café: 'café' } });
 });
+
+test('local translations preserve mapped phrases and unknown values', async (t) => {
+  const request = new IncomingMessage(new Socket());
+  t.after(() => request.destroy());
+  request.url = '/translations/cy';
+  request.method = 'POST';
+  const response = new ServerResponse(request);
+  let responseBody = '';
+  response.end = function (body) { responseBody = body; return this; };
+  const pending = proxy['/translations'].bypass(request, response);
+  request.push(JSON.stringify({ phrases: ['Saved', 'Case name', 'TODAY', 'unknown'] }));
+  request.push(null);
+  await pending;
+  assert.equal(response.statusCode, 200);
+  assert.deepEqual(JSON.parse(responseBody), { translations: { Saved: 'Wedi cadw', 'Case name': 'Enw achos', TODAY: 'HEDDIW', unknown: 'unknown' } });
+});
