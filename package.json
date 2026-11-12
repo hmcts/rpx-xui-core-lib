@@ -46,7 +46,7 @@
     "@playwright/test": "1.65.0",
     "@types/jasmine": "5.1.15",
     "@types/luxon": "2.4.0",
-    "@types/node": "24.10.1",
+    "@types/node": "24.19.2",
     "@types/semver": "7.8.0",
     "dexie": "4.4.7",
     "dexie-baseline": "npm:dexie@4.4.4",
