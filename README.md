@@ -171,3 +171,5 @@ If `yarn test:all` stops early, `yarn test:diagnostic` runs independent checks w
 `test:all` and `test:diagnostic` share an exclusive local lock. Focused commands and `test:all:sequence` do not: do not run them concurrently in the same checkout. If a process is abruptly killed, inspect `.angular/evidence-run.lock/owner.json` and its processes before removing a stale lock. A backup failure reports where preserved and remaining files are located; retain both when recovering.
 
 The supervised browser lanes verify a process-owned invocation identity before test traffic. This is a setup-time check; source snapshot checks still govern each lane, and it does not continuously authenticate the server or make a local result release-ready.
+
+The selective `@hmcts/rpx-xui-core-lib/case/session-error` entry exports the standalone Toolkit session-error page. It requires no Router or translation provider. Use one declaration of its `ccd-session-error-page` selector in a given Angular scope during cutover; importing both the legacy and Core components into the same scope may conflict. This entry does not migrate the full case viewer or establish Webapp adoption.

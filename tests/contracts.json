@@ -267,6 +267,16 @@
         "projectName": "chromium",
         "title": "date input has accessible keyboard reachable date fields",
         "feature": "date-input"
+      },
+      {
+        "projectName": "chromium",
+        "title": "session error page shows default content and supports custom messages",
+        "feature": "session-error"
+      },
+      {
+        "projectName": "chromium",
+        "title": "session error page has an accessible main landmark and heading",
+        "feature": "session-error"
       }
     ]
   },
@@ -321,7 +331,8 @@
       "package.role-state-graph",
       "package.feature-toggle-behavior",
       "package.role-state-behavior",
-      "package.editor-date-graph"
+      "package.editor-date-graph",
+      "package.session-error-graph"
     ]
   },
   "nodeUnit": {

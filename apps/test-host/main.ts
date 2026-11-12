@@ -17,7 +17,9 @@ class ValidationGallery {
   submitted = false;
 }
 
-const application = window.location.pathname === '/editor-date'
+const application = window.location.pathname === '/session-error'
+  ? import('./session-error').then(({ startSessionErrorGallery }) => startSessionErrorGallery())
+  : window.location.pathname === '/editor-date'
   ? import('./editor-date').then(({ startEditorDateGallery }) => startEditorDateGallery())
   : window.location.pathname === '/window'
   ? import('./window').then(({ startWindowGallery }) => startWindowGallery())

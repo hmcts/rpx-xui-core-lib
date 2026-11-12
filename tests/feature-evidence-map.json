@@ -732,6 +732,26 @@
           "date input retains legacy touched callback and destruction behavior"
         ]
       }
+    },
+    {
+      "feature": "Session error page",
+      "contracts": {
+        "browser": [
+          {
+            "projectName": "chromium",
+            "title": "session error page shows default content and supports custom messages",
+            "feature": "session-error"
+          },
+          {
+            "projectName": "chromium",
+            "title": "session error page has an accessible main landmark and heading",
+            "feature": "session-error"
+          }
+        ],
+        "package": [
+          "package.session-error-graph"
+        ]
+      }
     }
   ],
   "suiteGroups": [],

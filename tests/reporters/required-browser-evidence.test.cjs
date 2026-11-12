@@ -84,7 +84,9 @@ feature-toggle-directive|feature directive shows at most one view and removes it
 feature-toggle-directive|feature directive switches subscriptions and clears stale content while waiting
 feature-toggle-directive|feature directive unsubscribes on removal and subscribes again on remount
 date-input|date input preserves validation and values across translations
-date-input|date input has accessible keyboard reachable date fields`.split('\n').map(row => {
+date-input|date input has accessible keyboard reachable date fields
+session-error|session error page shows default content and supports custom messages
+session-error|session error page has an accessible main landmark and heading`.split('\n').map(row => {
   const [feature, title] = row.split('|');
   return ['chromium', title, feature];
 });
