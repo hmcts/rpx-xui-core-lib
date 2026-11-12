@@ -1,0 +1,18 @@
+@if (isFunctional) {
+  <div class="xui-checkbox-list govuk-checkboxes govuk-checkboxes--small">
+    <div class="select-all govuk-checkboxes__item">
+      <input type="checkbox" [id]="idPrefix + '-all'" class="govuk-checkboxes__input" [checked]="allSelected"
+        (change)="toggleSelectAll()" />
+      <label [for]="idPrefix + '-all'" class="govuk-label govuk-checkboxes__label">{{'Select all / Deselect all' | rpxTranslate}}</label>
+    </div>
+    <div class="checkbox-items">
+      @for (item of options; track item; let i = $index) {
+        <div class="govuk-checkboxes__item">
+          <input type="checkbox" [id]="idPrefix + '-' + i" class="govuk-checkboxes__input" [checked]="isSelected(item)"
+            (change)="toggleItemSelection(item)" />
+          <label [for]="idPrefix + '-' + i" class="govuk-label govuk-checkboxes__label">{{labelFunction(item) | rpxTranslate}}</label>
+        </div>
+      }
+    </div>
+  </div>
+}

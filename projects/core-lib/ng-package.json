@@ -164,6 +164,11 @@
       "input": "ui/gov-select",
       "glob": "LICENCE",
       "output": "ui/gov-select"
+    },
+    {
+      "input": "ui/checkbox-list",
+      "glob": "LICENCE",
+      "output": "ui/checkbox-list"
     }
   ],
   "allowedNonPeerDependencies": [

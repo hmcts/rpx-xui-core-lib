@@ -17,7 +17,9 @@ class ValidationGallery {
   submitted = false;
 }
 
-const application = window.location.pathname === '/gov-date'
+const application = window.location.pathname === '/checkbox-list'
+  ? import('./checkbox-list').then(({ startCheckboxListGallery }) => startCheckboxListGallery())
+  : window.location.pathname === '/gov-date'
   ? import('./gov-date').then(({ startGovDateGallery }) => startGovDateGallery())
   : window.location.pathname === '/gov-input'
   ? import('./gov-input').then(({ startGovInputGallery }) => startGovInputGallery())

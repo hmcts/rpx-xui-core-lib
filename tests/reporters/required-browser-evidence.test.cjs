@@ -111,7 +111,9 @@ gov-date-select|fieldset exposes its legend, hint and projected content
 gov-date-select|optional date accepts all empty parts but rejects an incomplete date
 gov-date-select|rejects an impossible day and recovers when the month changes
 gov-date-select|date errors describe the correct fieldset without duplicate or missing targets
-gov-date-select|empty date and select messages never reference absent error elements`.split('\n').map(row => {
+gov-date-select|empty date and select messages never reference absent error elements
+checkbox-list|checkbox list instances keep labels and selections independent
+checkbox-list|checkbox list supports keyboard selection and select-all transitions`.split('\n').map(row => {
   const [feature, title] = row.split('|');
   return ['chromium', title, feature];
 });

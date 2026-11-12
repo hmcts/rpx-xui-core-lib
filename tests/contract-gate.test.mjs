@@ -318,6 +318,9 @@ addedBrowserJourneys.push("GOV.UK input connects its label and hint and updates 
 addedBrowserJourneys.push('date updates validation as month and year change', 'select changes the reactive form value', 'fieldset exposes its legend, hint and projected content', 'optional date accepts all empty parts but rejects an incomplete date', 'rejects an impossible day and recovers when the month changes');
 
 addedBrowserJourneys.push('date errors describe the correct fieldset without duplicate or missing targets', 'empty date and select messages never reference absent error elements');
+unitNames.push('checkbox list maps preselection to actual options and removes unavailable selections', 'checkbox list emits user selection and select-all transitions', 'checkbox list keeps an active user selection when preselection later changes');
+addedBrowserJourneys.push('checkbox list instances keep labels and selections independent', 'checkbox list supports keyboard selection and select-all transitions');
+packageIds.push('package.checkbox-list-graph');
 const expectedContracts = addedBrowserJourneys.length + Object.values(addedLaneNames).reduce((sum, names) => sum + names.length, 0) + unitNames.length + nodeNames.length + i18nNames.length + i18nJourneys.length + dueDateJourneys.length + accessibilityJourneys.length + sessionDialogJourneys.length + primitiveJourneys.length + cacheJourneys.length + validationJourneys.length + packageIds.length + 1;
 
 function nativeTap(names) {
