@@ -1,6 +1,7 @@
 <div class="auto-complete-container">
   <input
-    id="inputLocationSearch"
+    [id]="inputId"
+    [attr.aria-label]="accessibleLabel ? (accessibleLabel | rpxTranslate) : null"
     #char
     (keydown)="removeInvalidString($event)"
     (input)="onInput()"

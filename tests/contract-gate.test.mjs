@@ -300,6 +300,8 @@ unitNames.push('constructor uses the supplied location and session instances wit
 unitNames.push('input change emits both source events with the entered term', 'lookup uses configured arguments and excludes previously selected locations', 'service lookup handles empty search and filters by configured property', 'keyboard input preserves legacy accepted keys and legacy keyCode fallback');
 addedBrowserJourneys.push('keyboard search presents and selects a location', 'a caller supplied label gives the location search an accessible name');
 addedBrowserJourneys.push('unlabelled booking-style host exposes the existing accessible-name gap');
+addedBrowserJourneys.push('explicit labels preserve caller context and distinct input identifiers', 'changing, clearing and removing a supplied label updates the input name', 'synthetic Welsh responses update explicit names without replacing an external label');
+addedBrowserJourneys.push('blank opt-in preserves the external name and explicit text takes precedence');
 packageIds.push('package.search-location-graph');
 
 packageIds.push('package.loading-angular-build', 'package.loading-eager-fault');

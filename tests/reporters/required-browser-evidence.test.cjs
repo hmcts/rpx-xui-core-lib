@@ -86,7 +86,11 @@ session-error|session error page shows default content and supports custom messa
 session-error|session error page has an accessible main landmark and heading
 search-location|keyboard search presents and selects a location
 search-location|a caller supplied label gives the location search an accessible name
-search-location-accessibility-gap|unlabelled booking-style host exposes the existing accessible-name gap`.split('\n').map(row => {
+search-location-accessibility-gap|unlabelled booking-style host exposes the existing accessible-name gap
+search-location|explicit labels preserve caller context and distinct input identifiers
+search-location|changing, clearing and removing a supplied label updates the input name
+search-location|synthetic Welsh responses update explicit names without replacing an external label
+search-location|blank opt-in preserves the external name and explicit text takes precedence`.split('\n').map(row => {
   const [feature, title] = row.split('|');
   return ['chromium', title, feature];
 });

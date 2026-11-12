@@ -287,6 +287,26 @@
         "projectName": "chromium",
         "title": "unlabelled booking-style host exposes the existing accessible-name gap",
         "feature": "search-location-accessibility-gap"
+      },
+      {
+        "projectName": "chromium",
+        "title": "explicit labels preserve caller context and distinct input identifiers",
+        "feature": "search-location"
+      },
+      {
+        "projectName": "chromium",
+        "title": "changing, clearing and removing a supplied label updates the input name",
+        "feature": "search-location"
+      },
+      {
+        "projectName": "chromium",
+        "title": "synthetic Welsh responses update explicit names without replacing an external label",
+        "feature": "search-location"
+      },
+      {
+        "projectName": "chromium",
+        "title": "blank opt-in preserves the external name and explicit text takes precedence",
+        "feature": "search-location"
       }
     ]
   },

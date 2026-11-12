@@ -17,6 +17,8 @@ import { SessionStorageService } from '@hmcts/rpx-xui-core-lib/browser/session-s
 })
 export class SearchLocationComponent implements OnInit {
   private static readonly allLocationAPI = `api/locations/getLocations`;
+  @Input() public inputId = 'inputLocationSearch';
+  @Input() public accessibleLabel: string | null = null;
   @Input() public form: FormGroup;
   @Input() public field: FilterFieldConfig;
   @Input() public disabled: boolean = null;

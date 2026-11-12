@@ -5,10 +5,23 @@ import { SearchLocationModule } from '@hmcts/rpx-xui-core-lib/ui/search-location
 import { LocationService, LocationByEPIMMSModel } from '@hmcts/rpx-xui-core-lib/reference/locations';
 import { RefDataService } from '@hmcts/rpx-xui-core-lib/reference/ref-data';
 import { SessionStorageService } from '@hmcts/rpx-xui-core-lib/browser/session-storage';
-import { RpxTranslationModule } from '@hmcts/rpx-xui-core-lib/i18n';
+import { RpxTranslationModule, RpxTranslationService } from '@hmcts/rpx-xui-core-lib/i18n';
 
-@Component({ selector:'core-search-location-host', imports:[SearchLocationModule], template:`<main><h1>Location search</h1>@if (label) { <label for="inputLocationSearch">Find a location</label> }<exui-search-location [singleMode]="true" (locationSelected)="selected=$event.site_name ?? ''"></exui-search-location><p data-testid="selected">{{selected}}</p></main>` })
-class SearchGallery { selected = ''; label = new URLSearchParams(window.location.search).has('label'); }
+@Component({ selector:'core-search-location-host', imports:[SearchLocationModule], template:`<main><h1>Location search</h1>
+@if (contract) {
+<button type="button" (click)="translation.language='cy'">Cymraeg</button><button type="button" (click)="name='Changed booking location'">Change name</button><button type="button" (click)="name=''">Clear name</button><button type="button" (click)="name=null">Remove name</button>
+<exui-search-location [accessibleLabel]="name" [singleMode]="true" (locationSelected)="selected=$event.site_name ?? ''"></exui-search-location>
+<exui-search-location inputId="work-location" accessibleLabel="Work location" [singleMode]="true"></exui-search-location>
+<button type="button" (click)="externalName='   '">Blank external name</button><button type="button" (click)="externalName='  Override location  '">Override external name</button><label for="external-location">External location</label><exui-search-location inputId="external-location" [accessibleLabel]="externalName" [singleMode]="true"></exui-search-location>
+} @else {
+@if (label) { <label for="inputLocationSearch">Find a location</label> }<exui-search-location [singleMode]="true" (locationSelected)="selected=$event.site_name ?? ''"></exui-search-location>
+}<p data-testid="selected">{{selected}}</p></main>` })
+class SearchGallery {
+  selected = ''; label = new URLSearchParams(window.location.search).has('label'); contract = new URLSearchParams(window.location.search).has('contract');
+  name: string | null = 'Booking location';
+  externalName: string | null = null;
+  constructor(public translation: RpxTranslationService) {}
+}
 export function startSearchLocationGallery() {
   return bootstrapApplication(SearchGallery, {providers:[
     importProvidersFrom(RpxTranslationModule.forRoot({baseUrl:'/translations', debounceTimeMs:20, validity:{days:1}, testMode:false})),
