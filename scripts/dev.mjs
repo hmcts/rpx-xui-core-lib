@@ -26,6 +26,6 @@ let serving = false;
 lines.on('line', (line) => {
   if (line === 'Validation diagnostic build ready' && !serving && !stopping) {
     serving = true;
-    start(['node_modules/@angular/cli/bin/ng.js', 'serve', 'test-host']);
+    start(['node_modules/@angular/cli/bin/ng.js', 'serve', 'test-host', ...(process.env.CORE_HOST_PORT ? ['--port', process.env.CORE_HOST_PORT] : []), ...(process.env.CORE_HOST_PROXY_CONFIG ? ['--proxy-config', process.env.CORE_HOST_PROXY_CONFIG] : [])]);
   }
 });

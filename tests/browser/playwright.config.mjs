@@ -5,6 +5,7 @@ import { reporters } from '../reporters/config.mjs';
 const root = fileURLToPath(new URL('../../', import.meta.url));
 
 export default defineConfig({
+  globalSetup: '../evidence-host/setup.mjs',
   outputDir: `${root}/test-results/browser`,
   testDir: '.',
   projects: [{ name: 'chromium', use: { browserName: 'chromium' } }],
@@ -14,7 +15,7 @@ export default defineConfig({
   reporter: reporters('browser'),
   use: { baseURL: 'http://127.0.0.1:4307', trace: 'retain-on-failure' },
   webServer: {
-    command: 'node scripts/dev.mjs',
+    command: 'node tests/evidence-host/start.mjs gallery',
     cwd: root,
     url: 'http://127.0.0.1:4307',
     reuseExistingServer: false,

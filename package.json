@@ -20,7 +20,7 @@
     "start": "node scripts/dev.mjs",
     "test:browser": "playwright test -c tests/browser/playwright.config.mjs",
     "test:package": "node tests/package/verify-package.mjs",
-    "test:contracts": "node --test tests/contract-gate.test.mjs tests/evidence-source-snapshot.test.mjs tests/evidence-lane.test.mjs tests/feature-evidence-matrix.test.mjs tests/feature-evidence-expanded.test.mjs",
+    "test:contracts": "node --test tests/contract-gate.test.mjs tests/evidence-source-snapshot.test.mjs tests/evidence-lane.test.mjs tests/feature-evidence-matrix.test.mjs tests/feature-evidence-expanded.test.mjs tests/diagnostic-current.test.mjs tests/diagnostic-lanes.test.mjs tests/evidence-run-lock.test.mjs tests/evidence-host.test.mjs",
     "check:contracts": "node scripts/check-contracts.mjs",
     "test:all": "node scripts/run-evidence-suite.mjs",
     "test:node": "rm -rf test-results/node-unit test-results/node.tap && tsc -p tests/node/tsconfig.json && node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=tap --test-reporter-destination=test-results/node.tap test-results/node-unit/tests/node/*.spec.js && node --test tests/build-watch.test.mjs",
@@ -37,7 +37,8 @@
     "test:window": "node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=tap --test-reporter-destination=test-results/window.tap tests/window/window.test.mjs",
     "test:cookie": "node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=tap --test-reporter-destination=test-results/cookie.tap tests/cookie/cookie.test.mjs",
     "test:feature-toggle": "node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=tap --test-reporter-destination=test-results/feature-toggle.tap tests/feature-toggle/feature-toggle.test.mjs",
-    "test:roles": "node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=tap --test-reporter-destination=test-results/roles.tap tests/roles/roles.test.mjs"
+    "test:roles": "node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=tap --test-reporter-destination=test-results/roles.tap tests/roles/roles.test.mjs",
+    "test:diagnostic": "node scripts/diagnostic-current.mjs"
   },
   "devDependencies": {
     "@angular/build": "20.3.42",
