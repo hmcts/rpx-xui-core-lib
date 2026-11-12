@@ -39,13 +39,13 @@ test('malformed and duplicate inventory and absent suite do not yield success', 
   assert.match(render(snapshot, null, true), /Summary unavailable/);
 });
 
-test('all 33 current required contracts are mapped including UI primitives', () => {
+test('all 36 current required contracts are mapped including UI primitives', () => {
   const inventory = require('../contracts.json').browser.required;
-  assert.equal(inventory.length, 33);
+  assert.equal(inventory.length, 36);
   assert.equal(inventory.filter(item => item.feature === 'contact').length, 2);
   assert.equal(inventory.filter(item => item.feature === 'due-date').length, 3);
   assert.equal(inventory.filter(item => item.feature === 'accessibility').length, 2);
-  assert.equal(inventory.filter(item => item.feature === 'session-dialog').length, 7);
+  assert.equal(inventory.filter(item => item.feature === 'session-dialog').length, 10);
   assert.equal(inventory.filter(item => item.feature === 'ui-primitives').length, 5);
-  assert.equal([...summarize(snapshotInventory(inventory), suite()).values()].reduce((sum, counts) => sum + counts.missing, 0), 33);
+  assert.equal([...summarize(snapshotInventory(inventory), suite()).values()].reduce((sum, counts) => sum + counts.missing, 0), 36);
 });
