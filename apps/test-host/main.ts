@@ -17,7 +17,9 @@ class ValidationGallery {
   submitted = false;
 }
 
-const application = window.location.pathname === '/terms-display'
+const application = window.location.pathname === '/gov-input'
+  ? import('./gov-input').then(({ startGovInputGallery }) => startGovInputGallery())
+  : window.location.pathname === '/terms-display'
   ? import('./terms-display').then(({ startTermsDisplayGallery }) => startTermsDisplayGallery())
   : window.location.pathname === '/search-location'
   ? import('./search-location').then(({ startSearchLocationGallery }) => startSearchLocationGallery())

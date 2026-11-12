@@ -97,7 +97,14 @@ search-location|blank opt-in preserves the external name and explicit text takes
 terms-display|terms display renders sanitized HTML and excludes unsafe attributes
 terms-display|terms display treats plain text as text and handles unsupported MIME types
 terms-display|terms display uses the shared translation service for language changes
-terms-display|translated HTML is rendered through Angular sanitization`.split('\n').map(row => {
+terms-display|translated HTML is rendered through Angular sanitization
+gov-input|GOV.UK input connects its label and hint and updates the reactive form
+gov-input|GOV.UK input associates an error and restores hint-only state
+gov-input|non-heading label follows Welsh language
+gov-input|two errors have one unique described-by target
+gov-input|both validation messages contribute to the accessible description
+gov-input|invalid input without messages does not reference a missing error
+gov-input|invalid input with no hint or messages has no description target`.split('\n').map(row => {
   const [feature, title] = row.split('|');
   return ['chromium', title, feature];
 });

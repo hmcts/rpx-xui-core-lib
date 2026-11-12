@@ -342,6 +342,41 @@
         "projectName": "chromium",
         "title": "translated HTML is rendered through Angular sanitization",
         "feature": "terms-display"
+      },
+      {
+        "projectName": "chromium",
+        "title": "GOV.UK input connects its label and hint and updates the reactive form",
+        "feature": "gov-input"
+      },
+      {
+        "projectName": "chromium",
+        "title": "GOV.UK input associates an error and restores hint-only state",
+        "feature": "gov-input"
+      },
+      {
+        "projectName": "chromium",
+        "title": "non-heading label follows Welsh language",
+        "feature": "gov-input"
+      },
+      {
+        "projectName": "chromium",
+        "title": "two errors have one unique described-by target",
+        "feature": "gov-input"
+      },
+      {
+        "projectName": "chromium",
+        "title": "both validation messages contribute to the accessible description",
+        "feature": "gov-input"
+      },
+      {
+        "projectName": "chromium",
+        "title": "invalid input without messages does not reference a missing error",
+        "feature": "gov-input"
+      },
+      {
+        "projectName": "chromium",
+        "title": "invalid input with no hint or messages has no description target",
+        "feature": "gov-input"
       }
     ]
   },
@@ -401,7 +436,9 @@
       "package.loading-angular-build",
       "package.loading-eager-fault",
       "package.search-location-graph",
-      "package.terms-display-graph"
+      "package.terms-display-graph",
+      "package.gov-input-graph",
+      "package.gov-input-behavior"
     ]
   },
   "nodeUnit": {

@@ -210,6 +210,11 @@
         "input": "terms/display",
         "glob": "LICENCE",
         "output": "terms/display"
+      },
+      {
+        "input": "ui/gov-input",
+        "glob": "LICENCE",
+        "output": "ui/gov-input"
       }
     ],
     "allowedNonPeerDependencies": [
