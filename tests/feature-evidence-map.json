@@ -752,6 +752,15 @@
           "package.session-error-graph"
         ]
       }
+    },
+    {
+      "feature": "Packed Angular selective loading",
+      "contracts": {
+        "package": [
+          "package.loading-angular-build",
+          "package.loading-eager-fault"
+        ]
+      }
     }
   ],
   "suiteGroups": [],

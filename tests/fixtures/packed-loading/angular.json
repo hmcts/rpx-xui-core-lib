@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "projects": {
+    "loading-host": {
+      "projectType": "application",
+      "root": "loading-host",
+      "sourceRoot": "loading-host",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "loading-host/main.ts",
+            "index": "loading-host/index.html",
+            "tsConfig": "loading-host/tsconfig.json",
+            "outputPath": "loading-dist",
+            "sourceMap": true,
+            "optimization": false,
+            "outputHashing": "all"
+          }
+        }
+      }
+    }
+  }
+}

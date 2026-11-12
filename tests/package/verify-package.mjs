@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict';
 import { currentIdentity } from '../../scripts/evidence-identity.mjs';
+import { sourceSnapshot } from '../../scripts/evidence-source-snapshot.mjs';
 import { buildSync } from 'esbuild';
-import { createHash } from 'node:crypto';
+import { inspectLoadingGraph, assertPackedBytes, assertEagerDateFailure } from '../packed-loading/graph.mjs';
+import { createHash, randomUUID } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { cp, lstat, mkdir, mkdtemp, readFile, realpath, rm, stat, writeFile } from 'node:fs/promises';
+import { cp, lstat, mkdir, mkdtemp, readFile, readdir, realpath, rm, stat, symlink, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
@@ -116,6 +118,80 @@ try {
   const compiler = join(consumer, 'node_modules/typescript/bin/tsc');
   await check('package.strict-node', () => run('strict-node', [compiler, '-p', 'tsconfig.node.json'], consumer));
   await check('package.strict-bundler', () => run('strict-bundler', [compiler, '-p', 'tsconfig.bundler.json'], consumer));
+  await check('package.loading-angular-build', async () => {
+    await cp(join(root, 'tests/fixtures/packed-loading'), join(consumer, 'loading-host'), { recursive: true });
+    await cp(join(consumer, 'loading-host/angular.json'), join(consumer, 'angular.json'));
+    await symlink(join(root, 'node_modules/@angular/build'), join(consumer, 'node_modules/@angular/build'), 'dir');
+    await run('loading-angular-build', [join(root, 'node_modules/@angular/cli/bin/ng.js'), 'build', 'loading-host'], consumer);
+    const directory = join(consumer, 'loading-dist/browser');
+    const graph = inspectLoadingGraph(directory);
+    const mapFile = join(directory, graph.date + '.map');
+    const mapBytes = await readFile(mapFile);
+    try { await rm(mapFile); assert.throws(() => inspectLoadingGraph(directory), /ENOENT/); } finally { await writeFile(mapFile, mapBytes); }
+    await cp(join(consumer, 'loading-dist'), join(evidence, 'loading-dist'), { recursive: true });
+    await writeFile(join(evidence, 'loading-graph.json'), JSON.stringify({ ...graph, ...currentIdentity(root), sourceSnapshot: sourceSnapshot(root), candidateSha256: report.package.sha256 }) + '\n');
+    for (const entry of ['forms-validation', 'case-editor-date', 'case-session-error']) {
+      const name = 'fesm2022/hmcts-rpx-xui-core-lib-' + entry + '.mjs';
+      const extracted = spawnSync('/usr/bin/tar', ['-xOf', candidate, 'package/' + name]);
+      assert.equal(extracted.status, 0, 'Packed entry must be extractable');
+      const installedBytes = await readFile(join(installed, name));
+      assertPackedBytes(installedBytes, extracted.stdout);
+      assert.throws(() => assertPackedBytes(Buffer.concat([installedBytes, Buffer.from('fault')]), extracted.stdout), /differ/);
+    }
+    env.CORE_LOADING_HOST = directory;
+    env.CORE_LOADING_ID = randomUUID();
+    env.CORE_LOADING_REPORT = join(evidence, 'loading-browser.json');
+    env.CORE_LOADING_OUTPUT = join(evidence, 'loading-browser');
+    env.CORE_DATE_CHUNK = graph.date;
+    env.CORE_SESSION_CHUNK = graph.session;
+    try {
+      await run('loading-browser', [join(root, 'node_modules/@playwright/test/cli.js'), 'test', '-c', join(root, 'tests/packed-loading/playwright.config.mjs')], root);
+    } finally {
+      for (const key of ['CORE_LOADING_HOST', 'CORE_LOADING_ID', 'CORE_LOADING_REPORT', 'CORE_LOADING_OUTPUT', 'CORE_DATE_CHUNK', 'CORE_SESSION_CHUNK']) delete env[key];
+    }
+  });
+
+  await check('package.loading-eager-fault', async () => {
+    const main = join(consumer, 'loading-host/main.ts');
+    const original = await readFile(main, 'utf8');
+    try {
+      await writeFile(main, original + "\nimport { DateInputComponent } from '@hmcts/rpx-xui-core-lib/case/editor-date';\nconsole.log(DateInputComponent);\n");
+      await run('loading-eager-mutant-build', [join(root, 'node_modules/@angular/cli/bin/ng.js'), 'build', 'loading-host', '--output-path', 'loading-mutant'], consumer);
+      let detected = false;
+      try { inspectLoadingGraph(join(consumer, 'loading-mutant/browser')); } catch (error) {
+        assert.match(error.message, /Date entry must not be in the initial static graph/);
+        detected = true;
+      }
+      const directory = join(consumer, 'loading-mutant/browser');
+      const files = (await readdir(directory)).filter(file => file.endsWith('.js.map'));
+      const findChunk = async suffix => {
+        const matches = [];
+        for (const file of files) {
+          const map = JSON.parse(await readFile(join(directory, file), 'utf8'));
+          if (map.sources.some(source => source.endsWith(suffix))) matches.push(file.slice(0, -4));
+        }
+        assert.equal(matches.length, 1, 'Expected exactly one mutant source map');
+        return matches[0];
+      };
+      env.CORE_LOADING_HOST = directory;
+      env.CORE_LOADING_ID = randomUUID();
+      env.CORE_LOADING_REPORT = join(evidence, 'loading-eager-browser.json');
+      env.CORE_LOADING_OUTPUT = join(evidence, 'loading-eager-browser');
+      env.CORE_DATE_CHUNK = await findChunk('/hmcts-rpx-xui-core-lib-case-editor-date.mjs');
+      env.CORE_SESSION_CHUNK = await findChunk('/hmcts-rpx-xui-core-lib-case-session-error.mjs');
+      try {
+        await run('loading-eager-browser', [join(root, 'node_modules/@playwright/test/cli.js'), 'test', '-c', join(root, 'tests/packed-loading/playwright.config.mjs')], root, 1);
+        assertEagerDateFailure(JSON.parse(await readFile(env.CORE_LOADING_REPORT, 'utf8')));
+      } finally {
+        for (const key of ['CORE_LOADING_HOST', 'CORE_LOADING_ID', 'CORE_LOADING_REPORT', 'CORE_LOADING_OUTPUT', 'CORE_DATE_CHUNK', 'CORE_SESSION_CHUNK']) delete env[key];
+      }
+      assert.equal(detected, true, 'Eager date import must fail the graph check');
+      await writeFile(join(evidence, 'loading-eager-fault.json'), JSON.stringify({ detected, reason: 'Date entry must not be in the initial static graph', candidateSha256: report.package.sha256 }) + '\n');
+    } finally {
+      await writeFile(main, original);
+    }
+  });
+
   await check('package.installed-runtime', async () => {
     await run('installed-runtime', ['runtime.mjs'], consumer);
     for (const entry of ['case/session-error', 'case/editor-date', 'browser/window', 'browser/session-storage', 'reference/locations', 'reference/ref-data', 'terms/models', 'ui/cookie', 'ui/feature-toggle', 'ui/feature-toggle-directive', 'ui/role-state', 'ui/task-data', 'case/sharing-state', 'ui/contact-details', 'ui/loading-spinner', 'ui/loading-state', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog', 'ui/banner', 'ui/form-label', 'case/models', 'case/reference', 'case/sharing']) {

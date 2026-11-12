@@ -332,7 +332,9 @@
       "package.feature-toggle-behavior",
       "package.role-state-behavior",
       "package.editor-date-graph",
-      "package.session-error-graph"
+      "package.session-error-graph",
+      "package.loading-angular-build",
+      "package.loading-eager-fault"
     ]
   },
   "nodeUnit": {
