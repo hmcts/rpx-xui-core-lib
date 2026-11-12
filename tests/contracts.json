@@ -197,6 +197,21 @@
       },
       {
         "projectName": "chromium",
+        "title": "session dialog remains visible when a long page is scrolled",
+        "feature": "session-dialog"
+      },
+      {
+        "projectName": "chromium",
+        "title": "session dialog keeps tall content reachable",
+        "feature": "session-dialog"
+      },
+      {
+        "projectName": "chromium",
+        "title": "session dialog with a large top offset remains usable in a short viewport",
+        "feature": "session-dialog"
+      },
+      {
+        "projectName": "chromium",
         "title": "session dialog preserves the legacy viewport layout while using native modality",
         "feature": "session-dialog"
       },
