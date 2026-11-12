@@ -901,6 +901,31 @@
           "package.gov-input-behavior"
         ]
       }
+    },
+    {
+      "feature": "Checkbox list",
+      "contracts": {
+        "unit": [
+          "checkbox list maps preselection to actual options and removes unavailable selections",
+          "checkbox list emits user selection and select-all transitions",
+          "checkbox list keeps an active user selection when preselection later changes"
+        ],
+        "browser": [
+          {
+            "projectName": "chromium",
+            "title": "checkbox list instances keep labels and selections independent",
+            "feature": "checkbox-list"
+          },
+          {
+            "projectName": "chromium",
+            "title": "checkbox list supports keyboard selection and select-all transitions",
+            "feature": "checkbox-list"
+          }
+        ],
+        "package": [
+          "package.checkbox-list-graph"
+        ]
+      }
     }
   ],
   "suiteGroups": [],

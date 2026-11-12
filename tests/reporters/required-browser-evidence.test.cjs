@@ -104,7 +104,9 @@ gov-input|non-heading label follows Welsh language
 gov-input|two errors have one unique described-by target
 gov-input|both validation messages contribute to the accessible description
 gov-input|invalid input without messages does not reference a missing error
-gov-input|invalid input with no hint or messages has no description target`.split('\n').map(row => {
+gov-input|invalid input with no hint or messages has no description target
+checkbox-list|checkbox list instances keep labels and selections independent
+checkbox-list|checkbox list supports keyboard selection and select-all transitions`.split('\n').map(row => {
   const [feature, title] = row.split('|');
   return ['chromium', title, feature];
 });

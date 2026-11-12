@@ -42,7 +42,10 @@
       "input change emits both source events with the entered term",
       "lookup uses configured arguments and excludes previously selected locations",
       "service lookup handles empty search and filters by configured property",
-      "keyboard input preserves legacy accepted keys and legacy keyCode fallback"
+      "keyboard input preserves legacy accepted keys and legacy keyCode fallback",
+      "checkbox list maps preselection to actual options and removes unavailable selections",
+      "checkbox list emits user selection and select-all transitions",
+      "checkbox list keeps an active user selection when preselection later changes"
     ]
   },
   "browser": {
@@ -377,6 +380,16 @@
         "projectName": "chromium",
         "title": "invalid input with no hint or messages has no description target",
         "feature": "gov-input"
+      },
+      {
+        "projectName": "chromium",
+        "title": "checkbox list instances keep labels and selections independent",
+        "feature": "checkbox-list"
+      },
+      {
+        "projectName": "chromium",
+        "title": "checkbox list supports keyboard selection and select-all transitions",
+        "feature": "checkbox-list"
       }
     ]
   },
@@ -438,7 +451,8 @@
       "package.search-location-graph",
       "package.terms-display-graph",
       "package.gov-input-graph",
-      "package.gov-input-behavior"
+      "package.gov-input-behavior",
+      "package.checkbox-list-graph"
     ]
   },
   "nodeUnit": {

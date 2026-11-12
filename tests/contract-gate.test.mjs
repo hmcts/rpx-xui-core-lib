@@ -313,6 +313,9 @@ packageIds.push('package.loading-angular-build', 'package.loading-eager-fault');
 packageIds.push("package.gov-input-graph", "package.gov-input-behavior");
 addedBrowserJourneys.push("GOV.UK input connects its label and hint and updates the reactive form", "GOV.UK input associates an error and restores hint-only state", "non-heading label follows Welsh language", "two errors have one unique described-by target", "both validation messages contribute to the accessible description", "invalid input without messages does not reference a missing error", "invalid input with no hint or messages has no description target");
 
+unitNames.push('checkbox list maps preselection to actual options and removes unavailable selections', 'checkbox list emits user selection and select-all transitions', 'checkbox list keeps an active user selection when preselection later changes');
+addedBrowserJourneys.push('checkbox list instances keep labels and selections independent', 'checkbox list supports keyboard selection and select-all transitions');
+packageIds.push('package.checkbox-list-graph');
 const expectedContracts = addedBrowserJourneys.length + Object.values(addedLaneNames).reduce((sum, names) => sum + names.length, 0) + unitNames.length + nodeNames.length + i18nNames.length + i18nJourneys.length + dueDateJourneys.length + accessibilityJourneys.length + sessionDialogJourneys.length + primitiveJourneys.length + cacheJourneys.length + validationJourneys.length + packageIds.length + 1;
 
 function nativeTap(names) {
