@@ -47,7 +47,7 @@ async function check(id, action) {
 }
 
 try {
-  assert.equal(process.versions.node, '24.22.2', 'Run with the pinned Node 24.22.2');
+  assert.equal(process.versions.node, '24.22.3', 'Run with the pinned Node 24.22.3');
   scratch = await realpath(await mkdtemp(join(tmpdir(), 'core-lib-package-')));
   env.YARN_GLOBAL_FOLDER = join(scratch, 'yarn-global');
   env.YARN_CACHE_FOLDER = join(scratch, 'cache');

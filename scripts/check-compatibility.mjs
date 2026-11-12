@@ -183,7 +183,7 @@ async function runMatrix() {
   const output = join(root, 'test-results/compatibility');
   await rm(output, { recursive: true, force: true });
   await mkdir(output, { recursive: true });
-  assert.equal(process.versions.node, '24.22.2', 'Use the pinned Node24.22.2');
+  assert.equal(process.versions.node, '24.22.3', 'Use the pinned Node24.22.3');
   const manifest = await json('prospective-package.json');
   const ledger = await json('dependency-ledger.json');
   const profiles = await json('profiles.json');
