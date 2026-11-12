@@ -129,6 +129,11 @@
       "input": "case/sharing-state",
       "glob": "LICENCE",
       "output": "case/sharing-state"
+    },
+    {
+      "input": "case/editor-date",
+      "glob": "LICENCE",
+      "output": "case/editor-date"
     }
   ],
   "allowedNonPeerDependencies": [

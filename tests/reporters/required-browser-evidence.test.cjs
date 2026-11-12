@@ -82,7 +82,9 @@ window|window provider injects the real browser global without copying it
 session-storage|session storage isolates independent tabs and supports remove-after-read
 feature-toggle-directive|feature directive shows at most one view and removes it when disabled
 feature-toggle-directive|feature directive switches subscriptions and clears stale content while waiting
-feature-toggle-directive|feature directive unsubscribes on removal and subscribes again on remount`.split('\n').map(row => {
+feature-toggle-directive|feature directive unsubscribes on removal and subscribes again on remount
+date-input|date input preserves validation and values across translations
+date-input|date input has accessible keyboard reachable date fields`.split('\n').map(row => {
   const [feature, title] = row.split('|');
   return ['chromium', title, feature];
 });

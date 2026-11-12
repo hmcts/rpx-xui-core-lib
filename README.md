@@ -19,7 +19,7 @@ The `/ui/accessibility` entry provides the original CommonLib accessibility stat
 
 ## Develop locally
 
-For agent-assisted local startup, checks and failure diagnosis, ask your repository-aware agent to read [the core local test skill](.agents/skills/core-local-test/SKILL.md). It uses the same repository commands and reports; it does not replace human review or remote CI.
+For agent-assisted local startup, checks and failure diagnosis, ask your repository-aware agent to read [the core local test skill](.agents/skills/core-local-test/SKILL.md). It uses the same repository commands and reports; it does not replace human review or remote CI. For example: “Use `core-local-test` to run the full local gate for this checkout, inspect the feature report and explain any failures.” The agent checks prerequisites and preserves evidence before running; it reports local results and limits rather than claiming release readiness.
 
 Use Node **24.22.2** and Yarn **4.18.1** for the core integration cohort. Yarn is checked in so setup does not require a global Yarn installation or Corepack.
 
@@ -161,3 +161,5 @@ Use selective imports under `@hmcts/rpx-xui-core-lib/` for `browser/window`, `br
 Run `yarn build`, `yarn lint`, and `yarn test:all` locally for the supervised complete evidence gate. For a focused investigation, use `yarn test:locations`, `yarn test:ref-data`, `yarn test:window`, `yarn test:cookie`, `yarn test:feature-toggle`, or `yarn test:roles` after building. Focused runs do not replace the full evidence gate.
 
 These entries introduce new Angular injection tokens even where the service behaviour mirrors CommonLib. Consumers must explicitly coordinate providers and scopes during cutover; synthetic alias tests do not establish application-wide singleton identity. Avoid declaring both versions of the feature-toggle directive in the same Angular scope because they use the same selector. Validate each consumer's routing, providers and actual user journeys before replacing its existing imports.
+
+The selective `@hmcts/rpx-xui-core-lib/case/editor-date` entry exports the migrated Toolkit `DateInputComponent` and a new `DateInputModule`. Import the module once in a form scope using the existing `cut-date-input` selector and provide Core translation. Avoid importing the legacy Toolkit declaration in the same Angular scope: both declare the same selector. This entry alone does not migrate the case editor or establish identity with a separately loaded editor; consumer integration and complete editor testing remain required.

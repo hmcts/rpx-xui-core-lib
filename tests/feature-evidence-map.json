@@ -707,6 +707,31 @@
           "package.role-state-behavior"
         ]
       }
+    },
+    {
+      "feature": "Case editor date input",
+      "contracts": {
+        "browser": [
+          {
+            "projectName": "chromium",
+            "title": "date input preserves validation and values across translations",
+            "feature": "date-input"
+          },
+          {
+            "projectName": "chromium",
+            "title": "date input has accessible keyboard reachable date fields",
+            "feature": "date-input"
+          }
+        ],
+        "package": [
+          "package.editor-date-graph"
+        ],
+        "unit": [
+          "date input reports mandatory and partial values through the legacy validator",
+          "date input write and callback preserve the legacy padded value",
+          "date input retains legacy touched callback and destruction behavior"
+        ]
+      }
     }
   ],
   "suiteGroups": [],

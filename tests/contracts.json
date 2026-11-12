@@ -29,7 +29,10 @@
       "task names accept an empty cached array without requesting HTTP",
       "task names propagate cache write errors from HTTP response",
       "task name cancellation tears down the HTTP subscription without writing",
-      "task service sends and caches through the Angular HTTP testing backend"
+      "task service sends and caches through the Angular HTTP testing backend",
+      "date input reports mandatory and partial values through the legacy validator",
+      "date input write and callback preserve the legacy padded value",
+      "date input retains legacy touched callback and destruction behavior"
     ]
   },
   "browser": {
@@ -254,6 +257,16 @@
         "projectName": "chromium",
         "title": "feature directive unsubscribes on removal and subscribes again on remount",
         "feature": "feature-toggle-directive"
+      },
+      {
+        "projectName": "chromium",
+        "title": "date input preserves validation and values across translations",
+        "feature": "date-input"
+      },
+      {
+        "projectName": "chromium",
+        "title": "date input has accessible keyboard reachable date fields",
+        "feature": "date-input"
       }
     ]
   },
@@ -307,7 +320,8 @@
       "package.feature-directive-graph",
       "package.role-state-graph",
       "package.feature-toggle-behavior",
-      "package.role-state-behavior"
+      "package.role-state-behavior",
+      "package.editor-date-graph"
     ]
   },
   "nodeUnit": {
