@@ -8,8 +8,9 @@ import { SessionDialogModule } from '@hmcts/rpx-xui-core-lib/ui/session-dialog';
   imports: [SessionDialogModule],
   template: `<main>@if (showOpener) {<button type="button" (click)="visible = true">Open session dialog</button>}
     <button type="button" (click)="backgroundClicks = backgroundClicks + 1">Background action</button>
+    <button type="button" (click)="positionTop = '300px'">Use large top offset</button>
     <p>Background clicks: {{ backgroundClicks }}</p>
-    @if (visible) {<xuilib-session-dialog #dialog positionTop="30px" (close)="closed = closed + 1">
+    @if (visible) {<xuilib-session-dialog #dialog [positionTop]="positionTop" (close)="closed = closed + 1">
       <button type="button" (click)="translations.language = 'cy'">Cymraeg</button>
       <button type="button" (click)="dialog.onClose()">Invoke close</button>
       <button type="button" (click)="secondVisible = true">Open second dialog</button>
@@ -23,6 +24,7 @@ import { SessionDialogModule } from '@hmcts/rpx-xui-core-lib/ui/session-dialog';
   </main>`,
 })
 class SessionDialogGallery {
+  positionTop = '30px';
   visible = false;
   secondVisible = false;
   showOpener = true;
