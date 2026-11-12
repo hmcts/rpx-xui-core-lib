@@ -3,8 +3,7 @@ import { currentIdentity } from '../../scripts/evidence-identity.mjs';
 import { sourceSnapshot } from '../../scripts/evidence-source-snapshot.mjs';
 import { buildSync } from 'esbuild';
 import { inspectLoadingGraph, assertPackedBytes, assertEagerDateFailure } from '../packed-loading/graph.mjs';
-import { randomUUID } from 'node:crypto';
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { cp, lstat, mkdir, mkdtemp, readFile, readdir, realpath, rm, stat, symlink, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
@@ -133,7 +132,7 @@ try {
     await writeFile(join(evidence, 'loading-graph.json'), JSON.stringify({ ...graph, ...currentIdentity(root), sourceSnapshot: sourceSnapshot(root), candidateSha256: report.package.sha256 }) + '\n');
     for (const entry of ['forms-validation', 'case-editor-date', 'case-session-error']) {
       const name = 'fesm2022/hmcts-rpx-xui-core-lib-' + entry + '.mjs';
-      const extracted = spawnSync('tar', ['-xOf', candidate, 'package/' + name]);
+      const extracted = spawnSync('/usr/bin/tar', ['-xOf', candidate, 'package/' + name]);
       assert.equal(extracted.status, 0, 'Packed entry must be extractable');
       const installedBytes = await readFile(join(installed, name));
       assertPackedBytes(installedBytes, extracted.stdout);

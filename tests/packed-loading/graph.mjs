@@ -31,7 +31,7 @@ export function inspectLoadingGraph(directory) {
   assert.ok(!initial.has(date), 'Date entry must not be in the initial static graph');
   assert.ok(!initial.has(session), 'Session entry must not be in the initial static graph');
   assert.notEqual(date, session, 'Date and session pages must occupy distinct chunks');
-  return { initial: [...initial].sort(), date, session };
+  return { initial: [...initial].sort((a, b) => a < b ? -1 : a > b ? 1 : 0), date, session };
 }
 
 export function assertPackedBytes(actual, packed) {
