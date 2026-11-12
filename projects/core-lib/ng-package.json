@@ -44,6 +44,36 @@
       "input": "case/sharing",
       "glob": "LICENCE",
       "output": "case/sharing"
+    },
+    {
+      "input": "ui/due-date",
+      "glob": "LICENCE",
+      "output": "ui/due-date"
+    },
+    {
+      "input": "ui/accessibility",
+      "glob": "LICENCE",
+      "output": "ui/accessibility"
+    },
+    {
+      "input": "ui/session-dialog",
+      "glob": "LICENCE",
+      "output": "ui/session-dialog"
+    },
+    {
+      "input": "ui/banner",
+      "glob": "LICENCE",
+      "output": "ui/banner"
+    },
+    {
+      "input": "ui/form-label",
+      "glob": "LICENCE",
+      "output": "ui/form-label"
+    },
+    {
+      "input": "ui/loading-state",
+      "glob": "LICENCE",
+      "output": "ui/loading-state"
     }
   ],
   "allowedNonPeerDependencies": [

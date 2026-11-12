@@ -17,7 +17,15 @@ class ValidationGallery {
   submitted = false;
 }
 
-const application = window.location.pathname === '/case-reference'
+const application = window.location.pathname === '/primitives'
+  ? import('./primitives').then(({ startPrimitivesGallery }) => startPrimitivesGallery())
+  : window.location.pathname === '/session-dialog'
+  ? import('./session-dialog').then(({ startSessionDialogGallery }) => startSessionDialogGallery())
+  : window.location.pathname === '/accessibility'
+  ? import('./accessibility').then(({ startAccessibilityGallery }) => startAccessibilityGallery())
+  : window.location.pathname === '/due-date'
+  ? import('./due-date').then(({ startDueDateGallery }) => startDueDateGallery())
+  : window.location.pathname === '/case-reference'
   ? import('./case-reference').then(({ startCaseReferenceGallery }) => startCaseReferenceGallery())
   : window.location.pathname === '/contact'
   ? import('./contact').then(({ startContactGallery }) => startContactGallery())

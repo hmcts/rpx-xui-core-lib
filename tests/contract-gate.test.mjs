@@ -133,6 +133,35 @@ const i18nNames = [
   "translation real cache recovery keeps a malformed response fallback stable then recovers after a language cycle",
 ];
 const i18nJourneys = ['contact links are keyboard reachable and remain accessible through data changes', 'case reference formatting preserves links and handles drafts', 'contact details show optional fields and translate labels', 'spinner displays default, updated and translated text', 'a late Welsh response preserves English and is reused after switching back', 'locale switches reuse persisted translations across English and page reloads', 'a translation HTTP failure returns and caches the original phrase', 'local gallery translates through its own synthetic service', 'local gallery demonstrates a synthetic service failure', 'local translation endpoint validates requests'];
+const dueDateJourneys = [
+  'due-date displays urgency, date and accessible labels at cutoff boundaries',
+  'due-date updates urgency when thresholds change and high urgency wins',
+  'due-date translates visible and accessible labels',
+];
+const accessibilityJourneys = [
+  'accessibility statement selects the application context and exposes service links',
+  'accessibility statement translates its visible heading',
+];
+const sessionDialogJourneys = [
+  'session dialog remains visible when a long page is scrolled',
+  'session dialog keeps tall content reachable',
+  'session dialog with a large top offset remains usable in a short viewport',
+  'session dialog displays projected content and preserves close output',
+  'session dialog translates the sign-out message',
+  'session dialog passes serious accessibility checks',
+  'session dialog is modal and keeps keyboard focus away from background',
+  'session dialog preserves the legacy viewport layout while using native modality',
+  'destroying the dialog after its opener is removed does not restore focus to a detached node',
+  'nested modal restoration returns focus to its own opener',
+
+];
+const primitiveJourneys = [
+  "banner renders and removes the configured success message and icon",
+  "form label associates the field and retains optional heading variants",
+  "heading label and banner use translated messages",
+  "primitives pass scoped serious accessibility checks",
+  "non-heading label preserves supplied text when language changes",
+];
 const cacheJourneys = [
   "baseline: legacy to core preserves valid cached translation",
   "baseline: core to legacy preserves valid cached translation",
@@ -161,13 +190,19 @@ const packageIds = [
   "package.root-runtime-empty",
   "package.validation-graph",
   "package.sharing-graph",
+      "package.loading-state-graph",
+      "package.loading-state-behavior",
+  "package.due-date-graph",
+  "package.accessibility-graph",
+  "package.session-dialog-graph",
+  "package.primitives-entry-graphs",
   "package.root-export-fault",
   "package.validation-i18n-fault",
   "package.restored-runtime-graph",
 
 ];
 
-const expectedContracts = unitNames.length + nodeNames.length + i18nNames.length + i18nJourneys.length + cacheJourneys.length + validationJourneys.length + packageIds.length + 1;
+const expectedContracts = unitNames.length + nodeNames.length + i18nNames.length + i18nJourneys.length + dueDateJourneys.length + accessibilityJourneys.length + sessionDialogJourneys.length + primitiveJourneys.length + cacheJourneys.length + validationJourneys.length + packageIds.length + 1;
 
 function nativeTap(names) {
   return `TAP version 13\n${names.map((name, index) => `ok ${index + 1} - ${name}`).join('\n')}\n1..${names.length}\n# tests ${names.length}\n# suites 0\n# pass ${names.length}\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n`;
@@ -193,7 +228,7 @@ function reports() {
     'validation.tap': nativeTap(unitNames),
     'node.tap': nativeTap(nodeNames),
     'i18n/jasmine.json': nativeJasmine(),
-    'browser.json': { errors: [], suites: [{ specs: [journey, ...validationJourneys, ...i18nJourneys].map((title) => ({ title, tests: [{ projectName: 'chromium', expectedStatus: 'passed', status: 'expected', results: [{ status: 'passed' }] }] })) }] },
+    'browser.json': { errors: [], suites: [{ specs: [journey, ...validationJourneys, ...i18nJourneys, ...dueDateJourneys, ...accessibilityJourneys, ...sessionDialogJourneys, ...primitiveJourneys].map((title) => ({ title, tests: [{ projectName: 'chromium', expectedStatus: 'passed', status: 'expected', results: [{ status: 'passed' }] }] })) }] },
     'cache-upgrade-report.json': { errors: [], suites: [{ specs: cacheJourneys.map((title) => ({ title, tests: [{ projectName: 'chromium', expectedStatus: 'passed', status: 'expected', results: [{ status: 'passed' }] }] })) }] },
     'package.json': { schemaVersion: 1, package: { sha256: createHash('sha256').update(candidate).digest('hex'), ...identity, dirty: false }, tests: packageIds.map((id) => ({ id, status: 'passed' })) },
   };
@@ -286,6 +321,30 @@ for (const replacement of [[], [{ title: 'a different passing journey', tests: [
 
 for (const title of i18nJourneys.slice(-3)) {
   test(`rejects a missing ${title} result`, (t) => {
+    const files = reports();
+    files['browser.json'].suites[0].specs = files['browser.json'].suites[0].specs.filter((spec) => spec.title !== title);
+    assert.throws(checkFixture(t, files), /missing|required/i);
+  });
+}
+
+for (const title of accessibilityJourneys) {
+  test(`rejects a missing accessibility browser contract: ${title}`, (t) => {
+    const data = reports();
+    data['browser.json'].suites[0].specs = data['browser.json'].suites[0].specs.filter((spec) => spec.title !== title);
+    assert.throws(checkFixture(t, data), /missing|required/i);
+  });
+}
+
+for (const title of sessionDialogJourneys) {
+  test(`rejects a missing session dialog browser contract: ${title}`, (t) => {
+    const files = reports();
+    files['browser.json'].suites[0].specs = files['browser.json'].suites[0].specs.filter((spec) => spec.title !== title);
+    assert.throws(checkFixture(t, files), /missing|required/i);
+  });
+}
+
+for (const title of dueDateJourneys) {
+  test(`rejects a missing due-date browser contract: ${title}`, (t) => {
     const files = reports();
     files['browser.json'].suites[0].specs = files['browser.json'].suites[0].specs.filter((spec) => spec.title !== title);
     assert.throws(checkFixture(t, files), /missing|required/i);

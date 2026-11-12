@@ -13,6 +13,7 @@
     "@angular/core": "20.3.35",
     "@angular/forms": "20.3.35",
     "@angular/platform-browser": "20.3.35",
+    "govuk-frontend": "5.13.0",
     "ng-packagr": "20.3.2",
     "rxjs": "7.8.2",
     "typescript": "5.9.3",
@@ -88,6 +89,36 @@
         "input": "case/sharing",
         "glob": "LICENCE",
         "output": "case/sharing"
+      },
+      {
+        "input": "ui/due-date",
+        "glob": "LICENCE",
+        "output": "ui/due-date"
+      },
+      {
+        "input": "ui/accessibility",
+        "glob": "LICENCE",
+        "output": "ui/accessibility"
+      },
+      {
+        "input": "ui/session-dialog",
+        "glob": "LICENCE",
+        "output": "ui/session-dialog"
+      },
+      {
+        "input": "ui/banner",
+        "glob": "LICENCE",
+        "output": "ui/banner"
+      },
+      {
+        "input": "ui/form-label",
+        "glob": "LICENCE",
+        "output": "ui/form-label"
+      },
+      {
+        "input": "ui/loading-state",
+        "glob": "LICENCE",
+        "output": "ui/loading-state"
       }
     ],
     "allowedNonPeerDependencies": [
@@ -113,13 +144,14 @@
     "@angular/core": "20.3.35",
     "@angular/forms": "20.3.35",
     "@angular/platform-browser": "20.3.35",
+    "axios": "1.21.1",
+    "dexie": "4.4.7",
+    "govuk-frontend": "5.13.0",
+    "luxon": "2.5.2",
     "ng-packagr": "20.3.2",
     "rxjs": "7.8.2",
     "typescript": "5.9.3",
-    "zone.js": "0.15.1",
-    "dexie": "4.4.7",
-    "luxon": "2.5.2",
-    "axios": "1.21.1"
+    "zone.js": "0.15.1"
   },
   "rootWorkspaces": [
     "projects/core-lib/node"

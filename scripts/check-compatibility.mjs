@@ -80,7 +80,7 @@ export function validateHostProfile(profile, sourceContract) {
 }
 
 export function currentCoreProjection(manifest, library, ngPackage, config, lock, nodeWorkspace) {
-  const names = Object.keys(manifest.devDependencies).filter((name) => name.startsWith('@angular/') || ['typescript', 'rxjs', 'zone.js', 'ng-packagr'].includes(name));
+  const names = Object.keys(manifest.devDependencies).filter((name) => name.startsWith('@angular/') || ['typescript', 'rxjs', 'zone.js', 'ng-packagr', 'govuk-frontend'].includes(name));
   const devCohort = Object.fromEntries(names.map((name) => [name, manifest.devDependencies[name]]));
   const lockedVersions = {};
   for (const [name, version] of Object.entries({ ...devCohort, ...library.dependencies })) {

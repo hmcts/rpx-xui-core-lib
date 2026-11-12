@@ -94,6 +94,106 @@
         "projectName": "chromium",
         "title": "contact links are keyboard reachable and remain accessible through data changes",
         "feature": "contact"
+      },
+      {
+        "projectName": "chromium",
+        "title": "due-date displays urgency, date and accessible labels at cutoff boundaries",
+        "feature": "due-date"
+      },
+      {
+        "projectName": "chromium",
+        "title": "due-date updates urgency when thresholds change and high urgency wins",
+        "feature": "due-date"
+      },
+      {
+        "projectName": "chromium",
+        "title": "due-date translates visible and accessible labels",
+        "feature": "due-date"
+      },
+      {
+        "projectName": "chromium",
+        "title": "accessibility statement selects the application context and exposes service links",
+        "feature": "accessibility"
+      },
+      {
+        "projectName": "chromium",
+        "title": "accessibility statement translates its visible heading",
+        "feature": "accessibility"
+      },
+      {
+        "projectName": "chromium",
+        "title": "session dialog displays projected content and preserves close output",
+        "feature": "session-dialog"
+      },
+      {
+        "projectName": "chromium",
+        "title": "session dialog translates the sign-out message",
+        "feature": "session-dialog"
+      },
+      {
+        "projectName": "chromium",
+        "title": "session dialog passes serious accessibility checks",
+        "feature": "session-dialog"
+      },
+      {
+        "projectName": "chromium",
+        "title": "session dialog is modal and keeps keyboard focus away from background",
+        "feature": "session-dialog"
+      },
+      {
+        "projectName": "chromium",
+        "title": "destroying the dialog after its opener is removed does not restore focus to a detached node",
+        "feature": "session-dialog"
+      },
+      {
+        "projectName": "chromium",
+        "title": "nested modal restoration returns focus to its own opener",
+        "feature": "session-dialog"
+      },
+      {
+        "projectName": "chromium",
+        "title": "banner renders and removes the configured success message and icon",
+        "feature": "ui-primitives"
+      },
+      {
+        "projectName": "chromium",
+        "title": "form label associates the field and retains optional heading variants",
+        "feature": "ui-primitives"
+      },
+      {
+        "projectName": "chromium",
+        "title": "heading label and banner use translated messages",
+        "feature": "ui-primitives"
+      },
+      {
+        "projectName": "chromium",
+        "title": "primitives pass scoped serious accessibility checks",
+        "feature": "ui-primitives"
+      },
+      {
+        "projectName": "chromium",
+        "title": "non-heading label preserves supplied text when language changes",
+        "feature": "ui-primitives"
+      },
+      {
+        "projectName": "chromium",
+        "title": "session dialog remains visible when a long page is scrolled",
+        "feature": "session-dialog"
+      },
+      {
+        "projectName": "chromium",
+        "title": "session dialog keeps tall content reachable",
+        "feature": "session-dialog"
+      },
+      {
+        "projectName": "chromium",
+        "title": "session dialog with a large top offset remains usable in a short viewport",
+        "feature": "session-dialog"
+      },
+      {
+        "projectName": "chromium",
+        "title": "session dialog preserves the legacy viewport layout while using native modality",
+        "feature": "session-dialog"
       }
     ]
   },
@@ -118,9 +218,15 @@
       "package.root-runtime-empty",
       "package.validation-graph",
       "package.sharing-graph",
+      "package.loading-state-graph",
+      "package.loading-state-behavior",
       "package.root-export-fault",
       "package.validation-i18n-fault",
-      "package.restored-runtime-graph"
+      "package.restored-runtime-graph",
+      "package.due-date-graph",
+      "package.accessibility-graph",
+      "package.session-dialog-graph",
+      "package.primitives-entry-graphs"
     ]
   },
   "nodeUnit": {
