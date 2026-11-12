@@ -1,10 +1,41 @@
-import { test } from 'node:test';
+import { test as nodeTest } from 'node:test';
 import assert from 'node:assert/strict';
 import { copyFileSync, existsSync, mkdtempSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { runDiagnostic } from '../scripts/diagnostic-current.mjs';
+function withCI(t, value) {
+  const previous = process.env.CI;
+  t.after(() => {
+    if (previous === undefined) delete process.env.CI;
+    else process.env.CI = previous;
+  });
+  if (value === undefined) delete process.env.CI;
+  else process.env.CI = value;
+}
+const test = (name, callback) => nodeTest(name, t => {
+  withCI(t, undefined);
+  return callback(t);
+});
+nodeTest('rejects diagnostic runs in CI before running any lane', t => {
+  withCI(t, 'true');
+  let calls = 0;
+  assert.throws(() => runDiagnostic('/unused', () => { calls++; return { status: 0 }; }, identity, () => 'same'), /Diagnostic mode is local only/);
+  assert.equal(calls, 0);
+});
 const identity = () => ({sourceSha:'fixture',runId:'fixture',attempt:'1',invocationId:process.env.CORE_EVIDENCE_RUN_ID,dirty:false});
+function matrixFixture(root) {
+  mkdirSync(join(root, 'tests'));
+  for (const name of ['contracts.json', 'feature-evidence-map.json']) {
+    copyFileSync(new URL(`./${name}`, import.meta.url), join(root, 'tests', name));
+  }
+  return name => {
+    if (name === 'browser') {
+      mkdirSync(join(root, 'test-results/odhin/browser'), { recursive: true });
+      writeFileSync(join(root, 'test-results/odhin/browser/index.html'), '<html><body></body></html>');
+    }
+  };
+}
 test('preserves previous results and records failed lint while running later lanes', t => {
   const root = mkdtempSync(join(tmpdir(),'diagnostic-test-')); t.after(() => rmSync(root,{recursive:true,force:true}));
   mkdirSync(join(root,'test-results')); writeFileSync(join(root,'test-results','original.txt'),'old evidence');
@@ -40,14 +71,9 @@ test('passes the requested checkout as the working directory to every child', t 
 
 test('a failed lint run adds a clearly unavailable feature matrix', t => {
   const root = mkdtempSync(join(tmpdir(), 'diagnostic-matrix-')); t.after(() => rmSync(root, { recursive: true, force: true }));
-  mkdirSync(join(root, 'tests'));
-  copyFileSync(new URL('./contracts.json', import.meta.url), join(root, 'tests/contracts.json'));
-  copyFileSync(new URL('./feature-evidence-map.json', import.meta.url), join(root, 'tests/feature-evidence-map.json'));
+  const prepare = matrixFixture(root);
   const report = runDiagnostic(root, name => {
-    if (name === 'browser') {
-      mkdirSync(join(root, 'test-results/odhin/browser'), { recursive: true });
-      writeFileSync(join(root, 'test-results/odhin/browser/index.html'), '<html><body></body></html>');
-    }
+    prepare(name);
     return { status: name === 'lint' ? 1 : 0 };
   }, identity, () => 'same');
   const html = readFileSync(join(root, 'test-results/odhin/browser/index.html'), 'utf8');
@@ -64,14 +90,9 @@ test('a successful browser step without its report fails the diagnostic', t => {
 });
 test('a failed final matrix browser check fails and is recorded', t => {
   const root = mkdtempSync(join(tmpdir(), 'diagnostic-check-')); t.after(() => rmSync(root, { recursive: true, force: true }));
-  mkdirSync(join(root, 'tests'));
-  copyFileSync(new URL('./contracts.json', import.meta.url), join(root, 'tests/contracts.json'));
-  copyFileSync(new URL('./feature-evidence-map.json', import.meta.url), join(root, 'tests/feature-evidence-map.json'));
+  const prepare = matrixFixture(root);
   const report = runDiagnostic(root, name => {
-    if (name === 'browser') {
-      mkdirSync(join(root, 'test-results/odhin/browser'), { recursive: true });
-      writeFileSync(join(root, 'test-results/odhin/browser/index.html'), '<html><body></body></html>');
-    }
+    prepare(name);
     return { status: name === 'diagnostic-report' ? 3 : 0 };
   }, identity, () => 'same');
   assert.equal(report.passed, false);
