@@ -3,13 +3,21 @@
     "target": "ES2022",
     "module": "CommonJS",
     "moduleResolution": "node",
-    "lib": ["ES2022"],
+    "lib": [
+      "ES2022"
+    ],
     "strict": true,
     "skipLibCheck": false,
-    "types": [],
+    "types": [
+      "node"
+    ],
     "declaration": true,
     "rootDir": ".",
-    "outDir": "../../../dist/core-lib/node"
+    "outDir": "../../../dist/core-lib/node",
+    "esModuleInterop": true
   },
-  "files": ["index.ts"]
+  "files": [
+    "index.ts",
+    "http.ts"
+  ]
 }

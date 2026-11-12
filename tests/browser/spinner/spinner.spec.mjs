@@ -20,4 +20,8 @@ test('spinner displays default, updated and translated text', async ({ page }) =
   await expect(spinner.getByRole('status')).toHaveText('Chwilio');
   await page.getByRole('button', { name: 'Hide spinner' }).click();
   await expect(spinners).toHaveCount(0);
+  await page.getByRole('button', { name: 'Show spinner' }).click();
+  await expect(spinners).toHaveCount(2);
+  await expect(spinners.nth(0).getByRole('status')).toHaveText('Loading');
+  await expect(spinners.nth(1).getByRole('status')).toHaveText('Chwilio');
 });

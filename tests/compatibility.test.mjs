@@ -252,10 +252,10 @@ test('matrix CLI rejects invalid decisions and profiles before any host install'
     mkdirSync(join(dir, 'tests/fixtures'), { recursive: true });
     mkdirSync(join(dir, 'dist/core-lib'), { recursive: true });
     mkdirSync(join(dir, '.yarn/releases'), { recursive: true });
-    mkdirSync(join(dir, 'projects/core-lib'), { recursive: true });
+    mkdirSync(join(dir, 'projects/core-lib/node'), { recursive: true });
     symlinkSync(fileURLToPath(new URL('../node_modules', import.meta.url)), join(dir, 'node_modules'));
 
-    for (const file of ['package.json', 'yarn.lock', '.yarnrc.yml', 'projects/core-lib/package.json', 'projects/core-lib/ng-package.json']) cpSync(new URL(`../${file}`, import.meta.url), join(dir, file));
+    for (const file of ['package.json', 'yarn.lock', '.yarnrc.yml', 'projects/core-lib/package.json', 'projects/core-lib/ng-package.json', 'projects/core-lib/node/package.json']) cpSync(new URL(`../${file}`, import.meta.url), join(dir, file));
     cpSync(new URL('../scripts/check-compatibility.mjs', import.meta.url), join(dir, 'scripts/check-compatibility.mjs'));
     cpSync(new URL('./fixtures/compatibility', import.meta.url), join(dir, 'tests/fixtures/compatibility'), { recursive: true });
     writeFileSync(join(dir, 'dist/core-lib/package.json'), '{}');
@@ -444,6 +444,18 @@ test('source verification requires every fixed repository and mandatory file', (
   assert.throws(() => sourceVerification.validateSourceInventory(missingFile), /source/i);
 });
 
+test('prospective exact dependency must satisfy the declared current core range', () => {
+  const current = fixture('core-current-contract.json');
+  const actual = structuredClone(current);
+  delete actual.scope;
+  compatibility.validateCurrentCore(actual, current, manifest);
+  for (const version of ['1.19.99', '2.0.0', '1.21.0-beta.1', 'latest', '^1.20.0']) {
+    const incompatible = structuredClone(manifest);
+    incompatible.dependencies.axios = version;
+    assert.throws(() => compatibility.validateCurrentCore(actual, current, incompatible), /Prospective dependency/);
+  }
+});
+
 test('current core cohort rejects source and lock drift independently of git HEAD', () => {
   const current = fixture('core-current-contract.json');
   const actual = structuredClone(current);
@@ -454,6 +466,10 @@ test('current core cohort rejects source and lock drift independently of git HEA
     (value) => { value.lockedVersions['@angular/core'] = '99.0.0'; },
     (value) => { value.libraryPeerDependencies['@angular/core'] = '99.0.0'; },
     (value) => { value.yarnConfig.nodeLinker = 'pnp'; },
+    (value) => { value.yarnConfig.nmHoistingLimits = 'none'; },
+    (value) => { value.nodeWorkspace.devDependencies.axios = '0.0.0'; },
+    (value) => { value.nodeWorkspace.private = false; },
+    (value) => { value.rootWorkspaces = []; },
     (value) => { value.packageManager = 'yarn@99.0.0'; },
     (value) => { value.engine.node = '>=1'; },
     (value) => { value.resolutions.unapproved = '1.0.0'; },

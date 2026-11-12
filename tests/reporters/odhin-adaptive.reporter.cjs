@@ -5,12 +5,13 @@ const path = require('node:path');
 const { createHash } = require('node:crypto');
 const odhinModule = require('odhin-reports-playwright');
 const { createEmptyFeatureStat, deriveFeatureName, enhanceGeneratedReport } = require('./odhin-report-enhancer.cjs');
+const { snapshotInventory, render } = require('./required-browser-evidence.cjs');
 
 const OdhinReporter = odhinModule.default;
 const terminalStatusesNoRetry = ['passed', 'flaky', 'skipped', 'interrupted'];
 
 class OdhinAdaptiveReporter {
-  /** @param {Partial<import('odhin-reports-playwright/lib/types/execOptions.types').ExecOptions> & { lightweight?: boolean, profile?: boolean, runtimeHookTimeoutMs?: number, finalizationTimeoutMs?: number, trimFailedArtifacts?: boolean, createInnerReporter?: (options: object) => import('@playwright/test/reporter').Reporter }} [options] */
+  /** @param {Partial<import('odhin-reports-playwright/lib/types/execOptions.types').ExecOptions> & { lightweight?: boolean, profile?: boolean, runtimeHookTimeoutMs?: number, finalizationTimeoutMs?: number, trimFailedArtifacts?: boolean, requiredBrowserContracts?: Array<{projectName: string, title: string, feature: string}>, createInnerReporter?: (options: object) => import('@playwright/test/reporter').Reporter }} [options] */
   constructor(options = {}) {
     for (const option of ['startServer', 'embedAssets', 'embedAttachments']) {
       if (options[option] !== undefined && options[option] !== false) {
@@ -93,6 +94,7 @@ class OdhinAdaptiveReporter {
       failed: 0,
     };
     this.featureStats = new Map();
+    this.requiredBrowserContracts = options.requiredBrowserContracts;
     this.finalizationStartedAt = 0;
     this.pendingInnerCallbacks = Promise.resolve();
     /** @type {import('@playwright/test/reporter').Reporter} */
@@ -103,9 +105,18 @@ class OdhinAdaptiveReporter {
   }
 
   async onBegin(config, suite) {
+    if (this.requiredBrowserContracts) {
+      this.requiredBrowserSnapshot = snapshotInventory(this.requiredBrowserContracts);
+      this.requiredBrowserSuite = suite;
+    }
     if (typeof this.inner.onBegin === 'function') {
       await this.inner.onBegin(config, suite);
     }
+  }
+
+  onError(error) {
+    this.globalError = true;
+    if (typeof this.inner.onError === 'function') void this.enqueueInnerCallback('onError', () => this.inner.onError(error));
   }
 
   async onTestEnd(test, result) {
@@ -197,6 +208,12 @@ class OdhinAdaptiveReporter {
         throw new Error(`Missing or empty primary Odhín report: ${primaryReport}`);
       }
       enhanceGeneratedReport(this.outputFolder, this.featureStats, this.testMetadata);
+      if (this.requiredBrowserSnapshot) {
+        const html = fs.readFileSync(primaryReport, 'utf8');
+        if (!html.includes('</body>')) throw new Error('Odhín report body is missing');
+        const panel = render(this.requiredBrowserSnapshot, this.requiredBrowserSuite, reportingFailed || this.globalError);
+        fs.writeFileSync(primaryReport, html.replace('</body>', () => `${panel}</body>`));
+      }
     } catch (error) {
       reportingFailed = true;
       process.stderr.write(`[odhin-profile] report enhancement failed: ${formatErrorMessage(error)}\n`);

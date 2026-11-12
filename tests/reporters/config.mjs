@@ -25,6 +25,7 @@ export function reporters(lane) {
       embedAttachments: false,
       startServer: false,
       testOutput: 'only-on-failure',
+      ...(lane === 'browser' ? { requiredBrowserContracts: JSON.parse(readFileSync(resolve(root, 'tests/contracts.json'), 'utf8')).browser.required } : {}),
     }];
     throw new Error(`Unsupported Playwright reporter: ${name}`);
   });

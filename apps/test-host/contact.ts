@@ -7,6 +7,8 @@ import { BadgeColour, ContactDetailsModule, type ContactDetailsDataModel } from 
   selector: 'core-contact-host',
   imports: [ContactDetailsModule],
   template: `<main>
+    <h1>Contact details diagnostic</h1>
+    <h2>Contact options</h2>
     <button type="button" (click)="show()">Show contact</button>
     <button type="button" (click)="translations.language = 'cy'">Cymraeg</button>
     <button type="button" (click)="clear()">Clear contact</button>
