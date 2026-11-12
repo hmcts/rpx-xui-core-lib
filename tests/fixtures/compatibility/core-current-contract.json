@@ -179,6 +179,11 @@
         "input": "case/editor-date",
         "glob": "LICENCE",
         "output": "case/editor-date"
+      },
+      {
+        "input": "case/session-error",
+        "glob": "LICENCE",
+        "output": "case/session-error"
       }
     ],
     "allowedNonPeerDependencies": [
