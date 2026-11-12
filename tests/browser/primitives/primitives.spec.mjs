@@ -31,6 +31,8 @@ test('heading label and banner use translated messages', async ({ page }) => {
 });
 
 test('primitives pass scoped serious accessibility checks', async ({ page }) => {
+  await expect(page.locator('xuilib-hmcts-banner .hmcts-banner--success')).toBeVisible();
+  await expect(page.getByRole('textbox', { name: /Case name/ })).toBeVisible();
   const result = await new AxeBuilder({ page }).include('core-primitives-host').analyze();
   expect(result.violations.filter(item => item.impact === 'serious' || item.impact === 'critical')).toEqual([]);
 });

@@ -219,6 +219,9 @@ const accessibilityJourneys = [
   'accessibility statement translates its visible heading',
 ];
 const sessionDialogJourneys = [
+  'session dialog remains visible when a long page is scrolled',
+  'session dialog keeps tall content reachable',
+  'session dialog with a large top offset remains usable in a short viewport',
   'session dialog displays projected content and preserves close output',
   'session dialog translates the sign-out message',
   'session dialog passes serious accessibility checks',
@@ -433,6 +436,14 @@ for (const title of accessibilityJourneys) {
     const data = reports();
     data['browser.json'].suites[0].specs = data['browser.json'].suites[0].specs.filter((spec) => spec.title !== title);
     assert.throws(checkFixture(t, data), /missing|required/i);
+  });
+}
+
+for (const title of sessionDialogJourneys) {
+  test(`rejects a missing session dialog browser contract: ${title}`, (t) => {
+    const files = reports();
+    files['browser.json'].suites[0].specs = files['browser.json'].suites[0].specs.filter((spec) => spec.title !== title);
+    assert.throws(checkFixture(t, files), /missing|required/i);
   });
 }
 
