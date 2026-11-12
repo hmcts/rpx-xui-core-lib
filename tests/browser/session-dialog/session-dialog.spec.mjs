@@ -91,3 +91,27 @@ test('nested modal restoration returns focus to its own opener', async ({ page }
   await expect(page.getByRole('dialog')).toHaveCount(1);
   await expect(openSecond).toBeFocused();
 });
+
+test('session dialog preserves the legacy viewport layout while using native modality', async ({ page }) => {
+  for (const { width, height, expectedX, expectedWidth, expectedHeight } of [
+    { width: 1280, height: 900, expectedX: 318, expectedWidth: 644, expectedHeight: null },
+    { width: 390, height: 844, expectedX: 0, expectedWidth: 390, expectedHeight: 844 },
+  ]) {
+    await page.setViewportSize({ width, height });
+    await page.goto('/session-dialog');
+    await page.getByRole('button', { name: 'Open session dialog' }).click();
+    const dialog = page.getByRole('dialog', { name: 'We are about to sign you out' });
+    await expect(dialog).toBeVisible();
+    const geometry = await dialog.evaluate(element => {
+      const box = element.getBoundingClientRect();
+      return { x: box.x, y: box.y, width: box.width, height: box.height, modal: element.matches(':modal'), focusInside: element.contains(document.activeElement), backdrop: getComputedStyle(element, '::backdrop').backgroundColor };
+    });
+    expect.soft(geometry.x).toBeCloseTo(expectedX, 0);
+    expect.soft(geometry.y).toBeCloseTo(30, 0);
+    expect.soft(geometry.width).toBeCloseTo(expectedWidth, 0);
+    if (expectedHeight !== null) expect.soft(geometry.height).toBeCloseTo(expectedHeight, 0);
+    expect.soft(geometry.modal).toBe(true);
+    expect.soft(geometry.focusInside).toBe(true);
+    expect.soft(geometry.backdrop).toBe('rgba(0, 0, 0, 0)');
+  }
+});

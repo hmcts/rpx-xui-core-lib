@@ -199,3 +199,23 @@
   outline: none;
   background: #ffdd00;
 }
+
+/* Native modal defaults otherwise constrain the legacy dialog and darken its overlay twice. */
+.gem-c-modal-dialogue__box:modal {
+  max-width: none;
+  max-height: none;
+}
+
+.gem-c-modal-dialogue__box::backdrop {
+  background: transparent;
+}
+
+@media (min-width: 40.0625em) {
+  .gem-c-modal-dialogue__box:modal {
+    left: 0;
+    right: 0;
+    width: min(640px, calc(100% - 4px));
+    margin-left: auto;
+    margin-right: auto;
+  }
+}

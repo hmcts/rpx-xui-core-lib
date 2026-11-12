@@ -147,6 +147,7 @@ const sessionDialogJourneys = [
   'session dialog translates the sign-out message',
   'session dialog passes serious accessibility checks',
   'session dialog is modal and keeps keyboard focus away from background',
+  'session dialog preserves the legacy viewport layout while using native modality',
   'destroying the dialog after its opener is removed does not restore focus to a detached node',
   'nested modal restoration returns focus to its own opener',
 
