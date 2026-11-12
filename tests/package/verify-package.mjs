@@ -67,7 +67,7 @@ try {
 
   await check('package.physical-node', async () => {
     for (const file of ['node/index.js', 'node/index.d.ts', 'node/package.json', 'node/LICENCE']) assert.ok((await stat(join(dist, file))).isFile());
-    assert.equal(JSON.parse(await readFile(join(dist, 'node/package.json'), 'utf8')).type, 'commonjs');
+    assert.deepEqual(JSON.parse(await readFile(join(dist, 'node/package.json'), 'utf8')), { type: 'commonjs' });
     const exports = JSON.parse(await readFile(join(dist, 'package.json'), 'utf8')).exports['./node'];
     assert.equal(exports.browser, null);
     assert.equal(exports.node, './node/index.js');
@@ -82,7 +82,8 @@ try {
   await writeFile(join(staged, 'yarn.lock'), '');
   const candidate = join(scratch, 'candidate.tgz');
   current = 'package.setup';
-  await run('pack', [yarn, 'pack', '--out', candidate], staged);
+  const packageFiles = await run('pack', [yarn, 'pack', '--out', candidate], staged);
+  assert.doesNotMatch(packageFiles, /node\/node_modules/);
   report.package = {
     sha256: createHash('sha256').update(await readFile(candidate)).digest('hex'),
     ...currentIdentity(root),
@@ -177,6 +178,7 @@ try {
 
   await check('package.staged-i18n-identity', () => run('staged-i18n-identity', ['i18n-runtime.mjs'], consumer));
   await check('package.installed-node-runtime', () => run('installed-node-runtime', ['node-runtime.cjs'], consumer));
+  await check('package.installed-node-http', () => run('installed-node-http', ['node-http.cjs'], consumer));
   await check('package.node-loading-fault', async () => {
     const entry = join(installed, 'node/index.js');
     const original = await readFile(entry, 'utf8');
@@ -195,6 +197,16 @@ try {
   await check('package.browser-denied', async () => {
     const diagnostic = await run('browser-condition-denied', ['--conditions=browser', 'node-runtime.cjs'], consumer, 1);
     assert.match(diagnostic, /ERR_PACKAGE_PATH_NOT_EXPORTED/);
+    const httpDiagnostic = await run('browser-condition-http-denied', ['--conditions=browser', 'node-http-browser.mjs'], consumer, 1);
+    assert.match(httpDiagnostic, /ERR_PACKAGE_PATH_NOT_EXPORTED/);
+    try {
+      buildSync({ entryPoints: ['node-http-browser.mjs'], absWorkingDir: consumer, bundle: true, platform: 'browser', write: false, logLevel: 'silent' });
+      assert.fail('Browser bundling must reject the Node HTTP entry');
+    } catch (error) {
+      await writeFile(join(evidence, 'browser-http-bundle-denied.log'), error.message);
+      assert.match(error.message, /Could not resolve "@hmcts\/rpx-xui-core-lib\/node\/http"/);
+      assert.match(error.errors[0].notes.map((note) => note.text).join('\n'), /blocked|disabled/);
+    }
     try {
       buildSync({ entryPoints: ['node-browser.mjs'], absWorkingDir: consumer, bundle: true, platform: 'browser', write: false, logLevel: 'silent' });
       assert.fail('Browser bundling must reject the Node entry');

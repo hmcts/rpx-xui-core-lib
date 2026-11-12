@@ -17,63 +17,83 @@
     "required": [
       {
         "projectName": "chromium",
-        "title": "keyboard checkbox toggles update real FormGroup validity and submitted errors"
+        "title": "keyboard checkbox toggles update real FormGroup validity and submitted errors",
+        "feature": "validation"
       },
       {
         "projectName": "chromium",
-        "title": "validation keyboard traversal toggles roles and submits with Enter and Space"
+        "title": "validation keyboard traversal toggles roles and submits with Enter and Space",
+        "feature": "validation"
       },
       {
         "projectName": "chromium",
-        "title": "validation initial exposes accessible roles and passes axe"
+        "title": "validation initial exposes accessible roles and passes axe",
+        "feature": "validation"
       },
       {
         "projectName": "chromium",
-        "title": "validation invalid-submit exposes accessible roles and passes axe"
+        "title": "validation invalid-submit exposes accessible roles and passes axe",
+        "feature": "validation"
       },
       {
         "projectName": "chromium",
-        "title": "validation valid exposes accessible roles and passes axe"
+        "title": "validation valid exposes accessible roles and passes axe",
+        "feature": "validation"
       },
       {
         "projectName": "chromium",
-        "title": "validation axe detects the label rule when a checkbox label is removed"
+        "title": "validation axe detects the label rule when a checkbox label is removed",
+        "feature": "validation"
       },
       {
         "projectName": "chromium",
-        "title": "locale switches reuse persisted translations across English and page reloads"
+        "title": "locale switches reuse persisted translations across English and page reloads",
+        "feature": "i18n"
       },
       {
         "projectName": "chromium",
-        "title": "a translation HTTP failure returns and caches the original phrase"
+        "title": "a translation HTTP failure returns and caches the original phrase",
+        "feature": "i18n"
       },
       {
         "projectName": "chromium",
-        "title": "a late Welsh response preserves English and is reused after switching back"
+        "title": "a late Welsh response preserves English and is reused after switching back",
+        "feature": "i18n"
       },
       {
         "projectName": "chromium",
-        "title": "local gallery translates through its own synthetic service"
+        "title": "local gallery translates through its own synthetic service",
+        "feature": "i18n"
       },
       {
         "projectName": "chromium",
-        "title": "local gallery demonstrates a synthetic service failure"
+        "title": "local gallery demonstrates a synthetic service failure",
+        "feature": "i18n"
       },
       {
         "projectName": "chromium",
-        "title": "local translation endpoint validates requests"
+        "title": "local translation endpoint validates requests",
+        "feature": "i18n"
       },
       {
         "projectName": "chromium",
-        "title": "spinner displays default, updated and translated text"
+        "title": "spinner displays default, updated and translated text",
+        "feature": "spinner"
       },
       {
         "projectName": "chromium",
-        "title": "contact details show optional fields and translate labels"
+        "title": "contact details show optional fields and translate labels",
+        "feature": "contact"
       },
       {
         "projectName": "chromium",
-        "title": "case reference formatting preserves links and handles drafts"
+        "title": "case reference formatting preserves links and handles drafts",
+        "feature": "case-reference"
+      },
+      {
+        "projectName": "chromium",
+        "title": "contact links are keyboard reachable and remain accessible through data changes",
+        "feature": "contact"
       }
     ]
   },
@@ -88,6 +108,7 @@
       "package.restored-node",
       "package.physical-node",
       "package.installed-node-runtime",
+      "package.installed-node-http",
       "package.node-loading-fault",
       "package.browser-denied",
       "package.missing-marker-fault",

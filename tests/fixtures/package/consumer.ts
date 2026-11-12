@@ -60,3 +60,5 @@ export const sharedCase: SharedCase = { caseId: 'case', caseTitle: 'Title', pend
 export const sharingError: SharedCaseErrorMessages = SharedCaseErrorMessages.OneCaseMustBeSelected;
 // @ts-expect-error caseId remains required in the legacy contract.
 export const invalidSharedCase: SharedCase = { caseTitle: 'Title' };
+import { http } from '@hmcts/rpx-xui-core-lib/node/http';
+export const get = http.get;

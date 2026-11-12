@@ -1,5 +1,7 @@
 import { createHash } from 'node:crypto';
 import { currentIdentity } from './evidence-identity.mjs';
+import { verifyBoundEvidence } from './evidence-lane-receipts.mjs';
+import { sourceSnapshot } from './evidence-source-snapshot.mjs';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -129,6 +131,7 @@ function packageOutcomes(report, reportRoot, expectedIdentity) {
 
 export function checkContracts(reportRoot = root, expectedIdentity) {
   if (!expectedIdentity || ['sourceSha', 'runId', 'attempt'].some((key) => typeof expectedIdentity[key] !== 'string' || !expectedIdentity[key])) throw new Error('Expected run identity is required');
+  verifyBoundEvidence(reportRoot, expectedIdentity);
   const parsers = { i18nUnit: jasmineOutcomes, nodeUnit: unitOutcomes, unit: unitOutcomes, browser: (text) => browserOutcomes(JSON.parse(text)), cacheBrowser: (text) => browserOutcomes(JSON.parse(text)), package: (text) => packageOutcomes(JSON.parse(text), reportRoot, expectedIdentity) };
   let count = 0;
   for (const [kind, inventory] of Object.entries(contracts)) {
@@ -158,6 +161,15 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     }
     if (args.length && (args.length !== 8 || names.some((key) => !options[key]))) throw new Error('Replay requires --report-root, --source-sha, --run-id and --attempt');
     const expected = args.length ? { sourceSha: options['--source-sha'], runId: options['--run-id'], attempt: options['--attempt'] } : currentIdentity(root);
+    if (!args.length && !process.env.GITHUB_RUN_ID && !process.env.CORE_EVIDENCE_RUN_ID) {
+      const recorded = JSON.parse(readFileSync(resolve(root, 'test-results/lane-provenance/run.json'), 'utf8'));
+      if (recorded.sourceSha !== expected.sourceSha || recorded.attempt !== expected.attempt || typeof recorded.runId !== 'string' || !recorded.runId || recorded.runId === 'local') throw new Error('Missing or mismatched local run identity');
+      expected.runId = recorded.runId;
+    }
+    if (!args.length) {
+      const recorded = JSON.parse(readFileSync(resolve(root, 'test-results/lane-provenance/run.json'), 'utf8'));
+      if (sourceSnapshot(root) !== recorded.sourceSnapshot) throw new Error('Source changed since evidence run began');
+    }
     console.log(`Required contracts passed: ${checkContracts(options['--report-root'] ?? root, expected)}`);
   } catch (error) {
     console.error(`Required-contract gate failed: ${error.message}`);
