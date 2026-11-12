@@ -132,7 +132,7 @@ function packageOutcomes(report, reportRoot, expectedIdentity) {
 export function checkContracts(reportRoot = root, expectedIdentity) {
   if (!expectedIdentity || ['sourceSha', 'runId', 'attempt'].some((key) => typeof expectedIdentity[key] !== 'string' || !expectedIdentity[key])) throw new Error('Expected run identity is required');
   verifyBoundEvidence(reportRoot, expectedIdentity);
-  const parsers = { i18nUnit: jasmineOutcomes, nodeUnit: unitOutcomes, unit: unitOutcomes, browser: (text) => browserOutcomes(JSON.parse(text)), cacheBrowser: (text) => browserOutcomes(JSON.parse(text)), package: (text) => packageOutcomes(JSON.parse(text), reportRoot, expectedIdentity) };
+  const parsers = { refDataUnit: unitOutcomes, locationUnit: unitOutcomes, windowUnit: unitOutcomes, cookieUnit: unitOutcomes, featureToggleUnit: unitOutcomes, roleUnit: unitOutcomes, i18nUnit: jasmineOutcomes, nodeUnit: unitOutcomes, unit: unitOutcomes, browser: (text) => browserOutcomes(JSON.parse(text)), cacheBrowser: (text) => browserOutcomes(JSON.parse(text)), package: (text) => packageOutcomes(JSON.parse(text), reportRoot, expectedIdentity) };
   let count = 0;
   for (const [kind, inventory] of Object.entries(contracts)) {
     const outcomes = parsers[kind](readFileSync(resolve(reportRoot, inventory.report), 'utf8'));

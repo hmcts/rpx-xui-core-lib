@@ -463,6 +463,8 @@ test('current core cohort rejects source and lock drift independently of git HEA
   compatibility.validateCurrentCore(actual, current);
   for (const change of [
     (value) => { value.devCohort['@angular/core'] = '99.0.0'; },
+    (value) => { delete value.devCohort['govuk-frontend']; },
+    (value) => { value.lockedVersions['govuk-frontend'] = '0.0.0'; },
     (value) => { value.lockedVersions['@angular/core'] = '99.0.0'; },
     (value) => { value.libraryPeerDependencies['@angular/core'] = '99.0.0'; },
     (value) => { value.yarnConfig.nodeLinker = 'pnp'; },
