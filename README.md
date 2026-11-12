@@ -153,3 +153,11 @@ Library package publication remains disabled. Before adoption, consumer and rele
 EXUI owns this repository. Changes go through a pull request to `master`, the required `build` check and human review. Licensed under the [MIT licence](LICENCE).
 
 `case/sharing` supplies the case-sharing models and error messages used by webapp and manage organisations. These are copied from CommonLib commit `f8566da8a53bff16177deeef824a0642a631285c`, retain the original 2019 Crown Copyright licence, and remain a selective entry point; application adoption is not implied.
+
+### CommonLib secondary entries
+
+Use selective imports under `@hmcts/rpx-xui-core-lib/` for `browser/window`, `browser/session-storage`, `reference/locations`, `reference/ref-data`, `terms/models`, `ui/cookie`, `ui/feature-toggle`, `ui/feature-toggle-directive`, `ui/role-state`, `ui/task-data`, and `case/sharing-state`. Terms models are types; importing them as types contributes no runtime library code. Task data uses session storage, and the feature directive uses the feature service.
+
+Run `yarn build`, `yarn lint`, and `yarn test:all` locally for the supervised complete evidence gate. For a focused investigation, use `yarn test:locations`, `yarn test:ref-data`, `yarn test:window`, `yarn test:cookie`, `yarn test:feature-toggle`, or `yarn test:roles` after building. Focused runs do not replace the full evidence gate.
+
+These entries introduce new Angular injection tokens even where the service behaviour mirrors CommonLib. Consumers must explicitly coordinate providers and scopes during cutover; synthetic alias tests do not establish application-wide singleton identity. Avoid declaring both versions of the feature-toggle directive in the same Angular scope because they use the same selector. Validate each consumer's routing, providers and actual user journeys before replacing its existing imports.
