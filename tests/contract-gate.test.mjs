@@ -98,6 +98,8 @@ const addedLaneNames = {
     "role matching preserves invalid regex and short-circuit behavior"
   ]
 };
+unitNames.push("date input reports mandatory and partial values through the legacy validator", "date input write and callback preserve the legacy padded value", "date input retains legacy touched callback and destruction behavior");
+
 const nodeNames = [
   'Node authentication and session constants retain the legacy values',
   'Node security policy retains the legacy directives',
@@ -286,6 +288,9 @@ const packageIds = [
 packageIds.push("package.session-storage-behavior", "package.session-storage-graph", "package.task-data-behavior", "package.task-data-graph", "package.case-sharing-state-graph", "package.case-sharing-state-behavior", "package.cookie-behavior", "package.cookie-graph", "package.terms-type", "package.terms-graph", "package.window-behavior", "package.window-graph", "package.locations-behavior", "package.locations-graph", "package.ref-data-behavior", "package.ref-data-graph");
 
 packageIds.push("package.feature-toggle-graph", "package.feature-directive-graph", "package.role-state-graph", "package.feature-toggle-behavior", "package.role-state-behavior");
+
+packageIds.push('package.editor-date-graph');
+addedBrowserJourneys.push('date input preserves validation and values across translations', 'date input has accessible keyboard reachable date fields');
 
 const expectedContracts = addedBrowserJourneys.length + Object.values(addedLaneNames).reduce((sum, names) => sum + names.length, 0) + unitNames.length + nodeNames.length + i18nNames.length + i18nJourneys.length + dueDateJourneys.length + accessibilityJourneys.length + sessionDialogJourneys.length + primitiveJourneys.length + cacheJourneys.length + validationJourneys.length + packageIds.length + 1;
 
