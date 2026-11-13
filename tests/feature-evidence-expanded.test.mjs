@@ -13,18 +13,10 @@ test('unknown contract fails closed', () => { const m = copy(mapping); Object.va
 test('a newly required contract fails closed until reviewed', () => { const value = copy(inventory); value.unit.required.push('new contract'); assert.throws(() => validateMapping(value, mapping), /Missing/); });
 test('unavailable evidence makes no passing or coverage claim', () => { const html = renderMatrix('unavailable', mapping, {}, inventory); assert.match(html, /not coverage or a complete feature inventory/); assert.match(html, /unclassified/); assert.match(html, /unavailable|incomplete/i); assert.doesNotMatch(html, /required cases passed/); });
 
-test('rendered feature report separates known account-switch gaps from filter behavior', () => {
+test('rendered feature report records deferred filter migration', () => {
   const html = parse(renderMatrix('verified', mapping, {}, inventory));
-  const gapRow = html.querySelectorAll('tr').find(row => row.querySelector('th')?.text === 'Filter state known identity and bootstrap gap detection');
-  const filterRow = html.querySelectorAll('tr').find(row => row.querySelector('th')?.text === 'Filter state');
-  assert.ok(gapRow);
-  assert.ok(filterRow);
-  assert.match(gapRow.text, /3 required cases passed/);
-  assert.match(html.text, /Filter state retains session and stream values across a same-tab account change/);
-  assert.match(html.text, /an uncached read before owner information is available removes the local filter/);
-  assert.match(html.text, /Consumer adoption and release remain blocked/);
+  assert.match(html.text, /Filter state is deferred until the owner reference, identity lifecycle, cross-owner storage and legacy migration contracts are agreed and validated with consumers/);
 });
-
 
 test('rendered feature report separates inherited find-person gaps from passing behavior', () => {
   const html = parse(renderMatrix('verified', mapping, {}, inventory));

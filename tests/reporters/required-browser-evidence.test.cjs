@@ -114,7 +114,6 @@ gov-date-select|date errors describe the correct fieldset without duplicate or m
 gov-date-select|empty date and select messages never reference absent error elements
 checkbox-list|checkbox list instances keep labels and selections independent
 checkbox-list|checkbox list supports keyboard selection and select-all transitions
-filter-state|filter local storage checks owner across independent tabs
 find-person|new input suppresses stale response and keyboard selection keeps latest person
 find-person|multiple default hints expose the known duplicate-id gap
 find-person|one default and two explicitly identified instances expose only their own live descriptions
@@ -130,6 +129,10 @@ find-person|completed Welsh response replaces the English accessible name
 find-person|whitespace-only translation falls back to a non-blank accessible name
 find-person|retained parent control drives lookup before and after component recreation
 task-lookups|task-name lookup rejects an old response after input changes
+task-lookups|standalone work-type search has an accessible name
+task-lookups|standalone work-type search preserves an external label
+task-lookups|standalone work-type fallback follows the selected language
+task-lookups|parent work-type search uses its configured and translated title
 task-lookups|work-type lookup rejects an old response after input changes
 task-lookups|task-name shows no-results only after an empty successful response
 task-lookups|task-name reports a service failure and recovers on later input

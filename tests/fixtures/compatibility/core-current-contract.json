@@ -232,11 +232,6 @@
         "output": "ui/checkbox-list"
       },
       {
-        "input": "ui/filter-state",
-        "glob": "LICENCE",
-        "output": "ui/filter-state"
-      },
-      {
         "input": "ui/find-person",
         "glob": "LICENCE",
         "output": "ui/find-person"

@@ -48,19 +48,6 @@
       "checkbox list maps preselection to actual options and removes unavailable selections",
       "checkbox list emits user selection and select-all transitions",
       "checkbox list keeps an active user selection when preselection later changes",
-      "filter restores same-owner local before colliding session and removes session copy",
-      "filter removes another owner local value and preserves session fallback",
-      "filter persists owned values without raw id and falls back to session without owner",
-      "filter memory precedence, stream and clear are isolated by id",
-      "filter propagates malformed stored JSON and storage errors",
-      "filter supports one DI instance with a synthetic token alias",
-      "filter session value remains available after a same-tab owner change",
-      "filter memory owner must still match after a same-tab identity change",
-      "filter reads id before uid and returns undefined without user details",
-      "filter switching persistence removes the stale copy from the other store",
-      "filter rejects and removes another owner local value without a session fallback",
-      "filter stream exposes inherited previous-owner replay after a same-tab owner change",
-      "filter exposes inherited local eviction when the owner is unavailable",
       "judicial search excludes already selected people and forwards search options",
       "all-domain search joins both people lists in legacy order",
       "Admin domain returns caseworkers",
@@ -500,11 +487,6 @@
       },
       {
         "projectName": "chromium",
-        "title": "filter local storage checks owner across independent tabs",
-        "feature": "filter-state"
-      },
-      {
-        "projectName": "chromium",
         "title": "new input suppresses stale response and keyboard selection keeps latest person",
         "feature": "find-person"
       },
@@ -576,6 +558,26 @@
       {
         "projectName": "chromium",
         "title": "task-name lookup rejects an old response after input changes",
+        "feature": "task-lookups"
+      },
+      {
+        "projectName": "chromium",
+        "title": "standalone work-type search has an accessible name",
+        "feature": "task-lookups"
+      },
+      {
+        "projectName": "chromium",
+        "title": "standalone work-type search preserves an external label",
+        "feature": "task-lookups"
+      },
+      {
+        "projectName": "chromium",
+        "title": "standalone work-type fallback follows the selected language",
+        "feature": "task-lookups"
+      },
+      {
+        "projectName": "chromium",
+        "title": "parent work-type search uses its configured and translated title",
         "feature": "task-lookups"
       },
       {
@@ -718,8 +720,6 @@
       "package.gov-select-graph",
       "package.gov-date-behavior",
       "package.checkbox-list-graph",
-      "package.filter-state-behavior",
-      "package.filter-state-graph",
       "package.find-person-behavior",
       "package.find-person-graph",
       "package.task-lookups-behavior",

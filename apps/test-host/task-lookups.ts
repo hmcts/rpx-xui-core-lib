@@ -35,15 +35,16 @@ window.lookupHarness = {
       <button type="button" (click)="taskSubtitle = ''">Hide task hint</button>
       <button type="button" (click)="translations.language = 'cy'">Cymraeg</button>
     }
+    @if (customWorkTitle && !taskA11y) { <button type="button" (click)="translations.language = 'cy'">Cymraeg</button> }
     @if (retained) { <button type="button" (click)="showTask = !showTask">Toggle task component</button> }
     @if (parentMode) {
-      <xuilib-find-work-type [form]="workForm" [fields]="fields" [field]="field" [services]="services"
+      <xuilib-find-work-type [form]="workForm" [fields]="fields" [field]="field" [services]="services" [workTypeTitle]="workTypeTitle"
         [formSubmissionEvent$]="submitEvent" [disabled]="workDisabled"></xuilib-find-work-type>
       <button type="button" (click)="workDisabled = !workDisabled">Toggle work disabled</button>
       <button type="button" (click)="submitEvent.next()">Submit work form</button>
       <pre data-testid="work-form">{{ workForm.value | json }}</pre>
     } @else {
-      <label for="inputWorkTypeSearch">Search work types</label>
+      @if (externalWorkLabel) { <label for="inputWorkTypeSearch">External custom label</label> }
       <exui-search-work-type [form]="workForm" [field]="field"></exui-search-work-type>
     }
     @if (duplicates) {
@@ -61,6 +62,9 @@ class TaskLookupsGallery implements AfterViewInit {
   readonly parentMode = new URLSearchParams(window.location.search).has('parent');
   readonly duplicates = new URLSearchParams(window.location.search).has('duplicates');
   readonly taskA11y = new URLSearchParams(window.location.search).has('taskA11y');
+  readonly customWorkTitle = new URLSearchParams(window.location.search).has('customWorkTitle');
+  readonly externalWorkLabel = new URLSearchParams(window.location.search).has('externalWorkLabel');
+  readonly workTypeTitle = this.customWorkTitle ? 'Synthetic work type title' : 'Search for a work type by name';
   readonly workForm = new FormGroup({ workTypes: new FormArray([]) });
   readonly submitEvent = new Subject<void>();
   readonly services = ['ia'];
