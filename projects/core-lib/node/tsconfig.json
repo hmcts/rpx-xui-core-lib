@@ -21,6 +21,7 @@
     "index.ts",
     "http.ts",
     "server/typings.d.ts",
-    "server/index.ts"
+    "server/index.ts",
+    "server/security/index.ts"
   ]
 }

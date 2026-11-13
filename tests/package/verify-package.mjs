@@ -17,6 +17,7 @@ const report = { schemaVersion: 1, package: {}, tests: [] };
 const yarn = join(root, '.yarn/releases/yarn-4.18.1.cjs');
 let current = 'package.setup';
 let scratch;
+let nodeOnlyConsumer;
 
 await mkdir(output, { recursive: true });
 await rm(join(output, 'package.json'), { force: true });
@@ -76,6 +77,7 @@ try {
       'node/server/index.js', 'node/server/index.d.ts',
       'node/server/auth/index.js', 'node/server/auth/index.d.ts',
       'node/server/session/index.js', 'node/server/session/index.d.ts',
+      'node/server/security/index.js', 'node/server/security/index.d.ts',
     ]) assert.ok((await stat(join(dist, file))).isFile(), `Missing packed Node entry: ${file}`);
     assert.deepEqual(JSON.parse(await readFile(join(dist, 'node/package.json'), 'utf8')), { type: 'commonjs' });
     assert.doesNotMatch(await readFile(join(dist, 'node/index.d.ts'), 'utf8'), /express-session|express-serve-static-core/, 'The lightweight Node entry must not require server type packages');
@@ -85,6 +87,7 @@ try {
       './node/server': 'server/index',
       './node/server/auth': 'server/auth/index',
       './node/server/session': 'server/session/index',
+      './node/server/security': 'server/security/index',
     })) {
       assert.deepEqual(packageExports[name], {
         browser: null,
@@ -117,6 +120,7 @@ try {
 
   await check('package.node-only-peer-install', async () => {
     const nodeConsumer = join(scratch, 'node-only-consumer');
+    nodeOnlyConsumer = nodeConsumer;
     await mkdir(nodeConsumer, { recursive: true });
     await cp(candidate, join(nodeConsumer, 'candidate.tgz'));
     await cp(join(root, 'tests/fixtures/package/node-only-runtime.mjs'), join(nodeConsumer, 'node-only-runtime.mjs'));
@@ -148,6 +152,21 @@ try {
     await writeFile(join(evidence, 'node-only-ui-entry.log'), diagnostic);
     assert.equal(missingUiPeer.status, 1, 'A UI entry cannot be imported without its Angular peers');
     assert.match(diagnostic, /Cannot find package ['"]@angular\/forms['"]/);
+  });
+
+  await check('package.node-security-optional-peer', async () => {
+    await assert.rejects(stat(join(nodeOnlyConsumer, 'node_modules/helmet')), { code: 'ENOENT' });
+    const missing = await run('node-security-missing-peer', ['--input-type=module', '-e', "await import('@hmcts/rpx-xui-core-lib/node/server/security');"], nodeOnlyConsumer, 1);
+    assert.match(missing, /Cannot find module ['"]helmet['"]/);
+    const serverManifest = JSON.parse(await readFile(join(nodeOnlyConsumer, 'package.json'), 'utf8'));
+    serverManifest.dependencies.express = '5.2.1';
+    await writeFile(join(nodeOnlyConsumer, 'package.json'), JSON.stringify(serverManifest) + '\n');
+    await run('node-server-peer-lock', [yarn, 'install', '--mode=update-lockfile'], nodeOnlyConsumer);
+    const serverLock = await readFile(join(nodeOnlyConsumer, 'yarn.lock'), 'utf8');
+    await run('node-server-peer-install', [yarn, 'install', '--immutable'], nodeOnlyConsumer);
+    assert.equal(await readFile(join(nodeOnlyConsumer, 'yarn.lock'), 'utf8'), serverLock);
+    await assert.rejects(stat(join(nodeOnlyConsumer, 'node_modules/helmet')), { code: 'ENOENT' });
+    await run('server-without-helmet', ['--input-type=commonjs', '-e', "const assert=require('node:assert/strict');const {xuiNode,getLogger}=require('@hmcts/rpx-xui-core-lib/node/server');assert.ok(xuiNode);assert.equal(typeof getLogger,'function');assert.ok(!Object.keys(require.cache).some(path=>path.includes('/node_modules/helmet/')));"], nodeOnlyConsumer);
   });
 
   await check('package.angular-20_3_31-cohort-build', async () => {
@@ -222,13 +241,44 @@ try {
   assert.equal(JSON.parse(await readFile(join(installed, 'node/package.json'), 'utf8')).type, 'commonjs', 'Packed Node marker must survive installation');
   const compiler = join(consumer, 'node_modules/typescript/bin/tsc');
   await check('package.strict-node', () => run('strict-node', [compiler, '-p', 'tsconfig.node.json'], consumer));
-  for (const entry of ['node', 'server', 'auth', 'session']) {
+  for (const entry of ['node', 'server', 'auth', 'session', 'security']) {
     await check(`package.strict-node-${entry}-types`, () => run(`strict-node-${entry}-types`, [
       compiler, '--strict', '--skipLibCheck', 'false', '--esModuleInterop', '--target', 'ES2022',
       '--module', 'ES2022', '--moduleResolution', 'node', '--noEmit', ...(entry === 'node' ? ['--types', 'node'] : []), `node-${entry}-types.ts`,
     ], consumer));
   }
   await check('package.strict-bundler', () => run('strict-bundler', [compiler, '-p', 'tsconfig.bundler.json'], consumer));
+  await check('package.node-security-consumer-contracts', async () => {
+    const compiled = buildSync({ entryPoints: ['node-security-types.ts'], absWorkingDir: consumer, bundle: true,
+      platform: 'node', format: 'cjs', packages: 'external', metafile: true, outfile: join(consumer, 'node-security-config.cjs') });
+    for (const app of ['mc', 'mo', 'ao']) assert.ok(Object.keys(compiled.metafile.inputs).some(path => path.endsWith(`node-csp-config/${app}.ts`)));
+    await run('node-security-consumer-runtime', ['node-security-runtime.mjs'], consumer);
+  });
+
+  for (const fault of [
+    { id: 'nonce', original: "node_crypto_1.default.randomBytes(16).toString('base64')", replacement: "'reused-test-nonce'", reason: /different response nonces/ },
+    { id: 'header', original: "`'nonce-${nonce}'`", replacement: JSON.stringify("'nonce-omitted'"), reason: /CSP header must contain rendered nonce/ },
+    { id: 'merge', original: '[...previous, ...values]', replacement: 'values', reason: /CSP merge must retain default script sources/ },
+  ]) {
+    await check(`package.node-security-${fault.id}-fault`, async () => {
+      const entry = join(installed, 'node/server/security/csp.js');
+      const original = await readFile(entry, 'utf8');
+      assert.ok(original.includes(fault.original), 'Missing intended CSP fault target');
+      try {
+        await writeFile(entry, original.replaceAll(fault.original, fault.replacement));
+        const diagnostic = await run(`node-security-${fault.id}-fault`, ['node-security-runtime.mjs'], consumer, 1);
+        assert.match(diagnostic, fault.reason);
+      } finally { await writeFile(entry, original); }
+    });
+  }
+  await check('package.node-security-restored', () => run('node-security-restored', ['node-security-runtime.mjs'], consumer));
+  await check('package.node-security-browser-denied', async () => {
+    const diagnostic = await run('browser-condition-security-denied', ['--conditions=browser', '--input-type=module', '-e', "await import('@hmcts/rpx-xui-core-lib/node/server/security');"], consumer, 1);
+    assert.match(diagnostic, /ERR_PACKAGE_PATH_NOT_EXPORTED/);
+    assert.throws(() => buildSync({ stdin: { contents: "import {csp} from '@hmcts/rpx-xui-core-lib/node/server/security'; console.log(csp);", resolveDir: consumer },
+      absWorkingDir: consumer, bundle: true, platform: 'browser', write: false, logLevel: 'silent' }), /Could not resolve/);
+  });
+
   await check('package.loading-angular-build', async () => {
     await cp(join(root, 'tests/fixtures/packed-loading'), join(consumer, 'loading-host'), { recursive: true });
     await cp(join(consumer, 'loading-host/angular.json'), join(consumer, 'angular.json'));

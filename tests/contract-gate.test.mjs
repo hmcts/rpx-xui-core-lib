@@ -322,6 +322,14 @@ unitNames.push('checkbox list maps preselection to actual options and removes un
 addedBrowserJourneys.push('checkbox list instances keep labels and selections independent', 'checkbox list supports keyboard selection and select-all transitions');
 packageIds.push('package.checkbox-list-graph');
 packageIds.push('package.node-only-peer-install', 'package.angular-20_3_31-cohort-build', 'package.strict-node-node-types', 'package.strict-node-server-types', 'package.strict-node-auth-types', 'package.strict-node-session-types');
+addedBrowserJourneys.push(
+  'CSP enforcement runs nonce scripts and styles while blocking unapproved inline code',
+  'CSP report-only emits its header and allows the identical unapproved script to execute',
+  'CSP reload receives a new nonce matching the served script',
+);
+packageIds.push('package.node-security-optional-peer', 'package.strict-node-security-types',
+  'package.node-security-consumer-contracts', 'package.node-security-nonce-fault', 'package.node-security-header-fault',
+  'package.node-security-merge-fault', 'package.node-security-restored', 'package.node-security-browser-denied');
 const expectedContracts = addedBrowserJourneys.length + Object.values(addedLaneNames).reduce((sum, names) => sum + names.length, 0) + unitNames.length + nodeNames.length + i18nNames.length + i18nJourneys.length + dueDateJourneys.length + accessibilityJourneys.length + sessionDialogJourneys.length + primitiveJourneys.length + cacheJourneys.length + validationJourneys.length + packageIds.length + 1 + contractInventory.nodeServerUnit.required.length;
 
 function nativeTap(names) {

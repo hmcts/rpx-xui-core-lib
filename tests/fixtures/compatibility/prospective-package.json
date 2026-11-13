@@ -19,7 +19,6 @@
     "class-transformer": "0.5.1",
     "connect-redis": "9.0.0",
     "debug": "4.4.3",
-    "deepmerge": "4.3.1",
     "dexie": "4.4.7",
     "express-session": "1.19.0",
     "file-saver": "2.0.5",
@@ -73,7 +72,7 @@
     "@ngrx/store-devtools": "20.1.0",
     "@ngxmc/datetime-picker": "20.1.0",
     "express": "5.2.1",
-    "helmet": "8.1.0",
+    "helmet": "8.3.0",
     "launchdarkly-js-client-sdk": "3.9.6",
     "moment": "2.31.0",
     "moment-timezone": "0.6.2",
@@ -92,6 +91,7 @@
     "@angular/forms": { "optional": true },
     "@angular/material": { "optional": true },
     "@angular/platform-browser": { "optional": true },
-    "rxjs": { "optional": true }
+    "rxjs": { "optional": true },
+    "helmet": { "optional": true }
   }
 }

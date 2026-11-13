@@ -12,7 +12,8 @@
     "@angular/material": "20.2.14",
     "@angular/cdk": "20.2.14",
     "@angular/platform-browser": "^20.3.27",
-    "express": "5.2.1"
+    "express": "5.2.1",
+    "helmet": "8.3.0"
   },
   "peerDependenciesMeta": {
     "@angular/common": { "optional": true },
@@ -22,7 +23,8 @@
     "@angular/material": { "optional": true },
     "@angular/cdk": { "optional": true },
     "@angular/platform-browser": { "optional": true },
-    "express": { "optional": true }
+    "express": { "optional": true },
+    "helmet": { "optional": true }
   },
   "exports": {
     "./node": {
@@ -49,6 +51,11 @@
       "browser": null,
       "types": "./node/server/session/index.d.ts",
       "node": "./node/server/session/index.js"
+    },
+    "./node/server/security": {
+      "browser": null,
+      "types": "./node/server/security/index.d.ts",
+      "node": "./node/server/security/index.js"
     }
   },
   "type": "module",

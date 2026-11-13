@@ -427,6 +427,21 @@
         "projectName": "chromium",
         "title": "checkbox list supports keyboard selection and select-all transitions",
         "feature": "checkbox-list"
+      },
+      {
+        "projectName": "chromium",
+        "title": "CSP enforcement runs nonce scripts and styles while blocking unapproved inline code",
+        "feature": "node-security"
+      },
+      {
+        "projectName": "chromium",
+        "title": "CSP report-only emits its header and allows the identical unapproved script to execute",
+        "feature": "node-security"
+      },
+      {
+        "projectName": "chromium",
+        "title": "CSP reload receives a new nonce matching the served script",
+        "feature": "node-security"
       }
     ]
   },
@@ -498,7 +513,15 @@
       "package.strict-node-node-types",
       "package.strict-node-server-types",
       "package.strict-node-auth-types",
-      "package.strict-node-session-types"
+      "package.strict-node-session-types",
+      "package.node-security-optional-peer",
+      "package.strict-node-security-types",
+      "package.node-security-consumer-contracts",
+      "package.node-security-nonce-fault",
+      "package.node-security-header-fault",
+      "package.node-security-merge-fault",
+      "package.node-security-restored",
+      "package.node-security-browser-denied"
     ]
   },
   "nodeUnit": {
@@ -858,7 +881,26 @@
       "projects/core-lib/node/server/session/models/redisSessionStore.class.spec.ts sessionStore configure",
       "projects/core-lib/node/server/session/models/redisSessionStore.class.spec.ts sessionStore getClassStore",
       "projects/core-lib/node/server/session/models/redisSessionStore.class.spec.ts sessionStore getClassStore error",
-      "projects/core-lib/node/server/session/models/redisSessionStore.class.spec.ts sessionStore mapSessionOptions"
+      "projects/core-lib/node/server/session/models/redisSessionStore.class.spec.ts sessionStore mapSessionOptions",
+      "projects/core-lib/node/server/security/csp.spec.ts csp middleware should set a nonce on res.locals",
+      "projects/core-lib/node/server/security/csp.spec.ts csp middleware should call helmet.contentSecurityPolicy with correct directives",
+      "projects/core-lib/node/server/security/csp.spec.ts csp middleware should add extra directives from options",
+      "projects/core-lib/node/server/security/csp.spec.ts csp middleware should set Content-Security-Policy header",
+      "projects/core-lib/node/server/security/csp.spec.ts csp middleware honours CSP_REPORT_ONLY env flag",
+      "projects/core-lib/node/server/security/csp.spec.ts csp middleware merges extras from environment variables",
+      "projects/core-lib/node/server/security/csp.spec.ts csp middleware captures environment extras at construction and explicit empty arrays override them",
+      "projects/core-lib/node/server/security/csp.spec.ts csp middleware generated flags win and report-only is evaluated for each request",
+      "projects/core-lib/node/server/security/csp.spec.ts csp middleware concatenates default arrays before generated values without deduplicating or mutation",
+      "projects/core-lib/node/server/security/csp.spec.ts csp middleware preserves callbacks and custom iterable directives while generated arrays replace non-arrays",
+      "projects/core-lib/node/server/security/csp.spec.ts csp middleware does not merge inherited directive arrays into generated nonce sources",
+      "projects/core-lib/node/server/security/csp.spec.ts csp middleware getContentSecurityPolicy passes the existing policy object and returns the provider result",
+      "projects/core-lib/node/server/security/csp.spec.ts CSP HTTP integration produces real headers containing fresh per-request 16-byte nonces",
+      "projects/core-lib/node/server/security/csp.spec.ts CSP HTTP integration retains legacy policy sources, callback values and custom disabled directives",
+      "projects/core-lib/node/server/security/csp.spec.ts CSP HTTP integration preserves constructor and prototype directive names while Helmet rejects an own reserved key",
+      "projects/core-lib/node/server/security/csp.spec.ts CSP HTTP integration uses only the report-only header when the exact flag is true",
+      "projects/core-lib/node/server/security/csp.spec.ts CSP HTTP integration forwards malformed directive failures through Express without serving protected content",
+      "projects/core-lib/node/server/security/csp.spec.ts csp middleware snapshots own root and directive getters once per request and ignores inherited root directives",
+      "projects/core-lib/node/server/security/csp.spec.ts csp middleware retains caller-owned explicit arrays so later edits affect subsequent requests"
     ]
   }
 }

@@ -113,7 +113,10 @@ gov-date-select|rejects an impossible day and recovers when the month changes
 gov-date-select|date errors describe the correct fieldset without duplicate or missing targets
 gov-date-select|empty date and select messages never reference absent error elements
 checkbox-list|checkbox list instances keep labels and selections independent
-checkbox-list|checkbox list supports keyboard selection and select-all transitions`.split('\n').map(row => {
+checkbox-list|checkbox list supports keyboard selection and select-all transitions
+node-security|CSP enforcement runs nonce scripts and styles while blocking unapproved inline code
+node-security|CSP report-only emits its header and allows the identical unapproved script to execute
+node-security|CSP reload receives a new nonce matching the served script`.split('\n').map(row => {
   const [feature, title] = row.split('|');
   return ['chromium', title, feature];
 });

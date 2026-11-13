@@ -1034,9 +1034,9 @@
           "declaration_files": []
         }
       ],
-      "classification": "dependency",
-      "selection": "4.3.1",
-      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+      "classification": "consolidated implementation / no core dependency",
+      "selection": null,
+      "decision": "Owned Node CSP now uses a schema-specific merge preserving array precedence and duplicates. No runtime deepmerge or fork; the separate reviewed Jest-config development alias is not published."
     },
     {
       "name": "dexie",
@@ -1254,8 +1254,10 @@
         }
       ],
       "classification": "peerDependency",
-      "selection": "8.1.0",
-      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+      "selection": "8.3.0",
+      "decision": "Exact current MC/MO/AO lock cohort; dedicated Node security entry only. Source and packed synthetic consumer contracts do not establish application adoption.",
+      "optional": true,
+      "optionalReason": "Only /node/server/security imports Helmet; Node server/auth/session and browser entries do not. Packed checks reject the security import without its optional peer and verify other Node entries remain usable."
     },
     {
       "name": "joi",

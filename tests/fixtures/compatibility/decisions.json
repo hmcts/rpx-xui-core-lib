@@ -15,9 +15,9 @@
   },
   {
     "id": "helmet",
-    "selection": "8.1.0 prospective host target",
+    "selection": "8.3.0 current core and MC/MO/AO lock cohort",
     "conflict": "published Node peer^7 excludes host^8",
-    "required_proof": "Security/CSP/nonce/error/next behavior before adaptation; no nestedHelmet7 workaround",
+    "required_proof": "Core CSP source, real HTTP, browser and packed actual-option-shape checks; supported real application startup and release adoption remain required.",
     "status": "blocked"
   },
   {

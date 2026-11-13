@@ -40,7 +40,8 @@
       "redis": "^6.1.0",
       "session-file-store": "^1.5.0",
       "ts-jest": "29.4.12",
-      "typescript": "5.9.3"
+      "typescript": "5.9.3",
+      "helmet": "8.3.0"
     }
   },
   "devCohort": {
@@ -84,7 +85,8 @@
     "@angular/material": "20.2.14",
     "@angular/cdk": "20.2.14",
     "@angular/platform-browser": "^20.3.27",
-    "express": "5.2.1"
+    "express": "5.2.1",
+    "helmet": "8.3.0"
   },
   "libraryPeerDependenciesMeta": {
     "@angular/common": {
@@ -109,6 +111,9 @@
       "optional": true
     },
     "express": {
+      "optional": true
+    },
+    "helmet": {
       "optional": true
     }
   },
