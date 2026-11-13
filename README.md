@@ -19,6 +19,8 @@ The `/ui/accessibility` entry provides the original CommonLib accessibility stat
 
 ## Develop locally
 
+The Jest development dependency graph pins `glob@14.0.6` and `minimatch@11.0.8` for their affected parents. Only `jest-config` resolves `deepmerge` to the MIT-licensed [`@shivammathur/deepmerge@4.3.2`](https://github.com/shivammathur/deepmerge/commit/9e04a97afa90b9d50883dd723f7d0fb0d2c16dca) fork: the original package has no patched release for GHSA-gcqx-w48m-w2h4. Its published code adds prototype-key guards; the tooling tests check normal configuration merging and the affected boundary. The exact version and lock checksum pin this additional maintainer dependency. It is development tooling only and is absent from the published library runtime. Revisit the scoped alias when the original project publishes an accepted fix; do not remove the regression checks or suppress the advisory.
+
 For agent-assisted local startup, checks and failure diagnosis, ask your repository-aware agent to read [the core local test skill](.agents/skills/core-local-test/SKILL.md). It uses the same repository commands and reports; it does not replace human review or remote CI. For example: “Use `core-local-test` to run the full local gate for this checkout, inspect the feature report and explain any failures.” The agent checks prerequisites and preserves evidence before running; it reports local results and limits rather than claiming release readiness.
 
 Use Node **24.22.2** and Yarn **4.18.1** for the core integration cohort. Yarn is checked in so setup does not require a global Yarn installation or Corepack.

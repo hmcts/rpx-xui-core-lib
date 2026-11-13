@@ -322,7 +322,7 @@ export abstract class Strategy extends events.EventEmitter {
     }
 
     /* istanbul ignore next */
-    public keepAliveHandler = (_req: Request, _res: Response, next: NextFunction): void => {
+    public keepAliveHandler = (_req: Request, _res: Response, next: NextFunction): void | Promise<void> => {
         next()
     }
 

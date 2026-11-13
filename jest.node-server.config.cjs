@@ -1,7 +1,6 @@
 module.exports = {
   clearMocks: true,
   restoreMocks: true,
-  setupFiles: ['<rootDir>/projects/core-lib/node/server/jest.setup.ts'],
   moduleFileExtensions: ['ts', 'js'],
   roots: ['<rootDir>/projects/core-lib/node/server'],
   testEnvironment: 'node',

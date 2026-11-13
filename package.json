@@ -85,7 +85,13 @@
     "@npmcli/package-json@npm:7.0.5/glob": "14.0.6",
     "cacache@npm:20.0.4/glob": "14.0.6",
     "ignore-walk@npm:8.0.0/minimatch": "11.0.8",
-    "@tufjs/models@npm:4.1.0/minimatch": "11.0.8"
+    "@tufjs/models@npm:4.1.0/minimatch": "11.0.8",
+    "@jest/reporters@npm:30.5.1/glob": "14.0.6",
+    "jest-config@npm:30.5.1/glob": "14.0.6",
+    "jest-runtime@npm:30.5.1/glob": "14.0.6",
+    "test-exclude@npm:7.0.2/glob": "14.0.6",
+    "test-exclude@npm:7.0.2/minimatch": "11.0.8",
+    "jest-config@npm:30.5.1/deepmerge": "npm:@shivammathur/deepmerge@4.3.2"
   },
   "workspaces": [
     "projects/core-lib/node"
