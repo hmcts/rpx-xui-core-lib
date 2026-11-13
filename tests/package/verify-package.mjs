@@ -31,10 +31,12 @@ for (const key of Object.keys(env)) {
 env.YARN_IGNORE_PATH = '1';
 env.YARN_ENABLE_TELEMETRY = '0';
 env.YARN_ENABLE_GLOBAL_CACHE = 'false';
+env.NG_BUILD_MAX_WORKERS = '1';
+env.NG_BUILD_PARALLEL_TS = 'false';
 
-async function run(name, args, cwd, expectedStatus = 0) {
-  const result = spawnSync(process.execPath, args, { cwd, env, encoding: 'utf8', timeout: 3 * 60_000 });
-  const diagnostic = `${result.stdout ?? ''}${result.stderr ?? ''}${result.error?.message ?? ''}`;
+async function run(name, args, cwd, expectedStatus = 0, timeout = 3 * 60_000) {
+  const result = spawnSync(process.execPath, args, { cwd, env, encoding: 'utf8', timeout, maxBuffer: 20 * 1024 * 1024 });
+  const diagnostic = `${result.stdout ?? ''}${result.stderr ?? ''}${result.error?.message ?? ''}${result.signal ? `\nchild signal: ${result.signal}` : ''}`;
   await writeFile(join(evidence, `${name}.log`), diagnostic);
   assert.equal(result.status, expectedStatus, `${name} exited ${result.status}:\n${diagnostic}`);
   assert.doesNotMatch(diagnostic, /YN0002|YN0060|YN0086/, `${name} has unmet peer dependencies`);
@@ -69,11 +71,27 @@ try {
   });
 
   await check('package.physical-node', async () => {
-    for (const file of ['node/index.js', 'node/index.d.ts', 'node/package.json', 'node/LICENCE']) assert.ok((await stat(join(dist, file))).isFile());
+    for (const file of [
+      'node/index.js', 'node/index.d.ts', 'node/package.json', 'node/LICENCE',
+      'node/server/index.js', 'node/server/index.d.ts',
+      'node/server/auth/index.js', 'node/server/auth/index.d.ts',
+      'node/server/session/index.js', 'node/server/session/index.d.ts',
+    ]) assert.ok((await stat(join(dist, file))).isFile(), `Missing packed Node entry: ${file}`);
     assert.deepEqual(JSON.parse(await readFile(join(dist, 'node/package.json'), 'utf8')), { type: 'commonjs' });
-    const exports = JSON.parse(await readFile(join(dist, 'package.json'), 'utf8')).exports['./node'];
-    assert.equal(exports.browser, null);
-    assert.equal(exports.node, './node/index.js');
+    assert.doesNotMatch(await readFile(join(dist, 'node/index.d.ts'), 'utf8'), /express-session|express-serve-static-core/, 'The lightweight Node entry must not require server type packages');
+    const packageExports = JSON.parse(await readFile(join(dist, 'package.json'), 'utf8')).exports;
+    for (const [name, file] of Object.entries({
+      './node': 'index',
+      './node/server': 'server/index',
+      './node/server/auth': 'server/auth/index',
+      './node/server/session': 'server/session/index',
+    })) {
+      assert.deepEqual(packageExports[name], {
+        browser: null,
+        types: `./node/${file}.d.ts`,
+        node: `./node/${file}.js`,
+      });
+    }
   });
 
   await check('package.physical-i18n', async () => {
@@ -198,12 +216,18 @@ try {
   assert.equal(JSON.parse(await readFile(join(installed, 'node/package.json'), 'utf8')).type, 'commonjs', 'Packed Node marker must survive installation');
   const compiler = join(consumer, 'node_modules/typescript/bin/tsc');
   await check('package.strict-node', () => run('strict-node', [compiler, '-p', 'tsconfig.node.json'], consumer));
+  for (const entry of ['node', 'server', 'auth', 'session']) {
+    await check(`package.strict-node-${entry}-types`, () => run(`strict-node-${entry}-types`, [
+      compiler, '--strict', '--skipLibCheck', 'false', '--esModuleInterop', '--target', 'ES2022',
+      '--module', 'ES2022', '--moduleResolution', 'node', '--noEmit', ...(entry === 'node' ? ['--types', 'node'] : []), `node-${entry}-types.ts`,
+    ], consumer));
+  }
   await check('package.strict-bundler', () => run('strict-bundler', [compiler, '-p', 'tsconfig.bundler.json'], consumer));
   await check('package.loading-angular-build', async () => {
     await cp(join(root, 'tests/fixtures/packed-loading'), join(consumer, 'loading-host'), { recursive: true });
     await cp(join(consumer, 'loading-host/angular.json'), join(consumer, 'angular.json'));
     await symlink(join(root, 'node_modules/@angular/build'), join(consumer, 'node_modules/@angular/build'), 'dir');
-    await run('loading-angular-build', [join(root, 'node_modules/@angular/cli/bin/ng.js'), 'build', 'loading-host'], consumer);
+    await run('loading-angular-build', [join(root, 'node_modules/@angular/cli/bin/ng.js'), 'build', 'loading-host'], consumer, 0, 10 * 60_000);
     const directory = join(consumer, 'loading-dist/browser');
     const graph = inspectLoadingGraph(directory);
     const mapFile = join(directory, graph.date + '.map');

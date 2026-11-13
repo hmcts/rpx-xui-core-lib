@@ -1,0 +1,457 @@
+import { oauth2, OAuth2 } from './oauth2.class'
+import passport from 'passport'
+import { createMock } from '@golevelup/ts-jest';
+import { Request, Response, Router } from 'express'
+import { AuthOptions } from '../../models'
+import { XuiLogger } from '../../../common/util/debug.logger'
+import { AUTH } from '../../auth.constants'
+import { createMockPassportRequest } from '../../../common/models/test/passportRequest.mock';
+
+describe('OAUTH2 Auth', () => {
+    const mockRequestRequired = {
+        authorizationURL: '',
+        tokenURL: '',
+        clientID: '',
+        clientSecret: '',
+        callbackURL: '',
+    }
+
+    test('it should be defined', () => {
+        expect(oauth2).toBeDefined()
+    })
+
+    test('initialiseStrategy', () => {
+        const options = {
+            authorizationURL: 'http://localhost/someauthurl',
+            tokenURL: 'sometokenUrl',
+            clientID: 'client',
+            clientSecret: 'secret',
+            callbackURL: 'callbackUrl',
+            scope: 'scope',
+            sessionKey: 'node-lib',
+            useRoutes: false,
+            logoutURL: 'logoutUrl',
+            discoveryEndpoint: 'http://localhost/someEndpoint',
+            issuerURL: 'string',
+            responseTypes: [''],
+            tokenEndpointAuthMethod: 'string',
+        }
+        oauth2.initialiseStrategy(options)
+        expect(oauth2.isInitialised()).toBeTruthy()
+    })
+    test('it should be configurable', () => {
+        const options = {
+            authorizationURL: 'http://localhost/someauthurl',
+            tokenURL: 'sometokenUrl',
+            clientID: 'client',
+            clientSecret: 'secret',
+            callbackURL: 'callbackUrl',
+            scope: 'scope',
+            sessionKey: 'node-lib',
+            useRoutes: false,
+            logoutURL: 'logoutUrl',
+            discoveryEndpoint: 'http://localhost/someEndpoint',
+            issuerURL: 'string',
+            responseTypes: [''],
+            tokenEndpointAuthMethod: 'string',
+        }
+        const handler = oauth2.configure(options)
+        expect(handler).toBeTruthy()
+    })
+
+    test('loginHandler with session and sessionKey', async () => {
+        const mockRouter = createMock<Router>()
+        const options = createMock<AuthOptions>()
+        const logger = {
+            log: jest.fn(),
+            error: jest.fn(),
+            info: jest.fn(),
+        } as unknown as XuiLogger
+        options.sessionKey = 'test'
+        options.discoveryEndpoint = 'http://localhost/someEndpoint'
+        options.authorizationURL = 'http://localhost/someAuthorizationURL'
+        options.tokenURL = 'http://localhost/someTokenURL'
+        options.clientID = 'clientID1234'
+        const spy = jest.spyOn(passport, 'authenticate').mockImplementation(() => () => true)
+        const oAuth2 = new OAuth2(mockRouter, logger)
+        jest.spyOn(oAuth2, 'validateOptions')
+        jest.spyOn(oAuth2, 'serializeUser')
+        jest.spyOn(oAuth2, 'deserializeUser')
+        jest.spyOn(oAuth2, 'initializePassport')
+        jest.spyOn(oAuth2, 'initializeSession')
+        jest.spyOn(oAuth2, 'initialiseStrategy')
+        options.useRoutes = true
+        jest.spyOn(oAuth2, 'validateOptions').mockReturnValue(true)
+        jest.spyOn(oAuth2, 'initialiseCSRF')
+        oAuth2.configure(options)
+
+        const mockRequest = {
+            ...mockRequestRequired,
+            body: {},
+            session: {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any -- keep this inherited provider fixture shape; contract-specific tests constrain the runtime behavior.
+                save: (callback: any): void => callback(),
+            },
+        } as unknown as Request
+        const mockResponse = {} as Response
+        const next = jest.fn()
+
+        await oAuth2.loginHandler(mockRequest, mockResponse, next)
+        expect(spy).toHaveBeenCalled()
+    })
+
+    test('loginHandler passes single-string login_hint with generated state', async () => {
+        const mockRouter = createMock<Router>()
+        const options = createMock<AuthOptions>()
+        const logger = {
+            log: jest.fn(),
+            error: jest.fn(),
+            info: jest.fn(),
+        } as unknown as XuiLogger
+        options.sessionKey = 'test'
+        options.discoveryEndpoint = 'http://localhost/someEndpoint'
+        options.authorizationURL = 'http://localhost/someAuthorizationURL'
+        options.tokenURL = 'http://localhost/someTokenURL'
+        options.clientID = 'clientID1234'
+        const spy = jest.spyOn(passport, 'authenticate').mockImplementation(() => () => true)
+        const oAuth2 = new OAuth2(mockRouter, logger)
+        jest.spyOn(oAuth2, 'validateOptions').mockReturnValue(true)
+        jest.spyOn(oAuth2, 'serializeUser')
+        jest.spyOn(oAuth2, 'deserializeUser')
+        jest.spyOn(oAuth2, 'initializePassport')
+        jest.spyOn(oAuth2, 'initializeSession')
+        jest.spyOn(oAuth2, 'initialiseStrategy')
+        jest.spyOn(oAuth2, 'initialiseCSRF')
+        options.useRoutes = true
+        oAuth2.configure(options)
+
+        const mockRequest = {
+            ...mockRequestRequired,
+            body: {},
+            query: { login_hint: 'ejudiciary-aad' },
+            session: {
+                callbackURL: 'http://localhost/callback',
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any -- keep this inherited provider fixture shape; contract-specific tests constrain the runtime behavior.
+                save: (callback: any): void => callback(),
+            },
+        } as unknown as Request
+        const mockResponse = {} as Response
+        const next = jest.fn()
+
+        await oAuth2.loginHandler(mockRequest, mockResponse, next)
+
+        expect(spy).toHaveBeenCalledWith(
+            oAuth2.strategyName,
+            expect.objectContaining({
+                redirect_uri: 'http://localhost/callback',
+                login_hint: 'ejudiciary-aad',
+                state: expect.any(String),
+            }),
+            expect.any(Function),
+        )
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- keep this inherited provider fixture shape; contract-specific tests constrain the runtime behavior.
+        expect((mockRequest.session as any).test.state).toEqual(expect.any(String))
+    })
+
+    test('loginHandler ignores non-string login_hint values', async () => {
+        const mockRouter = createMock<Router>()
+        const options = createMock<AuthOptions>()
+        const logger = {
+            log: jest.fn(),
+            error: jest.fn(),
+            info: jest.fn(),
+        } as unknown as XuiLogger
+        options.sessionKey = 'test'
+        options.discoveryEndpoint = 'http://localhost/someEndpoint'
+        options.authorizationURL = 'http://localhost/someAuthorizationURL'
+        options.tokenURL = 'http://localhost/someTokenURL'
+        options.clientID = 'clientID1234'
+        const spy = jest.spyOn(passport, 'authenticate').mockImplementation(() => () => true)
+        const oAuth2 = new OAuth2(mockRouter, logger)
+        jest.spyOn(oAuth2, 'validateOptions').mockReturnValue(true)
+        jest.spyOn(oAuth2, 'serializeUser')
+        jest.spyOn(oAuth2, 'deserializeUser')
+        jest.spyOn(oAuth2, 'initializePassport')
+        jest.spyOn(oAuth2, 'initializeSession')
+        jest.spyOn(oAuth2, 'initialiseStrategy')
+        jest.spyOn(oAuth2, 'initialiseCSRF')
+        options.useRoutes = true
+        oAuth2.configure(options)
+
+        const mockRequest = {
+            ...mockRequestRequired,
+            body: {},
+            query: { login_hint: ['ejudiciary-aad'] },
+            session: {
+                callbackURL: 'http://localhost/callback',
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any -- keep this inherited provider fixture shape; contract-specific tests constrain the runtime behavior.
+                save: (callback: any): void => callback(),
+            },
+        } as unknown as Request
+        const mockResponse = {} as Response
+        const next = jest.fn()
+
+        await oAuth2.loginHandler(mockRequest, mockResponse, next)
+
+        const authenticateOptions = spy.mock.calls[spy.mock.calls.length - 1][1] as Record<string, unknown>
+        expect(authenticateOptions).not.toHaveProperty('login_hint')
+    })
+
+    test('loginHandler with session and no sessionKey', async () => {
+        const mockRouter = createMock<Router>()
+        const options = createMock<AuthOptions>()
+        options.sessionKey = 'test'
+        options.discoveryEndpoint = 'http://localhost/someEndpoint'
+        options.authorizationURL = 'http://localhost/someAuthorizationURL'
+        options.tokenURL = 'http://localhost/someTokenURL'
+        options.clientID = 'clientID1234'
+        options.callbackURL = 'http://localhost/callback'
+        options.clientSecret = 'secret123'
+        options.issuerURL = 'http://localhost/someEndpoint'
+        options.logoutURL = 'http://localhost/testUrl'
+        options.tokenEndpointAuthMethod = 'string'
+        options.scope = 'periscope'
+        const logger = {
+            log: jest.fn(),
+            error: jest.fn(),
+            info: jest.fn(),
+        } as unknown as XuiLogger
+        const spy = jest.spyOn(passport, 'authenticate').mockImplementation(() => () => true)
+        const oAuth2 = new OAuth2(mockRouter, logger)
+        jest.spyOn(oAuth2, 'validateOptions')
+        jest.spyOn(oAuth2, 'serializeUser')
+        jest.spyOn(oAuth2, 'deserializeUser')
+        jest.spyOn(oAuth2, 'initializePassport')
+        jest.spyOn(oAuth2, 'initializeSession')
+        jest.spyOn(oAuth2, 'initialiseStrategy')
+        oAuth2.configure(options)
+
+        const mockRequest = {
+            ...mockRequestRequired,
+            body: {},
+            session: {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any -- keep this inherited provider fixture shape; contract-specific tests constrain the runtime behavior.
+                save: (callback: any): void => callback(),
+            },
+        } as unknown as Request
+        const mockResponse = {} as Response
+        const next = jest.fn()
+
+        await oAuth2.loginHandler(mockRequest, mockResponse, next)
+        expect(spy).toHaveBeenCalled()
+    })
+
+    test('setCallbackURL', () => {
+        const mockRequest = {
+            ...mockRequestRequired,
+            body: {},
+            session: {},
+            app: {
+                set: jest.fn(),
+            },
+            protocol: 'http',
+            get: jest.fn().mockImplementation(() => 'localhost'),
+        } as unknown as Request
+        const mockResponse = {} as Response
+        const next = jest.fn()
+        oauth2.setCallbackURL(mockRequest, mockResponse, next)
+        expect(mockRequest.get).toHaveBeenCalledWith('host')
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- keep this inherited provider fixture shape; contract-specific tests constrain the runtime behavior.
+        expect((mockRequest.session as any)?.callbackURL).toEqual('http://localhost/callbackUrl')
+        expect(next).toHaveBeenCalled()
+    })
+
+    test('setHeaders should set auth headers', () => {
+        const roles = ['test', 'test1']
+        const authToken = 'Bearer abc123'
+        const mockRequest = {
+            ...mockRequestRequired,
+            body: {},
+            session: {
+                passport: {
+                    user: {
+                        userinfo: {
+                            roles,
+                        },
+                    },
+                },
+            },
+            headers: {},
+        } as unknown as Request
+        const mockResponse = {} as Response
+        const next = jest.fn()
+        jest.spyOn(oauth2, 'makeAuthorization').mockImplementation(() => authToken)
+        oauth2.setHeaders(mockRequest, mockResponse, next)
+        expect(mockRequest.headers['user-roles']).toEqual(roles.join())
+        expect(mockRequest.headers.Authorization).toEqual(authToken)
+        expect(next).toHaveBeenCalled()
+    })
+
+    test('should reject callback when state is missing', async () => {
+        const authenticateSpy = jest.spyOn(passport, 'authenticate').mockImplementation(() => jest.fn())
+        const emitSpy = jest.spyOn(oauth2, 'emit')
+        const mockRequest = {
+            ...mockRequestRequired,
+            url: 'http://localhost/callbackUrl',
+            body: {},
+            query: {},
+            session: {},
+        } as unknown as Request
+        const mockResponse = {
+            redirect: jest.fn(),
+            locals: { message: '' },
+        } as unknown as Response
+        const next = jest.fn()
+
+        await oauth2.callbackHandler(mockRequest, mockResponse, next)
+
+        expect(mockResponse.locals.message).toEqual('Invalid authorization request state.')
+        expect(emitSpy).toHaveBeenCalledWith(AUTH.EVENT.AUTHENTICATE_FAILURE, mockRequest, mockResponse, next)
+        expect(mockResponse.redirect).toHaveBeenCalledWith(AUTH.ROUTE.EXPIRED_LOGIN_LINK)
+        expect(authenticateSpy).not.toHaveBeenCalled()
+    })
+
+    test('should handle INVALID_STATE_ERROR in info', async () => {
+        const info = { message: 'Invalid authorization request state.' }
+        jest.spyOn(passport, 'authenticate').mockImplementation((strategy, options, callback) => {
+            if (callback) {
+                callback(null, null, info)
+            }
+            return jest.fn()
+        })
+
+        const mockRouter = createMock<Router>()
+        const logger = {
+            log: jest.fn(),
+            error: jest.fn(),
+            info: jest.fn(),
+        } as unknown as XuiLogger
+
+        const oAuth2 = new OAuth2(mockRouter, logger)
+
+        const mockRequest = {
+            ...mockRequestRequired,
+            body: {},
+            session: {},
+            app: {
+                set: jest.fn(),
+            },
+            protocol: 'http',
+            get: jest.fn().mockImplementation(() => 'localhost'),
+            query: { state: 'whata' }
+        } as unknown as Request
+
+        const mockResponse = {
+            redirect: jest.fn(),
+            locals: { message: ''}
+        } as unknown as Response
+
+        const next = jest.fn()
+
+        await oAuth2.callbackHandler(mockRequest, mockResponse, next)
+
+        expect(mockResponse.redirect).toHaveBeenCalledWith(AUTH.ROUTE.EXPIRED_LOGIN_LINK)
+    })
+
+    test('should handle MISMATCH_NONCE or MISMATCH_STATE in info', async () => {
+        const info = { message: 'nonce mismatch' }
+        jest.spyOn(passport, 'authenticate').mockImplementation((strategy, options, callback) => {
+            if (callback) {
+                callback(null, null, info)
+            }
+            return jest.fn()
+        })
+
+        const mockRouter = createMock<Router>()
+        const logger = {
+            log: jest.fn(),
+            error: jest.fn(),
+            info: jest.fn(),
+        } as unknown as XuiLogger
+        const oAuth2 = new OAuth2(mockRouter, logger)
+        const mockProps = {url: 'http://localhost/callbackUrl', query: { state: 'whata' }}
+        const mockRequest = createMockPassportRequest('user', mockProps)
+        const mockResponse = createMock<Response>()
+        const next = jest.fn()
+
+        await oAuth2.callbackHandler(mockRequest, mockResponse, next)
+
+        expect(mockResponse.redirect).toHaveBeenCalledWith(AUTH.ROUTE.EXPIRED_LOGIN_LINK)
+    })
+
+    test('callbackHandler should not overwrite session state from query state', async () => {
+        const info = { message: 'Invalid authorization request state.' }
+        const authenticateSpy = jest.spyOn(passport, 'authenticate').mockImplementation((strategy, options, callback) => {
+            if (callback) {
+                callback(null, null, info)
+            }
+            return jest.fn()
+        })
+
+        const mockRouter = createMock<Router>()
+        const logger = {
+            log: jest.fn(),
+            error: jest.fn(),
+            info: jest.fn(),
+        } as unknown as XuiLogger
+        const oAuth2 = new OAuth2(mockRouter, logger);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- keep this inherited provider fixture shape; contract-specific tests constrain the runtime behavior.
+        (oAuth2 as any).options = { ...(oAuth2 as any).options, sessionKey: 'test' }
+
+        const saveSpy = jest.fn()
+        const mockRequest = {
+            ...mockRequestRequired,
+            url: 'http://localhost/callbackUrl',
+            body: {},
+            query: { state: 'query-state' },
+            session: {
+                callbackURL: 'http://localhost/callbackUrl',
+                save: saveSpy,
+                test: { state: 'original-state', nonce: 'nonce-value' },
+            },
+        } as unknown as Request
+        const mockResponse = {
+            redirect: jest.fn(),
+            locals: { message: '' },
+        } as unknown as Response
+        const next = jest.fn()
+
+        await oAuth2.callbackHandler(mockRequest, mockResponse, next)
+
+        expect(authenticateSpy).toHaveBeenCalled()
+        expect(saveSpy).not.toHaveBeenCalled()
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- keep this inherited provider fixture shape; contract-specific tests constrain the runtime behavior.
+        expect((mockRequest.session as any).test.state).toEqual('original-state')
+        expect(mockResponse.redirect).toHaveBeenCalledWith(AUTH.ROUTE.EXPIRED_LOGIN_LINK)
+    })
+
+    test('should handle no user returned', async () => {
+        const info = { message: 'Some other error' }
+        jest.spyOn(passport, 'authenticate').mockImplementation((strategy, options, callback) => {
+            if (callback) {
+                callback(null, null, info)
+            }
+            return jest.fn()
+        })
+
+        const mockRouter = createMock<Router>()
+        const logger = {
+            log: jest.fn(),
+            error: jest.fn(),
+            info: jest.fn(),
+        } as unknown as XuiLogger
+        const oAuth2 = new OAuth2(mockRouter, logger)
+        const mockRequest = createMock<Request>()
+        mockRequest.url = 'http://someurl'
+        mockRequest.query = { state: 'whata' }
+        const mockResponse = createMock<Response>()
+        const next = jest.fn()
+
+        await oAuth2.callbackHandler(mockRequest, mockResponse, next)
+
+        expect(logger.log).toHaveBeenCalledWith(
+            'No user details returned by the authentication service, redirecting to login',
+        )
+        expect(mockResponse.redirect).toHaveBeenCalledWith(AUTH.ROUTE.LOGIN)
+    })
+})
