@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 import { verifySourceHashes } from './fixtures/compatibility/verify-source-contract.mjs';
 import * as sourceVerification from './fixtures/compatibility/verify-source-contract.mjs';
 import { createHash } from 'node:crypto';
-import { checkInstallResult, validateManifest, hostDependencies, checkMatrixReport, validateHostProfile, hostManifest, hostInstallSettings, hostLockBytes, checkLockedTelemetry } from '../scripts/check-compatibility.mjs';
+import { checkInstallResult, validateManifest, hostDependencies, checkMatrixReport, validateHostProfile, hostManifest, hostInstallSettings, hostLockBytes, checkLockedTelemetry, newPeerDiagnostics } from '../scripts/check-compatibility.mjs';
 
 const fixture = (name) => JSON.parse(readFileSync(new URL(`./fixtures/compatibility/${name}`, import.meta.url), 'utf8'));
 const manifest = fixture('prospective-package.json');
@@ -64,7 +64,7 @@ test('a complete warning-free native Yarn result passes', () => {
 });
 test('required peers cannot be marked optional or silently overridden', () => {
   for (const change of [{ peerDependenciesMeta: { helmet: { optional: true } } }, { resolutions: { helmet: '8.1.0' } }]) {
-    assert.throws(() => validateManifest({ ...manifest, ...change }, ledger), /optional|override/);
+    assert.throws(() => validateManifest({ ...manifest, ...change }, ledger), /optional|override|ledger/);
   }
 });
 test('a missing required public type provider fails the manifest check', () => {
@@ -107,7 +107,7 @@ test('an unowned prospective dependency cannot evade the closure ledger', () => 
 });
 
 function completeReport() {
-  return { candidateSourceSha: 'c'.repeat(40), candidateWorktreeClean: true, artifactSha256: 'a'.repeat(64), unresolvedDecisions: [], profiles: ['core', 'rpx-xui-webapp', 'rpx-xui-manage-organisations', 'rpx-xui-approve-org', 'mc-api-standalone'].map((id) => ({ id, nativeStatus: 0, immutableNativeStatus: 0, cleanInstall: true, immutableInstall: true, translationIdentityRequired: true, identity: true, hostLockSource: null, lockedTelemetryVerified: null })) };
+  return { candidateSourceSha: 'c'.repeat(40), candidateWorktreeClean: true, artifactSha256: 'a'.repeat(64), unresolvedDecisions: [], profiles: ['core', 'rpx-xui-webapp', 'rpx-xui-manage-organisations', 'rpx-xui-approve-org', 'mc-api-standalone'].map((id) => ({ id, nativeStatus: 0, immutableNativeStatus: 0, baselineNativeStatus: 0, baselineImmutableNativeStatus: 0, newPeerDiagnostics: [], cleanInstall: true, immutableInstall: true, translationIdentityRequired: true, identity: true, hostLockSource: null, lockedTelemetryVerified: null })) };
 }
 test('a completed compatibility report identifies the exact Core source commit', () => {
   const report = completeReport();
@@ -137,6 +137,26 @@ test('native failures or unresolved decisions cannot produce accepted support', 
   const failure = completeReport();
   failure.profiles[0].nativeStatus = 1;
   assert.throws(() => checkMatrixReport(failure), /native/);
+  const newPeer = completeReport();
+  newPeer.profiles[0].newPeerDiagnostics.push('Core adds a peer warning');
+  assert.throws(() => checkMatrixReport(newPeer), /baseline|new peer/i);
+  const missingBaseline = completeReport();
+  delete missingBaseline.profiles[0].baselineNativeStatus;
+  assert.throws(() => checkMatrixReport(missingBaseline), /baseline/i);
+});
+
+test('candidate peer diagnostics subtract normalized source-host warnings and ignore Yarn summaries', () => {
+  const baseline = [
+    { type: 'warning', name: 60, data: 'zone.js is incompatible (pOld123).' },
+    { type: 'warning', name: 86, data: 'Some peer dependencies are incorrectly met.' },
+  ].map((item) => JSON.stringify(item)).join('\n');
+  const candidate = [
+    { type: 'warning', name: 60, data: 'zone.js is incompatible (pNew456).' },
+    { type: 'warning', name: 2, data: 'Core package requests an undeclared peer (pCore01).' },
+    { type: 'warning', name: 86, data: 'Some peer dependencies are incorrectly met.' },
+  ].map((item) => JSON.stringify(item)).join('\n');
+  assert.deepEqual(newPeerDiagnostics(candidate, baseline), ['Core package requests an undeclared peer.']);
+  assert.deepEqual(newPeerDiagnostics('', baseline), []);
 });
 test('missing artifact bytes and skipped identity probes reject the matrix', () => {
   const noArtifact = completeReport();
@@ -206,6 +226,9 @@ test('only frozen source-owned MC resolutions enter the generated root and peer 
   const mc = profiles.profiles.find((profile) => profile.id === 'rpx-xui-webapp');
   validateHostProfile(mc, source);
   const generated = hostManifest(manifest, mc);
+  const baseline = hostManifest(manifest, mc, {}, false);
+  assert.equal('@hmcts/rpx-xui-core-lib' in baseline.dependencies, false);
+  assert.equal('@hmcts/rpx-xui-core-lib' in generated.dependencies, true);
   assert.deepEqual(generated.resolutions, source.profiles[mc.id].host_resolutions);
   assert.equal(generated.dependencies.webpack, '5.112.0');
   assert.equal(generated.dependencies.applicationinsights, '3.17.0');
@@ -515,7 +538,7 @@ test('current core cohort rejects source and lock drift independently of git HEA
     (value) => { value.packageManager = 'yarn@99.0.0'; },
     (value) => { value.engine.node = '>=1'; },
     (value) => { value.resolutions.unapproved = '1.0.0'; },
-    (value) => { value.libraryPeerDependenciesMeta['@angular/core'] = { optional: true }; },
+    (value) => { value.libraryPeerDependenciesMeta['@angular/core'] = { optional: false }; },
     (value) => { value.libraryOverrides['@angular/core'] = '1.0.0'; },
   ]) {
     const changed = structuredClone(actual);
