@@ -74,6 +74,11 @@ test('default task-name instances receive unique ids while work-type retains leg
   await expect(page.locator('[id="sub-title-hint"]')).toHaveCount(1);
   await expect(page.locator('[id="sub-title-hinttask-name-1"]')).toHaveCount(1);
   await expect(page.locator('[id="inputSelectTaskNametask-name-1"]')).toHaveAccessibleName('select a task name');
+  await page.getByRole('button', { name: 'Show duplicate task errors' }).click();
+  await expect(page.locator('[id="validation-error"]')).toHaveCount(1);
+  await expect(page.locator('[id="validation-errortask-name-1"]')).toHaveCount(1);
+  await expect(page.locator('#inputSelectTaskName')).toHaveAttribute('aria-describedby', 'sub-title-hint validation-error');
+  await expect(page.locator('#inputSelectTaskNametask-name-1')).toHaveAttribute('aria-describedby', 'sub-title-hinttask-name-1 validation-errortask-name-1');
 });
 
 test('task-name reports a malformed response and accepts a later valid result', async ({ page }) => {

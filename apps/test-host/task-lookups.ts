@@ -49,6 +49,7 @@ window.lookupHarness = {
     }
     @if (duplicates) {
       <xuilib-find-task-name [findTaskNameGroup]="secondTaskForm"></xuilib-find-task-name>
+      <button type="button" (click)="taskForm.setErrors({error: 'Select a valid task name'}); secondTaskForm.setErrors({error: 'Select a valid task name'})">Show duplicate task errors</button>
       <exui-search-work-type [form]="workForm" [field]="field"></exui-search-work-type>
     }
     <p data-testid="task-selected">{{ taskSelected }}</p>
