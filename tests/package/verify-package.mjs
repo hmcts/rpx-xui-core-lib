@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { prepareTranslationCounterpart } from '../../scripts/translation-counterpart.mjs';
 import { currentIdentity } from '../../scripts/evidence-identity.mjs';
 import { sourceSnapshot } from '../../scripts/evidence-source-snapshot.mjs';
 import { browserOutcomes } from '../../scripts/check-contracts.mjs';
@@ -6,7 +7,7 @@ import { buildSync } from 'esbuild';
 import { inspectLoadingGraph, assertPackedBytes, assertEagerDateFailure } from '../packed-loading/graph.mjs';
 import { createHash, randomUUID } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { cp, lstat, mkdir, mkdtemp, readFile, readdir, realpath, rm, stat, symlink, writeFile } from 'node:fs/promises';
+import { cp, lstat, mkdir, mkdtemp, readFile, readdir, realpath, rename, rm, stat, symlink, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -47,9 +48,10 @@ async function run(name, args, cwd, expectedStatus = 0, timeout = 3 * 60_000) {
 
 async function check(id, action) {
   current = id;
-  await action();
+  const result = await action();
   report.tests.push({ id, status: 'passed' });
   console.log(`PASS ${id}`);
+  return result;
 }
 
 try {
@@ -222,11 +224,41 @@ try {
     assert.ok((await stat(join(uiConsumer, 'loading-dist/browser/index.html'))).isFile());
   });
 
+  const translationCounterpart = await check('package.translation-counterpart-artifact', async () => {
+    const profile = JSON.parse(await readFile(join(root, 'tests/fixtures/compatibility/translation-counterpart.json'), 'utf8'));
+    assert.equal(profile.repository, 'https://github.com/hmcts/rpx-xui-translation.git');
+    assert.match(profile.commit, /^[a-f0-9]{40}$/);
+    const cacheRoot = join(root, '.angular/translation-counterpart');
+    const source = process.env.CORE_TRANSLATION_COUNTERPART_SOURCE
+      ? resolve(process.env.CORE_TRANSLATION_COUNTERPART_SOURCE) : join(cacheRoot, profile.commit);
+    if (!process.env.CORE_TRANSLATION_COUNTERPART_SOURCE && !await stat(source).then(() => true, error => { if (error.code === 'ENOENT') return false; throw error; })) {
+      await mkdir(cacheRoot, { recursive: true });
+      const stage = await mkdtemp(join(cacheRoot, 'prepare-'));
+      try {
+        /** @type {Array<[string[], string]>} */
+        const commands = [
+          [['clone', '--no-checkout', '--filter=blob:none', '--depth=1', profile.repository, 'source'], stage],
+          [['fetch', '--depth=1', 'origin', profile.commit], join(stage, 'source')],
+          [['checkout', '--detach', profile.commit], join(stage, 'source')],
+        ];
+        for (const [args, cwd] of commands) {
+          const result = spawnSync('git', args, { cwd, env, encoding: 'utf8', timeout: 180000 });
+          assert.equal(result.status, 0, `Translation counterpart source setup failed: ${result.stderr ?? result.error?.message}`);
+        }
+        await rename(join(stage, 'source'), source);
+      } finally { await rm(stage, { recursive: true, force: true }); }
+    }
+    const counterpart = await prepareTranslationCounterpart({ profile, source, output: join(evidence, 'translation-counterpart') });
+    await writeFile(join(evidence, 'translation-counterpart.json'), JSON.stringify(counterpart.evidence, null, 2) + '\n');
+    return counterpart;
+  });
   await cp(join(root, 'tests/fixtures/package'), consumer, { recursive: true });
+  assert.ok(translationCounterpart, 'Translation counterpart artifact must be prepared before installation');
+  await cp(translationCounterpart.tarball, join(consumer, 'translation-counterpart.tgz'));
   await cp(candidate, join(consumer, 'candidate.tgz'));
   const manifest = JSON.parse(await readFile(join(consumer, 'package.json'), 'utf8'));
   manifest.dependencies['@hmcts/rpx-xui-core-lib'] = 'file:./candidate.tgz';
-  manifest.dependencies['rpx-xui-translation'] = 'file:./translation-facade';
+  manifest.dependencies['rpx-xui-translation'] = 'file:./translation-counterpart.tgz';
   await writeFile(join(consumer, 'package.json'), `${JSON.stringify(manifest, null, 2)}\n`);
 
   // Freeze this build's tarball checksum without re-resolving the committed cohort.
@@ -371,9 +403,28 @@ try {
     env.CORE_DATE_CHUNK = graph.date;
     env.CORE_SESSION_CHUNK = graph.session;
     try {
-      await run('loading-browser', [join(root, 'node_modules/@playwright/test/cli.js'), 'test', '-c', join(root, 'tests/packed-loading/playwright.config.mjs')], root);
+      await run('loading-browser', [join(root, 'node_modules/@playwright/test/cli.js'), 'test', '-c', join(root, 'tests/packed-loading/playwright.config.mjs'), 'loading.spec.mjs'], root);
     } finally {
       for (const key of ['CORE_LOADING_HOST', 'CORE_LOADING_ID', 'CORE_LOADING_REPORT', 'CORE_LOADING_OUTPUT', 'CORE_DATE_CHUNK', 'CORE_SESSION_CHUNK']) delete env[key];
+    }
+  });
+
+  await check('package.translation-counterpart-browser', async () => {
+    env.CORE_LOADING_HOST = join(consumer, 'loading-dist/browser');
+    env.CORE_LOADING_ID = randomUUID();
+    env.CORE_LOADING_REPORT = join(evidence, 'translation-counterpart-browser.json');
+    env.CORE_LOADING_OUTPUT = join(evidence, 'translation-counterpart-browser');
+    try {
+      await run('translation-counterpart-browser', [join(root, 'node_modules/@playwright/test/cli.js'), 'test', '-c', join(root, 'tests/packed-loading/playwright.config.mjs'), 'translation.spec.mjs'], root);
+      const outcomes = browserOutcomes(JSON.parse(await readFile(env.CORE_LOADING_REPORT, 'utf8')));
+      const expected = [
+        'installed Translation counterpart shares providers, requests and browser cache with Core',
+        'installed Translation counterpart cancels its scoped owner without destroying the Core root',
+      ];
+      assert.equal(outcomes.length, expected.length, 'Every counterpart browser case must execute');
+      for (const title of expected) assert.equal(outcomes.filter(test => test.id === JSON.stringify(['chromium', title]) && test.passed).length, 1, 'Counterpart browser cases cannot be missing, skipped, retried or duplicated');
+    } finally {
+      for (const key of ['CORE_LOADING_HOST', 'CORE_LOADING_ID', 'CORE_LOADING_REPORT', 'CORE_LOADING_OUTPUT']) delete env[key];
     }
   });
 
@@ -406,7 +457,7 @@ try {
       env.CORE_DATE_CHUNK = await findChunk('/hmcts-rpx-xui-core-lib-case-editor-date.mjs');
       env.CORE_SESSION_CHUNK = await findChunk('/hmcts-rpx-xui-core-lib-case-session-error.mjs');
       try {
-        await run('loading-eager-browser', [join(root, 'node_modules/@playwright/test/cli.js'), 'test', '-c', join(root, 'tests/packed-loading/playwright.config.mjs')], root, 1);
+        await run('loading-eager-browser', [join(root, 'node_modules/@playwright/test/cli.js'), 'test', '-c', join(root, 'tests/packed-loading/playwright.config.mjs'), 'loading.spec.mjs'], root, 1);
         assertEagerDateFailure(JSON.parse(await readFile(env.CORE_LOADING_REPORT, 'utf8')));
       } finally {
         for (const key of ['CORE_LOADING_HOST', 'CORE_LOADING_ID', 'CORE_LOADING_REPORT', 'CORE_LOADING_OUTPUT', 'CORE_DATE_CHUNK', 'CORE_SESSION_CHUNK']) delete env[key];
@@ -693,7 +744,18 @@ try {
     graph();
   });
 
-  await check('package.staged-i18n-identity', () => run('staged-i18n-identity', ['i18n-runtime.mjs'], consumer));
+  await check('package.translation-counterpart-types', () => run('translation-counterpart-types', [compiler, '--strict', '--skipLibCheck', 'false', '--esModuleInterop', '--target', 'ES2022', '--module', 'ES2022', '--moduleResolution', 'node', '--noEmit', 'i18n-counterpart-types.ts'], consumer));
+  await check('package.translation-counterpart-identity', () => run('translation-counterpart-identity', ['i18n-runtime.mjs'], consumer));
+  await check('package.translation-counterpart-identity-fault', async () => {
+    const entry = join(consumer, 'node_modules/rpx-xui-translation/index.mjs');
+    const original = await readFile(entry);
+    try {
+      await writeFile(entry, Buffer.concat([original, Buffer.from('\nexport class RpxTranslationService {}\n')]));
+      const diagnostic = await run('translation-counterpart-identity-fault', ['i18n-runtime.mjs'], consumer, 1);
+      assert.match(diagnostic, /RpxTranslationService must retain canonical identity/);
+    } finally { await writeFile(entry, original); }
+    await run('translation-counterpart-identity-restored', ['i18n-runtime.mjs'], consumer);
+  });
   await check('package.installed-node-runtime', () => run('installed-node-runtime', ['node-runtime.cjs'], consumer));
   await check('package.installed-node-http', () => run('installed-node-http', ['node-http.cjs'], consumer));
   await check('package.node-loading-fault', async () => {

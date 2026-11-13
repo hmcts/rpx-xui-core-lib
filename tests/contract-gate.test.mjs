@@ -274,7 +274,7 @@ const packageIds = [
   'package.installed-runtime', 'package.missing-declaration-fault', 'package.restored-node',
   'package.physical-node', 'package.installed-node-runtime', 'package.installed-node-http', 'package.node-loading-fault', 'package.browser-denied',
   'package.missing-marker-fault', 'package.restored-node-runtime',
-  'package.physical-i18n', 'package.staged-i18n-identity',
+  'package.physical-i18n',
   "package.root-runtime-empty",
   "package.validation-graph",
   "package.sharing-graph",
@@ -362,6 +362,7 @@ packageIds.push('package.node-security-optional-peer', 'package.strict-node-secu
   'package.node-security-consumer-contracts', 'package.node-security-nonce-fault', 'package.node-security-header-fault',
   'package.node-security-merge-fault', 'package.node-security-restored', 'package.node-security-browser-denied');
 packageIds.push('package.strict-node-logging-types', 'package.node-logging-isolation', 'package.node-logging-loading-fault', 'package.helmet-8_1_0-cohort', 'package.helmet-8_2_0-cohort');
+packageIds.push('package.translation-counterpart-artifact', 'package.translation-counterpart-browser', 'package.translation-counterpart-types', 'package.translation-counterpart-identity', 'package.translation-counterpart-identity-fault');
 const expectedContracts = addedBrowserJourneys.length + Object.values(addedLaneNames).reduce((sum, names) => sum + names.length, 0) + unitNames.length + nodeNames.length + i18nNames.length + i18nJourneys.length + dueDateJourneys.length + accessibilityJourneys.length + sessionDialogJourneys.length + primitiveJourneys.length + cacheJourneys.length + validationJourneys.length + packageIds.length + 1 + contractInventory.nodeServerUnit.required.length;
 
 function nativeTap(names) {

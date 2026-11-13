@@ -412,7 +412,6 @@
           "package.strict-bundler",
           "package.installed-runtime",
           "package.physical-i18n",
-          "package.staged-i18n-identity",
           "package.root-runtime-empty",
           "package.validation-graph",
           "package.sharing-graph",
@@ -1342,6 +1341,18 @@
             "title": "task-name accessible name follows the selected language",
             "feature": "task-lookups"
           }
+        ]
+      }
+    },
+    {
+      "feature": "Canonical Translation counterpart (private preparation)",
+      "contracts": {
+        "package": [
+          "package.translation-counterpart-artifact",
+          "package.translation-counterpart-browser",
+          "package.translation-counterpart-types",
+          "package.translation-counterpart-identity",
+          "package.translation-counterpart-identity-fault"
         ]
       }
     }
