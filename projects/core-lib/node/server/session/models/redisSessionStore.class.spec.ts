@@ -4,7 +4,7 @@ import { RedisSessionMetadata, SessionMetadata } from './sessionMetadata.interfa
 import * as redis from 'redis'
 import { RedisClientType } from 'redis'
 import { Router } from 'express'
-import session, { Store } from 'express-session'
+import session from 'express-session'
 import { RedisStore } from 'connect-redis'
 import { SESSION } from '../session.constants'
 import { XuiLogger } from '../../common/util/debug.logger'
@@ -316,16 +316,21 @@ test('sessionStore configure', () => {
     const mockRouter = createMock<Router>()
     const spyUse = jest.spyOn(mockRouter, 'use')
     const sessionStore = new RedisSessionStore(mockRouter)
-    const options = {} as SessionMetadata
-    const spyClassStore = jest.spyOn(sessionStore, 'getClassStore').mockReturnValue({} as Store)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- keep this inherited provider fixture shape; contract-specific tests constrain the runtime behavior.
-    const spySessionOptions = jest.spyOn(sessionStore, 'mapSessionOptions').mockReturnValue({} as any)
+    const options: SessionMetadata = {
+        cookie: { httpOnly: true, secure: false, maxAge: 60_000 },
+        name: 'core.sid', secret: 'synthetic-local-session-secret', resave: false, saveUninitialized: false,
+    }
+    const store = new session.MemoryStore()
+    const spyClassStore = jest.spyOn(sessionStore, 'getClassStore').mockReturnValue(store)
+    const spySessionOptions = jest.spyOn(sessionStore, 'mapSessionOptions')
 
-    sessionStore.configure(options)
+    expect(sessionStore.configure(options)).toBe(mockRouter)
 
-    expect(spyClassStore).toHaveBeenCalled()
-    expect(spySessionOptions).toHaveBeenCalled()
-    expect(spyUse).toHaveBeenCalled()
+    expect(spyClassStore).toHaveBeenCalledWith(options)
+    expect(spySessionOptions).toHaveBeenCalledWith(options, store)
+    expect(spySessionOptions).toHaveReturnedWith({ ...options, store })
+    expect(spyUse).toHaveBeenCalledTimes(1)
+    expect(spyUse).toHaveBeenCalledWith(expect.any(Function))
 })
 
 test('sessionStore getClassStore error', () => {

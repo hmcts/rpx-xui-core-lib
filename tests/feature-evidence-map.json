@@ -1045,6 +1045,16 @@
           "package.angular-20_3_31-cohort-build"
         ]
       }
+    },
+    {
+      "feature": "Node HTTP session middleware",
+      "contracts": {
+        "nodeServerUnit": [
+          "projects/core-lib/node/server/session/models/sessionStore.integration.spec.ts session middleware persists signed sessions, isolates clients and leaves untouched sessions unsaved",
+          "projects/core-lib/node/server/session/models/sessionStore.integration.spec.ts secure session cookies require the configured trusted HTTPS transport",
+          "projects/core-lib/node/server/session/models/sessionStore.integration.spec.ts session store read failures reach the error handler without running the protected route"
+        ]
+      }
     }
   ],
   "suiteGroups": [

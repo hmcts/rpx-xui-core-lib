@@ -900,7 +900,10 @@
       "projects/core-lib/node/server/security/csp.spec.ts CSP HTTP integration uses only the report-only header when the exact flag is true",
       "projects/core-lib/node/server/security/csp.spec.ts CSP HTTP integration forwards malformed directive failures through Express without serving protected content",
       "projects/core-lib/node/server/security/csp.spec.ts csp middleware snapshots own root and directive getters once per request and ignores inherited root directives",
-      "projects/core-lib/node/server/security/csp.spec.ts csp middleware retains caller-owned explicit arrays so later edits affect subsequent requests"
+      "projects/core-lib/node/server/security/csp.spec.ts csp middleware retains caller-owned explicit arrays so later edits affect subsequent requests",
+      "projects/core-lib/node/server/session/models/sessionStore.integration.spec.ts session middleware persists signed sessions, isolates clients and leaves untouched sessions unsaved",
+      "projects/core-lib/node/server/session/models/sessionStore.integration.spec.ts secure session cookies require the configured trusted HTTPS transport",
+      "projects/core-lib/node/server/session/models/sessionStore.integration.spec.ts session store read failures reach the error handler without running the protected route"
     ]
   }
 }
