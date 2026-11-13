@@ -1,10 +1,12 @@
 <div class="auto-complete-container">
+  @if (showLabel) {
+    <label class="govuk-label" for="inputWorkTypeSearch">{{ label | rpxTranslate }}</label>
+  }
   @if (lookupFailed) {
     <p role="alert" class="govuk-error-message">{{ 'Unable to search for work types. Try again.' | rpxTranslate }}</p>
   }
   <input
     id="inputWorkTypeSearch"
-    title="{{ ('Search for a work type by name' | rpxTranslate)?.trim() || 'Search for a work type by name' }}"
     #char
     (keydown)="removeInvalidString($event)"
     (input)="onInput()"

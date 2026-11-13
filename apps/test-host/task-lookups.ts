@@ -45,7 +45,7 @@ window.lookupHarness = {
       <pre data-testid="work-form">{{ workForm.value | json }}</pre>
     } @else {
       @if (externalWorkLabel) { <label for="inputWorkTypeSearch">External custom label</label> }
-      <exui-search-work-type [form]="workForm" [field]="field"></exui-search-work-type>
+      <exui-search-work-type [form]="workForm" [field]="field" [showLabel]="!externalWorkLabel"></exui-search-work-type>
     }
     @if (duplicates) {
       <xuilib-find-task-name [idValue]="'second'" [findTaskNameGroup]="secondTaskForm"></xuilib-find-task-name>

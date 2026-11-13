@@ -12,6 +12,8 @@ import { TaskService, type WorkType } from '@hmcts/rpx-xui-core-lib/ui/task-data
   standalone: false
 })
 export class SearchWorkTypeComponent implements OnInit {
+  @Input() public label = 'Search for a work type by name';
+  @Input() public showLabel = true;
   @Input() public form: FormGroup;
   @Input() public field: FilterFieldConfig;
   @Input() public disabled: boolean = null;

@@ -8,6 +8,7 @@
     <div class="search-work-type__input-container">
       <exui-search-work-type class="search-work-type__input" [form]="form" [field]="field"
         [selectedWorkTypes]="selectedWorkTypes" [delay]="300" [disabled]="disabled"
+        [label]="workTypeTitle || 'Search for a work type by name'" [showLabel]="!workTypeTitle"
         [singleMode]="field.maxSelected === 1" [serviceIds]="serviceIds"
         (workTypeTermSearchInputChanged)="onInputChanged($event)" (workTypeSelected)="onWorkTypeSelected($event)"
         (searchWorkTypeChanged)="onSearchInputChanged()">
