@@ -1,28 +1,42 @@
 {
   "schemaVersion": 1,
   "profiles": {
+    "core": {
+      "id": "core",
+      "gitHead": "7b94358faae4ef5556865a80d71e0314c311816e",
+      "manager": "4.18.1",
+      "manager_sha256": "a28ad591febb769f939c11f82f89bacad0b0fac0c884d3b78fa2aaaee970907e",
+      "manifest_packageManager": "yarn@4.18.1",
+      "engine": {
+        "node": ">=24.22.2 <25"
+      },
+      "builder_family": "ng-packagr",
+      "actual_requirements": {},
+      "locked_peer_versions": {},
+      "locked_toolchain": {},
+      "install_settings": {
+        "nodeLinker": "node-modules",
+        "npmPreapprovedPackages": [
+          "minimatch@11.0.8"
+        ],
+        "nmHoistingLimits": "workspaces"
+      },
+      "host_resolutions": {},
+      "scope": "Synthetic prospective core host; runner installs the candidate and frozen peer providers, not the repository development graph."
+    },
     "rpx-xui-webapp": {
+      "requirement_scope": "All direct production or development requirements shared with the prospective graph, including root peer providers and public types; actual versions take precedence over fixture defaults; retained host telemetry/proxy runtime and production API webpack toolchain",
+      "resolution_scope": "Exact pre-existing host-owned resolutions; applied graph is not unmodified and native peer errors remain blockers",
       "id": "rpx-xui-webapp",
-      "gitHead": "67cda3e943a69fd57a692189941863b1c6d5c3f9",
+      "gitHead": "1a986f4dc87e6ea4598e30c042bf2b3072122b75",
       "manager": "4.17.1",
-      "manager_source_url": "https://raw.githubusercontent.com/hmcts/rpx-xui-webapp/67cda3e943a69fd57a692189941863b1c6d5c3f9/.yarn/releases/yarn-4.17.1.cjs",
+      "manager_source_url": "https://raw.githubusercontent.com/hmcts/rpx-xui-webapp/1a986f4dc87e6ea4598e30c042bf2b3072122b75/.yarn/releases/yarn-4.17.1.cjs",
+      "manager_sha256": "471ffb15e0523663865bbf46a69e7d157ecf532412eb436c48dfab6e3f2abe88",
       "manifest_packageManager": "yarn@4.17.1",
       "engine": {
-        "node": ">=24.22.1"
+        "node": ">=24.22.2"
       },
       "builder_family": "application",
-      "locked_toolchain": {
-        "@angular-devkit/build-angular": "20.3.42",
-        "@angular/cli": "20.3.42",
-        "@angular/compiler": "20.3.35",
-        "@angular/compiler-cli": "20.3.35",
-        "typescript": "5.9.3",
-        "webpack": "5.112.0",
-        "webpack-cli": "6.0.1",
-        "webpack-node-externals": "3.0.0",
-        "ts-loader": "9.6.2",
-        "terser-webpack-plugin": "5.6.1"
-      },
       "actual_requirements": {
         "@angular/animations": "^20.3.31",
         "@angular/cdk": "^20.2.14",
@@ -75,7 +89,6 @@
         "uuid": "^14.0.3",
         "zone.js": "0.16.2"
       },
-      "manager_sha256": "471ffb15e0523663865bbf46a69e7d157ecf532412eb436c48dfab6e3f2abe88",
       "locked_peer_versions": {
         "@angular/animations": "20.3.35",
         "@angular/cdk": "20.2.14",
@@ -128,6 +141,18 @@
         "uuid": "14.0.3",
         "zone.js": "0.16.2"
       },
+      "locked_toolchain": {
+        "@angular-devkit/build-angular": "20.3.42",
+        "@angular/cli": "20.3.42",
+        "@angular/compiler": "20.3.35",
+        "@angular/compiler-cli": "20.3.35",
+        "typescript": "5.9.3",
+        "webpack": "5.112.0",
+        "webpack-cli": "6.0.1",
+        "webpack-node-externals": "3.0.0",
+        "ts-loader": "9.6.2",
+        "terser-webpack-plugin": "5.6.1"
+      },
       "install_settings": {
         "approvedGitRepositories": [
           "**"
@@ -138,7 +163,6 @@
         "nodeLinker": "node-modules",
         "npmMinimalAgeGate": 0
       },
-      "requirement_scope": "All direct production or development requirements shared with the prospective graph, including root peer providers and public types; actual versions take precedence over fixture defaults; retained host telemetry/proxy runtime and production API webpack toolchain",
       "host_resolutions": {
         "archiver-utils@npm:^2.1.0": "npm:5.0.2",
         "archiver-utils@npm:^3.0.4": "npm:5.0.2",
@@ -179,27 +203,22 @@
         "xml2js": "^0.6.2"
       },
       "source_contract": "source-contract.json",
-      "resolution_scope": "Exact pre-existing host-owned resolutions; applied graph is not unmodified and native peer errors remain blockers",
-      "lock_source_url": "https://raw.githubusercontent.com/hmcts/rpx-xui-webapp/67cda3e943a69fd57a692189941863b1c6d5c3f9/yarn.lock",
+      "lock_source_url": "https://raw.githubusercontent.com/hmcts/rpx-xui-webapp/1a986f4dc87e6ea4598e30c042bf2b3072122b75/yarn.lock",
       "lock_sha256": "fd10e8b1a621877e2828a0710877bb0492a37b4da8442214ae5c6d50a6d3dc2f"
     },
     "rpx-xui-manage-organisations": {
+      "requirement_scope": "All direct production or development requirements shared with the prospective graph, including root peer providers and public types; actual versions take precedence over fixture defaults",
+      "resolution_scope": "Exact committed host-owned resolutions; native peer errors remain blockers",
       "id": "rpx-xui-manage-organisations",
-      "gitHead": "80810d3ca68476aefa9ccec107d77243882a8314",
+      "gitHead": "54fbc51bfe18eb03d8afdd988f58c73dddef8c18",
       "manager": "4.9.2",
-      "manager_source_url": "https://raw.githubusercontent.com/hmcts/rpx-xui-manage-organisations/80810d3ca68476aefa9ccec107d77243882a8314/.yarn/releases/yarn-4.9.2.cjs",
+      "manager_source_url": "https://raw.githubusercontent.com/hmcts/rpx-xui-manage-organisations/54fbc51bfe18eb03d8afdd988f58c73dddef8c18/.yarn/releases/yarn-4.9.2.cjs",
+      "manager_sha256": "ca4310f8ba997b4643a000ce512d9772e01c1485df35511114b325315960acb7",
       "manifest_packageManager": "yarn@4.9.2",
       "engine": {
-        "node": ">=24.22.1 <25"
+        "node": ">=24.22.2 <25"
       },
       "builder_family": "application",
-      "locked_toolchain": {
-        "@angular-devkit/build-angular": "20.3.37",
-        "@angular/cli": "20.3.37",
-        "@angular/compiler": "20.3.31",
-        "@angular/compiler-cli": "20.3.31",
-        "typescript": "5.9.2"
-      },
       "actual_requirements": {
         "@angular/animations": "20.3.31",
         "@angular/cdk": "^20.2.4",
@@ -250,7 +269,6 @@
         "tslib": "^2.6.1",
         "zone.js": "0.16.3"
       },
-      "manager_sha256": "ca4310f8ba997b4643a000ce512d9772e01c1485df35511114b325315960acb7",
       "locked_peer_versions": {
         "@angular/animations": "20.3.31",
         "@angular/cdk": "20.2.14",
@@ -289,7 +307,7 @@
         "launchdarkly-js-client-sdk": "3.9.6",
         "lz-string": "1.5.0",
         "moment": "2.31.0",
-        "moment-timezone": "0.6.4",
+        "moment-timezone": "0.6.6",
         "ngx-chips": "3.0.0",
         "ngx-editor": "19.0.0-beta.1",
         "ngx-markdown": "20.1.0",
@@ -301,12 +319,18 @@
         "tslib": "2.8.1",
         "zone.js": "0.16.3"
       },
+      "locked_toolchain": {
+        "@angular-devkit/build-angular": "20.3.37",
+        "@angular/cli": "20.3.37",
+        "@angular/compiler": "20.3.31",
+        "@angular/compiler-cli": "20.3.31",
+        "typescript": "5.9.2"
+      },
       "install_settings": {
         "compressionLevel": "mixed",
         "enableGlobalCache": false,
         "nodeLinker": "node-modules"
       },
-      "requirement_scope": "All direct production or development requirements shared with the prospective graph, including root peer providers and public types; actual versions take precedence over fixture defaults",
       "host_resolutions": {
         "@stryker-mutator/api": "^3.0.1",
         "@stryker-mutator/core": "^3.0.1",
@@ -327,11 +351,11 @@
         "exceljs/uuid": "11.1.1",
         "dompurify": "^3.4.13",
         "form-data": "^4.0.6",
-        "follow-redirects": "1.16.1",
+        "follow-redirects": "1.16.3",
         "katex": "0.18.2",
         "xml2js": "^0.6.2",
         "tough-cookie": "^6.0.2",
-        "qs": "6.16.0",
+        "qs": "6.17.1",
         "semver": "^7.6.0",
         "socket.io-parser": "^4.2.7",
         "html-encoding-sniffer": "^6.0.0",
@@ -346,26 +370,21 @@
         "unzipper": "0.12.5",
         "source-map-js": "1.2.2"
       },
-      "source_contract": "source-contract.json",
-      "resolution_scope": "Exact committed host-owned resolutions; native peer errors remain blockers"
+      "source_contract": "source-contract.json"
     },
     "rpx-xui-approve-org": {
+      "requirement_scope": "All direct production or development requirements shared with the prospective graph, including root peer providers and public types; actual versions take precedence over fixture defaults",
+      "resolution_scope": "Exact committed host-owned resolutions; native peer errors remain blockers",
       "id": "rpx-xui-approve-org",
-      "gitHead": "9c1e1cdabda47b961aa2101dfe485d204ec09b05",
+      "gitHead": "cb14ae0c048ad509bd5e71a58e4ba645592b9267",
       "manager": "4.10.3",
-      "manager_source_url": "https://raw.githubusercontent.com/hmcts/rpx-xui-approve-org/9c1e1cdabda47b961aa2101dfe485d204ec09b05/.yarn/releases/yarn-4.10.3.cjs",
+      "manager_source_url": "https://raw.githubusercontent.com/hmcts/rpx-xui-approve-org/cb14ae0c048ad509bd5e71a58e4ba645592b9267/.yarn/releases/yarn-4.10.3.cjs",
+      "manager_sha256": "cd71753d68307301d21034efaf20bd8eee81f9450af75f068477bf9011bb9ad4",
       "manifest_packageManager": "yarn@4.9.2",
       "engine": {
-        "node": ">=24.22.1 <25"
+        "node": ">=24.22.2 <25"
       },
       "builder_family": "webpack",
-      "locked_toolchain": {
-        "@angular-devkit/build-angular": "20.3.37",
-        "@angular/cli": "20.3.37",
-        "@angular/compiler": "20.3.31",
-        "@angular/compiler-cli": "20.3.31",
-        "typescript": "5.9.3"
-      },
       "actual_requirements": {
         "@angular/animations": "^20.3.31",
         "@angular/cdk": "^20.2.14",
@@ -404,7 +423,6 @@
         "tslib": "^2.8.1",
         "zone.js": "0.16.3"
       },
-      "manager_sha256": "cd71753d68307301d21034efaf20bd8eee81f9450af75f068477bf9011bb9ad4",
       "locked_peer_versions": {
         "@angular/animations": "20.3.31",
         "@angular/cdk": "20.2.14",
@@ -429,7 +447,7 @@
         "@types/express-session": "1.19.0",
         "@types/node": "24.19.1",
         "@types/passport": "1.0.17",
-        "axios": "1.20.0",
+        "axios": "1.21.1",
         "express": "5.3.0",
         "govuk-frontend": "5.14.0",
         "helmet": "8.3.0",
@@ -443,12 +461,18 @@
         "tslib": "2.8.1",
         "zone.js": "0.16.3"
       },
+      "locked_toolchain": {
+        "@angular-devkit/build-angular": "20.3.37",
+        "@angular/cli": "20.3.37",
+        "@angular/compiler": "20.3.31",
+        "@angular/compiler-cli": "20.3.31",
+        "typescript": "5.9.3"
+      },
       "install_settings": {
         "compressionLevel": "mixed",
         "enableGlobalCache": false,
         "nodeLinker": "node-modules"
       },
-      "requirement_scope": "All direct production or development requirements shared with the prospective graph, including root peer providers and public types; actual versions take precedence over fixture defaults",
       "host_resolutions": {
         "odhin-reports-playwright/axios": "0.34.0",
         "archiver-utils@npm:^2.1.0": "npm:5.0.2",
@@ -475,8 +499,7 @@
         "tar": "^7.5.22",
         "unzipper": "0.12.5"
       },
-      "source_contract": "source-contract.json",
-      "resolution_scope": "Exact committed host-owned resolutions; native peer errors remain blockers"
+      "source_contract": "source-contract.json"
     },
     "mc-api-standalone": {
       "id": "mc-api-standalone",
@@ -489,7 +512,7 @@
       "locked_toolchain": {},
       "scope": "Standalone api/package.json declared runtime dependencies and manager4.7.0, constrained to inherited root-lock selections for reproducibility; there is no standalone api lock/config. In-tree commands inherit root yarnPath4.17.1. This prospective-core installation rehearsal does not build/start the real API deployment artifact.",
       "manager_sha256": "293632d8a095d8ea4786eb2c5798c83c37544abed17ed31186a3ec4549a07c06",
-      "gitHead": "67cda3e943a69fd57a692189941863b1c6d5c3f9",
+      "gitHead": "1a986f4dc87e6ea4598e30c042bf2b3072122b75",
       "locked_peer_versions": {
         "applicationinsights": "3.17.0",
         "express": "5.3.0"
@@ -498,99 +521,80 @@
       "source_contract": "source-contract.json",
       "manifest_packageManager": "yarn@4.7.0",
       "engine": {
-        "node": ">=24.22.1"
+        "node": ">=24.22.2"
       },
       "builder_family": "webpack",
       "host_resolutions": {},
       "install_settings": {}
-    },
-    "core": {
-      "id": "core",
-      "gitHead": "e3e4222a1e7df9009041c03dd5eef878ac7c13b0",
-      "manager": "4.18.1",
-      "manager_sha256": "a28ad591febb769f939c11f82f89bacad0b0fac0c884d3b78fa2aaaee970907e",
-      "manifest_packageManager": "yarn@4.18.1",
-      "engine": {
-        "node": ">=24.22.2 <25"
-      },
-      "builder_family": "ng-packagr",
-      "actual_requirements": {},
-      "locked_peer_versions": {},
-      "locked_toolchain": {},
-      "install_settings": {
-        "nodeLinker": "node-modules"
-      },
-      "host_resolutions": {},
-      "scope": "Synthetic prospective core host; runner installs the candidate and frozen peer providers, not the repository development graph."
     }
   },
   "sources": {
+    "core": {
+      "repository": "hmcts/rpx-xui-core-lib",
+      "gitHead": "7b94358faae4ef5556865a80d71e0314c311816e",
+      "files": {
+        "package.json": "26df7e498f59c725ef034025360fe47bd6755c8ee77d4298bf05575854fd3ac9",
+        "yarn.lock": "c68594a21e0bda40d21816e2b75b89bcf53cf28000147b9e116a3586b7a93903",
+        ".yarnrc.yml": "5abc963c04b1668ab4e9502a7cf07732907455ebc078352adf9f6704e8d94323",
+        "projects/core-lib/ng-package.json": "a45fe86f9f0a5cabe53977531be3b10e84576e0644a3e6eaee2c9347608deb66",
+        ".yarn/releases/yarn-4.18.1.cjs": "a28ad591febb769f939c11f82f89bacad0b0fac0c884d3b78fa2aaaee970907e"
+      }
+    },
     "rpx-xui-webapp": {
       "repository": "hmcts/rpx-xui-webapp",
-      "gitHead": "67cda3e943a69fd57a692189941863b1c6d5c3f9",
+      "gitHead": "1a986f4dc87e6ea4598e30c042bf2b3072122b75",
       "files": {
-        "package.json": "265942e19005a8af277d8bb4019c2509e772bb5d5781bf54c8c9e7c1d5d88819",
+        "package.json": "3e740a7b522a67acd044f8a6ae112b13031bfe5337b5e8d4c56b846754104694",
         "yarn.lock": "fd10e8b1a621877e2828a0710877bb0492a37b4da8442214ae5c6d50a6d3dc2f",
         ".yarnrc.yml": "9ed710563177e88df1b732e08d846e251c8b93f4e51d6f09cdd55f97386b3e3b",
-        ".yarn/releases/yarn-4.17.1.cjs": "471ffb15e0523663865bbf46a69e7d157ecf532412eb436c48dfab6e3f2abe88",
         "angular.json": "68d3530dc12d413e199cb8ca1c9c9875a5caca09669e5fedbb2dacf875b3f329",
-        "api/package.json": "31113b4d997b4c9c2684d32e9593175d5ad4faf4299be999356a3c26fb78eec4",
-        "api/webpack-node.config.js": "d50197e61df6cece6694a7b9e6a5bcceed1387cc009e468682cc6ba9b8c5853f"
+        "api/package.json": "1f680ad1db357cf691e1a8e7da37ae4b7dd05219930ec7ab8b22ae002ab60aa9",
+        "api/webpack-node.config.js": "d50197e61df6cece6694a7b9e6a5bcceed1387cc009e468682cc6ba9b8c5853f",
+        ".yarn/releases/yarn-4.17.1.cjs": "471ffb15e0523663865bbf46a69e7d157ecf532412eb436c48dfab6e3f2abe88"
       }
     },
     "rpx-xui-manage-organisations": {
       "repository": "hmcts/rpx-xui-manage-organisations",
-      "gitHead": "80810d3ca68476aefa9ccec107d77243882a8314",
+      "gitHead": "54fbc51bfe18eb03d8afdd988f58c73dddef8c18",
       "files": {
-        "package.json": "69c7c91e99d5299979d63c1c7b9be2544331281af73c1b1515a3fd67d40ea222",
-        "yarn.lock": "fd8a5d6fffd5131c0947244f7932bd40acac13e36debb97a3fbdd9288d955c1c",
+        "package.json": "6a60980e92d8dc6e7f22a4e75c0eff29dc645bae61cd947daf004840dae29004",
+        "yarn.lock": "0752ce61465f45f1744b2bf98ab3fa5ec33209fdc69117ceaa62402c50fd26c6",
         ".yarnrc.yml": "3f9df93eb6f8df72e222cac10cc144942f7c96f75d54fd4fd055052bbd52300b",
-        ".yarn/releases/yarn-4.9.2.cjs": "ca4310f8ba997b4643a000ce512d9772e01c1485df35511114b325315960acb7",
-        "angular.json": "a042e9fb469dbbf46a41c4e1d899e160534be2a362b57f631d589ce85f35c3ee"
+        "angular.json": "a042e9fb469dbbf46a41c4e1d899e160534be2a362b57f631d589ce85f35c3ee",
+        ".yarn/releases/yarn-4.9.2.cjs": "ca4310f8ba997b4643a000ce512d9772e01c1485df35511114b325315960acb7"
       }
     },
     "rpx-xui-approve-org": {
       "repository": "hmcts/rpx-xui-approve-org",
-      "gitHead": "9c1e1cdabda47b961aa2101dfe485d204ec09b05",
+      "gitHead": "cb14ae0c048ad509bd5e71a58e4ba645592b9267",
       "files": {
-        "package.json": "f9b562fc5ac5092eeeeaa4f3164abf3b892e259fcdeb6f1fb6f74200103c9b3a",
-        "yarn.lock": "5f9670af436227e3120726658af17e58e21bcf50856544058f2af0606914b1c6",
+        "package.json": "db7f04ae1ab263587cbd0b3cadede47f932b51ef397638f8fd00f6ff66c98635",
+        "yarn.lock": "73cf61567708a798581a838337a2889a5818e99fe93c0e88d3fc861175e278d2",
         ".yarnrc.yml": "f51c56f129696e23793c9bc86fdc89948eaa9cf2b797e7c0f03c344d23031dfe",
-        ".yarn/releases/yarn-4.10.3.cjs": "cd71753d68307301d21034efaf20bd8eee81f9450af75f068477bf9011bb9ad4",
-        "angular.json": "b53003864c094c0bdfe029704c709c7b2e76471263b6439bbbde91fd335cf37f"
-      }
-    },
-    "core": {
-      "repository": "hmcts/rpx-xui-core-lib",
-      "gitHead": "e3e4222a1e7df9009041c03dd5eef878ac7c13b0",
-      "files": {
-        "package.json": "e063cb36e53dde920cd77727beb34c48d68d640fe02b1cbe3d141a265f160a9e",
-        "yarn.lock": "ed0706ff59036f7fffe21b5048d36f9271f35129440bb5b517e93504137e7af2",
-        ".yarnrc.yml": "68878052b783809f5c919d0605cc064790bca760861aa9d6a71714d6022c3d6a",
-        ".yarn/releases/yarn-4.18.1.cjs": "a28ad591febb769f939c11f82f89bacad0b0fac0c884d3b78fa2aaaee970907e",
-        "projects/core-lib/ng-package.json": "396144b3896ec389676dbefa828f8ff06f7e25810044d2527b1dbceacd9bdb1f"
+        "angular.json": "b53003864c094c0bdfe029704c709c7b2e76471263b6439bbbde91fd335cf37f",
+        ".yarn/releases/yarn-4.10.3.cjs": "cd71753d68307301d21034efaf20bd8eee81f9450af75f068477bf9011bb9ad4"
       }
     }
   },
   "scope": "Source-derived direct shared requirements and selected toolchains; synthetic harness choices are explicitly described in each profile. Verify hashes against git objects before refreshing.",
   "locked_telemetry_versions": {
     "rpx-xui-webapp": {
-      "@azure/monitor-opentelemetry": [
-        "1.21.0"
-      ],
       "@azure/monitor-opentelemetry-exporter": [
         "1.0.0-beta.47"
+      ],
+      "@azure/monitor-opentelemetry": [
+        "1.21.0"
       ],
       "@azure/opentelemetry-instrumentation-azure-sdk": [
         "1.0.0",
         "1.1.0-beta.1"
       ],
-      "@opentelemetry/api": [
-        "1.10.0"
-      ],
       "@opentelemetry/api-logs": [
         "0.211.0",
         "0.221.0"
+      ],
+      "@opentelemetry/api": [
+        "1.10.0"
       ],
       "@opentelemetry/configuration": [
         "0.221.0"
@@ -635,10 +639,6 @@
       "@opentelemetry/exporter-zipkin": [
         "2.10.0"
       ],
-      "@opentelemetry/instrumentation": [
-        "0.211.0",
-        "0.221.0"
-      ],
       "@opentelemetry/instrumentation-bunyan": [
         "0.66.0"
       ],
@@ -662,6 +662,10 @@
       ],
       "@opentelemetry/instrumentation-winston": [
         "0.65.0"
+      ],
+      "@opentelemetry/instrumentation": [
+        "0.211.0",
+        "0.221.0"
       ],
       "@opentelemetry/otlp-exporter-base": [
         "0.221.0"
@@ -698,10 +702,6 @@
       "@opentelemetry/sdk-node": [
         "0.221.0"
       ],
-      "@opentelemetry/sdk-trace": [
-        "2.10.0",
-        "2.12.0"
-      ],
       "@opentelemetry/sdk-trace-base": [
         "2.10.0",
         "2.12.0"
@@ -711,6 +711,10 @@
         "2.12.0"
       ],
       "@opentelemetry/sdk-trace-web": [
+        "2.12.0"
+      ],
+      "@opentelemetry/sdk-trace": [
+        "2.10.0",
         "2.12.0"
       ],
       "@opentelemetry/semantic-conventions": [
