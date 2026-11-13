@@ -1,8 +1,8 @@
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { Observable, Subscription, timer, zip } from 'rxjs';
+import { Observable, Subject, Subscription, timer, zip } from 'rxjs';
 import { of } from 'rxjs/internal/observable/of';
-import { catchError, filter, map, switchMap, tap } from 'rxjs/operators';
+import { catchError, filter, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { Person, PersonRole } from './models';
 import { FindAPersonService } from './find-person.service';
 
@@ -38,6 +38,7 @@ export class FindPersonComponent implements OnInit, OnDestroy {
   public filteredOptions: Person[] = [];
   public readonly minSearchCharacters = 2;
   private sub: Subscription;
+  private readonly selectionChanged = new Subject<void>();
 
   public get hintId(): string { return `sub-title-hint${this.idValue || ''}`; }
   public get errorId(): string { return `validation-error${this.idValue || ''}`; }
@@ -67,7 +68,8 @@ export class FindPersonComponent implements OnInit, OnDestroy {
         switchMap(() => this.filter(searchTerm).pipe(
           tap(() => this.showAutocomplete = true),
           catchError(() => this.handleFilterError()),
-        ))
+        )),
+        takeUntil(this.selectionChanged)
       ))
     ).subscribe((people: Person[]) => {
       this.filteredOptions = people;
@@ -103,6 +105,9 @@ export class FindPersonComponent implements OnInit, OnDestroy {
   }
 
   public onSelectionChange(selectedPerson: Person): void {
+    this.selectionChanged.next();
+    this.showAutocomplete = false;
+    this.filteredOptions = [];
     this.personSelected.emit(selectedPerson);
     this.findPersonControl.setValue(this.getDisplayName(selectedPerson), {emitEvent: false, onlySelf: true});
   }

@@ -80,7 +80,7 @@ test('selection emits a person and sets display text without starting another se
   assert.equal(component.findPersonControl.value, 'Person (person@example.test)');
   assert.equal(requests.length, 0);
 });
-test('direct selection during pending debounce retains legacy follow-up search behavior', async t => {
+test('selection during pending debounce cancels search and emits only the selected person', async t => {
   const { component, requests } = setup(t);
   const selected = [];
   component.personSelected.subscribe(value => selected.push(value));
@@ -88,19 +88,19 @@ test('direct selection during pending debounce retains legacy follow-up search b
   const person = { id: 'chosen', name: 'Alice', domain: PersonRole.ADMIN };
   component.onSelectionChange(person);
   await wait();
-  assert.deepEqual(selected, [person, null]);
-  assert.equal(requests.length, 1);
+  assert.deepEqual(selected, [person]);
+  assert.equal(requests.length, 0);
   assert.equal(component.findPersonControl.value, 'Alice');
 });
 
-test('direct selection without a control value event retains the legacy active request', async t => {
+test('selection during an active lookup closes options and cancels its response', async t => {
   const { component, requests } = setup(t);
   component.findPersonControl.setValue('alice');
   await wait();
   const person = { id: 'chosen', name: 'Alice', domain: PersonRole.ADMIN };
   component.onSelectionChange(person);
   requests[0].next([{ id: 'old', name: 'Alice', domain: PersonRole.ADMIN }]);
-  assert.equal(component.showAutocomplete, true);
-  assert.deepEqual(component.filteredOptions.map(option => option.id), ['old']);
-  assert.equal(requests[0].observers.length, 1);
+  assert.equal(component.showAutocomplete, false);
+  assert.deepEqual(component.filteredOptions, []);
+  assert.equal(requests[0].observers.length, 0);
 });
