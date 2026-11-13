@@ -1342,7 +1342,7 @@ __metadata:
     "@angular/platform-browser": "npm:20.3.35"
     "@axe-core/playwright": "npm:4.14.0"
     "@playwright/test": "npm:1.65.0"
-    "@types/jasmine": "npm:5.1.15"
+    "@types/jasmine": "npm:7.0.0"
     "@types/luxon": "npm:2.4.0"
     "@types/node": "npm:24.10.1"
     "@types/semver": "npm:7.8.0"
@@ -2854,10 +2854,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jasmine@npm:5.1.15":
-  version: 5.1.15
-  resolution: "@types/jasmine@npm:5.1.15"
-  checksum: 10c0/824119f85fd01f88a251fb654f58b135ba38d1085137b4bf57ecaa74b129ba617da58183b9f5f9cf271c86c72cf1f33b6277afb720a1734574cd953b4da2bf22
+"@types/jasmine@npm:7.0.0":
+  version: 7.0.0
+  resolution: "@types/jasmine@npm:7.0.0"
+  checksum: 10c0/165dd685981ee34a451ab6d16065531fc6b1789af382ce7186bda1fe814fef319c88f757ac9c267272f213771186a518fe59878f936f490cd8591fb602349e66
   languageName: node
   linkType: hard
 
