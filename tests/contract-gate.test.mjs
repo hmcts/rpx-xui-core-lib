@@ -330,6 +330,7 @@ addedBrowserJourneys.push(
 packageIds.push('package.node-security-optional-peer', 'package.strict-node-security-types',
   'package.node-security-consumer-contracts', 'package.node-security-nonce-fault', 'package.node-security-header-fault',
   'package.node-security-merge-fault', 'package.node-security-restored', 'package.node-security-browser-denied');
+packageIds.push('package.strict-node-logging-types', 'package.node-logging-isolation', 'package.node-logging-loading-fault', 'package.helmet-8_1_0-cohort', 'package.helmet-8_2_0-cohort');
 const expectedContracts = addedBrowserJourneys.length + Object.values(addedLaneNames).reduce((sum, names) => sum + names.length, 0) + unitNames.length + nodeNames.length + i18nNames.length + i18nJourneys.length + dueDateJourneys.length + accessibilityJourneys.length + sessionDialogJourneys.length + primitiveJourneys.length + cacheJourneys.length + validationJourneys.length + packageIds.length + 1 + contractInventory.nodeServerUnit.required.length;
 
 function nativeTap(names) {

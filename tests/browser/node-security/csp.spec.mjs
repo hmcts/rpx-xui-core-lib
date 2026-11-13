@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
-import { startCspHost } from '../../fixtures/package/node-security-host.mjs';
+/** @type {typeof import('../../fixtures/package/node-security-host.mjs')} */
+const { startCspHost } = await import(process.env.CORE_CSP_HOST_MODULE ?? new URL('../../fixtures/package/node-security-host.mjs', import.meta.url).href);
 
 /** @param {import('@playwright/test').Response} response */
 function headerNonce(response, header = 'content-security-policy') {

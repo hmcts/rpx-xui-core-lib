@@ -13,7 +13,7 @@
     "@angular/cdk": "20.2.14",
     "@angular/platform-browser": "^20.3.27",
     "express": "5.2.1",
-    "helmet": "8.3.0"
+    "helmet": "^8.1.0"
   },
   "peerDependenciesMeta": {
     "@angular/common": { "optional": true },
@@ -56,6 +56,11 @@
       "browser": null,
       "types": "./node/server/security/index.d.ts",
       "node": "./node/server/security/index.js"
+    },
+    "./node/server/logging": {
+      "browser": null,
+      "types": "./node/server/logging/index.d.ts",
+      "node": "./node/server/logging/index.js"
     }
   },
   "type": "module",

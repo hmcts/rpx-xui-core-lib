@@ -37,7 +37,7 @@ function unitOutcomes(text) {
   return outcomes;
 }
 
-function browserOutcomes(report) {
+export function browserOutcomes(report) {
   if (!Array.isArray(report.errors) || report.errors.length || !Array.isArray(report.suites)) {
     throw new Error('Malformed browser report or global browser errors');
   }

@@ -16,4 +16,4 @@ declare module 'express-session' {
 
 export { XuiNode, xuiNode } from './common/models/xuiNode.class'
 export type { XuiNodeOptions } from './common/models/xuiNodeOptions.interface'
-export { getLogger, type XuiLogger } from './common/util/debug.logger'
+export { getLogger, type XuiLogger } from './logging'

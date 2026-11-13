@@ -13,10 +13,10 @@ test('a newly required contract fails closed until reviewed', () => { const valu
 test('unavailable evidence makes no passing or coverage claim', () => { const html = renderMatrix('unavailable', mapping, {}, inventory); assert.match(html, /not coverage or a complete feature inventory/); assert.match(html, /unclassified/); assert.match(html, /unavailable|incomplete/i); assert.doesNotMatch(html, /required cases passed/); });
 
 test('all migrated Node server cases have named feature groups', () => {
-  assert.equal(inventory.nodeServerUnit.required.length, 153);
+  assert.equal(inventory.nodeServerUnit.required.length, 157);
   assert.equal(mapping.suiteGroups.filter(group => group.lane === 'nodeServerUnit').length, 8);
   const html = renderMatrix('verified', mapping, {}, inventory);
-  for (const feature of ['Node HTTP session middleware', 'Node content security policy', 'Node authentication strategy', 'Node OIDC authentication', 'Node token refresh integration',
+  for (const feature of ['Node logger namespaces', 'Node HTTP session middleware', 'Node content security policy', 'Node authentication strategy', 'Node OIDC authentication', 'Node token refresh integration',
     'Node OAuth2 authentication', 'Node service authentication', 'Node application middleware', 'Node file sessions', 'Node Redis sessions']) {
     assert.ok(html.includes(feature));
   }

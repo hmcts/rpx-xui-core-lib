@@ -515,7 +515,9 @@
           "package.node-security-header-fault",
           "package.node-security-merge-fault",
           "package.node-security-restored",
-          "package.node-security-browser-denied"
+          "package.node-security-browser-denied",
+          "package.helmet-8_1_0-cohort",
+          "package.helmet-8_2_0-cohort"
         ]
       }
     },
@@ -1053,6 +1055,22 @@
           "projects/core-lib/node/server/session/models/sessionStore.integration.spec.ts session middleware persists signed sessions, isolates clients and leaves untouched sessions unsaved",
           "projects/core-lib/node/server/session/models/sessionStore.integration.spec.ts secure session cookies require the configured trusted HTTPS transport",
           "projects/core-lib/node/server/session/models/sessionStore.integration.spec.ts session store read failures reach the error handler without running the protected route"
+        ]
+      }
+    },
+    {
+      "feature": "Node logger namespaces",
+      "contracts": {
+        "nodeServerUnit": [
+          "projects/core-lib/node/server/common/util/debug.logger.spec.ts logger keeps shared suffixes isolated by their complete namespaces",
+          "projects/core-lib/node/server/common/util/debug.logger.spec.ts logger namespace filters cannot enable another prefix with the same suffix",
+          "projects/core-lib/node/server/common/util/debug.logger.spec.ts logger reuses the same emitted namespace and color across custom delimiters",
+          "projects/core-lib/node/server/common/util/debug.logger.spec.ts logger resolves console instrumentation installed after its creation"
+        ],
+        "package": [
+          "package.strict-node-logging-types",
+          "package.node-logging-isolation",
+          "package.node-logging-loading-fault"
         ]
       }
     }

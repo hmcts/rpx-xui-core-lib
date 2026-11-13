@@ -15,7 +15,7 @@
   },
   {
     "id": "helmet",
-    "selection": "8.3.0 current core and MC/MO/AO lock cohort",
+    "selection": "Core optional ^8.1.0 peer; 8.1.0, 8.2.0 and 8.3.0 exercised; prospective host target 8.3.0",
     "conflict": "published Node peer^7 excludes host^8",
     "required_proof": "Core CSP source, real HTTP, browser and packed actual-option-shape checks; supported real application startup and release adoption remain required.",
     "status": "blocked"

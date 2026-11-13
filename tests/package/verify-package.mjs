@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { currentIdentity } from '../../scripts/evidence-identity.mjs';
 import { sourceSnapshot } from '../../scripts/evidence-source-snapshot.mjs';
+import { browserOutcomes } from '../../scripts/check-contracts.mjs';
 import { buildSync } from 'esbuild';
 import { inspectLoadingGraph, assertPackedBytes, assertEagerDateFailure } from '../packed-loading/graph.mjs';
 import { createHash, randomUUID } from 'node:crypto';
@@ -8,7 +9,7 @@ import { spawnSync } from 'node:child_process';
 import { cp, lstat, mkdir, mkdtemp, readFile, readdir, realpath, rm, stat, symlink, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const output = join(root, 'test-results');
@@ -78,6 +79,7 @@ try {
       'node/server/auth/index.js', 'node/server/auth/index.d.ts',
       'node/server/session/index.js', 'node/server/session/index.d.ts',
       'node/server/security/index.js', 'node/server/security/index.d.ts',
+      'node/server/logging/index.js', 'node/server/logging/index.d.ts',
     ]) assert.ok((await stat(join(dist, file))).isFile(), `Missing packed Node entry: ${file}`);
     assert.deepEqual(JSON.parse(await readFile(join(dist, 'node/package.json'), 'utf8')), { type: 'commonjs' });
     assert.doesNotMatch(await readFile(join(dist, 'node/index.d.ts'), 'utf8'), /express-session|express-serve-static-core/, 'The lightweight Node entry must not require server type packages');
@@ -88,6 +90,7 @@ try {
       './node/server/auth': 'server/auth/index',
       './node/server/session': 'server/session/index',
       './node/server/security': 'server/security/index',
+      './node/server/logging': 'server/logging/index',
     })) {
       assert.deepEqual(packageExports[name], {
         browser: null,
@@ -241,13 +244,37 @@ try {
   assert.equal(JSON.parse(await readFile(join(installed, 'node/package.json'), 'utf8')).type, 'commonjs', 'Packed Node marker must survive installation');
   const compiler = join(consumer, 'node_modules/typescript/bin/tsc');
   await check('package.strict-node', () => run('strict-node', [compiler, '-p', 'tsconfig.node.json'], consumer));
-  for (const entry of ['node', 'server', 'auth', 'session', 'security']) {
+  for (const entry of ['node', 'server', 'auth', 'session', 'security', 'logging']) {
     await check(`package.strict-node-${entry}-types`, () => run(`strict-node-${entry}-types`, [
       compiler, '--strict', '--skipLibCheck', 'false', '--esModuleInterop', '--target', 'ES2022',
       '--module', 'ES2022', '--moduleResolution', 'node', '--noEmit', ...(entry === 'node' ? ['--types', 'node'] : []), `node-${entry}-types.ts`,
     ], consumer));
   }
   await check('package.strict-bundler', () => run('strict-bundler', [compiler, '-p', 'tsconfig.bundler.json'], consumer));
+  await check('package.node-logging-isolation', async () => {
+    const result = buildSync({ entryPoints: ['node-logging-types.ts'], absWorkingDir: consumer, bundle: true,
+      platform: 'node', format: 'cjs', write: false, metafile: true, logLevel: 'silent' });
+    const inputs = Object.keys(result.metafile.inputs).map(path => path.replaceAll('\\', '/'));
+    assert.ok(!inputs.some(path => /\/node\/server\/(?:auth|session|security)\//.test(path)), 'Logging graph must exclude other server capabilities');
+    assert.ok(!inputs.some(path => /\/node_modules\/(?:passport|redis|helmet|@angular)\//.test(path)), 'Logging graph must exclude unrelated dependencies');
+    await writeFile(join(evidence, 'node-logging-metafile.json'), JSON.stringify(result.metafile, null, 2));
+    await run('node-logging-runtime', ['node-logging-runtime.cjs'], consumer);
+    const denied = await run('node-logging-browser-denied', ['--conditions=browser', 'node-logging-runtime.cjs'], consumer, 1);
+    assert.match(denied, /ERR_PACKAGE_PATH_NOT_EXPORTED/);
+    assert.throws(() => buildSync({ stdin: { contents: "import {getLogger} from '@hmcts/rpx-xui-core-lib/node/server/logging'; console.log(getLogger);", resolveDir: consumer },
+      absWorkingDir: consumer, bundle: true, platform: 'browser', write: false, logLevel: 'silent' }), /Could not resolve/);
+  });
+  await check('package.node-logging-loading-fault', async () => {
+    const file = join(installed, 'node/server/logging/index.js');
+    const original = await readFile(file);
+    try {
+      await writeFile(file, Buffer.concat([original, Buffer.from("\nrequire('../auth');\n")]));
+      const diagnostic = await run('node-logging-loading-fault', ['node-logging-runtime.cjs'], consumer, 1);
+      assert.match(diagnostic, /Logger entry must not load authentication, session or security code/);
+    } finally { await writeFile(file, original); }
+    await run('node-logging-restored', ['node-logging-runtime.cjs'], consumer);
+  });
+
   await check('package.node-security-consumer-contracts', async () => {
     const compiled = buildSync({ entryPoints: ['node-security-types.ts'], absWorkingDir: consumer, bundle: true,
       platform: 'node', format: 'cjs', packages: 'external', metafile: true, outfile: join(consumer, 'node-security-config.cjs') });
@@ -278,6 +305,44 @@ try {
     assert.throws(() => buildSync({ stdin: { contents: "import {csp} from '@hmcts/rpx-xui-core-lib/node/server/security'; console.log(csp);", resolveDir: consumer },
       absWorkingDir: consumer, bundle: true, platform: 'browser', write: false, logLevel: 'silent' }), /Could not resolve/);
   });
+
+  for (const version of ['8.1.0', '8.2.0']) {
+    const label = `helmet-${version.replaceAll('.', '_')}`;
+    await check(`package.${label}-cohort`, async () => {
+      const cohort = join(scratch, label);
+      await cp(join(root, 'tests/fixtures/package'), cohort, { recursive: true });
+      await cp(candidate, join(cohort, 'candidate.tgz'));
+      const providers = ['@types/express', '@types/express-session', '@types/node', '@types/passport', '@types/passport-oauth2', 'express'];
+      const dependencies = Object.fromEntries(providers.map(name => [name, manifest.dependencies[name]]));
+      await writeFile(join(cohort, 'package.json'), JSON.stringify({ name: label.replaceAll('_', '-'), private: true, type: 'module', packageManager: 'yarn@4.18.1',
+        dependencies: { ...dependencies, '@hmcts/rpx-xui-core-lib': 'file:./candidate.tgz', helmet: version } }) + '\n');
+      await writeFile(join(cohort, '.yarnrc.yml'), 'nodeLinker: node-modules\n');
+      await run(`${label}-lock`, [yarn, 'install', '--mode=update-lockfile'], cohort);
+      const lock = await readFile(join(cohort, 'yarn.lock'), 'utf8');
+      await run(`${label}-install`, [yarn, 'install', '--immutable', '--mode=skip-build'], cohort);
+      assert.equal(await readFile(join(cohort, 'yarn.lock'), 'utf8'), lock);
+      await cp(join(cohort, 'package.json'), join(evidence, `${label}-package.json`));
+      await writeFile(join(evidence, `${label}-yarn.lock`), lock);
+      await run(`${label}-version`, ['--input-type=commonjs', '-e', "const assert=require('node:assert/strict');const {createRequire}=require('node:module');const fromCore=createRequire(require.resolve('@hmcts/rpx-xui-core-lib/node/server/security'));assert.equal(fromCore('helmet'),require('helmet'));assert.equal(require('./node_modules/helmet/package.json').version,process.argv[1]);", version], cohort);
+      await run(`${label}-types`, [compiler, '--strict', '--skipLibCheck', 'false', '--esModuleInterop', '--target', 'ES2022', '--module', 'ES2022', '--moduleResolution', 'node', '--noEmit', 'node-security-types.ts'], cohort);
+      buildSync({ entryPoints: ['node-security-types.ts'], absWorkingDir: cohort, bundle: true, platform: 'node', format: 'cjs', packages: 'external', outfile: join(cohort, 'node-security-config.cjs') });
+      await run(`${label}-http`, ['node-security-runtime.mjs'], cohort);
+      await run(`${label}-audit`, [yarn, 'npm', 'audit', '--all', '--recursive', '--json'], cohort);
+      const browserReport = join(evidence, `${label}-browser.json`);
+      const config = { testDir: join(root, 'tests/browser/node-security'), testMatch: 'csp.spec.mjs', forbidOnly: true, workers: 1, retries: 0,
+        timeout: 15000, outputDir: join(evidence, `${label}-browser-artifacts`), reporter: [['line'], ['json', { outputFile: browserReport }]],
+        projects: [{ name: 'chromium', use: { browserName: 'chromium', headless: true } }] };
+      const configFile = join(cohort, 'playwright.config.cjs');
+      await writeFile(configFile, `process.env.CORE_CSP_HOST_MODULE=${JSON.stringify(pathToFileURL(join(cohort, 'node-security-host.mjs')).href)};\nmodule.exports=${JSON.stringify(config)};\n`);
+      await run(`${label}-browser`, [join(root, 'node_modules/@playwright/test/cli.js'), 'test', '-c', configFile], cohort);
+      const outcomes = browserOutcomes(JSON.parse(await readFile(browserReport, 'utf8')));
+      const expected = JSON.parse(await readFile(join(root, 'tests/contracts.json'), 'utf8')).browser.required.filter(test => test.feature === 'node-security');
+      assert.ok(expected.length > 0, 'CSP cohort must have required browser cases');
+      assert.equal(outcomes.length, expected.length, 'CSP cohort must execute every registered browser case');
+      assert.ok(outcomes.every(test => test.passed), 'CSP cohort cannot pass with skipped, retried or failed browser cases');
+      for (const test of expected) assert.equal(outcomes.filter(result => result.id === JSON.stringify([test.projectName, test.title])).length, 1, 'CSP cohort required browser case missing or duplicated');
+    });
+  }
 
   await check('package.loading-angular-build', async () => {
     await cp(join(root, 'tests/fixtures/packed-loading'), join(consumer, 'loading-host'), { recursive: true });

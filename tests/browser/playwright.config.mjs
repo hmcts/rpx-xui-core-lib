@@ -2,6 +2,9 @@ import { fileURLToPath } from 'node:url';
 import { defineConfig } from '@playwright/test';
 import { reporters } from '../reporters/config.mjs';
 
+// Only isolated package-cohort configurations may select another CSP host.
+delete process.env.CORE_CSP_HOST_MODULE;
+
 const root = fileURLToPath(new URL('../../', import.meta.url));
 
 export default defineConfig({
