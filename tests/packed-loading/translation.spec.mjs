@@ -1,13 +1,15 @@
 import { expect, test } from '@playwright/test';
 import { readCache } from '../cache-upgrade/cache.mjs';
 
+const translated = phrases => ({ translations: Object.fromEntries(phrases.map(phrase => [phrase, phrase === 'Shared phrase' ? 'Ymadrodd a rennir' : `Cy: ${phrase}`])) });
+
 test('installed Translation counterpart shares providers, requests and browser cache with Core', async ({ page }) => {
   const requests = [];
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   await page.route('**/synthetic/cy', async route => {
     requests.push(route.request().postDataJSON());
-    await route.fulfill({ json: { translations: { 'Shared phrase': 'Ymadrodd a rennir' } } });
+    await route.fulfill({ json: translated(route.request().postDataJSON().phrases) });
   });
   await page.goto('/');
   await page.getByRole('button', { name: 'Load translation' }).click();
@@ -18,9 +20,11 @@ test('installed Translation counterpart shares providers, requests and browser c
   await expect(page.getByTestId('core-phrase')).toHaveText('Ymadrodd a rennir');
   await expect(page.getByTestId('legacy-phrase')).toHaveText('Ymadrodd a rennir');
   await page.waitForLoadState('networkidle');
-  expect(requests).toEqual([{ phrases: ['Shared phrase'] }]);
+  expect(requests.flatMap(request => request.phrases).sort()).toEqual(['Search work types', 'Shared phrase']);
+  await expect(page.getByRole('combobox', { name: 'Cy: Search work types' })).toBeVisible();
   await expect.poll(async () => (await readCache(page)).rows.filter(row => row.phrase === 'Shared phrase').length).toBe(1);
   const before = await readCache(page);
+  const requestCount = requests.length;
   await page.getByRole('button', { name: 'Toggle shared child' }).click();
   await expect(page.getByTestId('legacy-phrase')).toHaveCount(0);
   await expect(page.getByTestId('core-phrase')).toHaveText('Ymadrodd a rennir');
@@ -32,7 +36,7 @@ test('installed Translation counterpart shares providers, requests and browser c
   await expect(page.getByTestId('core-phrase')).toHaveText('Ymadrodd a rennir');
   await page.waitForLoadState('networkidle');
   expect(await readCache(page)).toEqual(before);
-  expect(requests).toHaveLength(1);
+  expect(requests).toHaveLength(requestCount);
   await page.getByRole('button', { name: 'Shared English' }).click();
   await expect(page.getByTestId('core-phrase')).toHaveText('Shared phrase');
   await expect(page.getByTestId('legacy-phrase')).toHaveText('Shared phrase');
@@ -45,7 +49,7 @@ test('installed Translation counterpart cancels its scoped owner without destroy
   page.on('pageerror', error => errors.push(error.message));
   await page.route('**/synthetic/cy', async route => {
     if (route.request().postDataJSON().phrases.includes('Scoped phrase')) { held = route; return; }
-    await route.fulfill({ json: { translations: { 'Shared phrase': 'Ymadrodd a rennir' } } });
+    await route.fulfill({ json: translated(route.request().postDataJSON().phrases) });
   });
   await page.goto('/');
   await page.getByRole('button', { name: 'Load translation' }).click();
