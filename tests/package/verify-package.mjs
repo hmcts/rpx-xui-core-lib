@@ -57,7 +57,7 @@ try {
   const consumer = join(scratch, 'consumer');
   const dist = join(root, 'dist/core-lib');
   const declaration = 'forms/validation/index.d.ts';
-  const sourceLicenceEntries = ['ui/checkbox-list', 'ui/gov-date', 'ui/gov-select', 'ui/search-location', 'terms/display', 'ui/gov-input', 'case/session-error', 'case/editor-date', 'browser/window', 'browser/session-storage', 'reference/locations', 'reference/ref-data', 'terms/models', 'ui/cookie', 'ui/feature-toggle', 'ui/feature-toggle-directive', 'ui/role-state', 'ui/task-data', 'case/sharing-state', 'ui/contact-details', 'ui/loading-spinner', 'ui/loading-state', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog', 'ui/banner', 'ui/form-label', 'case/models', 'case/reference', 'case/sharing'];
+  const sourceLicenceEntries = ['ui/find-task-name', 'ui/find-work-type', 'ui/search-work-type', 'ui/find-person', 'ui/filter-state', 'ui/checkbox-list', 'ui/gov-date', 'ui/gov-select', 'ui/search-location', 'terms/display', 'ui/gov-input', 'case/session-error', 'case/editor-date', 'browser/window', 'browser/session-storage', 'reference/locations', 'reference/ref-data', 'terms/models', 'ui/cookie', 'ui/feature-toggle', 'ui/feature-toggle-directive', 'ui/role-state', 'ui/task-data', 'case/sharing-state', 'ui/contact-details', 'ui/loading-spinner', 'ui/loading-state', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog', 'ui/banner', 'ui/form-label', 'case/models', 'case/reference', 'case/sharing'];
 
   // Fail before dependency setup when the legacy TypeScript entry point is absent.
   await check('package.physical-secondary-declaration', async () => {
@@ -217,6 +217,15 @@ try {
     assert.ok(!used.some(path => /hmcts-rpx-xui-core-lib-(?:ui-loading-spinner|ui-contact-details|ui-due-date|ui-accessibility|case-|forms-|i18n)|(?:^|\/)node(?:\/|$)|^node:/.test(path)));
   });
 
+  await cp(join(root, 'tests/find-person/find-person.test.mjs'), join(consumer, 'find-person.test.mjs'));
+  await cp(join(root, 'tests/find-person-component/contracts.test.mjs'), join(consumer, 'find-person-component-contracts.test.mjs'));
+  await cp(join(root, 'tests/find-person-component/stale.test.mjs'), join(consumer, 'find-person-component-stale.test.mjs'));
+  await cp(join(root, 'tests/find-person-component/reuse.test.mjs'), join(consumer, 'find-person-component-reuse.test.mjs'));
+  await check('package.find-person-behavior', () => run('find-person-behavior', ['--test', 'find-person.test.mjs', 'find-person-component-contracts.test.mjs', 'find-person-component-stale.test.mjs', 'find-person-component-reuse.test.mjs'], consumer));
+
+  await cp(join(root, 'tests/filter-state/filter-state.test.mjs'), join(consumer, 'filter-state.test.mjs'));
+  await check('package.filter-state-behavior', () => run('filter-state-behavior', ['--test', 'filter-state.test.mjs'], consumer));
+
   await cp(join(root, 'tests/session-storage/session-storage.test.mjs'), join(consumer, 'session-storage.test.mjs'));
   await check('package.session-storage-behavior', () => run('session-storage-behavior', ['--test', 'session-storage.test.mjs'], consumer));
   await check('package.session-storage-graph', async () => {
@@ -294,8 +303,16 @@ try {
   await check('package.ref-data-behavior', () => run('ref-data-behavior', ['--test', 'ref-data.test.mjs'], consumer));
 
 
+  await cp(join(root, 'tests/task-lookups/stale.test.mjs'), join(consumer, 'task-lookups.test.mjs'));
+  await check('package.task-lookups-behavior', () => run('task-lookups-behavior', ['--test', 'task-lookups.test.mjs'], consumer));
+
   /** @type {Array<[string, string, string[]]>} */
   const selectiveEntries = [
+    ['find-task-name', 'find-task-name-graph.mjs', ['ui-find-task-name', 'ui-task-data', 'browser-session-storage', 'i18n']],
+    ['search-work-type', 'search-work-type-graph.mjs', ['ui-search-work-type', 'ui-task-data', 'browser-session-storage', 'i18n']],
+    ['find-work-type', 'find-work-type-graph.mjs', ['ui-find-work-type', 'ui-search-work-type', 'ui-task-data', 'browser-session-storage', 'i18n']],
+    ['find-person', 'find-person-graph.mjs', ['ui-find-person', 'browser-session-storage', 'i18n']],
+    ['filter-state', 'filter-state-graph.mjs', ['ui-filter-state']],
     ['cookie', 'cookie-graph.mjs', ['ui-cookie']],
     ['window', 'window-graph.mjs', ['browser-window']],
     ['search-location', 'search-location-graph.mjs', ['ui-search-location', 'reference-locations', 'reference-ref-data', 'browser-session-storage', 'i18n']],

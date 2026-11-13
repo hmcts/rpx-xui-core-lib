@@ -17,7 +17,15 @@ class ValidationGallery {
   submitted = false;
 }
 
-const application = window.location.pathname === '/checkbox-list'
+const application = window.location.pathname === '/task-lookups'
+  ? import('./task-lookups').then(({ startTaskLookupsGallery }) => startTaskLookupsGallery())
+  : window.location.pathname === '/reuse-person'
+  ? import('./reuse-person').then(({ startReusePersonHost }) => startReusePersonHost())
+  : window.location.pathname === '/find-person'
+  ? import('./find-person').then(({ startFindPersonGallery }) => startFindPersonGallery())
+  : window.location.pathname === '/filter-state'
+  ? import('./filter-state').then(({ startFilterGallery }) => startFilterGallery())
+  : window.location.pathname === '/checkbox-list'
   ? import('./checkbox-list').then(({ startCheckboxListGallery }) => startCheckboxListGallery())
   : window.location.pathname === '/gov-date'
   ? import('./gov-date').then(({ startGovDateGallery }) => startGovDateGallery())

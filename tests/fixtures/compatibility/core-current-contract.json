@@ -230,6 +230,31 @@
         "input": "ui/checkbox-list",
         "glob": "LICENCE",
         "output": "ui/checkbox-list"
+      },
+      {
+        "input": "ui/filter-state",
+        "glob": "LICENCE",
+        "output": "ui/filter-state"
+      },
+      {
+        "input": "ui/find-person",
+        "glob": "LICENCE",
+        "output": "ui/find-person"
+      },
+      {
+        "input": "ui/find-task-name",
+        "glob": "LICENCE",
+        "output": "ui/find-task-name"
+      },
+      {
+        "input": "ui/search-work-type",
+        "glob": "LICENCE",
+        "output": "ui/search-work-type"
+      },
+      {
+        "input": "ui/find-work-type",
+        "glob": "LICENCE",
+        "output": "ui/find-work-type"
       }
     ],
     "allowedNonPeerDependencies": [

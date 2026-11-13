@@ -66,7 +66,7 @@
           "RpxTranslationService language changes does not replace English with a stale failed-request fallback",
           "RpxTranslationService language changes returns English for phrases matching inherited Object property names",
           "RpxTranslationService public API composition translates only static fragments and preserves repeated numeric replacements and spacing",
-          "RpxTranslationService public API composition selects Yes/No metadata and matches each input\u2019s initial letter case from one request",
+          "RpxTranslationService public API composition selects Yes/No metadata and matches each input’s initial letter case from one request",
           "RpxTranslationService public API composition restores original Yes/No inputs after a successful response without answer metadata",
           "RpxTranslationService request lifecycle batches distinct phrases and deduplicates repeated subscriptions and normalized aliases",
           "RpxTranslationService request lifecycle uses source fallback in production mode and allows a subsequent phrase to translate",
@@ -977,12 +977,284 @@
           "package.checkbox-list-graph"
         ]
       }
+    },
+    {
+      "feature": "Filter state",
+      "contracts": {
+        "unit": [
+          "filter restores same-owner local before colliding session and removes session copy",
+          "filter removes another owner local value and preserves session fallback",
+          "filter persists owned values without raw id and falls back to session without owner",
+          "filter memory precedence, stream and clear are isolated by id",
+          "filter propagates malformed stored JSON and storage errors",
+          "filter supports one DI instance with a synthetic token alias",
+          "filter memory owner must still match after a same-tab identity change",
+          "filter reads id before uid and returns undefined without user details",
+          "filter switching persistence removes the stale copy from the other store",
+          "filter rejects and removes another owner local value without a session fallback"
+        ],
+        "browser": [
+          {
+            "projectName": "chromium",
+            "title": "filter local storage checks owner across independent tabs",
+            "feature": "filter-state"
+          }
+        ],
+        "package": [
+          "package.filter-state-behavior",
+          "package.filter-state-graph"
+        ]
+      }
+    },
+    {
+      "feature": "Filter state known identity and bootstrap gap detection",
+      "contracts": {
+        "unit": [
+          "filter session value remains available after a same-tab owner change",
+          "filter stream exposes inherited previous-owner replay after a same-tab owner change",
+          "filter exposes inherited local eviction when the owner is unavailable"
+        ]
+      }
+    },
+    {
+      "feature": "Find person",
+      "contracts": {
+        "unit": [
+          "judicial search excludes already selected people and forwards search options",
+          "all-domain search joins both people lists in legacy order",
+          "Admin domain returns caseworkers",
+          "CTSC domain returns caseworkers",
+          "Legal Ops domain returns caseworkers",
+          "unknown domain and short term return empty results",
+          "display names and field-change event preserve the component contract",
+          "new input \"bob\" immediately cancels stale lookup",
+          "new input \"\" immediately cancels stale lookup",
+          "new input \"bo\" immediately cancels stale lookup",
+          "destroy cancels a pending lookup",
+          "latest lookup displays the new options and emits the cleared selection after debounce",
+          "a failed lookup clears results and a later input still works",
+          "selection emits a person and sets display text without starting another search",
+          "find-person overlapping caseworker requests retain their own assigned-user filters",
+          "find-person preserves public mapping state and role precedence",
+          "find-person preserves empty results and forwards request failures",
+          "find-person explicit injection alias shares a service and child override stays distinct",
+          "find-person snapshots an assigned-user array before a judicial response",
+          "find-person snapshots role, search term, current user and assigned array for each delayed response",
+          "find-person asynchronous mapping dispatches through public overrides",
+          "find-person nested response restores outer context and retains public mutations",
+          "find-person exception unwinds request context before a direct mapping call",
+          "find-person synchronous responses leave public mapping state intact",
+          "find-person repeated cold subscriptions retain their request snapshot",
+          "judicial search forwards its request and response",
+          "uses a parent-owned existing control and preserves its value and validators after destruction",
+          "retains an existing disabled control and does not replace parent state",
+          "creates a control with selectedPerson when absent and keeps it in parent after destroy",
+          "preserves legacy initialization when the existing entry is not a FormControl",
+          "initialization retains the legacy parent group update and validation emissions",
+          "a retained control drives lookup events until component destruction",
+          "recreating a component retains parent-owned state and leaves only the new subscription active"
+        ],
+        "browser": [
+          {
+            "projectName": "chromium",
+            "title": "new input suppresses stale response and keyboard selection keeps latest person",
+            "feature": "find-person"
+          },
+          {
+            "projectName": "chromium",
+            "title": "one default and two explicitly identified instances expose only their own live descriptions",
+            "feature": "find-person"
+          },
+          {
+            "projectName": "chromium",
+            "title": "visible group error marks the input invalid even when not submitted",
+            "feature": "find-person"
+          },
+          {
+            "projectName": "chromium",
+            "title": "a submitted child-only invalid state marks input invalid without fabricating an error",
+            "feature": "find-person"
+          },
+          {
+            "projectName": "chromium",
+            "title": "one default and two distinct idValue instances have no automated WCAG violations in error state",
+            "feature": "find-person"
+          },
+          {
+            "projectName": "chromium",
+            "title": "changing idValue updates input and live description targets together",
+            "feature": "find-person"
+          },
+          {
+            "projectName": "chromium",
+            "title": "accessible name remains meaningful across delayed translation and language switches",
+            "feature": "find-person"
+          },
+          {
+            "projectName": "chromium",
+            "title": "failed translation retains original accessible phrase",
+            "feature": "find-person"
+          },
+          {
+            "projectName": "chromium",
+            "title": "missing phrase falls back to original accessible phrase",
+            "feature": "find-person"
+          },
+          {
+            "projectName": "chromium",
+            "title": "late Welsh translation cannot overwrite the selected English name",
+            "feature": "find-person"
+          },
+          {
+            "projectName": "chromium",
+            "title": "completed Welsh response replaces the English accessible name",
+            "feature": "find-person"
+          },
+          {
+            "projectName": "chromium",
+            "title": "whitespace-only translation falls back to a non-blank accessible name",
+            "feature": "find-person"
+          },
+          {
+            "projectName": "chromium",
+            "title": "retained parent control drives lookup before and after component recreation",
+            "feature": "find-person"
+          }
+        ],
+        "package": [
+          "package.find-person-behavior",
+          "package.find-person-graph"
+        ]
+      }
+    },
+    {
+      "feature": "Find person known identity, direct-call and accessibility gap detection",
+      "contracts": {
+        "unit": [
+          "direct selection during pending debounce retains legacy follow-up search behavior",
+          "direct selection without a control value event retains the legacy active request",
+          "find-person retains prior user ID if session details are absent",
+          "find-person shared parent group uses one control with duplicate subscriptions"
+        ],
+        "browser": [
+          {
+            "projectName": "chromium",
+            "title": "multiple default hints expose the known duplicate-id gap",
+            "feature": "find-person"
+          }
+        ]
+      }
+    },
+    {
+      "feature": "Task and work-type lookups",
+      "contracts": {
+        "unit": [
+          "task-name cancels earlier response when input changes",
+          "work-type cancels earlier response when input changes",
+          "disabling work-type clears all selected values",
+          "task-name reports request failure and can search again",
+          "task-name reuses an existing parent control on recreation",
+          "task-name handles synchronous malformed cache and recovers on next input",
+          "task-name handles synchronous storage exception and recovers on next input",
+          "work-type default lookup reports error and recovers",
+          "work-type cached-service lookup reports error and recovers",
+          "task-name reports malformed task payload and accepts a later valid response",
+          "task-name retries incompatible cached results without modifying shared cache",
+          "task-name cancels an active request when its service changes",
+          "task-name retries corrupt cache without writing on a failed uncached request",
+          "task-name preserves null event and selected task object contract",
+          "work-type multi-selection excludes selected keys but single mode preserves results",
+          "work-type parent maps services and adds or removes unique selections",
+          "work-type parent single selection and submit respect subscription lifecycle",
+          "task-name uses the cached result for an unaffected service after incompatible data",
+          "task-name setting the same service preserves an active lookup",
+          "uncached task-name request uses the same endpoint and leaves storage untouched"
+        ],
+        "browser": [
+          {
+            "projectName": "chromium",
+            "title": "task-name lookup rejects an old response after input changes",
+            "feature": "task-lookups"
+          },
+          {
+            "projectName": "chromium",
+            "title": "work-type lookup rejects an old response after input changes",
+            "feature": "task-lookups"
+          },
+          {
+            "projectName": "chromium",
+            "title": "task-name shows no-results only after an empty successful response",
+            "feature": "task-lookups"
+          },
+          {
+            "projectName": "chromium",
+            "title": "task-name reports a service failure and recovers on later input",
+            "feature": "task-lookups"
+          },
+          {
+            "projectName": "chromium",
+            "title": "work-type parent initializes disabled without an Angular error",
+            "feature": "task-lookups"
+          },
+          {
+            "projectName": "chromium",
+            "title": "task-name retained parent control emits after recreation",
+            "feature": "task-lookups"
+          },
+          {
+            "projectName": "chromium",
+            "title": "task-name reports a malformed response and accepts a later valid result",
+            "feature": "task-lookups"
+          },
+          {
+            "projectName": "chromium",
+            "title": "work-type default lookup reports error and recovers",
+            "feature": "task-lookups"
+          },
+          {
+            "projectName": "chromium",
+            "title": "work-type cached-service lookup reports error and recovers",
+            "feature": "task-lookups"
+          },
+          {
+            "projectName": "chromium",
+            "title": "task-name ignores stale success after the service changes",
+            "feature": "task-lookups"
+          },
+          {
+            "projectName": "chromium",
+            "title": "task-name ignores stale error after the service changes",
+            "feature": "task-lookups"
+          }
+        ],
+        "package": [
+          "package.task-lookups-behavior",
+          "package.find-task-name-graph",
+          "package.search-work-type-graph",
+          "package.find-work-type-graph"
+        ]
+      }
+    },
+    {
+      "feature": "Task and work-type known accessibility gap detection",
+      "contracts": {
+        "browser": [
+          {
+            "projectName": "chromium",
+            "title": "multiple lookup instances expose legacy duplicate IDs and task-name description gap",
+            "feature": "task-lookups"
+          }
+        ]
+      }
     }
   ],
   "suiteGroups": [],
   "fallbacks": [],
   "unmigrated": [
     "This report does not establish migration completeness, consumer adoption, production coverage or a release decision.",
-    "Case editor, stateful Node migration and other source-library capabilities remain incomplete or unverified."
+    "Case editor, stateful Node migration and other source-library capabilities remain incomplete or unverified.",
+    "Filter state retains session and stream values across a same-tab account change, and an uncached read before owner information is available removes the local filter. Consumer adoption and release remain blocked until these boundaries are resolved or the supported lifecycle is proven safe.",
+    "Find person retains identity without user details and direct selection without a control-value event can leave an old search active. Instances sharing a default or identical idValue still have duplicate input, hint and error IDs; the accessible name uses a translated phrase with an English fallback; pending names include an English translation-in-progress marker; real Welsh content and screen-reader acceptance are unverified. Multiple instances sharing one parent FormGroup still share a control and can issue duplicate lookups; replacing the parent group after initialization is unverified. Hint and error DOM IDs now include the supplied idValue, so external references require cutover verification. Consumer adoption requires application identity, accessibility and provider integration validation.",
+    "Task and work-type lookup default IDs can collide and task-name hint/error descriptions are not associated. Incompatible task-name cache data causes subsequent searches for that service to bypass cache without writing until picker recreation, increasing requests; recreation can encounter the same cache again. Real consumer dependency injection, Welsh error copy and assistive-technology acceptance remain unverified."
   ]
 }

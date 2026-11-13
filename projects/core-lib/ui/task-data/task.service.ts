@@ -30,6 +30,11 @@ export class TaskService {
     );
   }
 
+  /** Read directly without changing the shared cache, for a consumer that cannot use a cached response. */
+  public getTaskNameUncached(service: string): Observable<TaskNameModel[]> {
+    return this.http.post<TaskNameModel[]>(`${TaskService.WORK_ALLOCATION_API}/taskNames`, {service});
+  }
+
   /**
    * @return Observable<any[]>: Array of work-type in Observable
    */

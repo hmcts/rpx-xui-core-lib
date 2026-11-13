@@ -85,3 +85,14 @@ class DefaultLoadingState extends HasLoadingState {}
 export const defaultLoadingState: HasLoadingState = new DefaultLoadingState();
 export const loadingService: HasLoadingState = new LoadingService();
 export const loadingRegistration: string = loadingService instanceof LoadingService ? loadingService.register() : '';
+
+import { FilterService, FilterSetting, FilterPersistence, FilterError } from '@hmcts/rpx-xui-core-lib/ui/filter-state';
+export const filterSetting: FilterSetting = { id: 'filter', fields: [{ name: 'status', value: ['open'] }] };
+export const filterPersistence: FilterPersistence = 'session';
+export const filterError: FilterError = { name: 'status', error: 'invalid' };
+export { FilterService };
+export const legacyFilterValueType: IsAny<FilterSetting['fields'][number]['value'][number]> = true;
+
+import { FindPersonModule, FindPersonComponent, FindAPersonService, type SearchOptions, PersonRole } from '@hmcts/rpx-xui-core-lib/ui/find-person';
+export { FindPersonModule, FindPersonComponent, FindAPersonService };
+export const personSearch: SearchOptions = { searchTerm: 'test', userRole: PersonRole.ADMIN, services: ['test'] };
