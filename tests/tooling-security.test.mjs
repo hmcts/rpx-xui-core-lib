@@ -36,18 +36,25 @@ test('only the seven reviewed tooling parents resolve the fixed upstream release
     'eslint@npm:10.14.0/minimatch': '11.0.8',
     '@eslint/config-array@npm:0.23.5/minimatch': '11.0.8',
     '@typescript-eslint/typescript-estree@npm:8.72.2/minimatch': '11.0.8',
-    '@npmcli/package-json@npm:7.0.5/glob': '14.0.4',
-    'cacache@npm:20.0.4/glob': '14.0.4',
+    '@npmcli/package-json@npm:7.0.5/glob': '14.0.6',
+    'cacache@npm:20.0.4/glob': '14.0.6',
     'ignore-walk@npm:8.0.0/minimatch': '11.0.8',
     '@tufjs/models@npm:4.1.0/minimatch': '11.0.8',
   });
   for (const parent of [eslint, configArray, estree, ignoreWalk, tuf]) assert.equal(parent('minimatch/package.json').version, '11.0.8');
-  assert.equal(packageJson('glob/package.json').version, '14.0.4');
+  assert.equal(packageJson('glob/package.json').version, '14.0.6');
   const cache = createRequire(pacote.resolve('cacache'));
-  assert.equal(cache('glob/package.json').version, '14.0.4');
+  assert.equal(cache('glob/package.json').version, '14.0.6');
   const runScript = createRequire(pacote.resolve('@npmcli/run-script'));
   const scriptPackageJson = createRequire(runScript.resolve('@npmcli/package-json'));
-  assert.equal(scriptPackageJson('glob/package.json').version, '14.0.4');
+  assert.equal(scriptPackageJson('glob/package.json').version, '14.0.6');
+});
+
+test('glob applies its brace expansion bound to ignore patterns', async t => {
+  const root = await fixture(t);
+  await writeFile(join(root, 'file.txt'), '');
+  const payload = Array.from({ length: 14 }, (_, i) => `**/../x${i}/y${i}`).join('/');
+  assert.throws(() => glob.sync('*', { cwd: root, ignore: [payload] }), /too many patterns/i);
 });
 
 test('ESLint preserves recursive and dot-file discovery, ignores and real rule failures', async t => {
@@ -104,7 +111,7 @@ test('cacache verifies and removes only its own indexed and content cache trees'
   await mkdir(sibling);
   await writeFile(join(sibling, 'sentinel'), 'outside cache');
   const cacheRequire = createRequire(pacote.resolve('cacache'));
-  assert.equal(cacheRequire('glob/package.json').version, '14.0.4');
+  assert.equal(cacheRequire('glob/package.json').version, '14.0.6');
   const cacache = pacote('cacache');
   const kept = await cacache.put(cache, 'retained', 'retained content');
   const orphan = await cacache.put(cache, 'removed', 'orphan content');
