@@ -13,7 +13,7 @@ window.reuseProbe = { requestCount: () => requests.length };
   imports: [FindPersonModule],
   template: `<main><h1>Retained control</h1>
     @if (visible) {
-      <xuilib-find-person [domain]="role" [findPersonGroup]="group" selectedPerson="different initial value" (personSelected)="onSelected($event)"></xuilib-find-person>
+      <xuilib-find-person idValue="reuse" [domain]="role" [findPersonGroup]="group" selectedPerson="different initial value" (personSelected)="onSelected($event)"></xuilib-find-person>
     }
     <button type="button" (click)="visible = !visible">Toggle component</button>
     <button type="button" (click)="control.disable({emitEvent: false})">Disable control</button>

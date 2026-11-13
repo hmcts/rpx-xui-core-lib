@@ -115,7 +115,7 @@ gov-date-select|empty date and select messages never reference absent error elem
 checkbox-list|checkbox list instances keep labels and selections independent
 checkbox-list|checkbox list supports keyboard selection and select-all transitions
 find-person|new input suppresses stale response and keyboard selection keeps latest person
-find-person|multiple default hints expose the known duplicate-id gap
+find-person|multiple default lookup instances keep input and description ids unique
 find-person|one default and two explicitly identified instances expose only their own live descriptions
 find-person|visible group error marks the input invalid even when not submitted
 find-person|a submitted child-only invalid state marks input invalid without fabricating an error
@@ -138,7 +138,7 @@ task-lookups|task-name shows no-results only after an empty successful response
 task-lookups|task-name reports a service failure and recovers on later input
 task-lookups|work-type parent initializes disabled without an Angular error
 task-lookups|task-name retained parent control emits after recreation
-task-lookups|task-name instance suffixes isolate descriptions while work-type retains legacy IDs
+task-lookups|default task-name instances receive unique ids while work-type retains legacy IDs
 task-lookups|task-name exposes its hint as an accessible description
 task-lookups|task-name descriptions follow rendered group errors and hints
 task-lookups|task-name exposes the existing submitted control invalid state

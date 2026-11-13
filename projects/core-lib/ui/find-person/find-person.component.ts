@@ -14,6 +14,8 @@ import { FindAPersonService } from './find-person.service';
 })
 
 export class FindPersonComponent implements OnInit, OnDestroy {
+  private static nextDefaultId = 0;
+  private generatedId?: string;
   @Output() public personSelected = new EventEmitter<Person>();
   @Output() public personFieldChanged = new EventEmitter<void>();
   @Input() public title: string;
@@ -33,6 +35,14 @@ export class FindPersonComponent implements OnInit, OnDestroy {
   @Input() public idValue: string = '';
   @Input() public services: string = 'IA';
   @Input() public disabled: boolean = null;
+  public get effectiveId(): string {
+    if (this.idValue) return this.idValue;
+    if (this.generatedId === undefined) {
+      const sequence = FindPersonComponent.nextDefaultId++;
+      this.generatedId = sequence === 0 ? '' : `person-${sequence}`;
+    }
+    return this.generatedId;
+  }
   public showAutocomplete: boolean = false;
   public findPersonControl: FormControl;
   public filteredOptions: Person[] = [];
@@ -40,8 +50,8 @@ export class FindPersonComponent implements OnInit, OnDestroy {
   private sub: Subscription;
   private readonly selectionChanged = new Subject<void>();
 
-  public get hintId(): string { return `sub-title-hint${this.idValue || ''}`; }
-  public get errorId(): string { return `validation-error${this.idValue || ''}`; }
+  public get hintId(): string { return `sub-title-hint${this.effectiveId}`; }
+  public get errorId(): string { return `validation-error${this.effectiveId}`; }
   public get descriptionIds(): string | null {
     return [this.subTitle?.length ? this.hintId : null, this.findPersonGroup?.errors ? this.errorId : null].filter(Boolean).join(' ') || null;
   }

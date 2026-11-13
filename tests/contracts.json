@@ -492,7 +492,7 @@
       },
       {
         "projectName": "chromium",
-        "title": "multiple default hints expose the known duplicate-id gap",
+        "title": "multiple default lookup instances keep input and description ids unique",
         "feature": "find-person"
       },
       {
@@ -607,7 +607,7 @@
       },
       {
         "projectName": "chromium",
-        "title": "task-name instance suffixes isolate descriptions while work-type retains legacy IDs",
+        "title": "default task-name instances receive unique ids while work-type retains legacy IDs",
         "feature": "task-lookups"
       },
       {

@@ -21,7 +21,7 @@
     @if (lookupFailed) {
       <p role="alert" class="govuk-error-message">{{ 'Unable to search for task names. Try again.' | rpxTranslate }}</p>
     }
-    <input id="inputSelectTaskName{{idValue}}" type="text" [attr.aria-label]="('select a task name' | rpxTranslate)?.trim() || 'select a task name'"
+    <input id="inputSelectTaskName{{effectiveId}}" type="text" [attr.aria-label]="('select a task name' | rpxTranslate)?.trim() || 'select a task name'"
       [attr.aria-describedby]="descriptionIds"
       [attr.aria-invalid]="findTaskNameControl?.invalid && submitted ? 'true' : null"
       formControlName="findTaskNameControl"

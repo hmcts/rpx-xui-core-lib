@@ -55,7 +55,7 @@ test('work-type parent initializes disabled without an Angular error', async ({ 
 });
 
 test('task-name retained parent control emits after recreation', async ({ page }) => {
-  await page.goto('/task-lookups?retained'); const input = page.locator('#inputSelectTaskName');
+  await page.goto('/task-lookups?retained'); const input = page.locator('#inputSelectTaskNameretained');
   await expect(input).toHaveValue('Retained'); await input.fill('abc');
   await expect.poll(() => page.evaluate(() => window.lookupHarness.counts()[0])).toBe(1);
   await expect(page.getByTestId('task-selected')).toHaveText('null');
@@ -64,15 +64,16 @@ test('task-name retained parent control emits after recreation', async ({ page }
   await input.fill('def'); await expect.poll(() => page.evaluate(() => window.lookupHarness.counts()[0])).toBe(2);
 });
 
-test('task-name instance suffixes isolate descriptions while work-type retains legacy IDs', async ({ page }) => {
+test('default task-name instances receive unique ids while work-type retains legacy IDs', async ({ page }) => {
   await page.goto('/task-lookups?duplicates');
   await expect(page.locator('[id="inputSelectTaskName"]')).toHaveCount(1);
-  await expect(page.locator('[id="inputSelectTaskNamesecond"]')).toHaveCount(1);
+  await expect(page.locator('[id="inputSelectTaskNametask-name-1"]')).toHaveCount(1);
   await expect(page.locator('[id="inputWorkTypeSearch"]')).toHaveCount(2);
   await expect(page.locator('#inputSelectTaskName')).toHaveAttribute('aria-describedby', 'sub-title-hint');
-  await expect(page.locator('#inputSelectTaskNamesecond')).toHaveAttribute('aria-describedby', 'sub-title-hintsecond');
+  await expect(page.locator('#inputSelectTaskNametask-name-1')).toHaveAttribute('aria-describedby', 'sub-title-hinttask-name-1');
   await expect(page.locator('[id="sub-title-hint"]')).toHaveCount(1);
-  await expect(page.locator('[id="sub-title-hintsecond"]')).toHaveCount(1);
+  await expect(page.locator('[id="sub-title-hinttask-name-1"]')).toHaveCount(1);
+  await expect(page.locator('[id="inputSelectTaskNametask-name-1"]')).toHaveAccessibleName('select a task name');
 });
 
 test('task-name reports a malformed response and accepts a later valid result', async ({ page }) => {

@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 test('retained parent control drives lookup before and after component recreation', async ({ page }) => {
   await page.goto('/reuse-person');
-  const input = page.locator('#inputSelectPerson');
+  const input = page.locator('#inputSelectPersonreuse');
   await expect(input).toHaveValue('retained');
   await expect(page.getByTestId('required')).toHaveText('true');
   await input.fill('alice');

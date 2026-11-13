@@ -18,7 +18,7 @@
         <span class="govuk-visually-hidden">{{'Error:' | rpxTranslate}}</span>{{findPersonGroup.errors.error ? findPersonGroup.errors.error : errorMessage}}
       </span>
     }
-    <input id="inputSelectPerson{{idValue}}" type="text" [attr.aria-label]="('select a person' | rpxTranslate)?.trim() || 'select a person'"
+    <input id="inputSelectPerson{{effectiveId}}" type="text" [attr.aria-label]="('select a person' | rpxTranslate)?.trim() || 'select a person'"
       [attr.aria-describedby]="descriptionIds"
       [attr.aria-invalid]="findPersonGroup.errors || (findPersonControl.invalid && submitted) ? 'true' : null"
       formControlName="findPersonControl"

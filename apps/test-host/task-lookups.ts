@@ -26,7 +26,7 @@ window.lookupHarness = {
   selector: 'core-task-lookups-host',
   imports: [CommonModule, FindTaskNameModule, SearchWorkTypeModule, FindWorkTypeModule],
   template: `<main><h1>Task and work lookups</h1>
-    @if (showTask) { <xuilib-find-task-name [services]="taskServices" [subTitle]="taskSubtitle" [findTaskNameGroup]="taskForm" (taskNameSelected)="selectTask($event)"></xuilib-find-task-name> }
+    @if (showTask) { <xuilib-find-task-name [idValue]="retained ? 'retained' : ''" [services]="taskServices" [subTitle]="taskSubtitle" [findTaskNameGroup]="taskForm" (taskNameSelected)="selectTask($event)"></xuilib-find-task-name> }
     <button type="button" (click)="taskServices = 'B'">Change task service</button>
     @if (taskA11y) {
       <button type="button" (click)="taskForm.setErrors({error: 'Select a valid task name'})">Show task error</button>
@@ -48,7 +48,7 @@ window.lookupHarness = {
       <exui-search-work-type [form]="workForm" [field]="field" [showLabel]="!externalWorkLabel"></exui-search-work-type>
     }
     @if (duplicates) {
-      <xuilib-find-task-name [idValue]="'second'" [findTaskNameGroup]="secondTaskForm"></xuilib-find-task-name>
+      <xuilib-find-task-name [findTaskNameGroup]="secondTaskForm"></xuilib-find-task-name>
       <exui-search-work-type [form]="workForm" [field]="field"></exui-search-work-type>
     }
     <p data-testid="task-selected">{{ taskSelected }}</p>
