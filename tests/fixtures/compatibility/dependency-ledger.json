@@ -99,7 +99,8 @@
       ],
       "classification": "peerDependency",
       "selection": "20.2.14",
-      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+      "optional": true,
+      "optionalReason": "The Node-only exports do not import CDK; Angular entries that use CDK must provide the peer."
     },
     {
       "name": "@angular/common",
@@ -178,8 +179,9 @@
         }
       ],
       "classification": "peerDependency",
-      "selection": "20.3.35",
-      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+      "selection": "^20.3.27",
+      "optional": true,
+      "optionalReason": "The Node-only exports do not import Angular; Angular entries require this peer at build time."
     },
     {
       "name": "@angular/compiler",
@@ -277,8 +279,9 @@
         }
       ],
       "classification": "peerDependency",
-      "selection": "20.3.35",
-      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+      "selection": "^20.3.27",
+      "optional": true,
+      "optionalReason": "The Node-only exports do not import Angular; Angular entries require this peer at build time."
     },
     {
       "name": "@angular/forms",
@@ -338,8 +341,9 @@
         }
       ],
       "classification": "peerDependency",
-      "selection": "20.3.35",
-      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+      "selection": "^20.3.27",
+      "optional": true,
+      "optionalReason": "The Node-only exports do not import Angular Forms; form entries require this peer at build time."
     },
     {
       "name": "@angular/localize",
@@ -405,7 +409,8 @@
       ],
       "classification": "peerDependency",
       "selection": "20.2.14",
-      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+      "optional": true,
+      "optionalReason": "The Node-only and non-Material entries do not import Material; entries using it require the peer at build time."
     },
     {
       "name": "@angular/material-moment-adapter",
@@ -478,8 +483,9 @@
         }
       ],
       "classification": "peerDependency",
-      "selection": "20.3.35",
-      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+      "selection": "^20.3.27",
+      "optional": true,
+      "optionalReason": "The Node-only exports do not import Angular platform-browser; browser entries require this peer at build time."
     },
     {
       "name": "@angular/platform-browser-dynamic",
@@ -2030,8 +2036,9 @@
         }
       ],
       "classification": "peerDependency",
-      "selection": "7.8.2",
-      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+      "selection": "^7.8.0",
+      "optional": true,
+      "optionalReason": "The Node-only exports do not import RxJS; entries that use observables require the peer at build time."
     },
     {
       "name": "rxjs-compat",

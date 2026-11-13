@@ -43,15 +43,37 @@
   },
   "overrides": {},
   "libraryPeerDependencies": {
-    "@angular/common": "20.3.35",
-    "@angular/core": "20.3.35",
-    "@angular/forms": "20.3.35",
-    "rxjs": "7.8.2",
+    "@angular/common": "^20.3.27",
+    "@angular/core": "^20.3.27",
+    "@angular/forms": "^20.3.27",
+    "rxjs": "^7.8.0",
     "@angular/material": "20.2.14",
     "@angular/cdk": "20.2.14",
-    "@angular/platform-browser": "20.3.35"
+    "@angular/platform-browser": "^20.3.27"
   },
-  "libraryPeerDependenciesMeta": {},
+  "libraryPeerDependenciesMeta": {
+    "@angular/common": {
+      "optional": true
+    },
+    "@angular/core": {
+      "optional": true
+    },
+    "@angular/forms": {
+      "optional": true
+    },
+    "rxjs": {
+      "optional": true
+    },
+    "@angular/material": {
+      "optional": true
+    },
+    "@angular/cdk": {
+      "optional": true
+    },
+    "@angular/platform-browser": {
+      "optional": true
+    }
+  },
   "libraryDependencies": {
     "dexie": "4.4.7",
     "luxon": "2.5.2",
