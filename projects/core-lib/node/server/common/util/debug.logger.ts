@@ -18,13 +18,14 @@ let color = 1
 export const getLogger = (namespace: string, delimiter = ':'): XuiLogger => {
     let logger: debug.Debugger = debug('xuiNode')
     namespace.split(delimiter).forEach((newNamespace: string) => {
-        if (!cache.has(newNamespace)) {
+        const qualifiedNamespace = `${logger.namespace}:${newNamespace}`
+        if (!cache.has(qualifiedNamespace)) {
             const newLogger = logger.extend(newNamespace)
             newLogger.color = String(color)
-            cache.set(newNamespace, newLogger)
+            cache.set(qualifiedNamespace, newLogger)
             color += 1
         }
-        logger = cache.get(newNamespace) as debug.Debugger
+        logger = cache.get(qualifiedNamespace) as debug.Debugger
     })
     // Resolve console.info at write time so instrumentation added after logger
     // creation, such as Application Insights console patching, still sees logs.
