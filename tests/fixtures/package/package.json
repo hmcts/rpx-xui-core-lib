@@ -14,7 +14,16 @@
     "tslib": "2.8.1",
     "typescript": "5.9.3",
     "axios": "^1.20.0",
+    "express": "5.2.1",
+    "express-session": "1.19.0",
+    "passport": "0.7.0",
     "@angular/material": "20.2.14",
-    "@angular/cdk": "20.2.14"
+    "@angular/cdk": "20.2.14",
+    "@types/node": "24.10.1",
+    "@types/express": "5.0.6",
+    "@types/express-session": "1.19.0",
+    "@types/passport": "^1.0.2",
+    "@types/passport-oauth2": "^1.4.9",
+    "helmet": "8.3.0"
   }
 }

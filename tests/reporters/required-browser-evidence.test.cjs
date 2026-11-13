@@ -147,7 +147,10 @@ task-lookups|task-name reports a malformed response and accepts a later valid re
 task-lookups|work-type default lookup reports error and recovers
 task-lookups|work-type cached-service lookup reports error and recovers
 task-lookups|task-name ignores stale success after the service changes
-task-lookups|task-name ignores stale error after the service changes`.split('\n').map(row => {
+task-lookups|task-name ignores stale error after the service changes
+node-security|CSP enforcement runs nonce scripts and styles while blocking unapproved inline code
+node-security|CSP report-only emits its header and allows the identical unapproved script to execute
+node-security|CSP reload receives a new nonce matching the served script`.split('\n').map(row => {
   const [feature, title] = row.split('|');
   return ['chromium', title, feature];
 });

@@ -63,6 +63,12 @@ export const invalidSharedCase: SharedCase = { caseTitle: 'Title' };
 import { http } from '@hmcts/rpx-xui-core-lib/node/http';
 export const get = http.get;
 
+import type {} from '@hmcts/rpx-xui-core-lib/node/server';
+type PublishedRequest = import('express-serve-static-core').Request;
+export const refreshRequest: PublishedRequest['isRefresh'] = true;
+type PublishedSession = import('express-session').Session;
+export const passportSession: PublishedSession['passport'] = { user: 'consumer-defined' };
+
 import { DueDateComponent, DueDateModule, DateBadgeColour, SECONDS_IN_A_DAY } from '@hmcts/rpx-xui-core-lib/ui/due-date';
 export { DueDateComponent, DueDateModule, DateBadgeColour, SECONDS_IN_A_DAY };
 
@@ -89,3 +95,4 @@ export const loadingRegistration: string = loadingService instanceof LoadingServ
 import { FindPersonModule, FindPersonComponent, FindAPersonService, type SearchOptions, PersonRole } from '@hmcts/rpx-xui-core-lib/ui/find-person';
 export { FindPersonModule, FindPersonComponent, FindAPersonService };
 export const personSearch: SearchOptions = { searchTerm: 'test', userRole: PersonRole.ADMIN, services: ['test'] };
+export * from './node-security-types';

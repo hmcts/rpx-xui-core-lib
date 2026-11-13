@@ -1,4 +1,5 @@
 import { test } from 'node:test';
+import { spawnSync } from 'node:child_process';
 import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -51,4 +52,12 @@ test('eager fault requires the date assertion rather than an unrelated session f
   assert.doesNotThrow(() => assertEagerDateFailure(make('Date chunk must not be requested before activation')));
   assert.throws(() => assertEagerDateFailure(make('Session chunk must not be requested before activation')), /Date chunk/);
   assert.throws(() => assertEagerDateFailure({ suites: [] }), /exactly one/);
+});
+
+test('ordinary browser configuration cannot inherit a package cohort CSP host', () => {
+  const config = new URL('./browser/playwright.config.mjs', import.meta.url).href;
+  const result = spawnSync(process.execPath, ['--input-type=module', '-e',
+    `await import(${JSON.stringify(config)}); if (process.env.CORE_CSP_HOST_MODULE !== undefined) process.exitCode = 1;`],
+  { env: { ...process.env, CORE_CSP_HOST_MODULE: 'file:///synthetic-stale-host.mjs' }, encoding: 'utf8' });
+  assert.equal(result.status, 0, result.stderr || 'Ordinary browser lane retained a CSP cohort override');
 });

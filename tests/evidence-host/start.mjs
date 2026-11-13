@@ -6,6 +6,7 @@ import { pathToFileURL } from 'node:url';
 
 const target = process.argv[2];
 if (!['gallery', 'i18n'].includes(target)) throw new Error('Unknown host');
+const hostPort = target === 'i18n' ? process.env.CORE_I18N_PORT : process.env.CORE_HOST_PORT;
 let proxy;
 let identityServer;
 if (process.env.CORE_EVIDENCE_RUN_ID) {
@@ -24,7 +25,7 @@ if (process.env.CORE_EVIDENCE_RUN_ID) {
   const original = target === 'gallery' ? `import original from ${JSON.stringify(pathToFileURL(resolve('apps/test-host/local-translations.mjs')).href)};` : 'const original = {};';
   writeFileSync(proxy, `${original}\nexport default { ...original, [${JSON.stringify(route)}]: { target: ${JSON.stringify(`http://127.0.0.1:${address.port}`)}, secure: false } };\n`);
 }
-const args = target === 'gallery' ? ['scripts/dev.mjs'] : ['node_modules/@angular/cli/bin/ng.js', 'serve', 'translation-tests', ...(process.env.CORE_HOST_PORT ? ['--port', process.env.CORE_HOST_PORT] : []), ...(proxy ? ['--proxy-config', proxy] : [])];
+const args = target === 'gallery' ? ['scripts/dev.mjs'] : ['node_modules/@angular/cli/bin/ng.js', 'serve', 'translation-tests', ...(hostPort ? ['--port', hostPort] : []), ...(proxy ? ['--proxy-config', proxy] : [])];
 const child = spawn(process.execPath, args, { stdio: 'inherit', env: { ...process.env, ...(proxy ? { CORE_HOST_PROXY_CONFIG: proxy } : {}) } });
 let closing = false;
 function close(signal) {

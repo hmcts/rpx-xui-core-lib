@@ -1,5 +1,6 @@
 import '@angular/compiler';
 import assert from 'node:assert/strict';
+import { createRequire } from 'node:module';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Draft, DRAFT_PREFIX } from '@hmcts/rpx-xui-core-lib/case/models';
 import { CaseReferencePipe, CaseReferenceModule } from '@hmcts/rpx-xui-core-lib/case/reference';
@@ -34,6 +35,17 @@ assert.equal(reference.transform('DRAFT123'), 'DRAFT');
 assert.equal(reference.transform('Label [1234567890123456](/cases/1234567890123456)'), 'Label [1234-5678-9012-3456](/cases/1234567890123456)');
 assert.ok(CaseReferenceModule.ɵmod);
 
+const { XuiNode, xuiNode, getLogger } = await import('@hmcts/rpx-xui-core-lib/node/server');
+const require = createRequire(import.meta.url);
+assert.ok(xuiNode instanceof XuiNode);
+assert.equal(typeof getLogger, 'function');
+assert.ok(!Object.keys(require.cache).some(path => /node_modules\/(passport|openid-client|session-file-store|helmet)\//.test(path)), 'Importing the server facade must not load auth or session implementations');
+const { OIDC, OAUTH2, S2S, oidc, oauth2, s2s } = await import('@hmcts/rpx-xui-core-lib/node/server/auth');
+const { SESSION, fileStore, redisStore } = await import('@hmcts/rpx-xui-core-lib/node/server/session');
+assert.ok(OIDC && oidc && OAUTH2 && oauth2 && S2S && s2s);
+assert.ok(SESSION && fileStore && redisStore);
+console.log('Installed Node runtime entries: selective server, auth and session loading passed');
+
 const required = { requireOneCheckboxToBeChecked: true };
 for (const { values, minimum, errors } of [
   { values: {}, errors: required },
@@ -49,6 +61,7 @@ for (const { values, minimum, errors } of [
   assert.deepEqual(form.errors, errors);
 }
 console.log('Installed validator: all seven contracts passed');
+
 
 const { SharedCaseErrorMessages } = await import('@hmcts/rpx-xui-core-lib/case/sharing');
 assert.deepEqual(Object.values(SharedCaseErrorMessages), [

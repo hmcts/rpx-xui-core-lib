@@ -28,7 +28,7 @@ async function fixture(/** @type {import('node:test').TestContext} */ t) {
   return root;
 }
 
-test('only the seven reviewed tooling parents resolve the fixed upstream releases', () => {
+test('only the reviewed tooling parents resolve the pinned security fixes', () => {
   const manifest = require('../package.json');
   assert.equal(manifest.devDependencies.eslint, '10.14.0');
   assert.equal(manifest.devDependencies['typescript-eslint'], '8.72.2');
@@ -40,6 +40,12 @@ test('only the seven reviewed tooling parents resolve the fixed upstream release
     'cacache@npm:20.0.4/glob': '14.0.6',
     'ignore-walk@npm:8.0.0/minimatch': '11.0.8',
     '@tufjs/models@npm:4.1.0/minimatch': '11.0.8',
+    '@jest/reporters@npm:30.5.1/glob': '14.0.6',
+    'jest-config@npm:30.5.1/glob': '14.0.6',
+    'jest-runtime@npm:30.5.1/glob': '14.0.6',
+    'test-exclude@npm:7.0.2/glob': '14.0.6',
+    'test-exclude@npm:7.0.2/minimatch': '11.0.8',
+    'jest-config@npm:30.5.1/deepmerge': 'npm:@shivammathur/deepmerge@4.3.2',
   });
   for (const parent of [eslint, configArray, estree, ignoreWalk, tuf]) assert.equal(parent('minimatch/package.json').version, '11.0.8');
   assert.equal(packageJson('glob/package.json').version, '14.0.6');
@@ -48,6 +54,14 @@ test('only the seven reviewed tooling parents resolve the fixed upstream release
   const runScript = createRequire(pacote.resolve('@npmcli/run-script'));
   const scriptPackageJson = createRequire(runScript.resolve('@npmcli/package-json'));
   assert.equal(scriptPackageJson('glob/package.json').version, '14.0.6');
+  const nodeWorkspace = createRequire(new URL('../projects/core-lib/node/package.json', import.meta.url));
+  for (const parent of ['@jest/reporters', 'jest-config', 'jest-runtime', 'test-exclude']) {
+    assert.equal(createRequire(nodeWorkspace.resolve(parent))('glob/package.json').version, '14.0.6');
+  }
+  assert.equal(createRequire(nodeWorkspace.resolve('test-exclude'))('minimatch/package.json').version, '11.0.8');
+  const patchedMerge = createRequire(nodeWorkspace.resolve('jest-config'))('deepmerge/package.json');
+  assert.equal(patchedMerge.name, '@shivammathur/deepmerge');
+  assert.equal(patchedMerge.version, '4.3.2');
 });
 
 test('glob applies its brace expansion bound to ignore patterns', async t => {
@@ -231,4 +245,26 @@ test('fixed minimatch bounds retained cache memory, long-pattern work and excess
   assert.equal(result.error, undefined, result.error?.message);
   assert.equal(result.status, 0, result.stderr.slice(-1000));
   assert.equal(result.stdout.trim(), 'bounded');
+});
+
+test('Jest config merging keeps normal merge contracts and rejects prototype keys', () => {
+  const nodeWorkspace = createRequire(new URL('../projects/core-lib/node/package.json', import.meta.url));
+  const jestConfig = createRequire(nodeWorkspace.resolve('jest-config'));
+  const merge = jestConfig('deepmerge');
+  const source = { globals: { feature: true }, testMatch: ['second'] };
+  const result = merge.all([{ globals: { existing: true }, testMatch: ['first'] }, source]);
+  assert.deepEqual(result, { globals: { existing: true, feature: true }, testMatch: ['first', 'second'] });
+  assert.notEqual(result.globals, source.globals);
+  assert.deepEqual(merge({ list: [1] }, { list: [2] }, { arrayMerge: (_target, items) => items }), { list: [2] });
+  assert.deepEqual(merge({ setting: { a: 1 } }, { setting: { b: 2 } }, {
+    customMerge: key => key === 'setting' ? (_target, value) => value : undefined,
+  }), { setting: { b: 2 } });
+  const reserved = JSON.parse('{"__proto__":{"marker":true},"safe":1}');
+  for (const [target, incoming] of [[reserved, {}], [Object.create(null), reserved]]) {
+    const merged = merge(target, incoming, { clone: false });
+    assert.equal(Object.getPrototypeOf(merged), Object.prototype);
+    assert.equal(Object.hasOwn(merged, '__proto__'), false);
+    assert.equal(merged.marker, undefined);
+    assert.equal(merged.safe, 1);
+  }
 });

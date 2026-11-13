@@ -194,6 +194,18 @@
   "allowedNonPeerDependencies": [
     "dexie",
     "luxon",
-    "axios"
+    "axios",
+    "@dr.pogodin/csurf",
+    "connect-redis",
+    "debug",
+    "express-session",
+    "joi",
+    "jwt-decode",
+    "openid-client",
+    "otplib",
+    "passport",
+    "passport-oauth2",
+    "redis",
+    "session-file-store"
   ]
 }

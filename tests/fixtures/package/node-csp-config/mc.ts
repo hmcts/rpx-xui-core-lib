@@ -1,0 +1,87 @@
+import { csp } from '@hmcts/rpx-xui-core-lib/node/server/security';
+import { getConfigValue, showFeature } from './synthetic-configuration';
+import { DYNATRACE_CDN, FEATURE_DYNATRACE_ENABLED } from './synthetic-configuration';
+
+function getDynatraceCdn(): string | null {
+  if (!showFeature(FEATURE_DYNATRACE_ENABLED)) {
+    return null;
+  }
+
+  return getConfigValue<string>(DYNATRACE_CDN)?.trim() || null;
+}
+
+function resolveDynatraceOrigin(): string | null {
+  const dynatraceCdn = getDynatraceCdn();
+  if (!dynatraceCdn) {
+    return null;
+  }
+
+  try {
+    return new URL(dynatraceCdn).origin;
+  } catch {
+    return null;
+  }
+}
+
+function resolveDynatraceBeaconOrigin(): string | null {
+  const dynatraceCdn = getDynatraceCdn();
+  if (!dynatraceCdn) {
+    return null;
+  }
+
+  try {
+    // CDN path format: /jstag/<version>/<tenantId>/<appId>_complete.js
+    const tenantId = new URL(dynatraceCdn).pathname.split('/')[3];
+    if (!tenantId) {
+      return null;
+    }
+    return `https://${tenantId}.bf.dynatrace.com`;
+  } catch {
+    return null;
+  }
+}
+
+const dynatraceOrigin = resolveDynatraceOrigin();
+const dynatraceBeaconOrigin = resolveDynatraceBeaconOrigin();
+
+export const MC_CSP: Parameters<typeof csp>[0] = {
+  /* ── hosts common to every MC environment ─────────────── */
+  extraScript: [
+    "'wasm-unsafe-eval'",
+    'https://www.googletagmanager.com',
+    'https://www.google-analytics.com',
+    'az416426.vo.msecnd.net',
+    dynatraceOrigin || '',
+  ].filter(Boolean),
+
+  extraStyle: ['https://fonts.googleapis.com', 'https://fonts.gstatic.com', 'https://www.googletagmanager.com'],
+
+  extraFont: ['https://fonts.gstatic.com'],
+
+  extraImg: [
+    'https://stats.g.doubleclick.net',
+    'https://ssl.gstatic.com',
+    'https://www.gstatic.com',
+    'https://raw.githubusercontent.com/hmcts/',
+    'https://*.google-analytics.com',
+    'https://*.googletagmanager.com',
+    'https://fonts.gstatic.com',
+  ],
+
+  extraConnect: [
+    '*.gov.uk',
+    '*.hmcts.net',
+    '*.launchdarkly.com',
+    'dc.services.visualstudio.com',
+    'https://*.google-analytics.com',
+    'https://*.googletagmanager.com',
+    'https://*.analytics.google.com',
+    'https://*.monitor.azure.com',
+    'https://*.in.applicationinsights.azure.com',
+    'wss://*.webpubsub.azure.com',
+    //below is put in in case the WEBPUBSUB_URL double dot causes issues
+    'wss://em-icp-webpubsub.platform.hmcts.net',
+    process.env.WEBPUBSUB_URL || '',
+    dynatraceBeaconOrigin || '',
+  ].filter(Boolean),
+};

@@ -66,7 +66,7 @@
           "RpxTranslationService language changes does not replace English with a stale failed-request fallback",
           "RpxTranslationService language changes returns English for phrases matching inherited Object property names",
           "RpxTranslationService public API composition translates only static fragments and preserves repeated numeric replacements and spacing",
-          "RpxTranslationService public API composition selects Yes/No metadata and matches each input’s initial letter case from one request",
+          "RpxTranslationService public API composition selects Yes/No metadata and matches each input\u2019s initial letter case from one request",
           "RpxTranslationService public API composition restores original Yes/No inputs after a successful response without answer metadata",
           "RpxTranslationService request lifecycle batches distinct phrases and deduplicates repeated subscriptions and normalized aliases",
           "RpxTranslationService request lifecycle uses source fallback in production mode and allows a subsequent phrase to translate",
@@ -409,18 +409,8 @@
       "contracts": {
         "package": [
           "package.physical-secondary-declaration",
-          "package.strict-node",
           "package.strict-bundler",
           "package.installed-runtime",
-          "package.missing-declaration-fault",
-          "package.restored-node",
-          "package.physical-node",
-          "package.installed-node-runtime",
-          "package.installed-node-http",
-          "package.node-loading-fault",
-          "package.browser-denied",
-          "package.missing-marker-fault",
-          "package.restored-node-runtime",
           "package.physical-i18n",
           "package.staged-i18n-identity",
           "package.root-runtime-empty",
@@ -478,6 +468,56 @@
       "contracts": {
         "nodeUnit": [
           "Node security policy retains the legacy directives"
+        ],
+        "nodeServerUnit": [
+          "projects/core-lib/node/server/security/csp.spec.ts csp middleware should set a nonce on res.locals",
+          "projects/core-lib/node/server/security/csp.spec.ts csp middleware should call helmet.contentSecurityPolicy with correct directives",
+          "projects/core-lib/node/server/security/csp.spec.ts csp middleware should add extra directives from options",
+          "projects/core-lib/node/server/security/csp.spec.ts csp middleware should set Content-Security-Policy header",
+          "projects/core-lib/node/server/security/csp.spec.ts csp middleware honours CSP_REPORT_ONLY env flag",
+          "projects/core-lib/node/server/security/csp.spec.ts csp middleware merges extras from environment variables",
+          "projects/core-lib/node/server/security/csp.spec.ts csp middleware captures environment extras at construction and explicit empty arrays override them",
+          "projects/core-lib/node/server/security/csp.spec.ts csp middleware generated flags win and report-only is evaluated for each request",
+          "projects/core-lib/node/server/security/csp.spec.ts csp middleware concatenates default arrays before generated values without deduplicating or mutation",
+          "projects/core-lib/node/server/security/csp.spec.ts csp middleware preserves callbacks and custom iterable directives while generated arrays replace non-arrays",
+          "projects/core-lib/node/server/security/csp.spec.ts csp middleware does not merge inherited directive arrays into generated nonce sources",
+          "projects/core-lib/node/server/security/csp.spec.ts csp middleware getContentSecurityPolicy passes the existing policy object and returns the provider result",
+          "projects/core-lib/node/server/security/csp.spec.ts CSP HTTP integration produces real headers containing fresh per-request 16-byte nonces",
+          "projects/core-lib/node/server/security/csp.spec.ts CSP HTTP integration retains legacy policy sources, callback values and custom disabled directives",
+          "projects/core-lib/node/server/security/csp.spec.ts CSP HTTP integration preserves constructor and prototype directive names while Helmet rejects an own reserved key",
+          "projects/core-lib/node/server/security/csp.spec.ts CSP HTTP integration uses only the report-only header when the exact flag is true",
+          "projects/core-lib/node/server/security/csp.spec.ts CSP HTTP integration forwards malformed directive failures through Express without serving protected content",
+          "projects/core-lib/node/server/security/csp.spec.ts csp middleware snapshots own root and directive getters once per request and ignores inherited root directives",
+          "projects/core-lib/node/server/security/csp.spec.ts csp middleware retains caller-owned explicit arrays so later edits affect subsequent requests"
+        ],
+        "browser": [
+          {
+            "projectName": "chromium",
+            "title": "CSP enforcement runs nonce scripts and styles while blocking unapproved inline code",
+            "feature": "node-security"
+          },
+          {
+            "projectName": "chromium",
+            "title": "CSP report-only emits its header and allows the identical unapproved script to execute",
+            "feature": "node-security"
+          },
+          {
+            "projectName": "chromium",
+            "title": "CSP reload receives a new nonce matching the served script",
+            "feature": "node-security"
+          }
+        ],
+        "package": [
+          "package.node-security-optional-peer",
+          "package.strict-node-security-types",
+          "package.node-security-consumer-contracts",
+          "package.node-security-nonce-fault",
+          "package.node-security-header-fault",
+          "package.node-security-merge-fault",
+          "package.node-security-restored",
+          "package.node-security-browser-denied",
+          "package.helmet-8_1_0-cohort",
+          "package.helmet-8_2_0-cohort"
         ]
       }
     },
@@ -979,6 +1019,62 @@
       }
     },
     {
+      "feature": "Node package and type boundaries",
+      "contracts": {
+        "package": [
+          "package.strict-node",
+          "package.missing-declaration-fault",
+          "package.restored-node",
+          "package.physical-node",
+          "package.installed-node-runtime",
+          "package.installed-node-http",
+          "package.node-loading-fault",
+          "package.browser-denied",
+          "package.missing-marker-fault",
+          "package.restored-node-runtime",
+          "package.node-only-peer-install",
+          "package.strict-node-node-types",
+          "package.strict-node-server-types",
+          "package.strict-node-auth-types",
+          "package.strict-node-session-types"
+        ]
+      }
+    },
+    {
+      "feature": "Packed Angular consumer cohort",
+      "contracts": {
+        "package": [
+          "package.angular-20_3_31-cohort-build"
+        ]
+      }
+    },
+    {
+      "feature": "Node HTTP session middleware",
+      "contracts": {
+        "nodeServerUnit": [
+          "projects/core-lib/node/server/session/models/sessionStore.integration.spec.ts session middleware persists signed sessions, isolates clients and leaves untouched sessions unsaved",
+          "projects/core-lib/node/server/session/models/sessionStore.integration.spec.ts secure session cookies require the configured trusted HTTPS transport",
+          "projects/core-lib/node/server/session/models/sessionStore.integration.spec.ts session store read failures reach the error handler without running the protected route"
+        ]
+      }
+    },
+    {
+      "feature": "Node logger namespaces",
+      "contracts": {
+        "nodeServerUnit": [
+          "projects/core-lib/node/server/common/util/debug.logger.spec.ts logger keeps shared suffixes isolated by their complete namespaces",
+          "projects/core-lib/node/server/common/util/debug.logger.spec.ts logger namespace filters cannot enable another prefix with the same suffix",
+          "projects/core-lib/node/server/common/util/debug.logger.spec.ts logger reuses the same emitted namespace and color across custom delimiters",
+          "projects/core-lib/node/server/common/util/debug.logger.spec.ts logger resolves console instrumentation installed after its creation"
+        ],
+        "package": [
+          "package.strict-node-logging-types",
+          "package.node-logging-isolation",
+          "package.node-logging-loading-fault"
+        ]
+      }
+    },
+    {
       "feature": "Find person",
       "contracts": {
         "unit": [
@@ -1250,7 +1346,65 @@
       }
     }
   ],
-  "suiteGroups": [],
+  "suiteGroups": [
+    {
+      "feature": "Node authentication strategy",
+      "lane": "nodeServerUnit",
+      "suiteTokens": [
+        "projects/core-lib/node/server/auth/models/strategy.class.spec.ts"
+      ]
+    },
+    {
+      "feature": "Node OIDC authentication",
+      "lane": "nodeServerUnit",
+      "suiteTokens": [
+        "projects/core-lib/node/server/auth/oidc/models/openid.class.spec.ts"
+      ]
+    },
+    {
+      "feature": "Node token refresh integration",
+      "lane": "nodeServerUnit",
+      "suiteTokens": [
+        "projects/core-lib/node/server/auth/oidc/models/keep-alive-refresh.spec.ts"
+      ]
+    },
+    {
+      "feature": "Node OAuth2 authentication",
+      "lane": "nodeServerUnit",
+      "suiteTokens": [
+        "projects/core-lib/node/server/auth/oauth2/models/oauth2.class.spec.ts",
+        "projects/core-lib/node/server/auth/oauth2/models/XUIOAuth2Strategy.class.spec.ts"
+      ]
+    },
+    {
+      "feature": "Node service authentication",
+      "lane": "nodeServerUnit",
+      "suiteTokens": [
+        "projects/core-lib/node/server/auth/s2s/s2s.class.spec.ts"
+      ]
+    },
+    {
+      "feature": "Node application middleware",
+      "lane": "nodeServerUnit",
+      "suiteTokens": [
+        "projects/core-lib/node/server/common/models/xuiNode.class.spec.ts"
+      ]
+    },
+    {
+      "feature": "Node file sessions",
+      "lane": "nodeServerUnit",
+      "suiteTokens": [
+        "projects/core-lib/node/server/session/models/fileSessionStore.class.spec.ts"
+      ]
+    },
+    {
+      "feature": "Node Redis sessions",
+      "lane": "nodeServerUnit",
+      "suiteTokens": [
+        "projects/core-lib/node/server/session/models/redisSessionStore.class.spec.ts"
+      ]
+    }
+  ],
   "fallbacks": [],
   "unmigrated": [
     "This report does not establish migration completeness, consumer adoption, production coverage or a release decision.",
