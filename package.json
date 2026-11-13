@@ -20,7 +20,7 @@
     "start": "node scripts/dev.mjs",
     "test:browser": "playwright test -c tests/browser/playwright.config.mjs",
     "test:package": "node tests/package/verify-package.mjs",
-    "test:contracts": "node --test tests/contract-gate.test.mjs tests/evidence-source-snapshot.test.mjs tests/evidence-lane.test.mjs tests/feature-evidence-matrix.test.mjs tests/feature-evidence-expanded.test.mjs tests/diagnostic-current.test.mjs tests/diagnostic-lanes.test.mjs tests/evidence-run-lock.test.mjs tests/evidence-host.test.mjs tests/packed-loading.test.mjs tests/jest-outcomes.test.mjs",
+    "test:contracts": "node --test tests/contract-gate.test.mjs tests/evidence-source-snapshot.test.mjs tests/evidence-lane.test.mjs tests/feature-evidence-matrix.test.mjs tests/feature-evidence-expanded.test.mjs tests/diagnostic-current.test.mjs tests/diagnostic-lanes.test.mjs tests/evidence-run-lock.test.mjs tests/evidence-host.test.mjs tests/packed-loading.test.mjs tests/jest-outcomes.test.mjs tests/translation-counterpart.test.mjs",
     "check:contracts": "node scripts/check-contracts.mjs",
     "test:all": "node scripts/run-evidence-suite.mjs",
     "test:node": "yarn test:node:utils && yarn test:node:server",

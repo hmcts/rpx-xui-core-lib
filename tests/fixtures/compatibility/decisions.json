@@ -10,7 +10,7 @@
     "id": "translation",
     "selection": "core/i18n; coordinated direct external cutover preferred",
     "conflict": "current viewer requires old-name1.2.18; current common/toolkit require1.2.14",
-    "required_proof": "Published compatible viewer/payment/facade candidate set and mixed root-child/cache identity",
+    "required_proof": "The real private owning-repository counterpart proves installed root/child/cache identity locally; approved immutable viewer/payment/facade release set, real case path and application adoption remain required",
     "status": "blocked"
   },
   {
@@ -37,8 +37,8 @@
   {
     "id": "host-angular",
     "selection": "20.3.35 library cohort",
-    "conflict": "Current core peers require20.3.35; frozen hosts still include common/core20.3.31 and MO router20.3.33, with mixed compiler patches",
-    "required_proof": "Coherent host framework/compiler versions in separately reviewable adoption prep",
+    "conflict": "Core peers now allow ^20.3.27 and the packed 20.3.31 cohort passes; frozen hosts still mix framework/compiler/router patches, Zone and NgRx generations",
+    "required_proof": "A coherent supported host framework/compiler/Zone/NgRx cohort with real app build, runtime and owner acceptance; the former exact Core20.3.35 pin conflict is resolved",
     "status": "blocked"
   },
   {
@@ -66,7 +66,7 @@
     "id": "node-types",
     "selection": "explicit public @types providers",
     "conflict": "published Node public imports expose dev-only Express/session/OAuth2/core type providers",
-    "required_proof": "Strict clean full emitted declaration closure and actual host Passport/Express/session identity",
+    "required_proof": "Clean installed current-Core declaration closure passes; actual host Passport/Express/session identity, startup and owner acceptance remain required",
     "status": "blocked"
   },
   {

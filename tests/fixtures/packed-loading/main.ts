@@ -15,7 +15,7 @@ import type { WorkType } from '@hmcts/rpx-xui-core-lib/ui/task-data';
     <p data-testid="validity">{{form.valid ? 'valid' : 'invalid'}}</p>
     <xuilib-find-work-type [form]="workForm" [fields]="fields" [field]="workTypeField" [services]="services" workTypeTitle="Search work types" [enableAddWorkTypeButton]="false"></xuilib-find-work-type>
     <output data-testid="selected-work-type">{{workForm.controls.workTypes.controls[0]?.value?.label}}</output>
-    <button (click)="loadDate()">Load date</button><button (click)="loadSession()">Load session error</button>
+    <button (click)="loadTranslation()">Load translation</button><button (click)="loadDate()">Load date</button><button (click)="loadSession()">Load session error</button>
     <ng-container *ngComponentOutlet="page()" /></main>`,
 })
 class LoadingProof {
@@ -25,6 +25,7 @@ class LoadingProof {
   workTypeField: FilterFieldConfig = { name: 'workTypes', options: [], minSelected: 0, maxSelected: 1, type: 'find-work-type', findLocationField: 'services' };
   services = ['ia'];
   page = signal<Type<unknown> | null>(null);
+  async loadTranslation() { this.page.set((await import('./translation-page')).TranslationPage); }
   async loadDate() { this.page.set((await import('./date-page')).DatePage); }
   async loadSession() { this.page.set((await import('./session-page')).SessionPage); }
 }

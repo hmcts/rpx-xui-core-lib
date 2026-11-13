@@ -689,7 +689,6 @@
       "package.missing-marker-fault",
       "package.restored-node-runtime",
       "package.physical-i18n",
-      "package.staged-i18n-identity",
       "package.root-runtime-empty",
       "package.validation-graph",
       "package.sharing-graph",
@@ -759,7 +758,12 @@
       "package.task-lookups-behavior",
       "package.find-task-name-graph",
       "package.search-work-type-graph",
-      "package.find-work-type-graph"
+      "package.find-work-type-graph",
+      "package.translation-counterpart-artifact",
+      "package.translation-counterpart-browser",
+      "package.translation-counterpart-types",
+      "package.translation-counterpart-identity",
+      "package.translation-counterpart-identity-fault"
     ]
   },
   "nodeUnit": {

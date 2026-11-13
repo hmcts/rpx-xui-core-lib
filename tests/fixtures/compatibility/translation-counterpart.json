@@ -1,0 +1,12 @@
+{
+  "repository": "https://github.com/hmcts/rpx-xui-translation.git",
+  "commit": "d3849920763534504d42a8fb6f639b08830d4ab8",
+  "files": {
+    "scripts/pack-core-facade.mjs": "0cfc89064d4b99e799651aae6e6ab3b40dfbb74397ea282a232c343dabb4e424",
+    "LICENCE": "2dfcf3934777a2c65fe3e19907ea91cdfacb28fca5d811bdd2032d82f958a460",
+    "projects/rpx-xui-translation-core-facade/LICENCE": "2dfcf3934777a2c65fe3e19907ea91cdfacb28fca5d811bdd2032d82f958a460",
+    "projects/rpx-xui-translation-core-facade/index.mjs": "3637c46e48f779519bd3a1d88f922ffa8ccc2a1e795ce45d37818bfe876965f9",
+    "projects/rpx-xui-translation-core-facade/index.d.ts": "3637c46e48f779519bd3a1d88f922ffa8ccc2a1e795ce45d37818bfe876965f9",
+    "projects/rpx-xui-translation-core-facade/package.json": "486430de1320462936a930c71787f772d0e75c2c2ba009e5c7b17a96cd166d32"
+  }
+}

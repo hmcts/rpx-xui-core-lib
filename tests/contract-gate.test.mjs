@@ -12,7 +12,19 @@ const contractInventory = JSON.parse(readFileSync(new URL('./contracts.json', im
 
 const identity = { sourceSha: 'a'.repeat(40), runId: 'fixture', attempt: '1', invocationId: '12345678-1234-4123-8123-123456789abc', sourceSnapshot: 'b'.repeat(64) };
 const candidate = Buffer.from('candidate bytes');
+const counterpart = Buffer.from('counterpart archive bytes');
+const counterpartProfile = JSON.parse(readFileSync(new URL('./fixtures/compatibility/translation-counterpart.json', import.meta.url), 'utf8'));
+const counterpartArchive = 'test-results/package-evidence/translation-counterpart/rpx-xui-translation-0.0.0-core-preview.0.tgz';
+const counterpartEvidence = 'test-results/package-evidence/translation-counterpart.json';
 const jasmineVersion = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).devDependencies['jasmine-core'];
+
+function counterpartProof() {
+  const packedFiles = Object.fromEntries(['LICENCE', 'index.d.ts', 'index.mjs', 'package.json'].map(name =>
+    [`package/${name}`, counterpartProfile.files[`projects/rpx-xui-translation-core-facade/${name}`]]));
+  return { schemaVersion: 1, repository: counterpartProfile.repository, sourceSha: counterpartProfile.commit,
+    profileSha256: createHash('sha256').update(JSON.stringify(counterpartProfile)).digest('hex'),
+    sourceFiles: { ...counterpartProfile.files }, packedFiles, sha256: createHash('sha256').update(counterpart).digest('hex') };
+}
 
 const unitNames = [
   'rejects an empty group with the default minimum',
@@ -274,7 +286,7 @@ const packageIds = [
   'package.installed-runtime', 'package.missing-declaration-fault', 'package.restored-node',
   'package.physical-node', 'package.installed-node-runtime', 'package.installed-node-http', 'package.node-loading-fault', 'package.browser-denied',
   'package.missing-marker-fault', 'package.restored-node-runtime',
-  'package.physical-i18n', 'package.staged-i18n-identity',
+  'package.physical-i18n',
   "package.root-runtime-empty",
   "package.validation-graph",
   "package.sharing-graph",
@@ -362,6 +374,7 @@ packageIds.push('package.node-security-optional-peer', 'package.strict-node-secu
   'package.node-security-consumer-contracts', 'package.node-security-nonce-fault', 'package.node-security-header-fault',
   'package.node-security-merge-fault', 'package.node-security-restored', 'package.node-security-browser-denied');
 packageIds.push('package.strict-node-logging-types', 'package.node-logging-isolation', 'package.node-logging-loading-fault', 'package.helmet-8_1_0-cohort', 'package.helmet-8_2_0-cohort');
+packageIds.push('package.translation-counterpart-artifact', 'package.translation-counterpart-browser', 'package.translation-counterpart-types', 'package.translation-counterpart-identity', 'package.translation-counterpart-identity-fault');
 const expectedContracts = addedBrowserJourneys.length + Object.values(addedLaneNames).reduce((sum, names) => sum + names.length, 0) + unitNames.length + nodeNames.length + i18nNames.length + i18nJourneys.length + dueDateJourneys.length + accessibilityJourneys.length + sessionDialogJourneys.length + primitiveJourneys.length + cacheJourneys.length + validationJourneys.length + packageIds.length + 1 + contractInventory.nodeServerUnit.required.length;
 
 function nativeTap(names) {
@@ -418,7 +431,7 @@ function reports() {
     'i18n/jasmine.json': nativeJasmine(),
     'browser.json': { errors: [], suites: [{ specs: [journey, ...validationJourneys, ...i18nJourneys, ...dueDateJourneys, ...accessibilityJourneys, ...sessionDialogJourneys, ...primitiveJourneys, ...addedBrowserJourneys].map((title) => ({ title, tests: [{ projectName: 'chromium', expectedStatus: 'passed', status: 'expected', results: [{ status: 'passed' }] }] })) }] },
     'cache-upgrade-report.json': { errors: [], suites: [{ specs: cacheJourneys.map((title) => ({ title, tests: [{ projectName: 'chromium', expectedStatus: 'passed', status: 'expected', results: [{ status: 'passed' }] }] })) }] },
-    'package.json': { schemaVersion: 1, package: { sha256: createHash('sha256').update(candidate).digest('hex'), ...identity, dirty: false }, tests: packageIds.map((id) => ({ id, status: 'passed' })) },
+    'package.json': { schemaVersion: 1, package: { sha256: createHash('sha256').update(candidate).digest('hex'), ...identity, dirty: false, translationCounterpart: counterpartProof() }, tests: packageIds.map((id) => ({ id, status: 'passed' })) },
   };
 }
 
@@ -432,6 +445,10 @@ function checkFixture(t, files) {
   }
   mkdirSync(join(root, 'test-results/package-evidence'), { recursive: true });
   writeFileSync(join(root, 'test-results/package-evidence/candidate.tgz'), candidate);
+  mkdirSync(dirname(join(root, counterpartArchive)), { recursive: true });
+  writeFileSync(join(root, counterpartArchive), counterpart);
+  const proof = files['package.json']?.package?.translationCounterpart;
+  if (proof) writeFileSync(join(root, counterpartEvidence), JSON.stringify(proof));
   mkdirSync(join(root, 'test-results/lane-provenance'));
   writeFileSync(join(root, 'test-results/lane-provenance/run.json'), JSON.stringify(identity));
   for (const [lane, config] of Object.entries(contractInventory)) {
@@ -795,6 +812,46 @@ test('rejects missing and altered candidate bytes', (t) => {
     assert.throws(check);
   }
 });
+
+test('rejects missing or altered counterpart archive after its package receipt is created', t => {
+  for (const bytes of [null, 'changed counterpart']) {
+    const check = checkFixture(t, reports());
+    assert.equal(check(), expectedContracts);
+    const file = join(check.root, counterpartArchive);
+    if (bytes === null) rmSync(file); else writeFileSync(file, bytes);
+    assert.throws(check, /counterpart|ENOENT/i);
+  }
+});
+
+test('rejects missing or changed counterpart helper evidence after its package receipt is created', t => {
+  for (const changed of [null, { ...counterpartProof(), sourceSha: '0'.repeat(40) }]) {
+    const check = checkFixture(t, reports());
+    assert.equal(check(), expectedContracts);
+    const file = join(check.root, counterpartEvidence);
+    if (changed === null) rmSync(file); else writeFileSync(file, JSON.stringify(changed));
+    assert.throws(check, /counterpart|ENOENT/i);
+  }
+});
+
+const counterpartMutations = {
+  'missing proof': pkg => { delete pkg.translationCounterpart; },
+  'wrong schema': pkg => { pkg.translationCounterpart.schemaVersion = 2; },
+  'wrong repository': pkg => { pkg.translationCounterpart.repository = 'https://example.invalid/other.git'; },
+  'wrong source': pkg => { pkg.translationCounterpart.sourceSha = '0'.repeat(40); },
+  'wrong profile hash': pkg => { pkg.translationCounterpart.profileSha256 = '0'.repeat(64); },
+  'missing source input': pkg => { delete pkg.translationCounterpart.sourceFiles['scripts/pack-core-facade.mjs']; },
+  'wrong source input hash': pkg => { pkg.translationCounterpart.sourceFiles['projects/rpx-xui-translation-core-facade/index.mjs'] = '0'.repeat(64); },
+  'wrong packed input hash': pkg => { pkg.translationCounterpart.packedFiles['package/index.mjs'] = '0'.repeat(64); },
+  'extra packed input': pkg => { pkg.translationCounterpart.packedFiles['package/extra.mjs'] = '0'.repeat(64); },
+  'malformed archive hash': pkg => { pkg.translationCounterpart.sha256 = 'not-a-hash'; },
+};
+for (const [name, mutate] of Object.entries(counterpartMutations)) {
+  test(`rejects counterpart ${name} even with matching native report receipts`, t => {
+    const files = reports();
+    mutate(files['package.json'].package);
+    assert.throws(checkFixture(t, files), /counterpart/i);
+  });
+}
 
 test('replay CLI requires a complete unique argument set', (t) => {
   const check = checkFixture(t, reports());
