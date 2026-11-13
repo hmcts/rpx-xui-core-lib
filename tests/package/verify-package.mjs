@@ -231,7 +231,10 @@ try {
     const cacheRoot = join(root, '.angular/translation-counterpart');
     const source = process.env.CORE_TRANSLATION_COUNTERPART_SOURCE
       ? resolve(process.env.CORE_TRANSLATION_COUNTERPART_SOURCE) : join(cacheRoot, profile.commit);
-    if (!process.env.CORE_TRANSLATION_COUNTERPART_SOURCE && !await stat(source).then(() => true, error => { if (error.code === 'ENOENT') return false; throw error; })) {
+    if (!process.env.CORE_TRANSLATION_COUNTERPART_SOURCE && !await stat(source).then(() => true, error => {
+      if (error.code === 'ENOENT') { return false; }
+      throw error;
+    })) {
       await mkdir(cacheRoot, { recursive: true });
       const stage = await mkdtemp(join(cacheRoot, 'prepare-'));
       try {
@@ -242,7 +245,7 @@ try {
           [['checkout', '--detach', profile.commit], join(stage, 'source')],
         ];
         for (const [args, cwd] of commands) {
-          const result = spawnSync('git', args, { cwd, env, encoding: 'utf8', timeout: 180000 });
+          const result = spawnSync('/usr/bin/git', args, { cwd, env, encoding: 'utf8', timeout: 180000 });
           assert.equal(result.status, 0, `Translation counterpart source setup failed: ${result.stderr ?? result.error?.message}`);
         }
         await rename(join(stage, 'source'), source);

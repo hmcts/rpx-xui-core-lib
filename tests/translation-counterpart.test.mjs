@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdir, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises';
+import { lstat, mkdir, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
@@ -14,7 +14,7 @@ const inputs = ['LICENCE', 'scripts/pack-core-facade.mjs', ...names.map(name => 
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex');
 
 function git(source, ...args) {
-  const result = spawnSync('git', ['-C', source, '-c', 'user.name=Test fixture', '-c', 'user.email=fixture@example.invalid', '-c', 'commit.gpgSign=false', ...args], { encoding: 'utf8' });
+  const result = spawnSync('/usr/bin/git', ['-C', source, '-c', 'user.name=Test fixture', '-c', 'user.email=fixture@example.invalid', '-c', 'commit.gpgSign=false', ...args], { encoding: 'utf8' });
   assert.equal(result.status, 0, result.stderr);
   return result.stdout.trim();
 }
@@ -53,7 +53,7 @@ const tarball = join(output, 'rpx-xui-translation-0.0.0-core-preview.0.tgz');
 writeFileSync(tarball, gzipSync(Buffer.concat([...archive, Buffer.alloc(1024)])));
 const inputs = Object.fromEntries(names.map(name => [name, digest(files[name])]));
 const evidence = join(output, 'provenance.json');
-const report = { schemaVersion: 1, sourceSha: spawnSync('git', ['-C', root, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).stdout.trim(), dirty: false,
+const report = { schemaVersion: 1, sourceSha: spawnSync('/usr/bin/git', ['-C', root, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).stdout.trim(), dirty: false,
   inputs, inputSha256: digest(JSON.stringify(inputs)), repositoryLicenceSha256: digest(readFileSync(join(root, 'LICENCE'))),
   tarball, sha256: digest(readFileSync(tarball)), evidence };
 if (mode === 'false-sha') report.sha256 = '0'.repeat(64);
@@ -68,7 +68,7 @@ if (mode === 'false-stdout') report.sha256 = '1'.repeat(64);
 if (mode === 'extra-output') writeFileSync(join(output, 'unexpected.txt'), 'extra');
 if (['source-mutation', 'hidden-source-mutation'].includes(mode)) {
   writeFileSync(join(root, '${project}', 'index.mjs'), 'changed source');
-  if (mode === 'hidden-source-mutation') spawnSync('git', ['-C', root, 'update-index', '--assume-unchanged', '${project}/index.mjs']);
+  if (mode === 'hidden-source-mutation') spawnSync('/usr/bin/git', ['-C', root, 'update-index', '--assume-unchanged', '${project}/index.mjs']);
 }
 console.log(JSON.stringify(report));
 `;
@@ -101,8 +101,31 @@ test('independently binds packer output to clean frozen source bytes', async t =
   assert.equal(result.evidence.sourceSha, options.profile.commit);
   assert.equal(result.evidence.profileSha256, sha256(JSON.stringify(options.profile)));
   assert.deepEqual(result.evidence.sourceFiles, options.profile.files);
+  assert.deepEqual(Object.keys(result.evidence.sourceFiles), Object.keys(options.profile.files));
   assert.equal(result.evidence.sha256, sha256(await readFile(result.tarball)));
   assert.deepEqual(Object.keys(result.evidence.packedFiles).sort(), names.map(name => `package/${name}`).sort());
+});
+
+test('counterpart verification never executes a Git shadow from PATH', async t => {
+  const options = await fixture(t);
+  const bin = join(options.output, '..', 'shadow-bin');
+  const marker = join(bin, 'executed');
+  await mkdir(bin);
+  await writeFile(join(bin, 'git'), '#!/bin/sh\n/usr/bin/touch "$COUNTERPART_GIT_MARKER"\nexec /usr/bin/git "$@"\n', { mode: 0o755 });
+  const previousPath = process.env.PATH;
+  const previousMarker = process.env.COUNTERPART_GIT_MARKER;
+  try {
+    process.env.PATH = `${bin}:${previousPath ?? ''}`;
+    process.env.COUNTERPART_GIT_MARKER = marker;
+    const result = await prepareTranslationCounterpart(options);
+    assert.equal(result.evidence.sourceSha, options.profile.commit);
+    await assert.rejects(lstat(marker), { code: 'ENOENT' }, 'The PATH shadow must never execute');
+  } finally {
+    if (previousPath === undefined) delete process.env.PATH;
+    else process.env.PATH = previousPath;
+    if (previousMarker === undefined) delete process.env.COUNTERPART_GIT_MARKER;
+    else process.env.COUNTERPART_GIT_MARKER = previousMarker;
+  }
 });
 
 test('rejects a different source head', async t => {
