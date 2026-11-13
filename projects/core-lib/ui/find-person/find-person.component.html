@@ -1,0 +1,43 @@
+@if (title && title.length) {
+  <h1 class="govuk-heading-l">
+    <span class="govuk-caption-l">{{title | rpxTranslate}}</span>
+    {{boldTitle | rpxTranslate}}
+  </h1>
+}
+<div class="govuk-form-group" [formGroup]="findPersonGroup"
+  [ngClass]="{'form-group-error': findPersonGroup.get('findPersonControl').invalid && submitted}">
+  <fieldset class="govuk-fieldset" [attr.aria-describedby]="descriptionIds">
+    <legend class="govuk-visually-hidden">{{boldTitle | rpxTranslate}}</legend>
+    @if (subTitle && subTitle.length) {
+      <div [id]="hintId" class="govuk-hint">
+        {{subTitle | rpxTranslate}}
+      </div>
+    }
+    @if (findPersonGroup && findPersonGroup.errors) {
+      <span [id]="errorId" class="govuk-error-message">
+        <span class="govuk-visually-hidden">{{'Error:' | rpxTranslate}}</span>{{findPersonGroup.errors.error ? findPersonGroup.errors.error : errorMessage}}
+      </span>
+    }
+    <input id="inputSelectPerson{{effectiveId}}" type="text" [attr.aria-label]="('select a person' | rpxTranslate)?.trim() || 'select a person'"
+      [attr.aria-describedby]="descriptionIds"
+      [attr.aria-invalid]="findPersonGroup.errors || (findPersonControl.invalid && submitted) ? 'true' : null"
+      formControlName="findPersonControl"
+      [matAutocomplete]="auto"
+      class="govuk-input govuk-!-width-one-third"
+      [placeholder]="placeholderContent"
+      [attr.disabled]="disabled"
+      (input)="onInput()">
+    <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" (optionSelected)="onSelectionChange($event.option.value)">
+      @for (option of filteredOptions; track option) {
+        <mat-option
+          [value]="option"
+          [ngClass]="{'hide-autocomplete': !showAutocomplete, 'select-option': showUpdatedColor}">
+          {{getDisplayName(option) | rpxTranslate}}
+        </mat-option>
+      }
+      @if (isNoResultsShown && !filteredOptions.length && showAutocomplete) {
+        <mat-option [ngClass]="{'select-option': showUpdatedColor}">{{'No results found' | rpxTranslate}}</mat-option>
+      }
+    </mat-autocomplete>
+  </fieldset>
+</div>

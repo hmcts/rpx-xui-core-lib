@@ -1,0 +1,129 @@
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import {
+  Caseworker,
+  JudicialUserModel,
+  Person,
+  PersonRole,
+  RoleCategory,
+  SearchOptions
+} from './models';
+import { SessionStorageService } from '@hmcts/rpx-xui-core-lib/browser/session-storage';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class FindAPersonService {
+  public static caseworkersKey: string = 'caseworkers';
+  // userId set as empty string as there is no exists check and was type warning
+  public userId: string = '';
+  public assignedUser: string | string[] = [];
+  private readonly requestContexts: { assignedUser: string | string[]; userId: string }[] = [];
+
+  constructor(private readonly http: HttpClient, private readonly sessionStorageService: SessionStorageService) {
+  }
+
+  public find(searchOptions: SearchOptions): Observable<Person[]> {
+    const userInfoStr = this.sessionStorageService.getItem('userDetails');
+    if (userInfoStr && !searchOptions.userIncluded) {
+      const userInfo = JSON.parse(userInfoStr);
+      this.userId = userInfo.id ? userInfo.id : userInfo.uid;
+    }
+    this.assignedUser = searchOptions.assignedUser ? searchOptions.assignedUser : [];
+    let assignedUserToCompare = Array.isArray(this.assignedUser) ? [...this.assignedUser] : this.assignedUser;
+    if (typeof(this.assignedUser) === 'string') {
+      assignedUserToCompare = [this.assignedUser];
+    }
+    return this.http.post<Person[]>('/workallocation/findPerson', { searchOptions })
+      .pipe(map((judiciary) => judiciary.filter((judge) => !(assignedUserToCompare.includes(judge.id)))));
+    // Removed the current user id to fix EUI-8465.
+  }
+
+  public findCaseworkers(searchOptions: SearchOptions): Observable<Person[]> {
+    const userInfoStr = this.sessionStorageService.getItem('userDetails');
+    if (userInfoStr) {
+      const userInfo = JSON.parse(userInfoStr);
+      this.userId = userInfo.id ? userInfo.id : userInfo.uid;
+    }
+    this.assignedUser = searchOptions.assignedUser ? searchOptions.assignedUser : [];
+    const fullServices = searchOptions.services;
+    const requestUserId = this.userId;
+    const assignedUser = Array.isArray(this.assignedUser) ? [...this.assignedUser] : this.assignedUser;
+    const requestOptions = { ...searchOptions };
+    return this.http.post<Caseworker[]>('/workallocation/caseworker/getUsersByServiceName', { services: fullServices, term: searchOptions.searchTerm }).pipe(
+      map((caseworkers) => {
+        this.requestContexts.push({ assignedUser, userId: requestUserId });
+        try {
+          return this.searchInCaseworkers(caseworkers, requestOptions);
+        } finally {
+          this.requestContexts.pop();
+        }
+      })
+    );
+  }
+
+  public mapCaseworkers(caseworkers: Caseworker[], roleCategory: RoleCategory): Person[] {
+    const context = this.requestContexts.at(-1);
+    const userId = context ? context.userId : this.userId;
+    const people: Person[] = [];
+    caseworkers.forEach((caseworker) => {
+      const thisPerson: Person = {
+        email: caseworker.email,
+        name: `${caseworker.firstName} ${caseworker.lastName}`,
+        id: caseworker.idamId,
+        // EXUI-4758 - If user has admin role, set domain to admin
+        // For more specific domain we need service specific role category (or other technique)
+        domain: this.setDomain(caseworker)
+        // knownAs can be added if required
+      };
+      if (caseworker.roleCategories.includes(roleCategory) || roleCategory === RoleCategory.ALL || caseworker.idamId === userId) {
+        people.push(thisPerson);
+      }
+    });
+    return people;
+  }
+
+  public searchInCaseworkers(caseworkers: Caseworker[], searchOptions: SearchOptions): Person[] {
+    const assignedUser = this.requestContexts.at(-1)?.assignedUser ?? this.assignedUser;
+    let roleCategory = RoleCategory.ALL;
+    if (!(searchOptions.userRole === PersonRole.ALL)) {
+      if (searchOptions.userRole === PersonRole.LEGAL_OPERATIONS) {
+        roleCategory = RoleCategory.LEGAL_OPERATIONS;
+      } else if (searchOptions.userRole === PersonRole.ADMIN) {
+        roleCategory = RoleCategory.ADMIN;
+      } else if (searchOptions.userRole === PersonRole.CTSC) {
+        roleCategory = RoleCategory.CTSC;
+      }
+    }
+    const searchTerm = searchOptions && searchOptions.searchTerm ? searchOptions.searchTerm.toLowerCase() : '';
+    const people = caseworkers ? this.mapCaseworkers(caseworkers, roleCategory) : [];
+    const finalPeopleList = people.filter((person) => person && person.name && person.name.toLowerCase().includes(searchTerm));
+
+    if (typeof(assignedUser) === 'string') {
+      return finalPeopleList.filter((person) => person && person.id !== assignedUser);
+    }
+    return finalPeopleList.filter((person) => person && !assignedUser.includes(person.id));
+  }
+
+  public searchJudicial(value: string, serviceId: string): Observable<JudicialUserModel[]> {
+    return this.http.post<JudicialUserModel[]>('api/prd/judicial/getJudicialUsersSearch',
+      { searchString: value, serviceCode: serviceId });
+  }
+
+  // Note: Domain only used internally to set the PersonRole for the Person object
+  private setDomain(caseworker: Caseworker): PersonRole {
+    if (caseworker.roleCategories.includes(RoleCategory.ADMIN)) {
+      return PersonRole.ADMIN;
+    }
+    if (caseworker.roleCategories.includes(RoleCategory.CTSC)) {
+      return PersonRole.CTSC;
+    }
+    if (caseworker.roleCategories.includes(RoleCategory.LEGAL_OPERATIONS)) {
+      return PersonRole.LEGAL_OPERATIONS;
+    }
+    // return default role if no match found
+    return PersonRole.LEGAL_OPERATIONS;
+  }
+}

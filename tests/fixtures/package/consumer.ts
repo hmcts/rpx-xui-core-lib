@@ -92,4 +92,7 @@ export const defaultLoadingState: HasLoadingState = new DefaultLoadingState();
 export const loadingService: HasLoadingState = new LoadingService();
 export const loadingRegistration: string = loadingService instanceof LoadingService ? loadingService.register() : '';
 
+import { FindPersonModule, FindPersonComponent, FindAPersonService, type SearchOptions, PersonRole } from '@hmcts/rpx-xui-core-lib/ui/find-person';
+export { FindPersonModule, FindPersonComponent, FindAPersonService };
+export const personSearch: SearchOptions = { searchTerm: 'test', userRole: PersonRole.ADMIN, services: ['test'] };
 export * from './node-security-types';

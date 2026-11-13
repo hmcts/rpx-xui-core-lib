@@ -1,0 +1,46 @@
+@if (title && title.length) {
+  <h1 class="govuk-heading-l">
+    <span class="govuk-caption-l">{{title}}</span>
+    {{boldTitle}}
+  </h1>
+}
+<div class="govuk-form-group" [formGroup]="findTaskNameGroup"
+  [ngClass]="{'form-group-error': findTaskNameGroup.get('findTaskNameControl')?.invalid && submitted}">
+  <fieldset class="govuk-fieldset" [attr.aria-describedby]="descriptionIds">
+    <legend class="govuk-visually-hidden">{{ boldTitle }}</legend>
+    @if (subTitle && subTitle.length) {
+      <div [id]="hintId" class="govuk-hint">
+        {{subTitle}}
+      </div>
+    }
+    @if (findTaskNameGroup && findTaskNameGroup.errors) {
+      <span [id]="errorId" class="govuk-error-message">
+        <span class="govuk-visually-hidden">Error:</span>{{findTaskNameGroup.errors.error ? findTaskNameGroup.errors.error : errorMessage}}
+      </span>
+    }
+    @if (lookupFailed) {
+      <p role="alert" class="govuk-error-message">{{ 'Unable to search for task names. Try again.' | rpxTranslate }}</p>
+    }
+    <input id="inputSelectTaskName{{effectiveId}}" type="text" [attr.aria-label]="('select a task name' | rpxTranslate)?.trim() || 'select a task name'"
+      [attr.aria-describedby]="descriptionIds"
+      [attr.aria-invalid]="findTaskNameControl?.invalid && submitted ? 'true' : null"
+      formControlName="findTaskNameControl"
+      [matAutocomplete]="auto"
+      class="govuk-input govuk-!-width-one-third"
+      [placeholder]="placeholderContent"
+      [attr.disabled]="disabled"
+      (input)="onInput()">
+    <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" (optionSelected)="onSelectionChange($event.option.value)">
+      @for (option of filteredOptions; track option) {
+        <mat-option
+          [value]="option"
+          [ngClass]="{'hide-autocomplete': !showAutocomplete, 'select-option': showUpdatedColor}">
+          {{ getTaskTypeName(option) }}
+        </mat-option>
+      }
+      @if (isNoResultsShown && !filteredOptions.length && showAutocomplete) {
+        <mat-option [ngClass]="{'select-option': showUpdatedColor}">No results found</mat-option>
+      }
+    </mat-autocomplete>
+  </fieldset>
+</div>

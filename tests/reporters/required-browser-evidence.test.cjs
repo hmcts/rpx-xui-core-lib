@@ -114,6 +114,40 @@ gov-date-select|date errors describe the correct fieldset without duplicate or m
 gov-date-select|empty date and select messages never reference absent error elements
 checkbox-list|checkbox list instances keep labels and selections independent
 checkbox-list|checkbox list supports keyboard selection and select-all transitions
+find-person|new input suppresses stale response and keyboard selection keeps latest person
+find-person|multiple default lookup instances keep input and description ids unique
+find-person|one default and two explicitly identified instances expose only their own live descriptions
+find-person|visible group error marks the input invalid even when not submitted
+find-person|a submitted child-only invalid state marks input invalid without fabricating an error
+find-person|one default and two distinct idValue instances have no automated WCAG violations in error state
+find-person|changing idValue updates input and live description targets together
+find-person|accessible name remains meaningful across delayed translation and language switches
+find-person|failed translation retains original accessible phrase
+find-person|missing phrase falls back to original accessible phrase
+find-person|late Welsh translation cannot overwrite the selected English name
+find-person|completed Welsh response replaces the English accessible name
+find-person|whitespace-only translation falls back to a non-blank accessible name
+find-person|retained parent control drives lookup before and after component recreation
+task-lookups|task-name lookup rejects an old response after input changes
+task-lookups|standalone work-type search has an accessible name
+task-lookups|standalone work-type search preserves an external label
+task-lookups|standalone work-type fallback follows the selected language
+task-lookups|parent work-type search uses its configured and translated title
+task-lookups|work-type lookup rejects an old response after input changes
+task-lookups|task-name shows no-results only after an empty successful response
+task-lookups|task-name reports a service failure and recovers on later input
+task-lookups|work-type parent initializes disabled without an Angular error
+task-lookups|task-name retained parent control emits after recreation
+task-lookups|default task-name instances receive unique ids while work-type retains legacy IDs
+task-lookups|task-name exposes its hint as an accessible description
+task-lookups|task-name descriptions follow rendered group errors and hints
+task-lookups|task-name exposes the existing submitted control invalid state
+task-lookups|task-name accessible name follows the selected language
+task-lookups|task-name reports a malformed response and accepts a later valid result
+task-lookups|work-type default lookup reports error and recovers
+task-lookups|work-type cached-service lookup reports error and recovers
+task-lookups|task-name ignores stale success after the service changes
+task-lookups|task-name ignores stale error after the service changes
 node-security|CSP enforcement runs nonce scripts and styles while blocking unapproved inline code
 node-security|CSP report-only emits its header and allows the identical unapproved script to execute
 node-security|CSP reload receives a new nonce matching the served script`.split('\n').map(row => {
