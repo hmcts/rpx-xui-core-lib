@@ -5,7 +5,10 @@ test.beforeEach(async ({ page }) => { await page.goto('/primitives'); });
 
 test('banner renders and removes the configured success message and icon', async ({ page }) => {
   const banner = page.locator('xuilib-hmcts-banner');
-  await expect(banner.locator('.hmcts-banner--success')).toBeVisible();
+  const successBanner = banner.locator('.hmcts-banner--success');
+  await expect(successBanner).toBeVisible();
+  await expect(successBanner).toHaveCSS('border-top-width', '5px');
+  await expect(banner.locator('.hmcts-banner__message')).toHaveCSS('font-size', '19px');
   await expect(banner.locator('.hmcts-banner__icon--success')).toBeVisible();
   await expect(banner).toContainText('Saved');
   await page.getByRole('button', { name: 'Toggle banner' }).click();
