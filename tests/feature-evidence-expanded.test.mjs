@@ -42,9 +42,10 @@ test('rendered feature report separates inherited find-person gaps from passing 
 
 test('rendered lookup report exposes inherited accessibility and cache limitations', () => {
   const html = parse(renderMatrix('verified', mapping, {}, inventory));
-  const gapRow = html.querySelectorAll('tr').find(row => row.querySelector('th')?.text === 'Task and work-type known accessibility gap detection');
+  const gapRow = html.querySelectorAll('tr').find(row => row.querySelector('th')?.text === 'Task-name accessibility and work-type known gap');
   assert.ok(gapRow);
   assert.match(html.text, /Task and work-type lookup default IDs can collide/);
+  assert.match(html.text, /task-name hint and error IDs are scoped when consumers provide distinct idValue values/);
   assert.match(html.text, /bypass cache without writing until picker recreation/);
   assert.match(html.text, /Real consumer dependency injection, Welsh error copy and assistive-technology acceptance remain unverified/);
 });

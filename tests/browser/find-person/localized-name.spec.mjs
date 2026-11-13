@@ -1,14 +1,9 @@
 import { test, expect } from '@playwright/test';
 import { cachedTranslations } from '../i18n/cache.mjs';
+import { delayWelshTranslation, translatedPersonName } from './translation-route.mjs';
 
 test('accessible name remains meaningful across delayed translation and language switches', async ({ page }) => {
-  let release = () => {};
-  const gate = new Promise(resolve => { release = () => resolve(undefined); });
-  await page.route('**/translations/cy', async route => {
-    await gate;
-    const phrases = route.request().postDataJSON().phrases;
-    await route.fulfill({ json: { translations: Object.fromEntries(phrases.map(p => [p, p === 'select a person' ? 'Dewis person (synthetic)' : p])) } });
-  });
+  const release = await delayWelshTranslation(page, translatedPersonName('Dewis person (synthetic)'));
   await page.goto('/find-person?unique');
   const input = page.locator('#inputSelectPersonfirst');
   await expect(input).toHaveAccessibleName('select a person');
@@ -20,24 +15,11 @@ test('accessible name remains meaningful across delayed translation and language
   await expect(input).toHaveAccessibleName('select a person');
 });
 
-test('failed translation retains original accessible phrase', async ({ page }) => {
-  let release = () => {};
-  const gate = new Promise(resolve => { release = () => resolve(undefined); });
-  await page.route('**/translations/cy', async route => { await gate; await route.fulfill({ status: 503, json: { error: 'synthetic failure' } }); });
-  await page.goto('/find-person?unique');
-  const input = page.locator('#inputSelectPersonfirst');
-  const completed = page.waitForResponse('**/translations/cy');
-  await page.getByRole('button', { name: 'Welsh' }).click();
-  await expect(input).toHaveAccessibleName('select a person [Translation in progress]');
-  release();
-  await completed;
-  await expect(input).toHaveAccessibleName('select a person');
-});
-
-test('missing phrase falls back to original accessible phrase', async ({ page }) => {
-  let release = () => {};
-  const gate = new Promise(resolve => { release = () => resolve(undefined); });
-  await page.route('**/translations/cy', async route => { await gate; await route.fulfill({ json: { translations: {} } }); });
+for (const { title, response } of [
+  { title: 'failed translation retains original accessible phrase', response: { status: 503, json: { error: 'synthetic failure' } } },
+  { title: 'missing phrase falls back to original accessible phrase', response: { json: { translations: {} } } }
+]) test(title, async ({ page }) => {
+  const release = await delayWelshTranslation(page, route => route.fulfill(response));
   await page.goto('/find-person?unique');
   const input = page.locator('#inputSelectPersonfirst');
   const completed = page.waitForResponse('**/translations/cy');
@@ -49,13 +31,7 @@ test('missing phrase falls back to original accessible phrase', async ({ page })
 });
 
 test('late Welsh translation cannot overwrite the selected English name', async ({ page }) => {
-  let release = () => {};
-  const gate = new Promise(resolve => { release = () => resolve(undefined); });
-  await page.route('**/translations/cy', async route => {
-    await gate;
-    const phrases = route.request().postDataJSON().phrases;
-    await route.fulfill({ json: { translations: Object.fromEntries(phrases.map(p => [p, p === 'select a person' ? 'Dewis person (synthetic)' : p])) } });
-  });
+  const release = await delayWelshTranslation(page, translatedPersonName('Dewis person (synthetic)'));
   await page.goto('/find-person?unique');
   const input = page.locator('#inputSelectPersonfirst');
   const completed = page.waitForResponse('**/translations/cy');
@@ -70,10 +46,7 @@ test('late Welsh translation cannot overwrite the selected English name', async 
 });
 
 test('completed Welsh response replaces the English accessible name', async ({ page }) => {
-  await page.route('**/translations/cy', route => {
-    const phrases = route.request().postDataJSON().phrases;
-    return route.fulfill({ json: { translations: Object.fromEntries(phrases.map(p => [p, p === 'select a person' ? 'Dewis person (synthetic)' : p])) } });
-  });
+  await page.route('**/translations/cy', translatedPersonName('Dewis person (synthetic)'));
   await page.goto('/find-person?unique');
   const input = page.locator('#inputSelectPersonfirst');
   await page.getByRole('button', { name: 'Welsh' }).click();
@@ -81,13 +54,7 @@ test('completed Welsh response replaces the English accessible name', async ({ p
 });
 
 test('whitespace-only translation falls back to a non-blank accessible name', async ({ page }) => {
-  let release = () => {};
-  const gate = new Promise(resolve => { release = () => resolve(undefined); });
-  await page.route('**/translations/cy', async route => {
-    await gate;
-    const phrases = route.request().postDataJSON().phrases;
-    await route.fulfill({ json: { translations: Object.fromEntries(phrases.map(p => [p, p === 'select a person' ? '   ' : p])) } });
-  });
+  const release = await delayWelshTranslation(page, translatedPersonName('   '));
   await page.goto('/find-person?unique');
   const input = page.locator('#inputSelectPersonfirst');
   const completed = page.waitForResponse('**/translations/cy');

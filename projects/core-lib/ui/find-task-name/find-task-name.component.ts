@@ -32,6 +32,11 @@ export class FindTaskNameComponent implements OnInit, OnDestroy {
   @Input() public selectedTaskNames: TaskNameModel[] = [];
   @Input() public errorMessage: string = 'You must select a name';
   @Input() public idValue: string = '';
+  public get hintId(): string { return `sub-title-hint${this.idValue || ''}`; }
+  public get errorId(): string { return `validation-error${this.idValue || ''}`; }
+  public get descriptionIds(): string | null {
+    return [this.subTitle?.length ? this.hintId : null, this.findTaskNameGroup?.errors ? this.errorId : null].filter(Boolean).join(' ') || null;
+  }
   private currentServices = 'IA';
   private readonly servicesChanged = new Subject<void>();
   @Input() public set services(value: string) {

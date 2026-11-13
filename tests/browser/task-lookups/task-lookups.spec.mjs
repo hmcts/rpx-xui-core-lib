@@ -64,12 +64,15 @@ test('task-name retained parent control emits after recreation', async ({ page }
   await input.fill('def'); await expect.poll(() => page.evaluate(() => window.lookupHarness.counts()[0])).toBe(2);
 });
 
-test('multiple lookup instances expose legacy duplicate IDs and task-name description gap', async ({ page }) => {
+test('task-name instance suffixes isolate descriptions while work-type retains legacy IDs', async ({ page }) => {
   await page.goto('/task-lookups?duplicates');
-  await expect(page.locator('[id="inputSelectTaskName"]')).toHaveCount(2);
+  await expect(page.locator('[id="inputSelectTaskName"]')).toHaveCount(1);
+  await expect(page.locator('[id="inputSelectTaskNamesecond"]')).toHaveCount(1);
   await expect(page.locator('[id="inputWorkTypeSearch"]')).toHaveCount(2);
-  await expect(page.locator('[id="sub-title-hint"]')).toHaveCount(2);
-  await expect(page.locator('#inputSelectTaskName').first()).not.toHaveAttribute('aria-describedby', /.+/);
+  await expect(page.locator('#inputSelectTaskName')).toHaveAttribute('aria-describedby', 'sub-title-hint');
+  await expect(page.locator('#inputSelectTaskNamesecond')).toHaveAttribute('aria-describedby', 'sub-title-hintsecond');
+  await expect(page.locator('[id="sub-title-hint"]')).toHaveCount(1);
+  await expect(page.locator('[id="sub-title-hintsecond"]')).toHaveCount(1);
 });
 
 test('task-name reports a malformed response and accepts a later valid result', async ({ page }) => {

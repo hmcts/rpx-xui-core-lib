@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, importProvidersFrom, ViewChild } from '@angular/core';
+import { Component, importProvidersFrom, ViewChild, type AfterViewInit } from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { Subject } from 'rxjs';
-import { RpxTranslationModule } from '@hmcts/rpx-xui-core-lib/i18n';
+import { RpxTranslationModule, RpxTranslationService } from '@hmcts/rpx-xui-core-lib/i18n';
 import { TaskService } from '@hmcts/rpx-xui-core-lib/ui/task-data';
 import { FindTaskNameComponent, FindTaskNameModule } from '@hmcts/rpx-xui-core-lib/ui/find-task-name';
 import { SearchWorkTypeModule } from '@hmcts/rpx-xui-core-lib/ui/search-work-type';
@@ -26,8 +26,15 @@ window.lookupHarness = {
   selector: 'core-task-lookups-host',
   imports: [CommonModule, FindTaskNameModule, SearchWorkTypeModule, FindWorkTypeModule],
   template: `<main><h1>Task and work lookups</h1>
-    @if (showTask) { <xuilib-find-task-name [services]="taskServices" [findTaskNameGroup]="taskForm" (taskNameSelected)="selectTask($event)"></xuilib-find-task-name> }
+    @if (showTask) { <xuilib-find-task-name [services]="taskServices" [subTitle]="taskSubtitle" [findTaskNameGroup]="taskForm" (taskNameSelected)="selectTask($event)"></xuilib-find-task-name> }
     <button type="button" (click)="taskServices = 'B'">Change task service</button>
+    @if (taskA11y) {
+      <button type="button" (click)="taskForm.setErrors({error: 'Select a valid task name'})">Show task error</button>
+      <button type="button" (click)="taskForm.setErrors(null)">Clear task error</button>
+      <button type="button" (click)="requireTaskName()">Require task name</button>
+      <button type="button" (click)="taskSubtitle = ''">Hide task hint</button>
+      <button type="button" (click)="translations.language = 'cy'">Cymraeg</button>
+    }
     @if (retained) { <button type="button" (click)="showTask = !showTask">Toggle task component</button> }
     @if (parentMode) {
       <xuilib-find-work-type [form]="workForm" [fields]="fields" [field]="field" [services]="services"
@@ -40,29 +47,36 @@ window.lookupHarness = {
       <exui-search-work-type [form]="workForm" [field]="field"></exui-search-work-type>
     }
     @if (duplicates) {
-      <xuilib-find-task-name [findTaskNameGroup]="secondTaskForm"></xuilib-find-task-name>
+      <xuilib-find-task-name [idValue]="'second'" [findTaskNameGroup]="secondTaskForm"></xuilib-find-task-name>
       <exui-search-work-type [form]="workForm" [field]="field"></exui-search-work-type>
     }
     <p data-testid="task-selected">{{ taskSelected }}</p>
   </main>`
 })
-class TaskLookupsGallery {
+class TaskLookupsGallery implements AfterViewInit {
   @ViewChild(FindTaskNameComponent) taskPicker?: FindTaskNameComponent;
   readonly taskForm: FormGroup = new FormGroup({});
   readonly secondTaskForm = new FormGroup({});
   readonly retained = new URLSearchParams(window.location.search).has('retained');
   readonly parentMode = new URLSearchParams(window.location.search).has('parent');
   readonly duplicates = new URLSearchParams(window.location.search).has('duplicates');
+  readonly taskA11y = new URLSearchParams(window.location.search).has('taskA11y');
   readonly workForm = new FormGroup({ workTypes: new FormArray([]) });
   readonly submitEvent = new Subject<void>();
   readonly services = ['ia'];
   readonly fields = [{ name: 'services', options: [{ key: 'ia', label: 'IA' }], minSelected: 0, maxSelected: 1, type: 'checkbox' as const }];
   readonly field = { name: 'workTypes', options: [], minSelected: 0, maxSelected: 2, type: 'find-work-type' as const, findLocationField: 'services', servicesField: new URLSearchParams(window.location.search).has('cached') ? 'services' : undefined };
   taskServices = 'IA';
+  taskSubtitle = 'Type the name of the task name and select them.';
   workDisabled = new URLSearchParams(window.location.search).has('disabled');
   showTask = true;
   taskSelected = '';
-  constructor() { if (this.retained) this.taskForm.addControl('findTaskNameControl', new FormControl('Retained', Validators.required)); }
+  constructor(public translations: RpxTranslationService) { if (this.retained) this.taskForm.addControl('findTaskNameControl', new FormControl('Retained', Validators.required)); }
+  requireTaskName() {
+    const control = this.taskForm.get('findTaskNameControl');
+    control?.setValidators(Validators.required);
+    control?.updateValueAndValidity();
+  }
   ngAfterViewInit() { window.lookupHarness.taskOptions = () => this.taskPicker?.filteredOptions ?? []; }
   selectTask(value: { task_type?: { task_type_name: string } } | string) { this.taskSelected = typeof value === 'string' ? value : value?.task_type?.task_type_name ?? ''; }
 }

@@ -1236,12 +1236,32 @@
       }
     },
     {
-      "feature": "Task and work-type known accessibility gap detection",
+      "feature": "Task-name accessibility and work-type known gap",
       "contracts": {
         "browser": [
           {
             "projectName": "chromium",
-            "title": "multiple lookup instances expose legacy duplicate IDs and task-name description gap",
+            "title": "task-name instance suffixes isolate descriptions while work-type retains legacy IDs",
+            "feature": "task-lookups"
+          },
+          {
+            "projectName": "chromium",
+            "title": "task-name exposes its hint as an accessible description",
+            "feature": "task-lookups"
+          },
+          {
+            "projectName": "chromium",
+            "title": "task-name descriptions follow rendered group errors and hints",
+            "feature": "task-lookups"
+          },
+          {
+            "projectName": "chromium",
+            "title": "task-name exposes the existing submitted control invalid state",
+            "feature": "task-lookups"
+          },
+          {
+            "projectName": "chromium",
+            "title": "task-name accessible name follows the selected language",
             "feature": "task-lookups"
           }
         ]
@@ -1255,6 +1275,6 @@
     "Case editor, stateful Node migration and other source-library capabilities remain incomplete or unverified.",
     "Filter state retains session and stream values across a same-tab account change, and an uncached read before owner information is available removes the local filter. Consumer adoption and release remain blocked until these boundaries are resolved or the supported lifecycle is proven safe.",
     "Find person retains identity without user details and direct selection without a control-value event can leave an old search active. Instances sharing a default or identical idValue still have duplicate input, hint and error IDs; the accessible name uses a translated phrase with an English fallback; pending names include an English translation-in-progress marker; real Welsh content and screen-reader acceptance are unverified. Multiple instances sharing one parent FormGroup still share a control and can issue duplicate lookups; replacing the parent group after initialization is unverified. Hint and error DOM IDs now include the supplied idValue, so external references require cutover verification. Consumer adoption requires application identity, accessibility and provider integration validation.",
-    "Task and work-type lookup default IDs can collide and task-name hint/error descriptions are not associated. Incompatible task-name cache data causes subsequent searches for that service to bypass cache without writing until picker recreation, increasing requests; recreation can encounter the same cache again. Real consumer dependency injection, Welsh error copy and assistive-technology acceptance remain unverified."
+    "Task and work-type lookup default IDs can collide; task-name hint and error IDs are scoped when consumers provide distinct idValue values. Incompatible task-name cache data causes subsequent searches for that service to bypass cache without writing until picker recreation, increasing requests; recreation can encounter the same cache again. Real consumer dependency injection, Welsh error copy and assistive-technology acceptance remain unverified."
   ]
 }

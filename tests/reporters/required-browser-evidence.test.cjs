@@ -135,7 +135,11 @@ task-lookups|task-name shows no-results only after an empty successful response
 task-lookups|task-name reports a service failure and recovers on later input
 task-lookups|work-type parent initializes disabled without an Angular error
 task-lookups|task-name retained parent control emits after recreation
-task-lookups|multiple lookup instances expose legacy duplicate IDs and task-name description gap
+task-lookups|task-name instance suffixes isolate descriptions while work-type retains legacy IDs
+task-lookups|task-name exposes its hint as an accessible description
+task-lookups|task-name descriptions follow rendered group errors and hints
+task-lookups|task-name exposes the existing submitted control invalid state
+task-lookups|task-name accessible name follows the selected language
 task-lookups|task-name reports a malformed response and accepts a later valid result
 task-lookups|work-type default lookup reports error and recovers
 task-lookups|work-type cached-service lookup reports error and recovers

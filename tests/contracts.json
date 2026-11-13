@@ -605,7 +605,27 @@
       },
       {
         "projectName": "chromium",
-        "title": "multiple lookup instances expose legacy duplicate IDs and task-name description gap",
+        "title": "task-name instance suffixes isolate descriptions while work-type retains legacy IDs",
+        "feature": "task-lookups"
+      },
+      {
+        "projectName": "chromium",
+        "title": "task-name exposes its hint as an accessible description",
+        "feature": "task-lookups"
+      },
+      {
+        "projectName": "chromium",
+        "title": "task-name descriptions follow rendered group errors and hints",
+        "feature": "task-lookups"
+      },
+      {
+        "projectName": "chromium",
+        "title": "task-name exposes the existing submitted control invalid state",
+        "feature": "task-lookups"
+      },
+      {
+        "projectName": "chromium",
+        "title": "task-name accessible name follows the selected language",
         "feature": "task-lookups"
       },
       {
