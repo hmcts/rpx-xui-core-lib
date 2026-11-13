@@ -3,7 +3,7 @@
   "name": "@hmcts/rpx-xui-core-node-workspace",
   "private": true,
   "scripts": {
-    "test:server": "NODE_OPTIONS=--experimental-vm-modules jest --config ../../../jest.node-server.config.cjs --runInBand"
+    "test:server": "NODE_OPTIONS=--experimental-vm-modules jest --config ../../../jest.node-server.config.cjs --runInBand --json --outputFile=../../../test-results/node-server.json"
   },
   "devDependencies": {
     "@dr.pogodin/csurf": "^1.17.1",

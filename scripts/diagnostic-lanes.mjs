@@ -5,7 +5,7 @@ export const steps = [
   ['build', 'yarn', 'build'], ['lint', 'yarn', 'lint'],
   ['tooling-security', 'yarn', 'test:tooling-security'], ['reporters', 'yarn', 'test:reporters'],
   ['contracts-tests', 'yarn', 'test:contracts'], ['compatibility-contracts', 'yarn', 'test:compatibility:contracts'],
-  ['refDataUnit', 'lane', 'test:ref-data'], ['locationUnit', 'lane', 'test:locations'], ['windowUnit', 'lane', 'test:window'], ['cookieUnit', 'lane', 'test:cookie'], ['featureToggleUnit', 'lane', 'test:feature-toggle'], ['roleUnit', 'lane', 'test:roles'], ['unit', 'lane', 'test'], ['nodeUnit', 'lane', 'test:node'], ['i18nUnit', 'lane', 'test:i18n'],
+  ['refDataUnit', 'lane', 'test:ref-data'], ['locationUnit', 'lane', 'test:locations'], ['windowUnit', 'lane', 'test:window'], ['cookieUnit', 'lane', 'test:cookie'], ['featureToggleUnit', 'lane', 'test:feature-toggle'], ['roleUnit', 'lane', 'test:roles'], ['unit', 'lane', 'test'], ['nodeUnit', 'lane', 'test:node:utils'], ['nodeServerUnit', 'lane', 'test:node:server'], ['i18nUnit', 'lane', 'test:i18n'],
  ['package', 'lane', 'test:package'],
   ['host-build', 'yarn', 'build:host'], ['browser-support', 'yarn', 'test:browser:support'],
   ['browser', 'lane', 'test:browser'], ['cacheBrowser', 'lane', 'test:cache-upgrade'],
@@ -17,11 +17,11 @@ export const steps = [
 
 /** @type {Record<string, string[]>} */
 export const prerequisites = {
-  refDataUnit: ['build'], locationUnit: ['build'], windowUnit: ['build'], cookieUnit: ['build'], featureToggleUnit: ['build'], roleUnit: ['build'], unit: ['build'], nodeUnit: ['build'], i18nUnit: ['build'],
+  refDataUnit: ['build'], locationUnit: ['build'], windowUnit: ['build'], cookieUnit: ['build'], featureToggleUnit: ['build'], roleUnit: ['build'], unit: ['build'], nodeUnit: ['build'], nodeServerUnit: ['build'], i18nUnit: ['build'],
   package: ['build'], 'host-build': ['build'],
   browser: ['host-build', 'browser-support'],
   cacheBrowser: ['package', 'host-build', 'browser-support'],
-  'contracts-gate': ['refDataUnit', 'locationUnit', 'windowUnit', 'cookieUnit', 'featureToggleUnit', 'roleUnit', 'unit', 'nodeUnit', 'i18nUnit', 'package', 'browser', 'cacheBrowser'],
+  'contracts-gate': ['refDataUnit', 'locationUnit', 'windowUnit', 'cookieUnit', 'featureToggleUnit', 'roleUnit', 'unit', 'nodeUnit', 'nodeServerUnit', 'i18nUnit', 'package', 'browser', 'cacheBrowser'],
   'publisher-check': ['contracts-gate'], 'browser-report': ['browser'], 'cache-report': ['cacheBrowser']
 };
 

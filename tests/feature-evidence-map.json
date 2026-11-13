@@ -409,18 +409,8 @@
       "contracts": {
         "package": [
           "package.physical-secondary-declaration",
-          "package.strict-node",
           "package.strict-bundler",
           "package.installed-runtime",
-          "package.missing-declaration-fault",
-          "package.restored-node",
-          "package.physical-node",
-          "package.installed-node-runtime",
-          "package.installed-node-http",
-          "package.node-loading-fault",
-          "package.browser-denied",
-          "package.missing-marker-fault",
-          "package.restored-node-runtime",
           "package.physical-i18n",
           "package.staged-i18n-identity",
           "package.root-runtime-empty",
@@ -977,9 +967,97 @@
           "package.checkbox-list-graph"
         ]
       }
+    },
+    {
+      "feature": "Node package and type boundaries",
+      "contracts": {
+        "package": [
+          "package.strict-node",
+          "package.missing-declaration-fault",
+          "package.restored-node",
+          "package.physical-node",
+          "package.installed-node-runtime",
+          "package.installed-node-http",
+          "package.node-loading-fault",
+          "package.browser-denied",
+          "package.missing-marker-fault",
+          "package.restored-node-runtime",
+          "package.node-only-peer-install",
+          "package.strict-node-node-types",
+          "package.strict-node-server-types",
+          "package.strict-node-auth-types",
+          "package.strict-node-session-types"
+        ]
+      }
+    },
+    {
+      "feature": "Packed Angular consumer cohort",
+      "contracts": {
+        "package": [
+          "package.angular-20_3_31-cohort-build"
+        ]
+      }
     }
   ],
-  "suiteGroups": [],
+  "suiteGroups": [
+    {
+      "feature": "Node authentication strategy",
+      "lane": "nodeServerUnit",
+      "suiteTokens": [
+        "projects/core-lib/node/server/auth/models/strategy.class.spec.ts"
+      ]
+    },
+    {
+      "feature": "Node OIDC authentication",
+      "lane": "nodeServerUnit",
+      "suiteTokens": [
+        "projects/core-lib/node/server/auth/oidc/models/openid.class.spec.ts"
+      ]
+    },
+    {
+      "feature": "Node token refresh integration",
+      "lane": "nodeServerUnit",
+      "suiteTokens": [
+        "projects/core-lib/node/server/auth/oidc/models/keep-alive-refresh.spec.ts"
+      ]
+    },
+    {
+      "feature": "Node OAuth2 authentication",
+      "lane": "nodeServerUnit",
+      "suiteTokens": [
+        "projects/core-lib/node/server/auth/oauth2/models/oauth2.class.spec.ts",
+        "projects/core-lib/node/server/auth/oauth2/models/XUIOAuth2Strategy.class.spec.ts"
+      ]
+    },
+    {
+      "feature": "Node service authentication",
+      "lane": "nodeServerUnit",
+      "suiteTokens": [
+        "projects/core-lib/node/server/auth/s2s/s2s.class.spec.ts"
+      ]
+    },
+    {
+      "feature": "Node application middleware",
+      "lane": "nodeServerUnit",
+      "suiteTokens": [
+        "projects/core-lib/node/server/common/models/xuiNode.class.spec.ts"
+      ]
+    },
+    {
+      "feature": "Node file sessions",
+      "lane": "nodeServerUnit",
+      "suiteTokens": [
+        "projects/core-lib/node/server/session/models/fileSessionStore.class.spec.ts"
+      ]
+    },
+    {
+      "feature": "Node Redis sessions",
+      "lane": "nodeServerUnit",
+      "suiteTokens": [
+        "projects/core-lib/node/server/session/models/redisSessionStore.class.spec.ts"
+      ]
+    }
+  ],
   "fallbacks": [],
   "unmigrated": [
     "This report does not establish migration completeness, consumer adoption, production coverage or a release decision.",

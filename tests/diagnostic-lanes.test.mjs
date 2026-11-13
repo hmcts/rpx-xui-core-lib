@@ -55,3 +55,13 @@ test('a successful driver with a failed server is a failed lane and blocks depen
   assert.equal(result.results[0].status, 'failed');
   assert.deepEqual(result.results[1].blockers, ['i18nUnit']);
 });
+
+test('Node server failure blocks the aggregate gate while independent diagnostics continue', () => {
+  const called = [];
+  const report = runSteps(name => { called.push(name); return { status: name === 'nodeServerUnit' ? 1 : 0 }; });
+  assert.ok(called.includes('nodeServerUnit'));
+  assert.ok(called.includes('i18nUnit'));
+  assert.equal(report.results.find(step => step.name === 'nodeServerUnit').status, 'failed');
+  assert.deepEqual(report.results.find(step => step.name === 'contracts-gate').blockers, ['nodeServerUnit']);
+  assert.equal(report.passed, false);
+});

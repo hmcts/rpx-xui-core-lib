@@ -11,3 +11,16 @@ test('duplicate mapping fails closed', () => { const m = copy(mapping); const id
 test('unknown contract fails closed', () => { const m = copy(mapping); Object.values(m.features[0].contracts)[0][0] = 'unknown'; assert.throws(() => validateMapping(inventory, m), /Unknown/); });
 test('a newly required contract fails closed until reviewed', () => { const value = copy(inventory); value.unit.required.push('new contract'); assert.throws(() => validateMapping(value, mapping), /Missing/); });
 test('unavailable evidence makes no passing or coverage claim', () => { const html = renderMatrix('unavailable', mapping, {}, inventory); assert.match(html, /not coverage or a complete feature inventory/); assert.match(html, /unclassified/); assert.match(html, /unavailable|incomplete/i); assert.doesNotMatch(html, /required cases passed/); });
+
+test('all migrated Node server cases have named feature groups', () => {
+  assert.equal(inventory.nodeServerUnit.required.length, 131);
+  assert.equal(mapping.suiteGroups.filter(group => group.lane === 'nodeServerUnit').length, 8);
+  const html = renderMatrix('verified', mapping, {}, inventory);
+  for (const feature of ['Node authentication strategy', 'Node OIDC authentication', 'Node token refresh integration',
+    'Node OAuth2 authentication', 'Node service authentication', 'Node application middleware', 'Node file sessions', 'Node Redis sessions']) {
+    assert.ok(html.includes(feature));
+  }
+  assert.match(html, /<th scope="col">nodeServerUnit<\/th>/);
+  assert.match(html, /54 required cases passed/);
+  assert.match(html, /21 required cases passed/);
+});
