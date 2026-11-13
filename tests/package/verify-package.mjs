@@ -96,6 +96,86 @@ try {
     typescript: '5.9.3',
   };
   await cp(candidate, join(evidence, 'candidate.tgz'));
+
+  await check('package.node-only-peer-install', async () => {
+    const nodeConsumer = join(scratch, 'node-only-consumer');
+    await mkdir(nodeConsumer, { recursive: true });
+    await cp(candidate, join(nodeConsumer, 'candidate.tgz'));
+    await cp(join(root, 'tests/fixtures/package/node-only-runtime.mjs'), join(nodeConsumer, 'node-only-runtime.mjs'));
+    await writeFile(join(nodeConsumer, '.yarnrc.yml'), 'nodeLinker: node-modules\n');
+    await writeFile(join(nodeConsumer, 'package.json'), `${JSON.stringify({
+      name: 'core-lib-node-only-consumer',
+      version: '0.0.0',
+      private: true,
+      type: 'module',
+      packageManager: 'yarn@4.18.1',
+      dependencies: { '@hmcts/rpx-xui-core-lib': 'file:./candidate.tgz' },
+    }, null, 2)}\n`);
+    await run('node-only-lock', [yarn, 'install', '--mode=update-lockfile'], nodeConsumer);
+    const lock = await readFile(join(nodeConsumer, 'yarn.lock'), 'utf8');
+    await run('node-only-install-immutable', [yarn, 'install', '--immutable'], nodeConsumer);
+    assert.equal(await readFile(join(nodeConsumer, 'yarn.lock'), 'utf8'), lock);
+    for (const peer of ['@angular/common', '@angular/core', '@angular/forms', '@angular/material', '@angular/cdk', '@angular/platform-browser', 'rxjs', 'zone.js']) {
+      await assert.rejects(stat(join(nodeConsumer, 'node_modules', peer)), { code: 'ENOENT' }, `Node consumer must not install ${peer}`);
+    }
+    await run('node-only-runtime', ['node-only-runtime.mjs'], nodeConsumer);
+    const missingUiPeer = spawnSync(process.execPath, ['--input-type=module', '-e', "await import('@hmcts/rpx-xui-core-lib/forms/validation')"], { cwd: nodeConsumer, env, encoding: 'utf8' });
+    const diagnostic = `${missingUiPeer.stdout ?? ''}${missingUiPeer.stderr ?? ''}`;
+    await writeFile(join(evidence, 'node-only-ui-entry.log'), diagnostic);
+    assert.equal(missingUiPeer.status, 1, 'A UI entry cannot be imported without its Angular peers');
+    assert.match(diagnostic, /Cannot find package ['"]@angular\/forms['"]/);
+  });
+
+  await check('package.angular-20_3_31-cohort-build', async () => {
+    const uiConsumer = join(scratch, 'angular-20.3.31-consumer');
+    await mkdir(uiConsumer, { recursive: true });
+    await cp(candidate, join(uiConsumer, 'candidate.tgz'));
+    await cp(join(root, 'tests/fixtures/packed-loading'), join(uiConsumer, 'loading-host'), { recursive: true });
+    await cp(join(uiConsumer, 'loading-host/angular.json'), join(uiConsumer, 'angular.json'));
+    await writeFile(join(uiConsumer, 'loading-host/main.ts'), `
+      import { Component, importProvidersFrom, provideZonelessChangeDetection } from '@angular/core';
+      import { bootstrapApplication } from '@angular/platform-browser';
+      import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+      import { checkboxesBeCheckedValidator } from '@hmcts/rpx-xui-core-lib/forms/validation';
+      @Component({ selector: 'consumer-cohort', template: '<main>{{ form.valid }}</main>' })
+      class ConsumerCohort {
+        form = new FormGroup({ selected: new FormControl(false, { nonNullable: true }) }, checkboxesBeCheckedValidator());
+      }
+      bootstrapApplication(ConsumerCohort, { providers: [provideZonelessChangeDetection(), importProvidersFrom(ReactiveFormsModule)] });
+    `);
+    await writeFile(join(uiConsumer, '.yarnrc.yml'), 'nodeLinker: node-modules\n');
+    await writeFile(join(uiConsumer, 'package.json'), `${JSON.stringify({
+      name: 'core-lib-angular-cohort-consumer',
+      version: '0.0.0',
+      private: true,
+      type: 'module',
+      packageManager: 'yarn@4.18.1',
+      dependencies: {
+        '@hmcts/rpx-xui-core-lib': 'file:./candidate.tgz',
+        '@angular/animations': '20.3.31',
+        '@angular/build': '20.3.31',
+        '@angular/cdk': '20.2.14',
+        '@angular/cli': '20.3.31',
+        '@angular/common': '20.3.31',
+        '@angular/compiler': '20.3.31',
+        '@angular/compiler-cli': '20.3.31',
+        '@angular/core': '20.3.31',
+        '@angular/forms': '20.3.31',
+        '@angular/material': '20.2.14',
+        '@angular/platform-browser': '20.3.31',
+        rxjs: '7.8.2',
+        tslib: '2.8.1',
+        typescript: '5.9.3',
+      },
+    }, null, 2)}\n`);
+    await run('angular-cohort-lock', [yarn, 'install', '--mode=update-lockfile'], uiConsumer);
+    const lock = await readFile(join(uiConsumer, 'yarn.lock'), 'utf8');
+    await run('angular-cohort-install', [yarn, 'install', '--immutable'], uiConsumer);
+    assert.equal(await readFile(join(uiConsumer, 'yarn.lock'), 'utf8'), lock);
+    await run('angular-cohort-build', [join(uiConsumer, 'node_modules/@angular/cli/bin/ng.js'), 'build', 'loading-host'], uiConsumer);
+    assert.ok((await stat(join(uiConsumer, 'loading-dist/browser/index.html'))).isFile());
+  });
+
   await cp(join(root, 'tests/fixtures/package'), consumer, { recursive: true });
   await cp(candidate, join(consumer, 'candidate.tgz'));
   const manifest = JSON.parse(await readFile(join(consumer, 'package.json'), 'utf8'));
