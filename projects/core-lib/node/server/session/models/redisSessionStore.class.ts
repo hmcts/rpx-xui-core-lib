@@ -23,7 +23,7 @@ export class RedisSessionStore extends SessionStore {
         this.redisClientErrorListener(this.redisClient)
 
         this.redisClient.connect().catch((error: Error) => {
-            this.logger.error(error)
+            this.logger.error('redis client connection error', error instanceof Error ? error.name : 'Unknown error')
             this.emitEvent(SESSION.EVENT.REDIS_CLIENT_ERROR, error)
         })
 
@@ -41,22 +41,20 @@ export class RedisSessionStore extends SessionStore {
         redisClient.on('ready', () => {
             this.emitEvent(SESSION.EVENT.REDIS_CLIENT_READY, redisClient)
             this.logger.info('redis client connected successfully')
-            this.logger.info('redisClient is ', redisClient)
         })
     }
 
     public redisClientErrorListener = (redisClient: RedisClientType) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any -- preserve the migrated Node Lib public callback or provider contract until a separately versioned type change.
         redisClient.on('error', (error: any) => {
-            this.logger.error(error)
-            this.logger.info('redisClient is ', redisClient)
+            this.logger.error('redis client emitted an error', error instanceof Error ? error.name : 'Unknown error')
             this.emitEvent(SESSION.EVENT.REDIS_CLIENT_ERROR, error)
         })
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- preserve the migrated Node Lib public callback or provider contract until a separately versioned type change.
     public emitEvent = (eventName: string, eventObject: any) => {
-        if (this.listenerCount(SESSION.EVENT.REDIS_CLIENT_READY)) {
+        if (this.listenerCount(eventName)) {
             this.emit(eventName, eventObject)
         }
     }

@@ -81,9 +81,7 @@
     "@angular/material": "20.2.14",
     "@angular/cdk": "20.2.14",
     "@angular/platform-browser": "^20.3.27",
-    "express": "5.2.1",
-    "express-session": "1.19.0",
-    "passport": "0.7.0"
+    "express": "5.2.1"
   },
   "libraryPeerDependenciesMeta": {
     "@angular/common": {
@@ -109,12 +107,6 @@
     },
     "express": {
       "optional": true
-    },
-    "express-session": {
-      "optional": true
-    },
-    "passport": {
-      "optional": true
     }
   },
   "libraryDependencies": {
@@ -122,12 +114,14 @@
     "connect-redis": "^9.0.0",
     "debug": "^4.4.3",
     "dexie": "4.4.7",
+    "express-session": "^1.19.0",
     "joi": "^18.3.0",
     "jwt-decode": "^4.0.0",
     "luxon": "2.5.2",
     "axios": "^1.20.0",
     "openid-client": "^5.7.1",
     "otplib": "^13.4.0",
+    "passport": "^0.7.0",
     "passport-oauth2": "^1.8.0",
     "redis": "^6.1.0",
     "session-file-store": "^1.5.0"
@@ -314,10 +308,12 @@
       "@dr.pogodin/csurf",
       "connect-redis",
       "debug",
+      "express-session",
       "joi",
       "jwt-decode",
       "openid-client",
       "otplib",
+      "passport",
       "passport-oauth2",
       "redis",
       "session-file-store"
@@ -352,12 +348,14 @@
     "connect-redis": "9.0.0",
     "debug": "4.4.3",
     "dexie": "4.4.7",
+    "express-session": "1.19.0",
     "joi": "18.3.2",
     "jwt-decode": "4.0.0",
     "luxon": "2.5.2",
     "axios": "1.21.1",
     "openid-client": "5.7.1",
     "otplib": "13.6.0",
+    "passport": "0.7.0",
     "passport-oauth2": "1.8.0",
     "redis": "6.3.1",
     "session-file-store": "1.5.0"

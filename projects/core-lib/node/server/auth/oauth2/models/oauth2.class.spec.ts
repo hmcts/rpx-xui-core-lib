@@ -57,6 +57,7 @@ describe('OAUTH2 Auth', () => {
         }
         const handler = oauth2.configure(options)
         expect(handler).toBeTruthy()
+        expect(handler).toBe((oauth2 as unknown as { router: Router }).router)
     })
 
     test('loginHandler with session and sessionKey', async () => {

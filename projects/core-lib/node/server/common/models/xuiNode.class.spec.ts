@@ -4,6 +4,32 @@ import { XuiNodeOptions } from './xuiNodeOptions.interface'
 import { XuiNodeMiddlewareInterface } from './xuiNodeMiddleware.interface'
 import { createMock } from '@golevelup/ts-jest';
 import { createMockPassportRequest } from './test/passportRequest.mock'
+import { Strategy } from '../../auth/models/strategy.class'
+import { XuiLogger } from '../util/debug.logger'
+
+class DelayedStrategy extends Strategy {
+    constructor(router: Router, logger: XuiLogger, initialization: Promise<void>) {
+        super('oidc', router, logger)
+        this.initialiseStrategy = async () => initialization
+    }
+}
+
+const createRouter = (): Router => Object.assign(jest.fn(), { use: jest.fn(), get: jest.fn() }) as unknown as Router
+
+const authOptions = {
+    authorizationURL: 'https://idam.test/auth',
+    tokenURL: 'https://idam.test/token',
+    clientID: 'client-id',
+    clientSecret: 'client-secret',
+    callbackURL: 'https://service.test/callback',
+    scope: 'openid',
+    logoutURL: 'https://idam.test/logout',
+    discoveryEndpoint: 'https://idam.test/.well-known',
+    issuerURL: 'https://idam.test',
+    responseTypes: ['code'],
+    tokenEndpointAuthMethod: 'client_secret_basic',
+    useRoutes: false,
+}
 
 jest.mock('../../auth', () => ({
     oidc: {},
@@ -76,6 +102,63 @@ test('xuiNode configure forwards an earlier setup failure without entering the r
 
     expect(mockRouter).not.toHaveBeenCalled()
     expect(next).toHaveBeenCalledTimes(1)
+    expect(next).toHaveBeenCalledWith(error)
+})
+
+test('xuiNode does not route before the real auth strategy finishes initialization', async () => {
+    const authRouter = createRouter()
+    const nodeRouter = createRouter()
+    const logger = createMock<typeof console>()
+    let releaseInitialization: () => void = () => {}
+    const initialization = new Promise<void>((resolve) => { releaseInitialization = resolve })
+    const strategy = new DelayedStrategy(authRouter, logger, initialization)
+    for (const method of ['serializeUser', 'deserializeUser', 'initializeTrustProxy', 'initializePassport', 'initializeSession', 'initializeKeepAlive', 'initialiseCSRF', 'addHeaders'] as const) {
+        jest.spyOn(strategy, method).mockImplementation(() => {})
+    }
+    const xuiNode = new XuiNode(nodeRouter, ['session', 'auth'], logger)
+    const importMiddleware = jest.spyOn(xuiNode, 'importMiddleware').mockResolvedValue({ oidc: strategy } as unknown as Awaited<ReturnType<typeof xuiNode.importMiddleware>>)
+    const waitUntilReady = jest.spyOn(strategy, 'waitUntilReady')
+    const handler = xuiNode.configure({ auth: { oidc: authOptions } } as XuiNodeOptions)
+    const req = createMockPassportRequest(null)
+    const res = createMock<Response>()
+    const next = jest.fn()
+
+    handler(req, res, next)
+    await new Promise<void>((resolve) => setImmediate(resolve))
+    expect(importMiddleware).toHaveBeenCalledWith('auth')
+    expect(waitUntilReady).toHaveBeenCalledTimes(1)
+    expect(nodeRouter).not.toHaveBeenCalled()
+
+    releaseInitialization()
+    await new Promise<void>((resolve) => setImmediate(resolve))
+
+    expect(nodeRouter.use).toHaveBeenCalledTimes(1)
+    expect(nodeRouter).toHaveBeenCalledWith(req, res, next)
+})
+
+test('xuiNode forwards OIDC initialization failures and does not route requests', async () => {
+    const authRouter = createRouter()
+    const nodeRouter = createRouter()
+    const logger = createMock<typeof console>()
+    let failInitialization: (error: Error) => void = () => {}
+    const initialization = new Promise<void>((_resolve, reject) => { failInitialization = reject })
+    const strategy = new DelayedStrategy(authRouter, logger, initialization)
+    for (const method of ['serializeUser', 'deserializeUser', 'initializeTrustProxy', 'initializePassport', 'initializeSession', 'initializeKeepAlive', 'initialiseCSRF', 'addHeaders'] as const) {
+        jest.spyOn(strategy, method).mockImplementation(() => {})
+    }
+    const xuiNode = new XuiNode(nodeRouter, ['session', 'auth'], logger)
+    jest.spyOn(xuiNode, 'importMiddleware').mockResolvedValue({ oidc: strategy } as unknown as Awaited<ReturnType<typeof xuiNode.importMiddleware>>)
+    const handler = xuiNode.configure({ auth: { oidc: authOptions } } as XuiNodeOptions)
+    const req = createMockPassportRequest(null)
+    const res = createMock<Response>()
+    const next = jest.fn()
+    const error = new Error('discovery failed')
+
+    handler(req, res, next)
+    failInitialization(error)
+    await new Promise<void>((resolve) => setImmediate(resolve))
+
+    expect(nodeRouter).not.toHaveBeenCalled()
     expect(next).toHaveBeenCalledWith(error)
 })
 

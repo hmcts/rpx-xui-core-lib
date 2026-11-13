@@ -47,18 +47,13 @@ export class OpenID extends AuthStrategy {
                 beforeRequest: [
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- preserve the migrated Node Lib public callback or provider contract until a separately versioned type change.
                     (options: any) => {
-                        this.logger.log('--> %s %s', options.method.toUpperCase(), options.href)
+                        this.logger.log('--> %s', options.method.toUpperCase())
                     },
                 ],
                 afterResponse: [
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- preserve the migrated Node Lib public callback or provider contract until a separately versioned type change.
                     (response: any) => {
-                        this.logger.log(
-                            '<-- %i FROM %s %s',
-                            response.statusCode,
-                            response.request.gotOptions.method.toUpperCase(),
-                            response.request.gotOptions.href,
-                        )
+                        this.logger.log('<-- %i FROM %s', response.statusCode, response.request.gotOptions.method.toUpperCase())
                         return response
                     },
                 ],
@@ -129,7 +124,7 @@ export class OpenID extends AuthStrategy {
                         }
                     }
                 } catch (e) {
-                    this.logger.error('refresh error => ', e)
+                    this.logger.error('refresh error', this.getSafeErrorName(e))
                     return next(e)
                 }
             }
@@ -138,11 +133,11 @@ export class OpenID extends AuthStrategy {
     }
 
     public discover = async (): Promise<Issuer<Client>> => {
-        this.logger.info(`discovering endpoint: ${this.options.discoveryEndpoint}`)
+        this.logger.info('discovering OIDC issuer')
         const issuer = await this.discoverIssuer()
 
         const metadata = issuer.metadata
-        this.logger.log('discover metadata', metadata)
+        this.logger.log('OIDC discovery metadata received')
 
         return this.newIssuer(metadata)
     }
@@ -173,11 +168,7 @@ export class OpenID extends AuthStrategy {
             this.logger.warn(VERIFY_ERROR_MESSAGE_NO_ACCESS_ROLES)
             return done(null, false, { message: VERIFY_ERROR_MESSAGE_NO_ACCESS_ROLES })
         }
-        const allowedKeys = ['ssoProvider', 'uid', 'identity', 'roles', 'iss']
-        const filteredUserinfo = Object.fromEntries(
-            Object.entries(userinfo).filter(([key]) => allowedKeys.includes(key))
-        )
-        this.logger.info('verify okay, user:', filteredUserinfo)
+        this.logger.info('OIDC user verification succeeded')
 
         return done(null, { tokenset: this.convertTokenSet(tokenset), userinfo })
     }
@@ -209,7 +200,7 @@ export class OpenID extends AuthStrategy {
             throw new Error('auto discovery failed')
         }
         const options = this.getOpenIDOptions(authOptions, this.issuer)
-        this.logger.log('initialiseStrategy options', options)
+        this.logger.log('OIDC strategy configuration applied')
         this.client = this.getClientFromIssuer(this.issuer, options)
         if (!this.client) {
             throw new Error('client not initialised')
@@ -289,11 +280,11 @@ export class OpenID extends AuthStrategy {
                     this.logger.log('passport authenticate')
 
                     if (error) {
-                        this.logger.error('loginHandler error: ', JSON.stringify(error, this.redactingLogReplacer))
+                        this.logger.error('loginHandler error', this.getSafeErrorName(error))
                     }
                     /* istanbul ignore next */
                     if (info) {
-                        this.logger.info('loginHandler info: ', JSON.stringify(info, this.redactingLogReplacer))
+                        this.logger.info('loginHandler returned info')
                     }
                     /* istanbul ignore next */
                     if (user) {
@@ -307,8 +298,8 @@ export class OpenID extends AuthStrategy {
                 },
             )(req, res, next)
         } catch (error) {
-            this.logger.error('this should not throw an error')
-            throw new Error(`this should not throw an ${error}`)
+            this.logger.error('OIDC login handler failed', this.getSafeErrorName(error))
+            throw new Error('OIDC login handler failed')
         }
     }
 }

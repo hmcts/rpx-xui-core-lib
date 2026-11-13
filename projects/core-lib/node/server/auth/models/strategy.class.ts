@@ -14,9 +14,6 @@ import { MySessionData } from './sessionData.interface'
 import { jwtDecode } from 'jwt-decode'
 
 export abstract class Strategy extends events.EventEmitter {
-    protected static readonly REDACTED_LOG_VALUE = '[REDACTED]'
-    private static readonly SENSITIVE_LOG_KEY_PATTERN = /(clientSecret|client_secret|password|token|authorization)/i
-
     public readonly strategyName: string
 
     protected readonly router: Router
@@ -43,6 +40,8 @@ export abstract class Strategy extends events.EventEmitter {
         routeCredential: undefined,
         serviceOverride: false,
     }
+
+    private strategyInitialization: Promise<{ failed: false } | { failed: true; error: unknown }> = Promise.resolve({ failed: false })
 
     protected constructor(strategyName: string, router: Router, logger: XuiLogger = getLogger('auth:strategy')) {
         super()
@@ -87,34 +86,32 @@ export abstract class Strategy extends events.EventEmitter {
         return true
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- preserve the migrated Node Lib public callback or provider contract until a separately versioned type change.
-    protected redactingLogReplacer = (key: string, value: any): any => {
-        if (key && Strategy.SENSITIVE_LOG_KEY_PATTERN.test(key)) {
-            return Strategy.REDACTED_LOG_VALUE
-        }
-        return value
-    }
+    protected getSafeErrorName = (error: unknown): string => error instanceof Error ? error.name : 'Unknown error'
 
     /* istanbul ignore next */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- preserve the migrated Node Lib public callback or provider contract until a separately versioned type change.
     public initialiseStrategy = async (options: any): Promise<void> => {
         this.options = options
-        this.logger.log('initialising strategy, options:')
-        this.logger.log(JSON.stringify(options, this.redactingLogReplacer))
+        this.logger.log('authentication strategy initializing')
+    }
+
+    public waitUntilReady = async (): Promise<void> => {
+        const result = await this.strategyInitialization
+        if (result.failed) throw result.error
     }
 
     private saveStateInSession(reqSession: MySessionData, state?: string): { promise: Promise<boolean>, state: string } {
         if (!state) {
             state = generators.state()
-            this.logger.log(`state not found, generating new state ${state}`)
+            this.logger.log('state not found, generating state')
         }
         const p = new Promise<boolean>((resolve) => {
             if (reqSession && this.options?.sessionKey) {
                 // add the state to the current session object, this will then contain both nonce and state
                 reqSession[this.options?.sessionKey] = { ...reqSession[this.options.sessionKey], state }
-                this.logger.log(`saving state ${state} in session`)
+                this.logger.log('saving state in session')
                 reqSession.save(() => {
-                    this.logger.log(`state ${state} saved in session`)
+                    this.logger.log('state saved in session')
                     resolve(true)
                 })
             } else {
@@ -145,7 +142,7 @@ export abstract class Strategy extends events.EventEmitter {
             /* istanbul ignore next */
             await promise
             /* istanbul ignore next */
-            this.logger.log('calling passport authenticate with state ' + state)
+            this.logger.log('calling passport authenticate')
             const loginHint = this.getLoginHint(req)
             /* istanbul ignore next */
             return passport.authenticate(
@@ -161,27 +158,24 @@ export abstract class Strategy extends events.EventEmitter {
                 (error: any, user: any, info: any) => {
                     /* istanbul ignore next */
                     if (error) {
-                        this.logger.error(
-                            'passport authenticate error ',
-                            JSON.stringify(error, this.redactingLogReplacer),
-                        )
+                        this.logger.error('passport authenticate error', this.getSafeErrorName(error))
                     }
                     /* istanbul ignore next */
                     if (info) {
-                        this.logger.info('passport authenticate info', JSON.stringify(info, this.redactingLogReplacer))
+                        this.logger.info('passport authenticate returned info')
                     }
                     /* istanbul ignore next */
                     if (!user) {
                         const message = 'No user details returned by the authentication service, redirecting to login'
                         this.logger.log(message)
                     } else {
-                        this.logger.log('User details from passport.authenticate ' + user.userInfo?.email)
+                        this.logger.log('User details returned by passport.authenticate')
                     }
                 },
             )(req, res, next)
             /* istanbul ignore next */
         } catch (error) {
-            this.logger.error('Exception in passport.authenticate', error, this.strategyName)
+                        this.logger.error('Exception in passport.authenticate', this.getSafeErrorName(error), this.strategyName)
             next(error)
         }
     }
@@ -211,13 +205,12 @@ export abstract class Strategy extends events.EventEmitter {
             })
         }
 
-        // 🔍 Log current config and session key status
-        this.logger.log(`setCallbackURL, options.callbackurl: ${this.options.callbackURL}`)
+        this.logger.log('callback URL configured')
 
         if (this.options.sessionKey) {
             const sessionKey = this.options.sessionKey
-            this.logger.log(`sessionKey: ${sessionKey}`)
-            this.logger.log(`state from session = ${reqSession[sessionKey]?.state}`)
+            this.logger.log('session key configured')
+            this.logger.log('session state available: ' + Boolean(reqSession[sessionKey]?.state))
         } else {
             this.logger.log('sessionKey not set')
         }
@@ -249,7 +242,7 @@ export abstract class Strategy extends events.EventEmitter {
             //passport provides this method on request object
             req.logout({ keepSessionInfo: false }, async (err) => {
                 if (err) {
-                    console.error(err)
+                    this.logger.error('logout callback error', this.getSafeErrorName(err))
                     return next(err)
                 }
                 await this.destroySession(req)
@@ -266,7 +259,7 @@ export abstract class Strategy extends events.EventEmitter {
 
                 const redirect = finalSSOLogoutUrl ? finalSSOLogoutUrl : AUTH.ROUTE.LOGIN
 
-                this.logger.log('redirecting to => ', redirect)
+                this.logger.log('redirecting to logout target')
                 // 401 is when no accessToken
                 res.redirect(redirect as string)
 
@@ -274,7 +267,7 @@ export abstract class Strategy extends events.EventEmitter {
             })
 
         } catch (e) {
-            this.logger.error('error => ', e)
+            this.logger.error('logout error', this.getSafeErrorName(e))
             res.status(401).redirect(AUTH.ROUTE.DEFAULT_REDIRECT)
         }
         this.logger.log('logout end')
@@ -316,7 +309,7 @@ export abstract class Strategy extends events.EventEmitter {
     public accessDenied = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         req.logout({ keepSessionInfo: false }, async (err) => {
             if (err) {
-                console.error(err)
+                this.logger.error('access denied logout error', this.getSafeErrorName(err))
                 return next(err)
             }
             try {
@@ -341,9 +334,10 @@ export abstract class Strategy extends events.EventEmitter {
 
         this.serializeUser()
         this.deserializeUser()
-        ;(async () => {
-            await this.initialiseStrategy(this.options)
-        })()
+        this.strategyInitialization = this.initialiseStrategy(this.options).then(
+            () => ({ failed: false as const }),
+            (error: unknown) => ({ failed: true as const, error }),
+        )
         // ensure trust proxy is always enabled before any other middleware executes
         this.initializeTrustProxy()
         this.initializePassport()
@@ -365,7 +359,7 @@ export abstract class Strategy extends events.EventEmitter {
 
     /* istanbul ignore next */
     public callbackHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-        this.logger.log('in callbackHandler for url ' + req.url)
+        this.logger.log('in callbackHandler')
         const reqSession = req.session as MySessionData
         const qstate = typeof req.query.state == 'string' ? req.query.state : undefined
         const INVALID_STATE_ERROR = 'Invalid authorization request state.'
@@ -379,8 +373,8 @@ export abstract class Strategy extends events.EventEmitter {
         }
         if (this.options.sessionKey) {
             const sessionKey = this.options.sessionKey
-            this.logger.log(`sessionKey: ${sessionKey}`)
-            this.logger.log(`state from session = ${reqSession[sessionKey]?.state}`)
+            this.logger.log('session key configured')
+            this.logger.log('session state available: ' + Boolean(reqSession[sessionKey]?.state))
         } else {
             this.logger.log('sessionKey not set')
         }
@@ -388,7 +382,6 @@ export abstract class Strategy extends events.EventEmitter {
         const emitAuthenticationFailure = (logMessages: string[]): void => {
             this.logger.log(`inside emitAuthenticationFailure, message count ${logMessages.length}`)
             if (!logMessages.length) return
-            this.logger.log(`emitAuthenticationFailure logMessages ${logMessages.join('\n')}`)
             res.locals.message = logMessages.join('\n')
             this.emit(AUTH.EVENT.AUTHENTICATE_FAILURE, req, res, next)
         }
@@ -410,26 +403,24 @@ export abstract class Strategy extends events.EventEmitter {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any -- preserve the migrated Node Lib public callback or provider contract until a separately versioned type change.
             (error: any, user: any, info: any) => {
                 if (info) {
-                    this.logger.log(`in passport authenticate callback info: ${info}`)
+                    this.logger.log('in passport authenticate callback received info')
                 }
                 let errorMessages: string[] = []
                 if (this.options?.sessionKey) {
                     const sessState = reqSession[this.options.sessionKey]?.state
-                    this.logger.log(
-                        `in passport authenticate callback, strategy ${this.strategyName}, state ${sessState}`,
-                    )
+                    this.logger.log(`in passport authenticate callback, strategy ${this.strategyName}, session state available: ${Boolean(sessState)}`)
                 }
                 if (error) {
-                    this.logger.log(`in passport authenticate error: ${error}`)
+                    this.logger.log(`in passport authenticate error: ${this.getSafeErrorName(error)}`)
                     switch (error.name) {
                         case 'TimeoutError':
-                            const timeoutErrorMessage = `${error.name}: timeout awaiting ${error.url} for ${error.gotOptions.gotTimeout.request}ms`
+                            const timeoutErrorMessage = `Timeout awaiting authentication service for ${error.gotOptions.gotTimeout.request}ms`
                             errorMessages.push(timeoutErrorMessage)
-                            this.logger.error(error)
+                            this.logger.error(this.getSafeErrorName(error))
                             break
                         default:
-                            errorMessages.push(error)
-                            this.logger.error(error)
+                            errorMessages.push('Authentication service error')
+                            this.logger.error(this.getSafeErrorName(error))
                             break
                     }
                 }
@@ -458,7 +449,7 @@ export abstract class Strategy extends events.EventEmitter {
                         return redirectWithFailure(errorMessages, message, AUTH.ROUTE.LOGIN)
                     }
                 } else {
-                    this.logger.log('User id from passport.authenticate ' + user?.userInfo?.id)
+                    this.logger.log('User details returned by passport.authenticate')
                 }
                 emitAuthenticationFailure(errorMessages)
                 this.verifyLogin(req, user, next, res)
@@ -541,7 +532,7 @@ export abstract class Strategy extends events.EventEmitter {
             const response = await http.post(url, body, axiosConfig)
             return response.data
         } catch (error) {
-            this.logger.error('error generating authentication token => ', error)
+            this.logger.error('error generating authentication token', this.getSafeErrorName(error))
         }
     }
 
@@ -551,12 +542,12 @@ export abstract class Strategy extends events.EventEmitter {
         req.logIn(user, (err) => {
             const roles = user.userinfo.roles
             if (err) {
-                this.logger.error('verifyLogin error', err)
+                this.logger.error('verifyLogin error', this.getSafeErrorName(err))
                 return next(err)
             }
             const allowRolesRegex = this.options.allowRolesRegex
             if (allowRolesRegex && !arrayPatternMatch(roles, allowRolesRegex)) {
-                this.logger.info(JSON.stringify(user.userInfo))
+                this.logger.info('User has no application access')
                 this.logger.error(
                     `User has no application access, as they do not have a role that matches ${allowRolesRegex}.`,
                 )
@@ -568,9 +559,7 @@ export abstract class Strategy extends events.EventEmitter {
                 return this.accessDenied(req, res, next)
             }
             if (!this.listenerCount(AUTH.EVENT.AUTHENTICATE_SUCCESS)) {
-                this.logger.log(
-                    `redirecting, no listener count: ${AUTH.EVENT.AUTHENTICATE_SUCCESS}, user: ${user.email}`,
-                )
+                this.logger.log(`redirecting, no listener count: ${AUTH.EVENT.AUTHENTICATE_SUCCESS}`)
                 res.redirect(AUTH.ROUTE.DEFAULT_REDIRECT)
             } else {
                 req.isRefresh = false
@@ -723,12 +712,14 @@ export abstract class Strategy extends events.EventEmitter {
     /* istanbul ignore next */
     public getRequestBody = (options: AuthOptions): string => {
         if (options.routeCredential) {
-            const userName = options.routeCredential.userName
-            const userPassword = encodeURIComponent(options.routeCredential.password)
-            const scope = options.routeCredential?.scope
-            const clientSecret = options.clientSecret
-            const idamClient = options.clientID
-            return `grant_type=password&password=${userPassword}&username=${userName}&scope=${scope}&client_id=${idamClient}&client_secret=${clientSecret}`
+            return new URLSearchParams({
+                grant_type: 'password',
+                password: options.routeCredential.password,
+                username: options.routeCredential.userName,
+                scope: options.routeCredential.scope,
+                client_id: options.clientID,
+                client_secret: options.clientSecret,
+            }).toString()
         }
         const msg = 'options.routeCredential missing values'
         throw new Error(msg)

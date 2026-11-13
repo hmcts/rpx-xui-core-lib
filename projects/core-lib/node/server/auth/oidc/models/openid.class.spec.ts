@@ -4,7 +4,7 @@ import { oidc, OpenID } from './openid.class'
 import passport from 'passport'
 import express, { NextFunction, Request, response, Response, Router } from 'express'
 import { AUTH } from '../../auth.constants'
-import { Client, Issuer, Strategy, TokenSet, UserinfoResponse } from 'openid-client'
+import { Client, custom, Issuer, Strategy, TokenSet, UserinfoResponse } from 'openid-client'
 import { createMock } from '@golevelup/ts-jest';
 import { OpenIDMetadata } from './OpenIDMetadata.interface'
 import { VERIFY_ERROR_MESSAGE_NO_ACCESS_ROLES } from '../../messaging.constants'
@@ -114,6 +114,24 @@ test('OIDC loginHandler with session', async () => {
 
     await openId.loginHandler(mockRequest, mockResponse, next)
     expect(spy).toHaveBeenCalled()
+})
+
+test('OIDC loginHandler reports safe error details without returning raw credentials', async () => {
+    const logger = createMock<XuiLogger>()
+    const openId = new OpenID(Router({ mergeParams: true }), logger)
+    const error = new Error('request failed with access_token=synthetic-access-token')
+    const authenticate = jest.spyOn(passport, 'authenticate').mockImplementation(() => {
+        throw error
+    })
+
+    await expect(openId.loginHandler({ session: {}, query: {} } as Request, {} as Response, jest.fn()))
+        .rejects.toThrow('OIDC login handler failed')
+
+    const diagnostic = JSON.stringify(logger.error.mock.calls)
+    expect(diagnostic).toContain('Error')
+    expect(diagnostic).not.toContain(error.message)
+    expect(diagnostic).not.toContain('synthetic-access-token')
+    authenticate.mockRestore()
 })
 
 test('OIDC loginHandler passes single-string login_hint with generated state', async () => {
@@ -559,6 +577,74 @@ test('verify() Should return the user token set if a User has roles.', async () 
     expect(doneFunction).toHaveBeenCalledWith(null, { tokenset: userTokenSet, userinfo })
 })
 
+test('verify() does not log user profile fields or token values', () => {
+    const logger = createMock<XuiLogger>()
+    const openId = new OpenID(Router({ mergeParams: true }), logger)
+    const userinfo = {
+        roles: ['pui-case-manager'],
+        email: 'synthetic-user@example.test',
+        uid: 'synthetic-private-identity',
+        sub: 'synthetic-subject',
+    } as UserinfoResponse
+    const tokens = {
+        access_token: 'synthetic-access-token',
+        refresh_token: 'synthetic-refresh-token',
+        id_token: 'synthetic-id-token',
+    } as TokenSet
+
+    openId.verify(tokens, userinfo, jest.fn())
+
+    const diagnostic = JSON.stringify(logger.info.mock.calls)
+    for (const sensitiveValue of [userinfo.email, userinfo.uid, tokens.access_token, tokens.refresh_token, tokens.id_token]) {
+        expect(diagnostic).not.toContain(sensitiveValue)
+    }
+    expect(logger.info).toHaveBeenCalledWith('OIDC user verification succeeded')
+})
+
+test('OIDC strategy diagnostics omit option values and discovery URL queries', async () => {
+    const logger = createMock<XuiLogger>()
+    const openId = new OpenID(Router({ mergeParams: true }), logger)
+    const authOptions = {
+        ...options,
+        clientSecret: 'synthetic-client-secret',
+        discoveryEndpoint: 'https://idam.test/.well-known?access_token=synthetic-query-token',
+    }
+    const issuer = { metadata: { issuer: 'https://idam.test' } } as Issuer<Client>
+    jest.spyOn(openId, 'discover').mockResolvedValue(issuer)
+    jest.spyOn(openId, 'getClientFromIssuer').mockReturnValue({} as Client)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- the test returns a placeholder Passport strategy.
+    jest.spyOn(openId, 'getNewStrategy').mockReturnValue({} as Strategy<any, Client>)
+
+    await openId.createNewStrategy(authOptions)
+
+    const diagnostic = JSON.stringify([...logger.log.mock.calls, ...logger.info.mock.calls])
+    expect(diagnostic).not.toContain('synthetic-client-secret')
+    expect(diagnostic).not.toContain('synthetic-query-token')
+})
+
+test('OIDC HTTP diagnostics omit request URLs and query parameters', () => {
+    const logger = createMock<XuiLogger>()
+    const httpDefaults = jest.spyOn(custom, 'setHttpOptionsDefaults')
+    new OpenID(Router({ mergeParams: true }), logger)
+    const configured = httpDefaults.mock.calls[0][0] as unknown as { hooks: {
+        beforeRequest: Array<(request: { method: string; href: string }) => void>
+        afterResponse: Array<(response: { statusCode: number; request: { gotOptions: { method: string; href: string } } }) => unknown>
+    } }
+    const hooks = configured.hooks
+
+    hooks.beforeRequest[0]({ method: 'get', href: 'https://idam.test/token?access_token=synthetic-query-token' })
+    hooks.afterResponse[0]({
+        statusCode: 200,
+        request: { gotOptions: { method: 'post', href: 'https://idam.test/token?client_secret=synthetic-client-secret' } },
+    })
+
+    const diagnostic = JSON.stringify(logger.log.mock.calls)
+    expect(diagnostic).not.toContain('https://idam.test')
+    expect(diagnostic).not.toContain('synthetic-query-token')
+    expect(diagnostic).not.toContain('synthetic-client-secret')
+    httpDefaults.mockRestore()
+})
+
 test('Should return an object from getClientFromIssuer()', async () => {
     const issuer = createMock<Issuer<Client>>()
     const options = createMock<OpenIDMetadata>()
@@ -858,8 +944,43 @@ test('getRequestBody', () => {
     const openId = new OpenID(mockRouter, logger)
     const reqBody = openId.getRequestBody(options)
     expect(reqBody).toEqual(
-        'grant_type=password&password=password123&username=username@email.com&scope=scope1 scope2&client_id=clientID12&client_secret=secret123',
+        'grant_type=password&password=password123&username=username%40email.com&scope=scope1+scope2&client_id=clientID12&client_secret=secret123',
     )
+})
+
+test('getRequestBody encodes every password grant field', () => {
+    const options = {
+        authorizationURL: 'someAuthorizationURL',
+        tokenURL: '1234',
+        clientID: 'client&name=example',
+        clientSecret: 'secret+&=value',
+        discoveryEndpoint: 'someEndpoint',
+        issuerURL: 'issuer_url',
+        logoutURL: 'http://testUrl',
+        callbackURL: 'http://localhost/callback',
+        responseTypes: ['none'],
+        scope: 'scope',
+        tokenEndpointAuthMethod: 'client_secret_basic',
+        useRoutes: false,
+        routeCredential: {
+            userName: 'user+&=name',
+            password: 'pass+&=word',
+            routes: ['route1'],
+            scope: 'read write&admin=all',
+        },
+    }
+    const openId = new OpenID(createMock<Router>(), createMock<typeof console>())
+
+    const body = new URLSearchParams(openId.getRequestBody(options))
+
+    expect(Object.fromEntries(body)).toEqual({
+        grant_type: 'password',
+        password: options.routeCredential.password,
+        username: options.routeCredential.userName,
+        scope: options.routeCredential.scope,
+        client_id: options.clientID,
+        client_secret: options.clientSecret,
+    })
 })
 
 test('getUrlFromOptions without routeCredential', () => {

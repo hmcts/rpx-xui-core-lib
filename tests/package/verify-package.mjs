@@ -137,6 +137,12 @@ try {
       await assert.rejects(stat(join(nodeConsumer, 'node_modules', peer)), { code: 'ENOENT' }, `Node consumer must not install ${peer}`);
     }
     await run('node-only-runtime', ['node-only-runtime.mjs'], nodeConsumer);
+    const serverDependencies = spawnSync(process.execPath, ['--input-type=commonjs', '-e', "const { createRequire } = require('node:module'); const auth = require.resolve('@hmcts/rpx-xui-core-lib/node/server/auth'); const session = require.resolve('@hmcts/rpx-xui-core-lib/node/server/session'); process.stdout.write([createRequire(auth).resolve('passport'), createRequire(session).resolve('express-session')].join('\\n'));"], { cwd: nodeConsumer, env, encoding: 'utf8' });
+    const serverDependencyPaths = `${serverDependencies.stdout ?? ''}${serverDependencies.stderr ?? ''}`;
+    await writeFile(join(evidence, 'node-only-server-dependencies.log'), serverDependencyPaths);
+    assert.equal(serverDependencies.status, 0, `Core package must provide passport and express-session to its server entries:\n${serverDependencyPaths}`);
+    assert.match(serverDependencyPaths, /node_modules[/\\]passport[/\\]/);
+    assert.match(serverDependencyPaths, /node_modules[/\\]express-session[/\\]/);
     const missingUiPeer = spawnSync(process.execPath, ['--input-type=module', '-e', "await import('@hmcts/rpx-xui-core-lib/forms/validation')"], { cwd: nodeConsumer, env, encoding: 'utf8' });
     const diagnostic = `${missingUiPeer.stdout ?? ''}${missingUiPeer.stderr ?? ''}`;
     await writeFile(join(evidence, 'node-only-ui-entry.log'), diagnostic);

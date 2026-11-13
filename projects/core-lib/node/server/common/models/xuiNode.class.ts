@@ -48,7 +48,7 @@ export class XuiNode extends EventEmitter {
             res.statusMessage = 'Unauthorized'
             return res.status(401).send({ message: 'Unauthorized' })
         } else {
-            this.logger.log('user is authenticated ' + req?.user?.toString())
+            this.logger.log('user is authenticated')
         }
         next()
     }
@@ -93,6 +93,10 @@ export class XuiNode extends EventEmitter {
             const middlewareLayerOptions = options[middleware]
             const middlewareLayer = await this.importMiddleware(middleware)
             this.applyMiddlewareLayer(middlewareLayer, middlewareLayerOptions)
+            await Promise.all(Object.keys(middlewareLayerOptions).flatMap((key) => {
+                const layer = Reflect.get(middlewareLayer, key)
+                return typeof layer?.waitUntilReady === 'function' ? [layer.waitUntilReady()] : []
+            }))
         }
     }
 
@@ -106,7 +110,8 @@ export class XuiNode extends EventEmitter {
                     this.logger.log('using authenticate middleware from ', middleware.constructor.name)
                     this.authenticateMiddleware = middleware.authenticate
                 }
-                this.router.use(middleware.configure(value))
+                const handler = middleware.configure(value)
+                this.router.use(handler)
             }
         }
     }

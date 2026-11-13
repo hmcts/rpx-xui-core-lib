@@ -218,7 +218,7 @@ describe('getStore()', () => {
 
     it('should log and emit redis client errors when connect rejects.', async () => {
         const redisSessionMetadata = createMock<RedisSessionMetadata>()
-        const error = new Error('Unable to connect to redis')
+        const error = new Error('Unable to connect to redis; password=synthetic-redis-password')
 
         redisSessionMetadata.redisStoreOptions = {
             redisCloudUrl: 'redis://i.am.a.redis.cloud.url',
@@ -240,7 +240,8 @@ describe('getStore()', () => {
         redisSessionStore.getStore(redisSessionMetadata)
         await flushPromises()
 
-        expect(logger.error).toHaveBeenCalledWith(error)
+        expect(logger.error).toHaveBeenCalledWith('redis client connection error', 'Error')
+        expect(JSON.stringify((logger.error as jest.Mock).mock.calls)).not.toContain('synthetic-redis-password')
         expect(spyEmitEvent).toHaveBeenCalledWith(SESSION.EVENT.REDIS_CLIENT_ERROR, error)
     })
 
@@ -279,7 +280,7 @@ describe('getStore()', () => {
 
             expect(spyEmitEvent).toHaveBeenCalledWith(SESSION.EVENT.REDIS_CLIENT_READY, redisClient)
             expect(logger.info).toHaveBeenCalledWith('redis client connected successfully')
-            expect(logger.info).toHaveBeenCalledWith('redisClient is ', redisClient)
+            expect(logger.info).toHaveBeenCalledTimes(1)
         })
 
         it("should listen for redisClient on 'error' event.", () => {
@@ -292,7 +293,7 @@ describe('getStore()', () => {
         })
 
         it("should log and emit when redisClient receives the 'error' event.", () => {
-            const error = new Error('Redis client failed')
+            const error = new Error('Redis client failed; password=synthetic-redis-password')
             const mockRouter = createMock<Router>()
             const logger = createMock<XuiLogger>()
             const redisSessionStore = new RedisSessionStore(mockRouter, logger)
@@ -302,8 +303,10 @@ describe('getStore()', () => {
             const errorListener = spyOnRedisClientOnEvent.mock.calls[0][1]
             errorListener(error)
 
-            expect(logger.error).toHaveBeenCalledWith(error)
-            expect(logger.info).toHaveBeenCalledWith('redisClient is ', redisClient)
+            expect(logger.error).toHaveBeenCalledWith('redis client emitted an error', 'Error')
+            expect(logger.error).not.toHaveBeenCalledWith(error)
+            expect(logger.info).not.toHaveBeenCalledWith('redisClient is ', redisClient)
+            expect(JSON.stringify((logger.error as jest.Mock).mock.calls)).not.toContain('synthetic-redis-password')
             expect(spyEmitEvent).toHaveBeenCalledWith(SESSION.EVENT.REDIS_CLIENT_ERROR, error)
         })
     })
@@ -388,4 +391,27 @@ test('emitEvent with subscribers', () => {
     redisSessionStore.emitEvent('eventName', {})
     expect(spy).toHaveBeenCalled()
     expect(spyEmit).toHaveBeenCalled()
+})
+
+test('emitEvent notifies error subscribers without requiring a ready subscriber', () => {
+    const redisSessionStore = new RedisSessionStore(createMock<Router>())
+    const error = new Error('Redis client failed')
+    const onError = jest.fn()
+
+    redisSessionStore.on(SESSION.EVENT.REDIS_CLIENT_ERROR, onError)
+    redisSessionStore.emitEvent(SESSION.EVENT.REDIS_CLIENT_ERROR, error)
+
+    expect(onError).toHaveBeenCalledWith(error)
+})
+
+test('emitEvent ignores errors when only ready subscribers exist', () => {
+    const redisSessionStore = new RedisSessionStore(createMock<Router>())
+    const onReady = jest.fn()
+    const emit = jest.spyOn(redisSessionStore, 'emit')
+
+    redisSessionStore.on(SESSION.EVENT.REDIS_CLIENT_READY, onReady)
+    redisSessionStore.emitEvent(SESSION.EVENT.REDIS_CLIENT_ERROR, new Error('Redis client failed'))
+
+    expect(onReady).not.toHaveBeenCalled()
+    expect(emit).not.toHaveBeenCalled()
 })

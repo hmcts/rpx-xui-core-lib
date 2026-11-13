@@ -12,9 +12,7 @@
     "@angular/material": "20.2.14",
     "@angular/cdk": "20.2.14",
     "@angular/platform-browser": "^20.3.27",
-    "express": "5.2.1",
-    "express-session": "1.19.0",
-    "passport": "0.7.0"
+    "express": "5.2.1"
   },
   "peerDependenciesMeta": {
     "@angular/common": { "optional": true },
@@ -24,9 +22,7 @@
     "@angular/material": { "optional": true },
     "@angular/cdk": { "optional": true },
     "@angular/platform-browser": { "optional": true },
-    "express": { "optional": true },
-    "express-session": { "optional": true },
-    "passport": { "optional": true }
+    "express": { "optional": true }
   },
   "exports": {
     "./node": {
@@ -71,8 +67,10 @@
     "jwt-decode": "^4.0.0",
     "luxon": "2.5.2",
     "axios": "^1.20.0",
+    "express-session": "^1.19.0",
     "openid-client": "^5.7.1",
     "otplib": "^13.4.0",
+    "passport": "^0.7.0",
     "passport-oauth2": "^1.8.0",
     "redis": "^6.1.0",
     "session-file-store": "^1.5.0"
