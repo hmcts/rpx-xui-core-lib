@@ -249,6 +249,7 @@ try {
       } finally { await rm(stage, { recursive: true, force: true }); }
     }
     const counterpart = await prepareTranslationCounterpart({ profile, source, output: join(evidence, 'translation-counterpart') });
+    report.package = { ...report.package, translationCounterpart: counterpart.evidence };
     await writeFile(join(evidence, 'translation-counterpart.json'), JSON.stringify(counterpart.evidence, null, 2) + '\n');
     return counterpart;
   });

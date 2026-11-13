@@ -1,4 +1,5 @@
 import { jestOutcomes } from './jest-outcomes.mjs';
+import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { currentIdentity } from './evidence-identity.mjs';
 import { verifyBoundEvidence } from './evidence-lane-receipts.mjs';
@@ -10,6 +11,7 @@ import { fileURLToPath } from 'node:url';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const contracts = JSON.parse(readFileSync(new URL('../tests/contracts.json', import.meta.url), 'utf8'));
 const expectedJasmineVersion = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).devDependencies['jasmine-core'];
+const counterpartProfile = JSON.parse(readFileSync(new URL('../tests/fixtures/compatibility/translation-counterpart.json', import.meta.url), 'utf8'));
 
 function unitOutcomes(text) {
   // This slice has only top-level node:test scenarios; nested suites need a native structured reporter.
@@ -118,6 +120,22 @@ function jasmineOutcomes(text) {
   return state.outcomes;
 }
 
+function verifyTranslationCounterpart(pkg, reportRoot) {
+  const proof = pkg.translationCounterpart;
+  assert.equal(proof?.schemaVersion, 1, 'Missing or invalid translation counterpart proof');
+  assert.equal(proof.repository, counterpartProfile.repository, 'Translation counterpart repository differs');
+  assert.equal(proof.sourceSha, counterpartProfile.commit, 'Translation counterpart source differs');
+  assert.equal(proof.profileSha256, createHash('sha256').update(JSON.stringify(counterpartProfile)).digest('hex'), 'Translation counterpart profile hash differs');
+  assert.deepEqual(proof.sourceFiles, counterpartProfile.files, 'Translation counterpart source input hashes differ');
+  const packedFiles = Object.fromEntries(['LICENCE', 'index.d.ts', 'index.mjs', 'package.json'].map(name =>
+    [`package/${name}`, counterpartProfile.files[`projects/rpx-xui-translation-core-facade/${name}`]]));
+  assert.deepEqual(proof.packedFiles, packedFiles, 'Translation counterpart packed input hashes differ');
+  assert.ok(typeof proof.sha256 === 'string' && /^[a-f0-9]{64}$/.test(proof.sha256), 'Invalid translation counterpart archive hash');
+  assert.deepEqual(JSON.parse(readFileSync(resolve(reportRoot, 'test-results/package-evidence/translation-counterpart.json'), 'utf8')), proof, 'Translation counterpart helper evidence differs');
+  const archive = readFileSync(resolve(reportRoot, 'test-results/package-evidence/translation-counterpart/rpx-xui-translation-0.0.0-core-preview.0.tgz'));
+  assert.equal(createHash('sha256').update(archive).digest('hex'), proof.sha256, 'Translation counterpart archive hash differs');
+}
+
 function packageOutcomes(report, reportRoot, expectedIdentity) {
   const pkg = report.package;
   if (report.schemaVersion !== 1 || !/^[a-f0-9]{64}$/.test(pkg?.sha256 ?? '') ||
@@ -127,6 +145,7 @@ function packageOutcomes(report, reportRoot, expectedIdentity) {
   }
   const candidate = readFileSync(resolve(reportRoot, 'test-results/package-evidence/candidate.tgz'));
   if (createHash('sha256').update(candidate).digest('hex') !== pkg.sha256) throw new Error('Package artifact hash mismatch');
+  verifyTranslationCounterpart(pkg, reportRoot);
   return report.tests.map((test) => ({ id: test.id, passed: test.status === 'passed' }));
 }
 
