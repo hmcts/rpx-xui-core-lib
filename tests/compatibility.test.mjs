@@ -546,3 +546,19 @@ test('current core cohort rejects source and lock drift independently of git HEA
     assert.throws(() => compatibility.validateCurrentCore(changed, current), /core/i);
   }
 });
+
+test('prospective concrete peer selections must satisfy the current declared range', () => {
+  const current = fixture('core-current-contract.json');
+  const actual = structuredClone(current);
+  delete actual.scope;
+  for (const version of ['8.1.0', '8.2.0', '8.3.0']) {
+    const proposal = structuredClone(manifest);
+    proposal.peerDependencies.helmet = version;
+    compatibility.validateCurrentCore(actual, current, proposal);
+  }
+  for (const version of ['7.0.0', '9.0.0', '8.3.1-beta.1', '^8.3.0', 'latest']) {
+    const proposal = structuredClone(manifest);
+    proposal.peerDependencies.helmet = version;
+    assert.throws(() => compatibility.validateCurrentCore(actual, current, proposal), /Prospective peer/);
+  }
+});

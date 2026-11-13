@@ -2,7 +2,36 @@
   "type": "commonjs",
   "name": "@hmcts/rpx-xui-core-node-workspace",
   "private": true,
+  "scripts": {
+    "test:server": "NODE_OPTIONS=--experimental-vm-modules jest --config ../../../jest.node-server.config.cjs --runInBand --json --outputFile=../../../test-results/node-server.json"
+  },
   "devDependencies": {
-    "axios": "^1.20.0"
+    "@dr.pogodin/csurf": "^1.17.1",
+    "@golevelup/ts-jest": "^0.6.2",
+    "@types/cookie": "^0.6.0",
+    "@types/debug": "^4.1.5",
+    "@types/express": "5.0.6",
+    "@types/express-session": "1.19.0",
+    "@types/jest": "30.0.0",
+    "@types/passport": "^1.0.2",
+    "@types/passport-oauth2": "^1.4.9",
+    "@types/session-file-store": "^1.2.6",
+    "axios": "^1.20.0",
+    "connect-redis": "^9.0.0",
+    "debug": "^4.4.3",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "helmet": "8.3.0",
+    "jest": "30.5.1",
+    "joi": "^18.3.0",
+    "jwt-decode": "^4.0.0",
+    "openid-client": "^5.7.1",
+    "otplib": "^13.4.0",
+    "passport": "^0.7.0",
+    "passport-oauth2": "^1.8.0",
+    "redis": "^6.1.0",
+    "session-file-store": "^1.5.0",
+    "ts-jest": "29.4.12",
+    "typescript": "5.9.3"
   }
 }

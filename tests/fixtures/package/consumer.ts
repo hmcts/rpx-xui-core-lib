@@ -63,6 +63,12 @@ export const invalidSharedCase: SharedCase = { caseTitle: 'Title' };
 import { http } from '@hmcts/rpx-xui-core-lib/node/http';
 export const get = http.get;
 
+import type {} from '@hmcts/rpx-xui-core-lib/node/server';
+type PublishedRequest = import('express-serve-static-core').Request;
+export const refreshRequest: PublishedRequest['isRefresh'] = true;
+type PublishedSession = import('express-session').Session;
+export const passportSession: PublishedSession['passport'] = { user: 'consumer-defined' };
+
 import { DueDateComponent, DueDateModule, DateBadgeColour, SECONDS_IN_A_DAY } from '@hmcts/rpx-xui-core-lib/ui/due-date';
 export { DueDateComponent, DueDateModule, DateBadgeColour, SECONDS_IN_A_DAY };
 
@@ -85,3 +91,5 @@ class DefaultLoadingState extends HasLoadingState {}
 export const defaultLoadingState: HasLoadingState = new DefaultLoadingState();
 export const loadingService: HasLoadingState = new LoadingService();
 export const loadingRegistration: string = loadingService instanceof LoadingService ? loadingService.register() : '';
+
+export * from './node-security-types';

@@ -321,7 +321,17 @@ addedBrowserJourneys.push('date errors describe the correct fieldset without dup
 unitNames.push('checkbox list maps preselection to actual options and removes unavailable selections', 'checkbox list emits user selection and select-all transitions', 'checkbox list keeps an active user selection when preselection later changes');
 addedBrowserJourneys.push('checkbox list instances keep labels and selections independent', 'checkbox list supports keyboard selection and select-all transitions');
 packageIds.push('package.checkbox-list-graph');
-const expectedContracts = addedBrowserJourneys.length + Object.values(addedLaneNames).reduce((sum, names) => sum + names.length, 0) + unitNames.length + nodeNames.length + i18nNames.length + i18nJourneys.length + dueDateJourneys.length + accessibilityJourneys.length + sessionDialogJourneys.length + primitiveJourneys.length + cacheJourneys.length + validationJourneys.length + packageIds.length + 1;
+packageIds.push('package.node-only-peer-install', 'package.angular-20_3_31-cohort-build', 'package.strict-node-node-types', 'package.strict-node-server-types', 'package.strict-node-auth-types', 'package.strict-node-session-types');
+addedBrowserJourneys.push(
+  'CSP enforcement runs nonce scripts and styles while blocking unapproved inline code',
+  'CSP report-only emits its header and allows the identical unapproved script to execute',
+  'CSP reload receives a new nonce matching the served script',
+);
+packageIds.push('package.node-security-optional-peer', 'package.strict-node-security-types',
+  'package.node-security-consumer-contracts', 'package.node-security-nonce-fault', 'package.node-security-header-fault',
+  'package.node-security-merge-fault', 'package.node-security-restored', 'package.node-security-browser-denied');
+packageIds.push('package.strict-node-logging-types', 'package.node-logging-isolation', 'package.node-logging-loading-fault', 'package.helmet-8_1_0-cohort', 'package.helmet-8_2_0-cohort');
+const expectedContracts = addedBrowserJourneys.length + Object.values(addedLaneNames).reduce((sum, names) => sum + names.length, 0) + unitNames.length + nodeNames.length + i18nNames.length + i18nJourneys.length + dueDateJourneys.length + accessibilityJourneys.length + sessionDialogJourneys.length + primitiveJourneys.length + cacheJourneys.length + validationJourneys.length + packageIds.length + 1 + contractInventory.nodeServerUnit.required.length;
 
 function nativeTap(names) {
   return `TAP version 13\n${names.map((name, index) => `ok ${index + 1} - ${name}`).join('\n')}\n1..${names.length}\n# tests ${names.length}\n# suites 0\n# pass ${names.length}\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n`;
@@ -341,6 +351,27 @@ function nativeJasmine() {
   };
 }
 
+function nativeJest() {
+  const suites = new Map();
+  for (const id of contractInventory.nodeServerUnit.required) {
+    const split = id.indexOf(' ');
+    const file = id.slice(0, split), fullName = id.slice(split + 1);
+    if (!suites.has(file)) suites.set(file, []);
+    suites.get(file).push({ ancestorTitles: [], duration: 1, failing: false, failureDetails: [], failureMessages: [], fullName,
+      invocations: 1, location: null, numPassingAsserts: 1, retryMessages: [], retryReasons: [], status: 'passed', title: fullName, startAt: 1 });
+  }
+  const count = contractInventory.nodeServerUnit.required.length;
+  return {
+    numFailedTestSuites: 0, numFailedTests: 0, numPassedTestSuites: suites.size, numPassedTests: count,
+    numPendingTestSuites: 0, numPendingTests: 0, numRuntimeErrorTestSuites: 0, numTodoTests: 0,
+    numTotalTestSuites: suites.size, numTotalTests: count, openHandles: [], startTime: 1, success: true, wasInterrupted: false,
+    snapshot: { added: 0, didUpdate: false, failure: false, filesAdded: 0, filesRemoved: 0, filesRemovedList: [], filesUnmatched: 0,
+      filesUpdated: 0, matched: 0, total: 0, unchecked: 0, uncheckedKeysByFile: [], unmatched: 0, updated: 0 },
+    testResults: [...suites].map(([file, assertionResults]) => ({ assertionResults, endTime: 2, message: '',
+      name: `/ci/source/${file}`, startTime: 1, status: 'passed', summary: '' })),
+  };
+}
+
 /** @returns {Record<string, any>} */
 function reports() {
   return {
@@ -352,6 +383,7 @@ function reports() {
     'feature-toggle.tap': nativeTap(addedLaneNames.featureToggleUnit),
     'roles.tap': nativeTap(addedLaneNames.roleUnit),
     'node.tap': nativeTap(nodeNames),
+    'node-server.json': nativeJest(),
     'i18n/jasmine.json': nativeJasmine(),
     'browser.json': { errors: [], suites: [{ specs: [journey, ...validationJourneys, ...i18nJourneys, ...dueDateJourneys, ...accessibilityJourneys, ...sessionDialogJourneys, ...primitiveJourneys, ...addedBrowserJourneys].map((title) => ({ title, tests: [{ projectName: 'chromium', expectedStatus: 'passed', status: 'expected', results: [{ status: 'passed' }] }] })) }] },
     'cache-upgrade-report.json': { errors: [], suites: [{ specs: cacheJourneys.map((title) => ({ title, tests: [{ projectName: 'chromium', expectedStatus: 'passed', status: 'expected', results: [{ status: 'passed' }] }] })) }] },
@@ -801,3 +833,46 @@ for (const title of addedBrowserJourneys) {
     assert.throws(() => checkFixture(t, files)(), /Missing|required|contract/i);
   });
 }
+
+test('missing migrated Jest case cannot satisfy the required feature gate', t => {
+  const files = reports(), report = files['node-server.json'];
+  report.testResults[0].assertionResults.pop();
+  report.numPassedTests -= 1;
+  report.numTotalTests -= 1;
+  assert.throws(checkFixture(t, files), /nodeServerUnit required contract/);
+});
+
+test('Jest receipt is required and changed report bytes cannot reuse it', t => {
+  const check = checkFixture(t, reports());
+  assert.equal(check(), expectedContracts);
+  const file = join(check.root, 'test-results/node-server.json');
+  writeFileSync(file, readFileSync(file, 'utf8') + '\n');
+  assert.throws(check, /Unbound nodeServerUnit/);
+  rmSync(join(check.root, 'test-results/lane-provenance/nodeServerUnit.json'));
+  assert.throws(check, /nodeServerUnit\.json/);
+});
+
+for (const status of ['pending', 'todo', 'failed', 'disabled']) {
+  test(`a ${status} migrated Jest assertion cannot leave a verified feature report`, t => {
+    const files = reports();
+    files['node-server.json'].testResults[0].assertionResults[0].status = status;
+    assert.throws(checkFixture(t, files), /Jest/);
+  });
+}
+
+test('new server cases require inventory and feature review before the gate can pass', t => {
+  const files = reports(), report = files['node-server.json'];
+  const extra = structuredClone(report.testResults[0].assertionResults[0]);
+  extra.ancestorTitles = [];
+  extra.title = extra.fullName = 'new unreviewed server case';
+  report.testResults[0].assertionResults.push(extra);
+  report.numPassedTests += 1;
+  report.numTotalTests += 1;
+  assert.throws(checkFixture(t, files), /nodeServerUnit unregistered contract/);
+});
+
+test('new package cases require inventory and feature review before the gate can pass', t => {
+  const files = reports();
+  files['package.json'].tests.push({ id: 'package.new-unreviewed-case', status: 'passed' });
+  assert.throws(checkFixture(t, files), /package unregistered contract/);
+});

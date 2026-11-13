@@ -20,10 +20,11 @@
     "start": "node scripts/dev.mjs",
     "test:browser": "playwright test -c tests/browser/playwright.config.mjs",
     "test:package": "node tests/package/verify-package.mjs",
-    "test:contracts": "node --test tests/contract-gate.test.mjs tests/evidence-source-snapshot.test.mjs tests/evidence-lane.test.mjs tests/feature-evidence-matrix.test.mjs tests/feature-evidence-expanded.test.mjs tests/diagnostic-current.test.mjs tests/diagnostic-lanes.test.mjs tests/evidence-run-lock.test.mjs tests/evidence-host.test.mjs tests/packed-loading.test.mjs",
+    "test:contracts": "node --test tests/contract-gate.test.mjs tests/evidence-source-snapshot.test.mjs tests/evidence-lane.test.mjs tests/feature-evidence-matrix.test.mjs tests/feature-evidence-expanded.test.mjs tests/diagnostic-current.test.mjs tests/diagnostic-lanes.test.mjs tests/evidence-run-lock.test.mjs tests/evidence-host.test.mjs tests/packed-loading.test.mjs tests/jest-outcomes.test.mjs",
     "check:contracts": "node scripts/check-contracts.mjs",
     "test:all": "node scripts/run-evidence-suite.mjs",
-    "test:node": "rm -rf test-results/node-unit test-results/node.tap && tsc -p tests/node/tsconfig.json && node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=tap --test-reporter-destination=test-results/node.tap test-results/node-unit/tests/node/*.spec.js && node --test tests/build-watch.test.mjs",
+    "test:node": "yarn test:node:utils && yarn test:node:server",
+    "test:node:server": "mkdir -p test-results && rm -f test-results/node-server.json && yarn workspace @hmcts/rpx-xui-core-node-workspace test:server",
     "test:i18n": "node --test tests/i18n-imports.test.mjs && rm -rf test-results/i18n && playwright test -c tests/i18n/playwright.config.mjs",
     "test:compatibility": "node scripts/check-compatibility.mjs",
     "test:compatibility:contracts": "node --test tests/compatibility.test.mjs",
@@ -31,14 +32,15 @@
     "test:cache-upgrade": "node --test tests/cache-upgrade-source-mismatch.test.mjs && node scripts/build-cache-upgrade.mjs && playwright test -c tests/cache-upgrade/playwright.config.mjs",
     "test:reporters": "node --test tests/reporters/*.test.cjs",
     "test:tooling-security": "node --test tests/tooling-security.test.mjs",
-    "test:all:sequence": "yarn build && yarn lint && yarn test:tooling-security && yarn test:reporters && yarn test:contracts && yarn test:compatibility:contracts && node scripts/run-evidence-lane.mjs refDataUnit test:ref-data && node scripts/run-evidence-lane.mjs locationUnit test:locations && node scripts/run-evidence-lane.mjs windowUnit test:window && node scripts/run-evidence-lane.mjs cookieUnit test:cookie && node scripts/run-evidence-lane.mjs featureToggleUnit test:feature-toggle && node scripts/run-evidence-lane.mjs roleUnit test:roles && node scripts/run-evidence-lane.mjs unit test && node scripts/run-evidence-lane.mjs nodeUnit test:node && node scripts/run-evidence-lane.mjs i18nUnit test:i18n && node scripts/run-evidence-lane.mjs package test:package && yarn build:host && yarn test:browser:support && PW_ODHIN_LIGHTWEIGHT=false node scripts/run-evidence-lane.mjs browser test:browser && PW_ODHIN_LIGHTWEIGHT=false node scripts/run-evidence-lane.mjs cacheBrowser test:cache-upgrade && yarn check:contracts && node tests/reporters/odhin-site-publisher.cjs --check-source test-results/odhin && node tests/reporters/browser-check.cjs test-results/odhin/browser/index.html && node tests/reporters/browser-check.cjs test-results/odhin/cache-upgrade/index.html",
+    "test:all:sequence": "yarn build && yarn lint && yarn test:tooling-security && yarn test:reporters && yarn test:contracts && yarn test:compatibility:contracts && node scripts/run-evidence-lane.mjs refDataUnit test:ref-data && node scripts/run-evidence-lane.mjs locationUnit test:locations && node scripts/run-evidence-lane.mjs windowUnit test:window && node scripts/run-evidence-lane.mjs cookieUnit test:cookie && node scripts/run-evidence-lane.mjs featureToggleUnit test:feature-toggle && node scripts/run-evidence-lane.mjs roleUnit test:roles && node scripts/run-evidence-lane.mjs unit test && node scripts/run-evidence-lane.mjs nodeUnit test:node:utils && node scripts/run-evidence-lane.mjs nodeServerUnit test:node:server && node scripts/run-evidence-lane.mjs i18nUnit test:i18n && node scripts/run-evidence-lane.mjs package test:package && yarn build:host && yarn test:browser:support && PW_ODHIN_LIGHTWEIGHT=false node scripts/run-evidence-lane.mjs browser test:browser && PW_ODHIN_LIGHTWEIGHT=false node scripts/run-evidence-lane.mjs cacheBrowser test:cache-upgrade && yarn check:contracts && node tests/reporters/odhin-site-publisher.cjs --check-source test-results/odhin && node tests/reporters/browser-check.cjs test-results/odhin/browser/index.html && node tests/reporters/browser-check.cjs test-results/odhin/cache-upgrade/index.html",
     "test:ref-data": "node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=tap --test-reporter-destination=test-results/ref-data.tap tests/ref-data/ref-data.test.mjs",
     "test:locations": "node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=tap --test-reporter-destination=test-results/locations.tap tests/locations/location.test.mjs",
     "test:window": "node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=tap --test-reporter-destination=test-results/window.tap tests/window/window.test.mjs",
     "test:cookie": "node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=tap --test-reporter-destination=test-results/cookie.tap tests/cookie/cookie.test.mjs",
     "test:feature-toggle": "node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=tap --test-reporter-destination=test-results/feature-toggle.tap tests/feature-toggle/feature-toggle.test.mjs",
     "test:roles": "node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=tap --test-reporter-destination=test-results/roles.tap tests/roles/roles.test.mjs",
-    "test:diagnostic": "node scripts/diagnostic-current.mjs"
+    "test:diagnostic": "node scripts/diagnostic-current.mjs",
+    "test:node:utils": "rm -rf test-results/node-unit test-results/node.tap && tsc -p tests/node/tsconfig.json && node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=tap --test-reporter-destination=test-results/node.tap test-results/node-unit/tests/node/*.spec.js && node --test tests/build-watch.test.mjs"
   },
   "devDependencies": {
     "@angular/build": "20.3.42",
@@ -84,7 +86,13 @@
     "@npmcli/package-json@npm:7.0.5/glob": "14.0.6",
     "cacache@npm:20.0.4/glob": "14.0.6",
     "ignore-walk@npm:8.0.0/minimatch": "11.0.8",
-    "@tufjs/models@npm:4.1.0/minimatch": "11.0.8"
+    "@tufjs/models@npm:4.1.0/minimatch": "11.0.8",
+    "@jest/reporters@npm:30.5.1/glob": "14.0.6",
+    "jest-config@npm:30.5.1/glob": "14.0.6",
+    "jest-runtime@npm:30.5.1/glob": "14.0.6",
+    "test-exclude@npm:7.0.2/glob": "14.0.6",
+    "test-exclude@npm:7.0.2/minimatch": "11.0.8",
+    "jest-config@npm:30.5.1/deepmerge": "npm:@shivammathur/deepmerge@4.3.2"
   },
   "workspaces": [
     "projects/core-lib/node"

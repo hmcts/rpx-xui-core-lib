@@ -1,0 +1,138 @@
+import { EventEmitter } from 'events'
+import { NextFunction, Request, RequestHandler, Response, Router } from 'express'
+import { jwtDecode } from 'jwt-decode'
+import { createGuardrails, generate, ScureBase32Plugin } from 'otplib'
+import { http } from '../../common/http'
+import { getLogger, XuiLogger } from '../../common/util/debug.logger'
+import { DecodedJWT } from './decodedJwt.interface'
+import { S2S } from './s2s.constants'
+import { S2SConfig } from './s2sConfig.interface'
+import { S2SToken } from './s2sToken.interface'
+
+export class S2SAuth extends EventEmitter {
+    protected readonly router = Router({ mergeParams: true })
+
+    protected s2sConfig: S2SConfig = {
+        microservice: '',
+        s2sEndpointUrl: '',
+        s2sSecret: '',
+    }
+
+    // Cache of S2S tokens, indexed by microservice name
+    protected store: { [key: string]: S2SToken } = {}
+
+    protected logger: XuiLogger
+
+    constructor(logger: XuiLogger = getLogger('auth:s2s')) {
+        super()
+        this.logger = logger
+    }
+
+    /**
+     * This must be called with a suitable configuration before attempting to use the middleware, or else it will not
+     * have valid parameter values to generate the S2S token.
+     *
+     * @param s2sConfig The S2SConfig containing microservice name, S2S endpoint URL, and S2S secret
+     * @param store The cache for storing S2S tokens, indexed by microservice name
+     */
+    public configure = (s2sConfig: S2SConfig, store?: { [key: string]: S2SToken }): RequestHandler => {
+        this.s2sConfig = s2sConfig
+        if (store) {
+            this.store = store
+        }
+        this.router.use(this.s2sHandler)
+
+        return this.router
+    }
+
+    public s2sHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        try {
+            const token = await this.serviceTokenGenerator()
+
+            if (token) {
+                req.headers.ServiceAuthorization = `Bearer ${token}`
+
+                // If there are no listeners for a success event from this emitter, just return this middleware using
+                // next(), else emit a success event with the S2S token
+                if (!this.listenerCount(S2S.EVENT.AUTHENTICATE_SUCCESS)) {
+                    return next()
+                } else {
+                    this.emit(S2S.EVENT.AUTHENTICATE_SUCCESS, token, req, res, next)
+                    return
+                }
+            }
+        } catch (error) {
+            next(error)
+        }
+    }
+
+    public validateCache = (): boolean => {
+        const currentTime = Math.floor(Date.now() / 1000)
+        if (!this.store[this.s2sConfig.microservice]) {
+            return false
+        }
+        return currentTime < this.store[this.s2sConfig.microservice].expiresAt
+    }
+
+    public getToken = (): S2SToken => {
+        return this.store[this.s2sConfig.microservice]
+    }
+
+    public deleteCachedToken = (): void => {
+        if (this.store[this.s2sConfig.microservice]) {
+            delete this.store[this.s2sConfig.microservice]
+        }
+    }
+
+    private generateToken = async (): Promise<string | undefined> => {
+        this.logger.info('Generating new S2S token')
+
+        const token = await this.postS2SLease()
+        if (!token) {
+            return undefined
+        }
+
+        const tokenData: DecodedJWT = jwtDecode(token)
+
+        this.store[this.s2sConfig.microservice] = {
+            expiresAt: tokenData.exp,
+            token,
+        } as S2SToken
+
+        return token
+    }
+
+    private readonly postS2SLease = async (): Promise<string | undefined> => {
+        const { s2sSecret, microservice, s2sEndpointUrl } = this.s2sConfig
+        const secretBytes = new ScureBase32Plugin().decode(s2sSecret)
+        const guardrails = createGuardrails({ MIN_SECRET_BYTES: secretBytes.length })
+        const oneTimePassword = await generate({ secret: s2sSecret, guardrails, strategy: 'totp' })
+        this.logger.info('Requesting S2S token for microservice:', microservice)
+
+        const request = await http.post(`${s2sEndpointUrl}`, {
+            microservice,
+            oneTimePassword,
+        })
+
+        return request.data
+    }
+
+    public serviceTokenGenerator = async (): Promise<string | undefined> => {
+        if (this.validateCache()) {
+            const tokenData = this.getToken()
+            return tokenData.token
+        } else {
+            return await this.generateToken()
+        }
+    }
+
+    /**
+     * Get all the events that this strategy emits
+     * @return string[]
+     */
+    public getEvents = (): string[] => {
+        return Object.values<string>(S2S.EVENT)
+    }
+}
+
+export const s2s = new S2SAuth()

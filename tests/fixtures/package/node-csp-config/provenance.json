@@ -1,0 +1,27 @@
+{
+  "scope": "Frozen source option shapes; imports redirected to Core and synthetic configuration. Not full application adoption.",
+  "sources": {
+    "rpx-xui-webapp": {
+      "gitHead": "1a986f4dc87e6ea4598e30c042bf2b3072122b75",
+      "sourcePath": "api/interfaces/csp-config.ts",
+      "sha256": "bc859ec09b97be0171115ab12ea830a514cd4d7c020e95b48acbadcc7be1618b"
+    },
+    "rpx-xui-manage-organisations": {
+      "gitHead": "54fbc51bfe18eb03d8afdd988f58c73dddef8c18",
+      "sourcePath": "api/interfaces/csp-config.ts",
+      "sha256": "596f30706d2485f0236e540e0fe2064be0eded6a67d40ddf002453995d1a2e91"
+    },
+    "rpx-xui-approve-org": {
+      "gitHead": "cb14ae0c048ad509bd5e71a58e4ba645592b9267",
+      "sourcePath": "api/interfaces/csp-config.ts",
+      "sha256": "9bf2ea9d72fe41af2619c1a747c0cc95c63b46d96ef15ae88b5b1594d73be668"
+    }
+  },
+  "nodeLibrary": {
+    "gitHead": "722b6284da957dbf4eebde0b49d36574d9664e3e",
+    "cspSource": "src/common/util/csp.ts",
+    "helperSource": "src/common/util/contentSecurityPolicy.ts",
+    "legacyHelmetPeer": "^7.0.0",
+    "testedConsumerHelmetLock": "8.3.0"
+  }
+}

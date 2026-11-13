@@ -11,7 +11,9 @@
     "rxjs": "^7.8.0",
     "@angular/material": "20.2.14",
     "@angular/cdk": "20.2.14",
-    "@angular/platform-browser": "^20.3.27"
+    "@angular/platform-browser": "^20.3.27",
+    "express": "5.2.1",
+    "helmet": "^8.1.0"
   },
   "peerDependenciesMeta": {
     "@angular/common": { "optional": true },
@@ -20,7 +22,9 @@
     "rxjs": { "optional": true },
     "@angular/material": { "optional": true },
     "@angular/cdk": { "optional": true },
-    "@angular/platform-browser": { "optional": true }
+    "@angular/platform-browser": { "optional": true },
+    "express": { "optional": true },
+    "helmet": { "optional": true }
   },
   "exports": {
     "./node": {
@@ -32,6 +36,31 @@
       "browser": null,
       "types": "./node/http.d.ts",
       "node": "./node/http.js"
+    },
+    "./node/server": {
+      "browser": null,
+      "types": "./node/server/index.d.ts",
+      "node": "./node/server/index.js"
+    },
+    "./node/server/auth": {
+      "browser": null,
+      "types": "./node/server/auth/index.d.ts",
+      "node": "./node/server/auth/index.js"
+    },
+    "./node/server/session": {
+      "browser": null,
+      "types": "./node/server/session/index.d.ts",
+      "node": "./node/server/session/index.js"
+    },
+    "./node/server/security": {
+      "browser": null,
+      "types": "./node/server/security/index.d.ts",
+      "node": "./node/server/security/index.js"
+    },
+    "./node/server/logging": {
+      "browser": null,
+      "types": "./node/server/logging/index.d.ts",
+      "node": "./node/server/logging/index.js"
     }
   },
   "type": "module",
@@ -42,8 +71,20 @@
     "node/package.json"
   ],
   "dependencies": {
+    "@dr.pogodin/csurf": "^1.17.1",
+    "connect-redis": "^9.0.0",
+    "debug": "^4.4.3",
     "dexie": "4.4.7",
+    "joi": "^18.3.0",
+    "jwt-decode": "^4.0.0",
     "luxon": "2.5.2",
-    "axios": "^1.20.0"
+    "axios": "^1.20.0",
+    "express-session": "^1.19.0",
+    "openid-client": "^5.7.1",
+    "otplib": "^13.4.0",
+    "passport": "^0.7.0",
+    "passport-oauth2": "^1.8.0",
+    "redis": "^6.1.0",
+    "session-file-store": "^1.5.0"
   }
 }

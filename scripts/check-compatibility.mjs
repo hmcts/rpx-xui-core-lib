@@ -136,7 +136,10 @@ export function validateCurrentCore(actual, expected, prospective) {
   assert.ok(typeof scope === 'string' && scope.trim(), 'Missing current core scope');
   assert.deepEqual(actual, projection, 'Current core cohort differs from its contract');
   if (prospective) {
-    for (const [name, version] of Object.entries(actual.libraryPeerDependencies)) assert.equal(prospective.peerDependencies[name], version, `Prospective peer differs from current core: ${name}`);
+    for (const [name, version] of Object.entries(actual.libraryPeerDependencies)) {
+      const selected = prospective.peerDependencies[name];
+      assert.ok(selected === version || (typeof selected === 'string' && semver.valid(selected) && semver.satisfies(selected, version)), `Prospective peer differs from current core: ${name}`);
+    }
     for (const [name, version] of Object.entries(actual.libraryDependencies)) {
       const selected = prospective.dependencies[name];
       assert.ok(typeof selected === 'string' && semver.valid(selected) && semver.validRange(String(version)) && semver.satisfies(selected, String(version)), `Prospective dependency differs from current core: ${name}`);
