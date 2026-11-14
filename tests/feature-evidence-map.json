@@ -1697,7 +1697,9 @@
           "Case notifier migration contract injects the date format translator into the moved pipe",
           "Case editor submission data contract accepts existing host-owned form groups on editor and submit components",
           "palette registry provider uses a child PaletteService override for read rendering",
-          "palette registry provider uses a child PaletteService override for write rendering"
+          "palette registry provider uses a child PaletteService override for write rendering",
+          "Case editor submission data contract reports a failed review-page navigation with the original error",
+          "Case editor submission data contract reports failed confirmation navigation without resubmitting an accepted event"
         ]
       }
     },

@@ -290,7 +290,7 @@ Event-trigger, case-history, print and event-completion error paths still pass a
 
 The document tree now treats an absent `children` array as an empty list when flattening a node. Toolkit threw for that case; nested traversal order is unchanged. This behavior change is covered locally and requires consumer review.
 
-Wizard redirects still resolve the route immediately, but failed redirect promises now reach Angular's `ErrorHandler` with the original error. Host error handlers may log error details; consumers should review their logging policy.
+Wizard redirects still resolve the route immediately. Failed wizard, review-page and confirmation navigation promises now reach Angular's `ErrorHandler` with the original error; confirmation navigation failure does not resubmit an accepted event. Host error handlers may log error details; consumers should review their logging policy.
 
 Field-read initialization remains deferred, but no longer starts after the field has been destroyed. Initialization errors now reach Angular's `ErrorHandler` as the original error rather than an unhandled promise rejection. A host's error handler may log error details, so consumers should review its logging policy.
 

@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, ErrorHandler, OnDestroy, OnInit } from '@angular/core';
 import { AbstractControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -85,6 +85,7 @@ export class CaseEditSubmitComponent implements OnInit, OnDestroy {
     private readonly caseFlagStateService: CaseFlagStateService,
     private readonly linkedCasesService: LinkedCasesService,
     private readonly placeholderService: PlaceholderService,
+    private readonly errorHandler: ErrorHandler = new ErrorHandler(),
   ) {
   }
 
@@ -196,7 +197,7 @@ export class CaseEditSubmitComponent implements OnInit, OnDestroy {
   }
 
   public navigateToPage(pageId: string): void {
-    this.caseEdit.navigateToPage(pageId);
+    this.caseEdit.navigateToPage(pageId).catch(error => this.errorHandler.handleError(error));
   }
 
   public callbackErrorsNotify(errorContext: CallbackErrorsContext): void {
