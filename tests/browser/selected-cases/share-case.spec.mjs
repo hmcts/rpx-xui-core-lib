@@ -123,3 +123,20 @@ test('sharing error links work with valid ID prefixes containing punctuation', a
   await page.keyboard.press('Enter');
   await expect(form.locator('[id="second:cases"]')).toBeFocused();
 });
+
+
+test('sharing forms distinguish the same case in each accordion', async ({ page }) => {
+  await page.goto('/share-case?multiple=1&sameCase=1');
+  const forms = page.locator('xuilib-share-case');
+  await expect(forms).toHaveCount(2);
+  const ids = await page.locator('[id]').evaluateAll(elements => elements.map(element => element.id));
+  expect(new Set(ids).size).toBe(ids.length);
+  for (const [index, prefix] of ['', 'second-'].entries()) {
+    const form = forms.nth(index);
+    const button = form.locator('.govuk-accordion__section-button');
+    const contentId = `${prefix}accordion-with-summary-sections-content-case-one`;
+    await expect(button).toHaveAttribute('aria-controls', contentId);
+    await expect(form.locator(`[id="${contentId}"]`)).toHaveCount(1);
+    await expect(form.locator(`[id="${prefix}user-full-name-0-case-one"]`)).toHaveCount(1);
+  }
+});

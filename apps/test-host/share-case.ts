@@ -26,7 +26,7 @@ import { initAll } from 'govuk-frontend';
 class ShareCaseGallery {
   readonly multiple = new URLSearchParams(window.location.search).has('multiple');
   readonly secondPrefix = new URLSearchParams(window.location.search).get('prefix') ?? 'second-';
-  readonly secondCases = new BehaviorSubject<SharedCase[]>([{ caseId: 'case-two', caseTitle: 'Second synthetic case', sharedWith: [] }]);
+  readonly secondCases = new BehaviorSubject<SharedCase[]>([{ caseId: new URLSearchParams(window.location.search).has('sameCase') ? 'case-one' : 'case-two', caseTitle: 'Second synthetic case', sharedWith: [this.store.availableUsers[0]] }]);
   readonly label = new URLSearchParams(window.location.search).get('label') ?? 'Find a person';
   constructor(public readonly store: ShareCaseFixtureState) { afterNextRender(() => { document.body.classList.add('govuk-frontend-supported'); initAll(); }); }
   get users() { return this.store.users; }

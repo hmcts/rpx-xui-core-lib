@@ -167,7 +167,8 @@ selected-cases|selected cases gallery starts without Angular routing errors
 selected-cases|simultaneous sharing forms retain separate cases
 selected-cases|simultaneous sharing forms retain their own accessible labels
 selected-cases|prefixed sharing forms have unique IDs and show their own errors
-selected-cases|sharing error links work with valid ID prefixes containing punctuation`.split('\n').map(row => {
+selected-cases|sharing error links work with valid ID prefixes containing punctuation
+selected-cases|sharing forms distinguish the same case in each accordion`.split('\n').map(row => {
   const [feature, title] = row.split('|');
   return ['chromium', title, feature];
 });

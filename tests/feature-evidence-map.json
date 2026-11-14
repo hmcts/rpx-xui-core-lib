@@ -1471,6 +1471,11 @@
             "projectName": "chromium",
             "title": "sharing error links work with valid ID prefixes containing punctuation",
             "feature": "selected-cases"
+          },
+          {
+            "projectName": "chromium",
+            "title": "sharing forms distinguish the same case in each accordion",
+            "feature": "selected-cases"
           }
         ],
         "package": [

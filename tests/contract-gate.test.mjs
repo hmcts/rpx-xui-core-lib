@@ -394,7 +394,7 @@ addedBrowserJourneys.push('selected case removal can be cancelled and reflected 
   'sharing can remove a selected existing user from all cases', 'sharing user lookup has its visible label and accessible description',
   'sharing cannot add a person before an autocomplete selection', 'selected cases keep user identifiers unique across multiple cases', 'sharing preserves a caller supplied user lookup label', 'sharing refreshes a typed search when users finish loading',
   'sharing gallery starts without Angular routing errors', 'selected cases gallery starts without Angular routing errors',
-  'simultaneous sharing forms retain separate cases', 'simultaneous sharing forms retain their own accessible labels', 'prefixed sharing forms have unique IDs and show their own errors', 'sharing error links work with valid ID prefixes containing punctuation');
+  'simultaneous sharing forms retain separate cases', 'simultaneous sharing forms retain their own accessible labels', 'prefixed sharing forms have unique IDs and show their own errors', 'sharing error links work with valid ID prefixes containing punctuation', 'sharing forms distinguish the same case in each accordion');
 const expectedContracts = addedBrowserJourneys.length + Object.values(addedLaneNames).reduce((sum, names) => sum + names.length, 0) + unitNames.length + nodeNames.length + i18nNames.length + i18nJourneys.length + dueDateJourneys.length + accessibilityJourneys.length + sessionDialogJourneys.length + primitiveJourneys.length + cacheJourneys.length + validationJourneys.length + packageIds.length + 1 + contractInventory.nodeServerUnit.required.length;
 
 function nativeTap(names) {
