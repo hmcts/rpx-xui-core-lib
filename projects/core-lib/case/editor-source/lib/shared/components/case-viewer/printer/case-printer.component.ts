@@ -43,7 +43,7 @@ export class CasePrinterComponent implements OnInit, OnDestroy {
             this.documents = documents;
           }),
           catchError(error => {
-            this.alertService.error(error.message);
+            this.alertService.error({ phrase: error.message });
             return throwError(error);
           })
         ).toPromise();

@@ -34,6 +34,7 @@ export class HttpError {
 
   public static from(response: HttpErrorResponse): HttpError {
     const error = new HttpError();
+    error.status = response?.status ?? error.status;
 
     if (response?.status === 429) {
       error.error = HttpError.MESSAGE_ERROR_429;

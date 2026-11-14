@@ -64,7 +64,7 @@ export class CaseHistoryComponent implements OnInit, OnDestroy {
           catchError(error => {
             this.logger.error('Error while getting case history.', { error });
             if (error.status !== 401 && error.status !== 403) {
-              this.alertService.error(error.message);
+              this.alertService.error({ phrase: error.message });
             }
             return throwError(error);
             })

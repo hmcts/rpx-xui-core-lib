@@ -108,7 +108,7 @@ export class EventTriggerResolver implements Resolve<CaseEventTrigger> {
         catchError((error) => {
           error.details = { eventId: eventTriggerId, ...error.details };
           this.alertService.setPreserveAlerts(true);
-          this.alertService.error(error.message);
+          this.alertService.error({ phrase: error.message });
           this.errorNotifier.announceError(error);
           if (!this.router.url?.includes('/cases/case-details/')) {
             caseTypeId = route.parent.paramMap.get('caseType');

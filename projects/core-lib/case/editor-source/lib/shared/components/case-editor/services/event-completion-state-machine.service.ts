@@ -131,7 +131,7 @@ export class EventCompletionStateMachineService {
         }
       },
       error => {
-        context.alertService.error(error.message);
+        context.alertService.error({ phrase: error.message });
         return throwError(error);
       });
   }

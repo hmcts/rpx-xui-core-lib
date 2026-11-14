@@ -1,12 +1,51 @@
 import { ErrorNotifierService } from '../../projects/core-lib/case/editor-source/lib/shared/services/error/error-notifier.service';
 import { NavigationNotifierService } from '../../projects/core-lib/case/editor-source/lib/shared/services/navigation/navigation-notifier.service';
-import { NavigationStart } from '@angular/router';
-import { BehaviorSubject, of, Subject } from 'rxjs';
+import { ActivatedRouteSnapshot, convertToParamMap, NavigationStart } from '@angular/router';
+import { BehaviorSubject, of, Subject, throwError } from 'rxjs';
 import { AlertService } from '../../projects/core-lib/case/editor-source/lib/shared/services/alert/alert.service';
+
+import { EventTriggerResolver } from '../../projects/core-lib/case/editor-source/lib/shared/components/case-viewer/services/event-trigger.resolver';
 
 export const registered = true;
 
 describe('Editor alert migration contract', () => {
+  it('shows the event-trigger failure message and preserves its rejection', async () => {
+    const router = { events: new Subject<NavigationStart>(), url: '/cases/case-details/TEST/Type/123', navigate: jasmine.createSpy('navigate') };
+    const translations = { getTranslation$: (phrase: string) => of((phrase || '').trim()) };
+    const alerts = new AlertService(router as unknown as ConstructorParameters<typeof AlertService>[0], translations as unknown as ConstructorParameters<typeof AlertService>[1]);
+    const messages: string[] = [];
+    const subscription = alerts.errors.subscribe(alert => { if (alert) messages.push(alert.message); });
+    const failure = { status: 503, message: 'Unable to start the synthetic event' };
+    const announceError = jasmine.createSpy('announceError');
+    type Dependencies = ConstructorParameters<typeof EventTriggerResolver>;
+    const resolver = new EventTriggerResolver(
+      { getEventTrigger: () => throwError(() => failure) } as unknown as Dependencies[0],
+      alerts,
+      { get: () => of({}) } as unknown as Dependencies[2],
+      { announceProfile: jasmine.createSpy('announceProfile') } as unknown as Dependencies[3],
+      router as unknown as Dependencies[4],
+      {} as Dependencies[5],
+      { announceError } as unknown as Dependencies[6],
+      {} as Dependencies[7],
+      {} as Dependencies[8]
+    );
+    const route = {
+      parent: { paramMap: convertToParamMap({ jurisdiction: 'TEST', caseType: 'Type', cid: '123' }) },
+      paramMap: convertToParamMap({ eid: 'synthetic-event' }),
+      queryParamMap: convertToParamMap({}), queryParams: {}, firstChild: null
+    } as unknown as ActivatedRouteSnapshot;
+    try {
+      await expectAsync(resolver.resolve(route)).toBeRejectedWith(failure);
+      expect(messages).toEqual([failure.message]);
+      expect(alerts.preservedError).toBe(failure.message);
+      expect(announceError).toHaveBeenCalledOnceWith(failure);
+      expect(router.navigate).not.toHaveBeenCalled();
+    } finally {
+      subscription.unsubscribe();
+      alerts.clear();
+    }
+  });
+
   for (const level of ['success', 'warning'] as const) {
     it(`does not replace a newer ${level} with a delayed error translation`, () => {
       const delayed = new Subject<string>();

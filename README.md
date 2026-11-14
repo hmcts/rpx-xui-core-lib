@@ -284,7 +284,7 @@ For case lookup errors other than 401 and 403, Core emits the user-facing alert 
 
 Core error alerts follow updates from the active translation stream, and cancel that stream when the alert is replaced or cleared. Toolkit emitted only the translation available at the initial call. This intentional change is locally tested for delayed and stale responses; consumer review and real Welsh rendering remain outstanding. Warning and success alert translation behaviour remains unchanged.
 
-Event-trigger, case-history, print and event-completion error paths still pass a string to the alert service's object-shaped API, so their alerts may be empty; those inherited paths need repair and consumer review before claiming error-handling parity. A newer warning or success now cancels an earlier pending error translation so the earlier error cannot overwrite it.
+Event-trigger, case-history, print and event-completion error paths use the alert service's object-shaped API, correcting the inherited empty-alert behavior. Real consumer error-handling parity remains unverified. A newer warning or success now cancels an earlier pending error translation so the earlier error cannot overwrite it.
 
 The document tree now treats an absent `children` array as an empty list when flattening a node. Toolkit threw for that case; nested traversal order is unchanged. This behavior change is covered locally and requires consumer review.
 

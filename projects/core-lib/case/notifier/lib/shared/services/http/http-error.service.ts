@@ -27,21 +27,19 @@ export class HttpErrorService {
     }
     let httpError = new HttpError();
     if (error instanceof HttpErrorResponse) {
-      if (error.headers?.get(HttpErrorService.CONTENT_TYPE).indexOf(HttpErrorService.JSON) !== -1) {
+      httpError.status = error.status;
+      if (error.headers?.get(HttpErrorService.CONTENT_TYPE)?.includes(HttpErrorService.JSON)) {
         try {
           httpError = HttpError.from(error);
         } catch (e) {
           HttpErrorService.logger.error('Unable to convert HTTP error response.', { error: e });
         }
       }
-      if (!httpError.status) {
-        httpError.status = error.status;
-      }
     } else if (error) {
       if (error.message) {
         httpError.message = error.message;
       }
-      if (error.status) {
+      if (error.status || error.status === 0) {
         httpError.status = error.status;
       }
     }

@@ -332,5 +332,17 @@
   "Media viewer handoff sends to the current origin and stops after the matching acknowledgement",
   "Media viewer handoff ignores acknowledgements from the wrong origin, window or token",
   "Media viewer handoff stops retrying and releases the opener after the retry limit",
-  "Media viewer handoff stops retrying when the viewer window closes"
+  "Media viewer handoff stops retrying when the viewer window closes",
+  "Editor HTTP error handler contract preserves a headerless network failure as status zero",
+  "Editor HTTP error handler contract redirects an unauthorised absent response without a body status",
+  "Editor HTTP error handler contract redirects an unauthorised text/html response without a body status",
+  "Editor HTTP error handler contract redirects an unauthorised application/json response without a body status",
+  "Editor HTTP error handler contract keeps an explicit JSON body status and callback references",
+  "Editor HTTP error handler contract retains forbidden and rate-limit mappings during conversion",
+  "Editor HTTP error handler contract preserves status zero on a plain error object",
+  "Editor HTTP error handler contract retains the default status for missing errors and errors without status",
+  "Editor HTTP error handler contract passes an existing HTTP error through unchanged",
+  "Editor HTTP error handler contract does not redirect when authentication recovery is disabled",
+  "Editor HTTP error handler contract uses the transport status when direct model conversion has no body status",
+  "Editor alert migration contract shows the event-trigger failure message and preserves its rejection"
 ]
