@@ -288,6 +288,8 @@ Event-trigger, case-history, print and event-completion error paths still pass a
 
 The document tree now treats an absent `children` array as an empty list when flattening a node. Toolkit threw for that case; nested traversal order is unchanged. This behavior change is covered locally and requires consumer review.
 
+The linked-cases form now labels the case-reference and comments fields and removes a duplicate `caseNumber` ID from the proposed-links container. The original `caseNumber` error-summary anchor remains on the reference field container; consumers with selectors that depended on the duplicate ID should review them.
+
 The confirmed Core design uses an empty `FormGroup` for the unmerged case-confirmation component, where Toolkit used a `FormControl` for its public `formGroup` property. Angular's strict template compiler rejects the old control when bound to `[formGroup]`; the candidate's rendered submission is covered locally. The property type change is an intentional compatibility deviation requiring consumer review before adoption.
 
 The event-history API retains Toolkit's string-typed emitter and selected-event properties. Its template uses a localized Angular type escape because the source event model permits numeric IDs; the runtime value is forwarded unchanged. Consumers must not infer runtime string normalization from the legacy TypeScript annotation.

@@ -1716,6 +1716,7 @@
           "LinkedCasesService migration contract groups case references and resets journey state",
           "Linked cases table migration contract orders reason codes and cases without dropping their values",
           "No linked cases migration contract returns to the linked cases tab with the existing case identifiers",
+          "Linked case reasons migration contract labels case reference and comments and keeps form IDs unique",
           "Linked case reasons migration contract retains distinct display and CCD collection shapes for selected reasons",
           "Linked case reasons migration contract removes the selected case from all three journey lists",
           "Unlink case migration contract accepts both standard and challenged-access case identifiers",
