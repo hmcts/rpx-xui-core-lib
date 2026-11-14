@@ -71,3 +71,33 @@ test('refresh replaces the previous feature stream', () => {
     globalThis.document = previousDocument;
   }
 });
+
+test('a single public message can display before roles load, but multiple messages require a role match', () => {
+  const previousDocument = globalThis.document;
+  globalThis.document = /** @type {Document} */ (/** @type {unknown} */ ({ cookie: '' }));
+  try {
+    const updates = new Subject();
+    const component = new ServiceMessagesComponent(/** @type {import('@hmcts/rpx-xui-core-lib/ui/feature-toggle').FeatureToggleService} */ (/** @type {unknown} */ ({ getValue: () => updates })));
+    component.serviceMessageCookie = 'hidden'; component.ngOnInit();
+    const message = { index: 1, roles: '.+', message_en: 'Public', message_cy: '' };
+    updates.next([message]); assert.deepEqual(component.filteredMessages, [message]);
+    updates.next([message, { ...message, index: 2 }]); assert.deepEqual(component.filteredMessages, []);
+    component.ngOnDestroy();
+  } finally { globalThis.document = previousDocument; }
+});
+
+test('future and invalid dates are not displayed and invalid dates produce a warning', () => {
+  const previousDocument = globalThis.document;
+  globalThis.document = /** @type {Document} */ (/** @type {unknown} */ ({ cookie: '' }));
+  try {
+    const updates = new Subject();
+    const component = new ServiceMessagesComponent(/** @type {import('@hmcts/rpx-xui-core-lib/ui/feature-toggle').FeatureToggleService} */ (/** @type {unknown} */ ({ getValue: () => updates })));
+    component.userRoles = ['caseworker']; component.serviceMessageCookie = 'hidden'; component.ngOnInit();
+    const message = { index: 1, roles: 'caseworker', message_en: 'Notice', message_cy: '' };
+    updates.next([{ ...message, begin: '2999-01-01' }]); assert.deepEqual(component.filteredMessages, []);
+    updates.next([{ ...message, begin: 'not-a-date' }]); assert.deepEqual(component.filteredMessages, []);
+    assert.equal(component.isBannerError, true);
+    assert.deepEqual(component.bannerErrorMsgs, [{ message: 'Invalid start date. Message index: 1', index: 1 }]);
+    component.ngOnDestroy();
+  } finally { globalThis.document = previousDocument; }
+});

@@ -377,6 +377,7 @@ packageIds.push('package.node-security-optional-peer', 'package.strict-node-secu
   'package.node-security-merge-fault', 'package.node-security-restored', 'package.node-security-browser-denied');
 packageIds.push('package.strict-node-logging-types', 'package.node-logging-isolation', 'package.node-logging-loading-fault', 'package.helmet-8_1_0-cohort', 'package.helmet-8_2_0-cohort');
 packageIds.push('package.translation-counterpart-artifact', 'package.translation-counterpart-browser', 'package.translation-counterpart-types', 'package.translation-counterpart-identity', 'package.translation-counterpart-identity-fault');
+unitNames.push("a single public message can display before roles load, but multiple messages require a role match", "future and invalid dates are not displayed and invalid dates produce a warning");
 unitNames.push("refresh replaces the previous feature stream");
 unitNames.push("a malformed dismissal cookie does not prevent messages from displaying");
 unitNames.push("filters messages by role and date, and persists a dismissal", "releases the feature subscription when destroyed");

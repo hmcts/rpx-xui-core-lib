@@ -2,6 +2,8 @@
   "unit": {
     "report": "test-results/validation.tap",
     "required": [
+      "a single public message can display before roles load, but multiple messages require a role match",
+      "future and invalid dates are not displayed and invalid dates produce a warning",
       "refresh replaces the previous feature stream",
       "a malformed dismissal cookie does not prevent messages from displaying",
       "filters messages by role and date, and persists a dismissal",
