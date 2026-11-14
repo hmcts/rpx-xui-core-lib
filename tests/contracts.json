@@ -116,7 +116,13 @@
       "user selection stops emitting when the component is destroyed",
       "sharing supplies a label when the consumer does not provide one",
       "user lookup tolerates a user list that has not loaded yet",
-      "user lookup refreshes the current query when users arrive"
+      "user lookup refreshes the current query when users arrive",
+      "user details checks roles safely for absent and present users",
+      "user details emits the original user for suspend and reinvite actions",
+      "user list retains the legacy 50-item page and emits the selected user",
+      "user list updates the current page and emits the requested page",
+      "invitation form defaults missing errors and emits a submit event",
+      "invitation permissions retain legacy default flags"
     ]
   },
   "browser": {
@@ -771,6 +777,71 @@
         "projectName": "chromium",
         "title": "sharing forms distinguish the same case in each accordion",
         "feature": "selected-cases"
+      },
+      {
+        "projectName": "chromium",
+        "title": "user details shows roles and emits a suspend action",
+        "feature": "user-details"
+      },
+      {
+        "projectName": "chromium",
+        "title": "pending user hides permissions and emits a reinvite action",
+        "feature": "user-details"
+      },
+      {
+        "projectName": "chromium",
+        "title": "user details actions work from the keyboard and pass an axe scan",
+        "feature": "user-details"
+      },
+      {
+        "projectName": "chromium",
+        "title": "user list pages through users and emits the chosen user",
+        "feature": "user-list"
+      },
+      {
+        "projectName": "chromium",
+        "title": "pagination can be operated with the keyboard",
+        "feature": "user-list"
+      },
+      {
+        "projectName": "chromium",
+        "title": "user list and pagination have no automated accessibility violations",
+        "feature": "user-list"
+      },
+      {
+        "projectName": "chromium",
+        "title": "invitation emits submit and displays parent validation",
+        "feature": "invitation"
+      },
+      {
+        "projectName": "chromium",
+        "title": "invitation emits entered details and selected permissions",
+        "feature": "invitation"
+      },
+      {
+        "projectName": "chromium",
+        "title": "invitation form supports keyboard selection and passes axe",
+        "feature": "invitation"
+      },
+      {
+        "projectName": "chromium",
+        "title": "invalid invitation inputs expose their errors accessibly",
+        "feature": "invitation"
+      },
+      {
+        "projectName": "chromium",
+        "title": "invitation retains and updates a preselected permission",
+        "feature": "invitation"
+      },
+      {
+        "projectName": "chromium",
+        "title": "permission error is announced by the permissions fieldset",
+        "feature": "invitation"
+      },
+      {
+        "projectName": "chromium",
+        "title": "permissions with an empty error never reference a missing message",
+        "feature": "invitation"
       }
     ]
   },
@@ -869,7 +940,13 @@
       "package.selected-case-behavior",
       "package.share-case-behavior",
       "package.selected-case-graph",
-      "package.share-case-graph"
+      "package.share-case-graph",
+      "package.user-details-behavior",
+      "package.user-details-graph",
+      "package.user-list-behavior",
+      "package.user-list-graph",
+      "package.invitation-behavior",
+      "package.invitation-graph"
     ]
   },
   "nodeUnit": {

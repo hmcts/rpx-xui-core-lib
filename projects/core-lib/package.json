@@ -14,7 +14,8 @@
     "@angular/platform-browser": "^20.3.27",
     "express": "5.2.1",
     "helmet": "^8.1.0",
-    "@angular/router": "20.3.35"
+    "@angular/router": "20.3.35",
+    "ngx-pagination": "6.0.3"
   },
   "peerDependenciesMeta": {
     "@angular/common": {
@@ -45,6 +46,9 @@
       "optional": true
     },
     "@angular/router": {
+      "optional": true
+    },
+    "ngx-pagination": {
       "optional": true
     }
   },

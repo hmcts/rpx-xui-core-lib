@@ -1,0 +1,38 @@
+  <!--permissions -->
+  <ng-container [formGroup]="inviteUserForm">
+  <xuilib-gov-uk-form-group-wrapper
+    [config]="{id: 'roles', hint: 'Choose what the user will be able to do. You can change this later.', legend: 'Permissions', key: 'roles'}"
+    [formGroupName]="'roles'"
+    [error]="errorMessages">
+
+    <div class="govuk-checkboxes">
+      <xuilib-gov-checkbox
+        [group]="rolesGroup"
+        [isChecked]="isPuiCaseManager"
+        [config]="{id: '', value: 'pui-case-manager',  label: 'Manage Cases', name: 'roles', hint: 'View, create and progress cases.', focusOn: 'roles'}">
+      </xuilib-gov-checkbox>
+
+      <xuilib-gov-checkbox
+        [group]="rolesGroup"
+        [isChecked]="isPuiUserManager"
+        [config]="{id: '', value: 'pui-user-manager', label: 'Manage Users', name: 'roles',
+        hint: 'Invite users.'}">
+      </xuilib-gov-checkbox>
+
+      <xuilib-gov-checkbox
+        [group]="rolesGroup"
+        [isChecked]="isPuiOrganisationManager"
+        [config]="{id: '', value: 'pui-organisation-manager', label: 'Manage Organisation', name: 'roles',
+        hint: 'View organisation name and addresses.'}">
+      </xuilib-gov-checkbox>
+
+      <!-- <xuilib-gov-checkbox
+        [group]="rolesGroup"
+        [isChecked]="isPuiFinanceManager"
+        [config]="{id: '', value: 'pui-finance-manager', label: 'Manage Payments', name: 'roles',
+        hint: 'View account balances, available credit and transactions.'}">
+      </xuilib-gov-checkbox> -->
+    </div>
+
+  </xuilib-gov-uk-form-group-wrapper>
+</ng-container>
