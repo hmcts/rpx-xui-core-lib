@@ -9,6 +9,7 @@ import { CaseSharingStateService } from '@hmcts/rpx-xui-core-lib/case/sharing-st
 import { UserSelectComponent } from './user-select.component';
 
 @Component({
+    providers: [CaseSharingStateService],
     selector: 'xuilib-share-case',
     templateUrl: './share-case.component.html',
     styleUrls: ['./share-case.component.scss'],
@@ -32,6 +33,9 @@ export class ShareCaseComponent implements OnInit, OnDestroy {
   @Input() public confirmLink: string = '';
   @Input() public cancelLink: string = '';
   @Input() public addUserLabel = 'Find a person';
+  @Input() public idPrefix = '';
+
+  public elementId(id: string): string { return `${this.idPrefix}${id}`; }
   @Input() public showRemoveUsers: boolean = false;
   @Input() public fnTitle: string = '';
   @Input() public title: string = '';
@@ -63,7 +67,7 @@ export class ShareCaseComponent implements OnInit, OnDestroy {
         // which the error message is associated
         if (shareCases) {
           this.selectedCasesErrorMessageConfig = {
-            id: shareCases.length > 0 ? 'cases' : 'noCaseDisplay'
+            id: this.elementId(shareCases.length > 0 ? 'cases' : 'noCaseDisplay')
           };
         }
       });
@@ -78,7 +82,7 @@ export class ShareCaseComponent implements OnInit, OnDestroy {
   public onUnselect(c: SharedCase): void {
     this.validationErrors = [];
     if (this.stateService.getCases().length === 1) {
-      this.validationErrors.push({ id: 'cases', message: SharedCaseErrorMessages.OneCaseMustBeSelected });
+      this.validationErrors.push({ id: this.elementId('cases'), message: SharedCaseErrorMessages.OneCaseMustBeSelected });
       this.shareCaseErrorMessage = { isInvalid: true, messages: [SharedCaseErrorMessages.OneCaseMustBeSelected] };
       window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
     } else {
@@ -156,7 +160,7 @@ export class ShareCaseComponent implements OnInit, OnDestroy {
     // If continuation is not allowed, set an error message
     if (!this.continueAllowed) {
       this.validationErrors = [];
-      this.validationErrors.push({ id: 'cases', message: SharedCaseErrorMessages.NoChangesRequested });
+      this.validationErrors.push({ id: this.elementId('cases'), message: SharedCaseErrorMessages.NoChangesRequested });
       this.shareCaseErrorMessage = { isInvalid: true, messages: [SharedCaseErrorMessages.NoChangesRequested] };
       window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
     }
@@ -167,7 +171,7 @@ export class ShareCaseComponent implements OnInit, OnDestroy {
       // an unassigned state
       if (this.hasCasesLeftUnassigned(this.shareCases)) {
         this.validationErrors = [];
-        this.validationErrors.push({ id: 'cases', message: SharedCaseErrorMessages.OnePersonMustBeAssigned });
+        this.validationErrors.push({ id: this.elementId('cases'), message: SharedCaseErrorMessages.OnePersonMustBeAssigned });
         this.shareCaseErrorMessage = { isInvalid: true, messages: [SharedCaseErrorMessages.OnePersonMustBeAssigned] };
         window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
       } else {

@@ -4,6 +4,7 @@ import { SharedCase } from '@hmcts/rpx-xui-core-lib/case/sharing';
 import { CaseSharingStateService } from '@hmcts/rpx-xui-core-lib/case/sharing-state';
 
 @Component({
+    providers: [CaseSharingStateService],
     selector: 'xuilib-share-case-confirm',
     templateUrl: './share-case-confirm.component.html',
     styleUrls: ['./share-case-confirm.component.scss'],

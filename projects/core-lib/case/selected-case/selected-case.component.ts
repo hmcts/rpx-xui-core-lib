@@ -17,6 +17,7 @@ export class SelectedCaseComponent implements OnInit, OnChanges, OnDestroy {
   private stateSubscription: Subscription;
 
   @Input() public sharedCase: SharedCase;
+  @Input() public idPrefix = '';
   @Input() public selectedUser: UserDetails;
   @Input() public opened = false;
   @Input() public removeUserFromCaseToggleOn: boolean;
@@ -177,6 +178,6 @@ export class SelectedCaseComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   public buildElementId(elementName: string): string {
-    return `${elementName}-${this.sharedCase.caseId}`;
+    return `${this.idPrefix}${elementName}-${this.sharedCase.caseId}`;
   }
 }

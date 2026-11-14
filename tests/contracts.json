@@ -746,6 +746,26 @@
         "projectName": "chromium",
         "title": "selected cases gallery starts without Angular routing errors",
         "feature": "selected-cases"
+      },
+      {
+        "projectName": "chromium",
+        "title": "simultaneous sharing forms retain separate cases",
+        "feature": "selected-cases"
+      },
+      {
+        "projectName": "chromium",
+        "title": "simultaneous sharing forms retain their own accessible labels",
+        "feature": "selected-cases"
+      },
+      {
+        "projectName": "chromium",
+        "title": "prefixed sharing forms have unique IDs and show their own errors",
+        "feature": "selected-cases"
+      },
+      {
+        "projectName": "chromium",
+        "title": "sharing error links work with valid ID prefixes containing punctuation",
+        "feature": "selected-cases"
       }
     ]
   },

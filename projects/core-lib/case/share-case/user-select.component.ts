@@ -19,6 +19,9 @@ export class UserSelectComponent implements OnInit, OnDestroy {
   @Input() public set users(value: UserDetails[]) { this.usersSubject.next(value ?? []); }
   public get users(): UserDetails[] { return this.usersSubject.value; }
   @Input() public label = 'Find a person';
+  @Input() public idPrefix = '';
+
+  public elementId(id: string): string { return `${this.idPrefix}${id}`; }
 
   @Output() public selected = new EventEmitter<UserDetails>();
 

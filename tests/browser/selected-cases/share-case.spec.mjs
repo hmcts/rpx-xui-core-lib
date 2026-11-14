@@ -75,3 +75,51 @@ test('sharing can remove a selected existing user from all cases', async ({ page
   await page.getByRole('button', { name: 'Continue' }).click();
   await expect(page.getByText('At least one person must be assigned to each case').first()).toBeVisible();
 });
+
+
+test('simultaneous sharing forms retain separate cases', async ({ page }) => {
+  await page.goto('/share-case?multiple=1');
+  const forms = page.locator('xuilib-share-case');
+  await expect(forms).toHaveCount(2);
+  await expect(forms.nth(0).locator('.govuk-case-title')).toHaveText('Synthetic case');
+  await expect(forms.nth(1).locator('.govuk-case-title')).toHaveText('Second synthetic case');
+});
+
+test('simultaneous sharing forms retain their own accessible labels', async ({ page }) => {
+  await page.goto('/share-case?multiple=1');
+  const forms = page.locator('xuilib-share-case');
+  await expect(forms).toHaveCount(2);
+  await expect(forms.nth(0).locator('xuilib-user-select input')).toHaveAccessibleName('Find a person');
+  await expect(forms.nth(1).locator('xuilib-user-select input')).toHaveAccessibleName('Second recipient');
+});
+
+test('prefixed sharing forms have unique IDs and show their own errors', async ({ page }) => {
+  await page.goto('/share-case?multiple=1');
+  const forms = page.locator('xuilib-share-case');
+  await expect(forms).toHaveCount(2);
+  const duplicates = await page.locator('[id]').evaluateAll(elements => {
+    const ids = elements.map(element => element.id);
+    return ids.filter((id, index) => ids.indexOf(id) !== index);
+  });
+  expect(duplicates).toEqual([]);
+  await forms.nth(1).getByRole('button', { name: 'Continue' }).click();
+  await expect(forms.nth(1).locator('.govuk-error-summary')).toContainText('You have not requested any changes');
+  const target = forms.nth(1).locator('#second-cases');
+  const link = forms.nth(1).locator('.govuk-error-summary a');
+  await expect(link).toHaveAttribute('href', '#second-cases');
+  await link.focus();
+  await page.keyboard.press('Enter');
+  await expect(target).toBeFocused();
+});
+
+
+test('sharing error links work with valid ID prefixes containing punctuation', async ({ page }) => {
+  await page.goto('/share-case?multiple=1&prefix=second%3A');
+  const form = page.locator('xuilib-share-case').nth(1);
+  await form.getByRole('button', { name: 'Continue' }).click();
+  const link = form.locator('.govuk-error-summary a');
+  await expect(link).toHaveAttribute('href', '#second:cases');
+  await link.focus();
+  await page.keyboard.press('Enter');
+  await expect(form.locator('[id="second:cases"]')).toBeFocused();
+});

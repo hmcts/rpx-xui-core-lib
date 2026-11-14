@@ -15,6 +15,7 @@ export class SelectedCaseConfirmComponent implements OnInit, OnDestroy {
   private stateSubscription: Subscription;
 
   @Input() public sharedCase: SharedCase;
+  @Input() public idPrefix = '';
   @Input() public changeLink: string = '';
 
   public shareCases: SharedCase[];

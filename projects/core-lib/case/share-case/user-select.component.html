@@ -1,6 +1,6 @@
-<span id="add-user-label" class="govuk-visually-hidden">{{ label | rpxTranslate }}</span>
-<input id="add-user-control" class="govuk-input" type="text" [matAutocomplete]="dropdown" [formControl]="control"
-  aria-labelledby="add-user-label" aria-describedby="add-user-hint">
+<span [id]="elementId('add-user-label')" class="govuk-visually-hidden">{{ label | rpxTranslate }}</span>
+<input [id]="elementId('add-user-control')" class="govuk-input" type="text" [matAutocomplete]="dropdown" [formControl]="control"
+  [attr.aria-labelledby]="elementId('add-user-label')" [attr.aria-describedby]="elementId('add-user-hint')">
 
 <mat-autocomplete #dropdown="matAutocomplete" [displayWith]="displayValue" autoActiveFirstOption (optionSelected)="onSelected($event)">
   @for (user of filteredUsers | async; track user) {

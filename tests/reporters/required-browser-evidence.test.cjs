@@ -163,7 +163,11 @@ selected-cases|selected cases keep user identifiers unique across multiple cases
 selected-cases|sharing preserves a caller supplied user lookup label
 selected-cases|sharing refreshes a typed search when users finish loading
 selected-cases|sharing gallery starts without Angular routing errors
-selected-cases|selected cases gallery starts without Angular routing errors`.split('\n').map(row => {
+selected-cases|selected cases gallery starts without Angular routing errors
+selected-cases|simultaneous sharing forms retain separate cases
+selected-cases|simultaneous sharing forms retain their own accessible labels
+selected-cases|prefixed sharing forms have unique IDs and show their own errors
+selected-cases|sharing error links work with valid ID prefixes containing punctuation`.split('\n').map(row => {
   const [feature, title] = row.split('|');
   return ['chromium', title, feature];
 });

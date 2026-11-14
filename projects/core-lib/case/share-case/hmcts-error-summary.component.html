@@ -1,7 +1,7 @@
 @if (!showWarningMessage && messages && messages.length > 0) {
-  <div id="errorSummary" class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabindex="-1"
+  <div [id]="idPrefix + 'errorSummary'" class="govuk-error-summary" [attr.aria-labelledby]="idPrefix + 'error-summary-title'" role="alert" tabindex="-1"
     data-module="error-summary">
-    <h2 class="govuk-error-summary__title" id="error-summary-title">
+    <h2 class="govuk-error-summary__title" [id]="idPrefix + 'error-summary-title'">
       {{header | rpxTranslate}}
     </h2>
     <div class="govuk-error-summary__body">
@@ -9,7 +9,7 @@
         @for (message of messages; track message) {
           <li>
             @if (hasElement(message.id)) {
-              <a (click)="scrollTo(message.id)" [routerLink]="" [fragment]="message.id"
+              <a [attr.href]="'#' + message.id" (click)="scrollTo(message.id); $event.preventDefault()"
               >{{message.message | rpxTranslate}}</a>
             }
             @if (!hasElement(message.id)) {

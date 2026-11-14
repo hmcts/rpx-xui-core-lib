@@ -20,6 +20,7 @@ export class HmctsErrorSummaryComponent implements AfterViewInit, OnChanges {
   @Input() public set errorMessages(value: HmctsErrorMessage[]) {
     this.messages = value || [];
   }
+  @Input() public idPrefix = '';
   @Input() public header: string;
   @Input() public showWarningMessage: boolean;
   public messages: HmctsErrorMessage[] = [];
@@ -27,12 +28,12 @@ export class HmctsErrorSummaryComponent implements AfterViewInit, OnChanges {
   constructor(@Inject(DOCUMENT) private readonly document: Document) { }
 
   public ngAfterViewInit(): void {
-    this.scrollTo('errorSummary');
+    this.scrollTo(this.idPrefix + 'errorSummary');
   }
 
   public ngOnChanges(changes: SimpleChanges): void {
     if (changes.errorMessages) {
-      this.scrollTo('errorSummary');
+      this.scrollTo(this.idPrefix + 'errorSummary');
       this.updatePageTitle();
     }
   }
@@ -49,17 +50,13 @@ export class HmctsErrorSummaryComponent implements AfterViewInit, OnChanges {
   // Keep the legacy public argument contract for existing callers.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public scrollTo(selector: any) {
-    if (this.document.querySelector(`#${selector}`)) {
-      const el = this.document.querySelector<HTMLElement>(`#${selector}`);
-
-      el.focus();
-    }
+    this.document.getElementById(selector)?.focus();
   }
 
   // Keep the legacy public argument contract for existing callers.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public hasElement(selector: any) {
-    return this.document.querySelector(`#${selector}`);
+    return this.document.getElementById(selector);
   }
 
 }

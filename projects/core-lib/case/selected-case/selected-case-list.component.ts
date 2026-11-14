@@ -17,6 +17,7 @@ export class SelectedCaseListComponent implements OnInit, OnDestroy {
   public caseCount: number;
 
   @Input() public shareCases$: Observable<SharedCase[]>;
+  @Input() public idPrefix = '';
 
   @Input() public removeUserFromCaseToggleOn: boolean;
 

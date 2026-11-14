@@ -17,10 +17,16 @@ import { initAll } from 'govuk-frontend';
   template: `<main>
     @if (store.delayed) { <button type="button" (click)="store.loadUsers()">Load users</button> }
     <xuilib-share-case title="Share cases" [addUserLabel]="label" confirmLink="/confirmation" [users]="users" [shareCases$]="store.cases" [removeUserFromCaseToggleOn]="true" [showRemoveUsers]="true" (synchronizeStore)="sync($event)" />
+    @if (multiple) {
+      <xuilib-share-case [idPrefix]="secondPrefix" title="Second share" addUserLabel="Second recipient" [users]="users" [shareCases$]="secondCases" />
+    }
     <router-outlet />
   </main>`
 })
 class ShareCaseGallery {
+  readonly multiple = new URLSearchParams(window.location.search).has('multiple');
+  readonly secondPrefix = new URLSearchParams(window.location.search).get('prefix') ?? 'second-';
+  readonly secondCases = new BehaviorSubject<SharedCase[]>([{ caseId: 'case-two', caseTitle: 'Second synthetic case', sharedWith: [] }]);
   readonly label = new URLSearchParams(window.location.search).get('label') ?? 'Find a person';
   constructor(public readonly store: ShareCaseFixtureState) { afterNextRender(() => { document.body.classList.add('govuk-frontend-supported'); initAll(); }); }
   get users() { return this.store.users; }
