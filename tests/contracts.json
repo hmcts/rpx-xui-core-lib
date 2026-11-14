@@ -731,6 +731,11 @@
         "projectName": "chromium",
         "title": "sharing preserves a caller supplied user lookup label",
         "feature": "selected-cases"
+      },
+      {
+        "projectName": "chromium",
+        "title": "sharing refreshes a typed search when users finish loading",
+        "feature": "selected-cases"
       }
     ]
   },

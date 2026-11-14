@@ -392,7 +392,7 @@ addedBrowserJourneys.push('selected case removal can be cancelled and reflected 
   'selected case accordion references its own content', 'selected case accordion can be operated with the keyboard',
   'selected case controls have no automated accessibility violations', 'sharing requires a change and adds a selected user',
   'sharing can remove a selected existing user from all cases', 'sharing user lookup has its visible label and accessible description',
-  'sharing cannot add a person before an autocomplete selection', 'selected cases keep user identifiers unique across multiple cases', 'sharing preserves a caller supplied user lookup label');
+  'sharing cannot add a person before an autocomplete selection', 'selected cases keep user identifiers unique across multiple cases', 'sharing preserves a caller supplied user lookup label', 'sharing refreshes a typed search when users finish loading');
 const expectedContracts = addedBrowserJourneys.length + Object.values(addedLaneNames).reduce((sum, names) => sum + names.length, 0) + unitNames.length + nodeNames.length + i18nNames.length + i18nJourneys.length + dueDateJourneys.length + accessibilityJourneys.length + sessionDialogJourneys.length + primitiveJourneys.length + cacheJourneys.length + validationJourneys.length + packageIds.length + 1 + contractInventory.nodeServerUnit.required.length;
 
 function nativeTap(names) {

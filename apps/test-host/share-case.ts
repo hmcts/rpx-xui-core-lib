@@ -13,6 +13,7 @@ import { initAll } from 'govuk-frontend';
   selector: 'core-test-host',
   imports: [ShareCaseModule, RouterOutlet],
   template: `<main>
+    @if (store.delayed) { <button type="button" (click)="store.loadUsers()">Load users</button> }
     <xuilib-share-case title="Share cases" [addUserLabel]="label" confirmLink="/confirmation" [users]="users" [shareCases$]="store.cases" [removeUserFromCaseToggleOn]="true" [showRemoveUsers]="true" (synchronizeStore)="sync($event)" />
     <router-outlet />
   </main>`
@@ -26,11 +27,14 @@ class ShareCaseGallery {
 
 @Injectable({ providedIn: 'root' })
 class ShareCaseFixtureState {
-  readonly users = [
+  readonly availableUsers = [
     { idamId: 'one', firstName: 'Alex', lastName: 'Example', email: 'alex@example.invalid' },
     { idamId: 'two', firstName: 'Sam', lastName: 'Example', email: 'sam@example.invalid' }
   ];
-  readonly cases = new BehaviorSubject<SharedCase[]>([{ caseId: 'case-one', caseTitle: 'Synthetic case', sharedWith: [this.users[0]] }]);
+  readonly delayed = new URLSearchParams(window.location.search).has('delayed');
+  users = this.delayed ? null as unknown as typeof this.availableUsers : this.availableUsers;
+  readonly cases = new BehaviorSubject<SharedCase[]>([{ caseId: 'case-one', caseTitle: 'Synthetic case', sharedWith: [this.availableUsers[0]] }]);
+  loadUsers() { this.users = this.availableUsers; }
 }
 
 @Component({

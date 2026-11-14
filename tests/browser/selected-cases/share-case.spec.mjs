@@ -45,6 +45,17 @@ test('sharing preserves a caller supplied user lookup label', async ({ page }) =
   await expect(page.getByText('Choose recipient', { exact: true }).first()).toBeVisible();
 });
 
+test('sharing refreshes a typed search when users finish loading', async ({ page }) => {
+  await page.goto('/share-case?delayed=1');
+  const input = page.getByRole('combobox', { name: 'Find a person' });
+  await input.fill('Sam');
+  await expect(page.getByRole('option', { name: 'Sam Example - sam@example.invalid' })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Load users' }).click();
+  await input.focus();
+  await expect(page.getByRole('option', { name: 'Sam Example - sam@example.invalid' })).toBeVisible();
+  await expect(input).toHaveValue('Sam');
+});
+
 test('sharing can remove a selected existing user from all cases', async ({ page }) => {
   await page.goto('/share-case');
   await page.locator('#remove-user-input').selectOption({ label: 'Alex Example - alex@example.invalid' });
