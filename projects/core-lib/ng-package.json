@@ -22,6 +22,21 @@
       "output": "i18n"
     },
     {
+      "input": "ui/invitation",
+      "glob": "LICENCE",
+      "output": "ui/invitation"
+    },
+    {
+      "input": "ui/user-list",
+      "glob": "LICENCE",
+      "output": "ui/user-list"
+    },
+    {
+      "input": "ui/user-details",
+      "glob": "LICENCE",
+      "output": "ui/user-details"
+    },
+    {
       "input": "ui/contact-details",
       "glob": "LICENCE",
       "output": "ui/contact-details"

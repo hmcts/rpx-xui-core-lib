@@ -1,0 +1,32 @@
+import {Component, Input, OnInit} from '@angular/core';
+import {FormGroup} from '@angular/forms';
+import type { GovUiConfigModel } from '@hmcts/rpx-xui-core-lib/ui/gov-input';
+/*
+* Gov Uk Checkbox Dumb Component responsible for
+* displaying checkbox input and hint
+*
+* */
+@Component({
+    selector: 'xuilib-gov-checkbox',
+    templateUrl: './gov-uk-checkbox.component.html',
+    styleUrls: ['./gov-uk-checkbox.component.scss'],
+    standalone: false
+})
+
+export class GovUkCheckboxComponent implements OnInit {
+  constructor() { }
+  @Input() public group: FormGroup;
+  @Input() public config: GovUiConfigModel;
+  @Input() public isChecked: boolean = false;
+  // {value: string, label: string, hint: string; name: string; focusOn: string; id: string; classes: string};
+
+  public id: string;
+
+  public ngOnInit(): void {
+    const id =  this.config.focusOn ? this.config.focusOn : this.config.value;
+    this.config.id = id;
+    this.config.classes = this.config.classes ?
+      this.config.classes.concat(' govuk-checkboxes__label govuk-checkboxes__label--top-aligned') :
+      'govuk-checkboxes__label govuk-checkboxes__label--top-aligned';
+  }
+}

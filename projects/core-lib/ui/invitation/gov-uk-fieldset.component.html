@@ -1,0 +1,20 @@
+<fieldset class="govuk-fieldset" [attr.aria-describedby]="setDescribedBy()">
+  @if (!config.isPageHeading) {
+    <legend [class]="config.classes + ' govuk-fieldset__legend'">
+      {{config.legend | rpxTranslate}}
+    </legend>
+  }
+
+  @if (config.isPageHeading) {
+    <legend [class]="config.classes + ' govuk-fieldset__legend'">
+      <h1>{{config.legend | rpxTranslate}}</h1>
+    </legend>
+  }
+
+  @if (config.hint) {
+    <span [id]="config.id+'-hint'" class="govuk-hint">
+      {{config.hint | rpxTranslate}}
+    </span>
+  }
+  <ng-content></ng-content>
+</fieldset>

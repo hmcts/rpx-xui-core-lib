@@ -153,7 +153,40 @@ task-lookups|task-name ignores stale success after the service changes
 task-lookups|task-name ignores stale error after the service changes
 node-security|CSP enforcement runs nonce scripts and styles while blocking unapproved inline code
 node-security|CSP report-only emits its header and allows the identical unapproved script to execute
-node-security|CSP reload receives a new nonce matching the served script`.split('\n').map(row => {
+node-security|CSP reload receives a new nonce matching the served script
+selected-cases|selected case removal can be cancelled and reflected in confirmation
+selected-cases|selected case accordion references its own content
+selected-cases|selected case accordion can be operated with the keyboard
+selected-cases|selected case controls have no automated accessibility violations
+selected-cases|sharing requires a change and adds a selected user
+selected-cases|sharing can remove a selected existing user from all cases
+selected-cases|sharing user lookup has its visible label and accessible description
+selected-cases|sharing cannot add a person before an autocomplete selection
+selected-cases|selected cases keep user identifiers unique across multiple cases
+selected-cases|sharing preserves a caller supplied user lookup label
+selected-cases|sharing refreshes a typed search when users finish loading
+selected-cases|sharing gallery starts without Angular routing errors
+selected-cases|selected cases gallery starts without Angular routing errors
+selected-cases|simultaneous sharing forms retain separate cases
+selected-cases|simultaneous sharing forms retain their own accessible labels
+selected-cases|prefixed sharing forms have unique IDs and show their own errors
+selected-cases|sharing error links work with valid ID prefixes containing punctuation
+selected-cases|sharing forms distinguish the same case in each accordion
+user-details|user details shows roles and emits a suspend action
+user-details|pending user hides permissions and emits a reinvite action
+user-details|user details actions work from the keyboard and pass an axe scan
+user-list|users without a route can be selected with the keyboard
+user-list|users with a route retain a navigable link and emit selection
+user-list|user list pages through users and emits the chosen user
+user-list|pagination can be operated with the keyboard
+user-list|user list and pagination have no automated accessibility violations
+invitation|invitation emits submit and displays parent validation
+invitation|invitation emits entered details and selected permissions
+invitation|invitation form supports keyboard selection and passes axe
+invitation|invalid invitation inputs expose their errors accessibly
+invitation|invitation retains and updates a preselected permission
+invitation|permission error is announced by the permissions fieldset
+invitation|permissions with an empty error never reference a missing message`.split('\n').map(row => {
   const [feature, title] = row.split('|');
   return ['chromium', title, feature];
 });

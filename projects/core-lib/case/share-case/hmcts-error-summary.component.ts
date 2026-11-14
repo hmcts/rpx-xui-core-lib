@@ -1,0 +1,62 @@
+
+import { AfterViewInit, Component, Inject, Input, OnChanges, SimpleChanges, DOCUMENT } from '@angular/core';
+/*
+  Error Summary component
+  State Less component
+  @property errorMessages that is array of messages.
+  Component is also responsible for scrolling. Up and Down the page when user click on links
+*/
+export interface HmctsErrorMessage {
+  id: string;
+  message: string;
+}
+
+@Component({
+  selector: 'xuilib-hmcts-error-summary',
+  templateUrl: './hmcts-error-summary.component.html',
+  standalone: false
+})
+export class HmctsErrorSummaryComponent implements AfterViewInit, OnChanges {
+  @Input() public set errorMessages(value: HmctsErrorMessage[]) {
+    this.messages = value || [];
+  }
+  @Input() public idPrefix = '';
+  @Input() public header: string;
+  @Input() public showWarningMessage: boolean;
+  public messages: HmctsErrorMessage[] = [];
+
+  constructor(@Inject(DOCUMENT) private readonly document: Document) { }
+
+  public ngAfterViewInit(): void {
+    this.scrollTo(this.idPrefix + 'errorSummary');
+  }
+
+  public ngOnChanges(changes: SimpleChanges): void {
+    if (changes.errorMessages) {
+      this.scrollTo(this.idPrefix + 'errorSummary');
+      this.updatePageTitle();
+    }
+  }
+
+  private updatePageTitle(): void {
+    const hasErrors = !this.showWarningMessage && this.messages && this.messages.length > 0;
+    if (hasErrors && !this.document.title.startsWith('Error:')) {
+      this.document.title = `Error: ${this.document.title}`;
+    } else if (!hasErrors && this.document.title.startsWith('Error:')) {
+      this.document.title = this.document.title.replace(/^Error:\s*/, '');
+    }
+  }
+
+  // Keep the legacy public argument contract for existing callers.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public scrollTo(selector: any) {
+    this.document.getElementById(selector)?.focus();
+  }
+
+  // Keep the legacy public argument contract for existing callers.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public hasElement(selector: any) {
+    return this.document.getElementById(selector);
+  }
+
+}

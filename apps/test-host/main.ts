@@ -19,8 +19,18 @@ class ValidationGallery {
 
 const application = window.location.pathname === '/service-messages'
   ? import('./service-messages').then(({ startServiceMessagesGallery }) => startServiceMessagesGallery())
+  : window.location.pathname === '/invitation'
+  ? import('./invitation').then(({ startInvitationGallery }) => startInvitationGallery())
+  : window.location.pathname === '/user-list'
+  ? import('./user-list').then(({ startUserListGallery }) => startUserListGallery())
+  : window.location.pathname === '/user-details'
+  ? import('./user-details').then(({ startUserDetailsGallery }) => startUserDetailsGallery())
   : window.location.pathname === '/task-lookups'
   ? import('./task-lookups').then(({ startTaskLookupsGallery }) => startTaskLookupsGallery())
+  : window.location.pathname === '/selected-cases'
+  ? import('./selected-cases').then(({ startSelectedCasesGallery }) => startSelectedCasesGallery())
+  : window.location.pathname === '/share-case'
+  ? import('./share-case').then(({ startShareCaseGallery }) => startShareCaseGallery())
   : window.location.pathname === '/reuse-person'
   ? import('./reuse-person').then(({ startReusePersonHost }) => startReusePersonHost())
   : window.location.pathname === '/find-person'

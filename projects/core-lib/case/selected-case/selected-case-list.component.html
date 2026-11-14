@@ -1,0 +1,23 @@
+@if (!toConfirm) {
+  @for (sharedCase of (shareCases$ | async); track trackByCaseId(sharedCase)) {
+    <xuilib-selected-case
+      [idPrefix]="idPrefix"
+      [sharedCase]="sharedCase"
+      [caseCount]="caseCount"
+      [removeUserFromCaseToggleOn]="removeUserFromCaseToggleOn"
+      (unselect)="onUnselect($event)"
+      (synchronizeStore)="onSynchronizeStore($event)"
+      >
+    </xuilib-selected-case>
+  }
+}
+
+@if (toConfirm) {
+  @for (sharedCase of (shareCases$ | async); track trackByCaseId(sharedCase)) {
+    <xuilib-selected-case-confirm
+      [idPrefix]="idPrefix"
+      [sharedCase]="sharedCase"
+      [changeLink]="changeLink">
+    </xuilib-selected-case-confirm>
+  }
+}

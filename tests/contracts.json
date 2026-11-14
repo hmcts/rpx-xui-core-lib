@@ -110,7 +110,25 @@
       "work-type parent single selection and submit respect subscription lifecycle",
       "task-name uses the cached result for an unaffected service after incompatible data",
       "task-name setting the same service preserves an active lookup",
-      "uncached task-name request uses the same endpoint and leaves storage untouched"
+      "uncached task-name request uses the same endpoint and leaves storage untouched",
+      "selected case stops listening to shared state when destroyed",
+      "SelectedCaseListComponent stops listening to shared state when destroyed",
+      "SelectedCaseConfirmComponent stops listening to shared state when destroyed",
+      "selected case actions use the same state and forward emitted changes",
+      "list forwards selection and confirmation displays pending changes only",
+      "ShareCaseComponent releases the host state subscription",
+      "ShareCaseConfirmComponent releases the host state subscription",
+      "continue validation reads current state without keeping subscriptions",
+      "user selection stops emitting when the component is destroyed",
+      "sharing supplies a label when the consumer does not provide one",
+      "user lookup tolerates a user list that has not loaded yet",
+      "user lookup refreshes the current query when users arrive",
+      "user details checks roles safely for absent and present users",
+      "user details emits the original user for suspend and reinvite actions",
+      "user list retains the legacy 50-item page and emits the selected user",
+      "user list updates the current page and emits the requested page",
+      "invitation form defaults missing errors and emits a submit event",
+      "invitation permissions retain legacy default flags"
     ]
   },
   "browser": {
@@ -690,6 +708,171 @@
         "projectName": "chromium",
         "title": "CSP reload receives a new nonce matching the served script",
         "feature": "node-security"
+      },
+      {
+        "projectName": "chromium",
+        "title": "selected case removal can be cancelled and reflected in confirmation",
+        "feature": "selected-cases"
+      },
+      {
+        "projectName": "chromium",
+        "title": "selected case accordion references its own content",
+        "feature": "selected-cases"
+      },
+      {
+        "projectName": "chromium",
+        "title": "selected case accordion can be operated with the keyboard",
+        "feature": "selected-cases"
+      },
+      {
+        "projectName": "chromium",
+        "title": "selected case controls have no automated accessibility violations",
+        "feature": "selected-cases"
+      },
+      {
+        "projectName": "chromium",
+        "title": "sharing requires a change and adds a selected user",
+        "feature": "selected-cases"
+      },
+      {
+        "projectName": "chromium",
+        "title": "sharing can remove a selected existing user from all cases",
+        "feature": "selected-cases"
+      },
+      {
+        "projectName": "chromium",
+        "title": "sharing user lookup has its visible label and accessible description",
+        "feature": "selected-cases"
+      },
+      {
+        "projectName": "chromium",
+        "title": "sharing cannot add a person before an autocomplete selection",
+        "feature": "selected-cases"
+      },
+      {
+        "projectName": "chromium",
+        "title": "selected cases keep user identifiers unique across multiple cases",
+        "feature": "selected-cases"
+      },
+      {
+        "projectName": "chromium",
+        "title": "sharing preserves a caller supplied user lookup label",
+        "feature": "selected-cases"
+      },
+      {
+        "projectName": "chromium",
+        "title": "sharing refreshes a typed search when users finish loading",
+        "feature": "selected-cases"
+      },
+      {
+        "projectName": "chromium",
+        "title": "sharing gallery starts without Angular routing errors",
+        "feature": "selected-cases"
+      },
+      {
+        "projectName": "chromium",
+        "title": "selected cases gallery starts without Angular routing errors",
+        "feature": "selected-cases"
+      },
+      {
+        "projectName": "chromium",
+        "title": "simultaneous sharing forms retain separate cases",
+        "feature": "selected-cases"
+      },
+      {
+        "projectName": "chromium",
+        "title": "simultaneous sharing forms retain their own accessible labels",
+        "feature": "selected-cases"
+      },
+      {
+        "projectName": "chromium",
+        "title": "prefixed sharing forms have unique IDs and show their own errors",
+        "feature": "selected-cases"
+      },
+      {
+        "projectName": "chromium",
+        "title": "sharing error links work with valid ID prefixes containing punctuation",
+        "feature": "selected-cases"
+      },
+      {
+        "projectName": "chromium",
+        "title": "sharing forms distinguish the same case in each accordion",
+        "feature": "selected-cases"
+      },
+      {
+        "projectName": "chromium",
+        "title": "user details shows roles and emits a suspend action",
+        "feature": "user-details"
+      },
+      {
+        "projectName": "chromium",
+        "title": "pending user hides permissions and emits a reinvite action",
+        "feature": "user-details"
+      },
+      {
+        "projectName": "chromium",
+        "title": "user details actions work from the keyboard and pass an axe scan",
+        "feature": "user-details"
+      },
+      {
+        "projectName": "chromium",
+        "title": "users without a route can be selected with the keyboard",
+        "feature": "user-list"
+      },
+      {
+        "projectName": "chromium",
+        "title": "users with a route retain a navigable link and emit selection",
+        "feature": "user-list"
+      },
+      {
+        "projectName": "chromium",
+        "title": "user list pages through users and emits the chosen user",
+        "feature": "user-list"
+      },
+      {
+        "projectName": "chromium",
+        "title": "pagination can be operated with the keyboard",
+        "feature": "user-list"
+      },
+      {
+        "projectName": "chromium",
+        "title": "user list and pagination have no automated accessibility violations",
+        "feature": "user-list"
+      },
+      {
+        "projectName": "chromium",
+        "title": "invitation emits submit and displays parent validation",
+        "feature": "invitation"
+      },
+      {
+        "projectName": "chromium",
+        "title": "invitation emits entered details and selected permissions",
+        "feature": "invitation"
+      },
+      {
+        "projectName": "chromium",
+        "title": "invitation form supports keyboard selection and passes axe",
+        "feature": "invitation"
+      },
+      {
+        "projectName": "chromium",
+        "title": "invalid invitation inputs expose their errors accessibly",
+        "feature": "invitation"
+      },
+      {
+        "projectName": "chromium",
+        "title": "invitation retains and updates a preselected permission",
+        "feature": "invitation"
+      },
+      {
+        "projectName": "chromium",
+        "title": "permission error is announced by the permissions fieldset",
+        "feature": "invitation"
+      },
+      {
+        "projectName": "chromium",
+        "title": "permissions with an empty error never reference a missing message",
+        "feature": "invitation"
       }
     ]
   },
@@ -786,7 +969,17 @@
       "package.translation-counterpart-browser",
       "package.translation-counterpart-types",
       "package.translation-counterpart-identity",
-      "package.translation-counterpart-identity-fault"
+      "package.translation-counterpart-identity-fault",
+      "package.selected-case-behavior",
+      "package.share-case-behavior",
+      "package.selected-case-graph",
+      "package.share-case-graph",
+      "package.user-details-behavior",
+      "package.user-details-graph",
+      "package.user-list-behavior",
+      "package.user-list-graph",
+      "package.invitation-behavior",
+      "package.invitation-graph"
     ]
   },
   "nodeUnit": {
