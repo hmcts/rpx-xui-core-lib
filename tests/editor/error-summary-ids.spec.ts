@@ -35,7 +35,7 @@ describe('Editor error summary accessibility', () => {
     expect(headingId(fixture.nativeElement)).toBe('edit-case-event_error-summary-heading');
     fixture.componentInstance.error = { message: 'Error' } as typeof fixture.componentInstance.error;
     fixture.detectChanges();
-    expect(headingId(fixture.nativeElement)).toBe('edit-case-event_error-summary-heading');
+    expect(headingId(fixture.nativeElement)).toBe('edit-case-event_error-details-heading');
     fixture.destroy();
   });
 
@@ -56,7 +56,7 @@ describe('Editor error summary accessibility', () => {
     expect(headingId(fixture.nativeElement)).toBe('edit-case-event_error-summary-heading');
     fixture.componentInstance.error = { details: {} };
     fixture.detectChanges();
-    expect(headingId(fixture.nativeElement)).toBe('edit-case-event_error-summary-heading');
+    expect(headingId(fixture.nativeElement)).toBe('edit-case-event_error-details-heading');
     fixture.destroy();
   });
 });
