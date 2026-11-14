@@ -1,8 +1,7 @@
 <pagination-template #p="paginationApi" [id]="id" [maxSize]="maxSize" (pageChange)="pageChange.emit($event)"
   (pageBoundsCorrection)="pageBoundsCorrection.emit($event)">
 
-  <nav class="hmcts-pagination" id="pagination-label">
-    <p class="govuk-visually-hidden" aria-labelledby="pagination-label">{{'Pagination navigation' | rpxTranslate}}</p>
+  <nav class="hmcts-pagination" [attr.aria-label]="'Pagination navigation' | rpxTranslate">
     @if (!(p.pages.length <= 1)) {
       <ul class="hmcts-pagination__list">
         <li class="hmcts-pagination__item  hmcts-pagination__item--prev" [class.disabled]="p.isFirstPage()">
@@ -21,7 +20,7 @@
                   </button>
                 }
                 @if (p.getCurrent() === page.value) {
-                  <span>{{ (page.label === '...') ? page.label : (page.label | number:'') }}</span>
+                  <span aria-current="page">{{ (page.label === '...') ? page.label : (page.label | number:'') }}</span>
                 }
               </li>
             }

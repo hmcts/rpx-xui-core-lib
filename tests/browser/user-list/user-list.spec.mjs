@@ -2,8 +2,10 @@ import { test, expect } from '@playwright/test';
 
 test('users without a route can be selected with the keyboard', async ({ page }) => {
   await page.goto('/user-list');
+  const userButton = page.getByRole('button', { name: 'Synthetic User 1', exact: true });
+  await expect(userButton).toBeVisible();
   await page.keyboard.press('Tab');
-  await expect(page.getByText('Synthetic User 1', { exact: true })).toBeFocused();
+  await expect(userButton).toBeFocused();
   await page.keyboard.press('Enter');
   await expect(page.getByTestId('selected')).toHaveText('Synthetic User 1');
 });
@@ -31,15 +33,21 @@ test('user list pages through users and emits the chosen user', async ({ page })
 
 test('pagination can be operated with the keyboard', async ({ page }) => {
   await page.goto('/user-list');
+  const pagination = page.getByRole('navigation', { name: 'Pagination navigation' });
+  await expect(pagination.locator('[aria-current="page"]')).toHaveText('1');
   const next = page.getByRole('button', { name: 'Next page' });
   await next.focus();
   await page.keyboard.press('Enter');
+  await expect(pagination.locator('[aria-current="page"]')).toHaveText('2');
   await expect(page.getByTestId('page')).toHaveText('2');
   await expect(page.getByText('Synthetic User 55', { exact: true })).toBeVisible();
 });
 
 test('user list and pagination have no automated accessibility violations', async ({ page }) => {
   await page.goto('/user-list');
+  const pagination = page.getByRole('navigation', { name: 'Pagination navigation' });
+  await expect(pagination).toBeVisible();
+  await expect(pagination.locator('[aria-current="page"]')).toHaveText('1');
   const { default: AxeBuilder } = await import('@axe-core/playwright');
   const result = await new AxeBuilder({ page }).include('xuilib-user-list').analyze();
   expect(result.violations).toEqual([]);
