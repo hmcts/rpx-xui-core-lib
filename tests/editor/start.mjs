@@ -1,15 +1,16 @@
 import { spawn } from 'node:child_process';
 import { rm } from 'node:fs/promises';
 
-const port = process.argv[2];
-if (!/^\d{1,5}$/.test(port ?? '') || Number(port) < 1 || Number(port) > 65535) {
+const suppliedPort = process.argv[2];
+const port = Number(suppliedPort);
+if (!/^\d{1,5}$/.test(suppliedPort ?? '') || !Number.isInteger(port) || port < 1 || port > 65535) {
   throw new Error('Invalid port');
 }
 
 for (const file of ['test-results/editor/jasmine.json', 'test-results/editor/features.html', 'test-results/editor/driver-junit.xml']) {
   await rm(file, { force: true });
 }
-const child = spawn(process.execPath, ['node_modules/@angular/cli/bin/ng.js', 'serve', 'editor-tests', '--port', port], { stdio: 'inherit' });
+const child = spawn(process.execPath, ['node_modules/@angular/cli/bin/ng.js', 'serve', 'editor-tests', '--host', '127.0.0.1', '--port', String(port)], { stdio: 'inherit' });
 /** @type {NodeJS.Signals[]} */
 const signals = ['SIGINT', 'SIGTERM'];
 for (const signal of signals) process.on(signal, () => child.kill(signal));

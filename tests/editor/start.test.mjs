@@ -12,12 +12,29 @@ test('rejects an invalid port before deleting existing editor evidence', () => {
   try {
     mkdirSync(join(cwd, 'test-results/editor'), { recursive: true });
     const report = join(cwd, 'test-results/editor/jasmine.json');
-    for (const port of ['', '0', '65536', '4315x', '-1']) {
+    for (const port of ['', '0', '65536', '4315x', '-1', '--help', '1e3', '0x10']) {
       writeFileSync(report, 'retained evidence');
       const result = spawnSync(process.execPath, [script, port], { cwd, encoding: 'utf8' });
       assert.notEqual(result.status, 0);
       assert.match(result.stderr, /invalid port/i);
       assert.equal(readFileSync(report, 'utf8'), 'retained evidence');
+    }
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('starts the editor on the IPv4 address used by Playwright', () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'editor-host-'));
+  try {
+    const cli = join(cwd, 'node_modules/@angular/cli/bin');
+    mkdirSync(cli, { recursive: true });
+    writeFileSync(join(cli, 'ng.js'), "require('fs').writeFileSync('arguments.json', JSON.stringify(process.argv.slice(2)))\n");
+    for (const port of ['4315', '04315']) {
+      const result = spawnSync(process.execPath, [script, port], { cwd, encoding: 'utf8' });
+      assert.equal(result.status, 0, result.stderr);
+      const args = JSON.parse(readFileSync(join(cwd, 'arguments.json'), 'utf8'));
+      assert.deepEqual(args, ['serve', 'editor-tests', '--host', '127.0.0.1', '--port', '4315']);
     }
   } finally {
     rmSync(cwd, { recursive: true, force: true });
