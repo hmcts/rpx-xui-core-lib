@@ -11,6 +11,8 @@ import { TestBed } from '@angular/core/testing';
 import { CaseNotifier } from '../../projects/core-lib/case/editor-source/lib/shared/components/case-editor/services/case.notifier';
 import { CasesService } from '../../projects/core-lib/case/editor-source/lib/shared/components/case-editor/services/cases.service';
 import { CaseView } from '../../projects/core-lib/case/editor-source/lib/shared/domain/case-view/case-view.model';
+import { Jurisdiction } from '../../projects/core-lib/case/editor-source/lib/shared/domain/definition/jurisdiction.model';
+import { JurisdictionService } from '../../projects/core-lib/case/editor-source/lib/shared/services/jurisdiction/jurisdiction.service';
 
 export const registered = true;
 
@@ -73,5 +75,25 @@ describe('Case notifier migration contract', () => {
     await expectAsync(firstValueFrom(notifier.fetchAndRefresh('new'))).toBeRejectedWith(error);
     expect(notifier.cachedCaseView).toBe(previous);
     expect(seen.length).toBe(1);
+  });
+});
+
+
+describe('Jurisdiction selection migration contract', () => {
+  it('retains current selection separately from non-replaying announcements', () => {
+    const service = new JurisdictionService({} as ConstructorParameters<typeof JurisdictionService>[0]);
+    const first = Object.assign(new Jurisdiction(), { id: 'first' });
+    const second = Object.assign(new Jurisdiction(), { id: 'second' });
+    const state = service.getSelectedJurisdiction();
+    const selections: Jurisdiction[] = [];
+    expect(state.getValue()).toBeNull();
+    service.announceSelectedJurisdiction(first);
+    expect(state.getValue()).toBe(first);
+    service.selectedJurisdiction.subscribe(value => selections.push(value));
+    expect(selections).toEqual([]);
+    service.announceSelectedJurisdiction(second);
+    expect(selections).toEqual([second]);
+    expect(service.getSelectedJurisdiction()).toBe(state);
+    expect(state.getValue()).toBe(second);
   });
 });
