@@ -1152,6 +1152,31 @@
       "projects/core-lib/node/server/common/util/debug.logger.spec.ts logger resolves console instrumentation installed after its creation"
     ]
   },
+  "editorDrivers": {
+    "report": "test-results/editor/driver.json",
+    "required": [
+      {
+        "projectName": "chromium",
+        "title": "runs the required editor component contracts"
+      },
+      {
+        "projectName": "chromium",
+        "title": "opens the datetime calendar with the keyboard"
+      },
+      {
+        "projectName": "chromium",
+        "title": "selects a date from the datetime calendar"
+      },
+      {
+        "projectName": "chromium",
+        "title": "edits rich text and serialises a numbered list"
+      },
+      {
+        "projectName": "chromium",
+        "title": "closes each editor dialog using Enter and Space"
+      }
+    ]
+  },
   "editorUnit": {
     "report": "test-results/editor/jasmine.json",
     "required": [
@@ -1368,6 +1393,7 @@
       "Case editor submission data contract selects callback or draft status according to callback outcome",
       "Case edit page form patch contract reports a required field using its component prefix",
       "Flag display migration contract switches languages and falls back when a translation is absent",
+      "Collection field migration contract renders an accessible close button for each migrated dialog",
       "Collection field migration contract preserves distinct prefixes for complex items and labels",
       "Collection field migration contract removes only the confirmed item and keeps remaining control identity",
       "Collection field migration contract keeps all items when removal is cancelled",
@@ -1412,6 +1438,7 @@
       "Document upload migration contract updates secure document references and clears the upload state",
       "Document upload migration contract reports an unavailable upload service and clears the upload state",
       "Document upload migration contract cancels an in-flight upload and resets the file input",
+      "Challenged access accessibility names the conditional reason field and links its validation error",
       "Linked case reasons migration contract labels case reference and comments and keeps form IDs unique",
       "Linked case reasons migration contract retains distinct display and CCD collection shapes for selected reasons",
       "Linked case reasons migration contract removes the selected case from all three journey lists",

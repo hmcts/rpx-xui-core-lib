@@ -69,7 +69,7 @@
               {{errorMessage.description | rpxTranslate}}
             </div>
             <textarea class="govuk-textarea" [ngClass]="{'govuk-textarea--error': formGroup.get('otherReason').invalid && submitted}"
-            id="other-reason" name="other-reason" rows="5" [attr.aria-describedby]="'reason-3-label' + (formGroup.get('otherReason')?.invalid && submitted ? ' other-reason-error-message' : '')" formControlName="otherReason"></textarea>
+            id="other-reason" name="other-reason" rows="5" aria-labelledby="reason-3-label" [attr.aria-describedby]="formGroup.get('otherReason')?.invalid && submitted ? 'other-reason-error-message' : null" formControlName="otherReason"></textarea>
           </div>
         </div>
       </div>

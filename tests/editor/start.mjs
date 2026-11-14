@@ -7,7 +7,7 @@ if (!/^\d{1,5}$/.test(suppliedPort ?? '') || !Number.isInteger(port) || port < 1
   throw new Error('Invalid port');
 }
 
-for (const file of ['test-results/editor/jasmine.json', 'test-results/editor/features.html', 'test-results/editor/driver-junit.xml']) {
+for (const file of ['test-results/editor/jasmine.json', 'test-results/editor/features.html', 'test-results/editor/driver-junit.xml', 'test-results/editor/driver.json']) {
   await rm(file, { force: true });
 }
 const child = spawn(process.execPath, ['node_modules/@angular/cli/bin/ng.js', 'serve', 'editor-tests', '--host', '127.0.0.1', '--port', String(port)], { stdio: 'inherit' });

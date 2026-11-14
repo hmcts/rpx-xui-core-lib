@@ -270,6 +270,8 @@ The local editor candidate retains the existing complex-field `formGroup` bindin
 
 The unmerged editor candidate separates `CaseNotifier` into `@hmcts/rpx-xui-core-lib/case/notifier`, while preserving its editor entry-point export. A local bundle probe excludes payment and Media Viewer for notifier-only imports. Run `yarn test:editor` for the editor browser contracts and `yarn test:editor:loading` after a package build to check selective imports, and `yarn test:editor:packed` to rebuild and run the browser contracts against the packed build in a temporary workspace. The packed check reuses the local dependency installation and writes its report to `test-results/editor-packed`. The candidate has passed these checks using its declared dependencies; packed-consumer and peer-compatibility validation remain outstanding. See `tests/editor/DEPENDENCIES.md` for evidence and outstanding acceptance gates.
 
+The aggregate feature matrix requires the five editor Playwright drivers as well as the Jasmine scenarios, with separately bound native reports. `test-results/editor/features.html` describes Jasmine scenarios only; driver results are in `driver.json` and `driver-junit.xml`. These show required test outcomes, not a code-coverage percentage or complete consumer acceptance.
+
 The full local suite now runs the editor source, selective-loading and packed checks before its existing contract gate. Editor feature results are written to `test-results/editor/features.html` and `test-results/editor-packed/features.html`. The source-based editor contracts also appear in the aggregate feature evidence matrix when the complete evidence run succeeds; the packed check remains a separate full-suite gate. A full-suite pass also requires every earlier gate, including lint, to pass.
 
 The case editor's conditional-show parser is generated from its checked-in Peggy grammar. After editing the grammar, run `yarn generate:condition-parser`; `yarn test:editor` verifies that the generated file matches it.
@@ -291,6 +293,8 @@ The document tree now treats an absent `children` array as an empty list when fl
 The linked-cases form now labels the case-reference and comments fields and removes a duplicate `caseNumber` ID from the proposed-links container. The original `caseNumber` error-summary anchor remains on the reference field container; consumers with selectors that depended on the duplicate ID should review them.
 
 The linked-cases retry links no longer carry the `reload-linked-cases-tab` ID, which could occur more than once when both directions fail. Consumers using that selector should update it; the links retain their text and navigation.
+
+Editor dialog close controls are now labelled buttons instead of clickable headings. Consumers using the former heading selector should update it; the controls retain their cancel result.
 
 The confirmed Core design uses an empty `FormGroup` for the unmerged case-confirmation component, where Toolkit used a `FormControl` for its public `formGroup` property. Angular's strict template compiler rejects the old control when bound to `[formGroup]`; the candidate's rendered submission is covered locally. The property type change is an intentional compatibility deviation requiring consumer review before adoption.
 

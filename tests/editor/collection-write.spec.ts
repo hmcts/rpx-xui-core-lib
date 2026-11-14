@@ -1,12 +1,42 @@
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { of } from 'rxjs';
+import { Pipe, PipeTransform, Type } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
+import { MatDialogRef } from '@angular/material/dialog';
 import { WriteCollectionFieldComponent } from '../../projects/core-lib/case/editor-source/lib/shared/components/palette/collection/write-collection-field.component';
+import { DeleteOrCancelDialogComponent } from '../../projects/core-lib/case/editor-source/lib/shared/components/dialogs/delete-or-cancel-dialog/delete-or-cancel-dialog.component';
+import { DocumentDialogComponent } from '../../projects/core-lib/case/editor-source/lib/shared/components/dialogs/document-dialog/document-dialog.component';
+import { RemoveDialogComponent } from '../../projects/core-lib/case/editor-source/lib/shared/components/dialogs/remove-dialog/remove-dialog.component';
+import { SaveOrDiscardDialogComponent } from '../../projects/core-lib/case/editor-source/lib/shared/components/dialogs/save-or-discard-dialog/save-or-discard-dialog.component';
+
+@Pipe({ name: 'rpxTranslate', standalone: false })
+class TranslateStub implements PipeTransform { transform(value: string) { return value; } }
+const dialogs: Type<{ cancel(): void }>[] = [DeleteOrCancelDialogComponent, DocumentDialogComponent, RemoveDialogComponent, SaveOrDiscardDialogComponent];
+async function createDialog(index: number) {
+  TestBed.resetTestingModule();
+  await TestBed.configureTestingModule({ declarations: [...dialogs, TranslateStub], providers: [{ provide: MatDialogRef, useValue: { close: (value: string) => { document.body.dataset.dialogResult = value; } } }] }).compileComponents();
+  const fixture = TestBed.createComponent(dialogs[index]);
+  document.body.appendChild(fixture.nativeElement);
+  fixture.detectChanges();
+  return fixture;
+}
+Object.assign(globalThis, { createDialogCloseHost: async (index: number) => { await createDialog(index); return true; } });
 
 export const registered = true;
 type Dependencies = ConstructorParameters<typeof WriteCollectionFieldComponent>;
 type CaseField = WriteCollectionFieldComponent['caseField'];
 
 describe('Collection field migration contract', () => {
+  it('renders an accessible close button for each migrated dialog', async () => {
+    for (let index = 0; index < dialogs.length; index++) {
+      const fixture = await createDialog(index);
+      const button = fixture.nativeElement.querySelector('.dialog-header .x') as HTMLElement;
+      expect(button.tagName).toBe('BUTTON');
+      expect(button.getAttribute('type')).toBe('button');
+      expect(button.getAttribute('aria-label')).toBe('Close');
+      fixture.destroy();
+    }
+  });
   it('preserves distinct prefixes for complex items and labels', () => {
     const component = new WriteCollectionFieldComponent({} as Dependencies[0], {} as Dependencies[1], {} as Dependencies[2]);
     component.idPrefix = 'parent_';

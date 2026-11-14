@@ -92,3 +92,19 @@ test('edits rich text and serialises a numbered list', async ({ page }) => {
   await expect.poll(() => page.evaluate(() => globalThis.readRichTextValue())).toContain('First item');
   expect(errors).toEqual([]);
 });
+
+test('closes each editor dialog using Enter and Space', async ({ page }) => {
+  for (let index = 0; index < 4; index++) {
+    for (const key of ['Enter', 'Space']) {
+      await page.goto('/');
+      await page.waitForFunction(() => globalThis.__i18nReport?.events.some(event => event.type === 'jasmineDone'));
+      await page.evaluate(index => globalThis.createDialogCloseHost(index), index);
+      const close = page.getByRole('button', { name: 'Close', exact: true });
+      expect(await close.evaluate(element => element.tabIndex)).toBe(0);
+      await close.focus();
+      await expect(close).toBeFocused();
+      await page.keyboard.press(key);
+      await expect.poll(() => page.evaluate(() => document.body.dataset.dialogResult)).toBe('Cancel');
+    }
+  }
+});

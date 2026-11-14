@@ -13,13 +13,18 @@ const identity = currentIdentity(process.cwd());
 const run = JSON.parse(readFileSync('test-results/lane-provenance/run.json', 'utf8'));
 if (['sourceSha', 'runId', 'attempt', 'invocationId'].some(key => run[key] !== identity[key])) throw new Error('Evidence run identity mismatch');
 if (sourceSnapshot(process.cwd()) !== run.sourceSnapshot) throw new Error('Source changed before evidence lane');
-const destination = resolve('test-results/lane-provenance', `${lane}.json`);
-rmSync(destination, { force: true });
-rmSync(resolve(inventory[lane].report), { force: true });
+const producedLanes = lane === 'editorUnit' ? [lane, 'editorDrivers'] : [lane];
+for (const produced of producedLanes) {
+  rmSync(resolve('test-results/lane-provenance', `${produced}.json`), { force: true });
+  rmSync(resolve(inventory[produced].report), { force: true });
+}
 const result = spawnSync(process.execPath, ['.yarn/releases/yarn-4.18.1.cjs', command], { stdio: 'inherit' });
 if (result.error) throw result.error;
 if (result.status !== 0) process.exit(result.status ?? 1);
 if (sourceSnapshot(process.cwd()) !== run.sourceSnapshot) throw new Error('Source changed during evidence lane');
-const receipt = makeLaneReceipt(lane, { ...identity, sourceSnapshot: run.sourceSnapshot }, readFileSync(resolve(inventory[lane].report)), true);
-writeFileSync(`${destination}.tmp`, JSON.stringify(receipt) + '\n');
-renameSync(`${destination}.tmp`, destination);
+const receipts = producedLanes.map(produced => [produced, makeLaneReceipt(produced, { ...identity, sourceSnapshot: run.sourceSnapshot }, readFileSync(resolve(inventory[produced].report)), true)]);
+for (const [produced, receipt] of receipts) {
+  const destination = resolve('test-results/lane-provenance', `${produced}.json`);
+  writeFileSync(`${destination}.tmp`, JSON.stringify(receipt) + '\n');
+  renameSync(`${destination}.tmp`, destination);
+}

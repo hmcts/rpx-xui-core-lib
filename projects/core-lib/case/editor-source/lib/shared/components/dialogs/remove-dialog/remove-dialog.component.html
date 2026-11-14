@@ -1,6 +1,6 @@
 <div>
   <div class="dialog-header">
-    <h2 (click)="cancel()" class="heading-h2 x">X</h2>
+    <button type="button" (click)="cancel()" class="heading-h2 x" [attr.aria-label]="'Close' | rpxTranslate">X</button>
   </div>
   <div>
     <h2 class="heading-h2 dialog-title">{{'Are you sure you want to remove the item?' | rpxTranslate}}</h2>

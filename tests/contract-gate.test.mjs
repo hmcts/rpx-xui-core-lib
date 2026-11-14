@@ -4,11 +4,18 @@ import { spawnSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { test } from 'node:test';
 import { checkContracts } from '../scripts/check-contracts.mjs';
 import { makeLaneReceipt } from '../scripts/evidence-lane-receipts.mjs';
+import { sourceSnapshot } from '../scripts/evidence-source-snapshot.mjs';
 
 const contractInventory = JSON.parse(readFileSync(new URL('./contracts.json', import.meta.url), 'utf8'));
+
+test('requires explicit editor browser drivers in the aggregate inventory', () => {
+  assert.equal(contractInventory.editorDrivers?.report, 'test-results/editor/driver.json');
+  assert.ok(contractInventory.editorDrivers.required.some(item => item.projectName === 'chromium' && item.title === 'closes each editor dialog using Enter and Space'));
+});
 
 const identity = { sourceSha: 'a'.repeat(40), runId: 'fixture', attempt: '1', invocationId: '12345678-1234-4123-8123-123456789abc', sourceSnapshot: 'b'.repeat(64) };
 const candidate = Buffer.from('candidate bytes');
@@ -375,7 +382,7 @@ packageIds.push('package.node-security-optional-peer', 'package.strict-node-secu
   'package.node-security-merge-fault', 'package.node-security-restored', 'package.node-security-browser-denied');
 packageIds.push('package.strict-node-logging-types', 'package.node-logging-isolation', 'package.node-logging-loading-fault', 'package.helmet-8_1_0-cohort', 'package.helmet-8_2_0-cohort');
 packageIds.push('package.translation-counterpart-artifact', 'package.translation-counterpart-browser', 'package.translation-counterpart-types', 'package.translation-counterpart-identity', 'package.translation-counterpart-identity-fault');
-const expectedContracts = addedBrowserJourneys.length + Object.values(addedLaneNames).reduce((sum, names) => sum + names.length, 0) + unitNames.length + nodeNames.length + i18nNames.length + i18nJourneys.length + dueDateJourneys.length + accessibilityJourneys.length + sessionDialogJourneys.length + primitiveJourneys.length + cacheJourneys.length + validationJourneys.length + packageIds.length + 1 + contractInventory.nodeServerUnit.required.length + contractInventory.editorUnit.required.length;
+const expectedContracts = addedBrowserJourneys.length + Object.values(addedLaneNames).reduce((sum, names) => sum + names.length, 0) + unitNames.length + nodeNames.length + i18nNames.length + i18nJourneys.length + dueDateJourneys.length + accessibilityJourneys.length + sessionDialogJourneys.length + primitiveJourneys.length + cacheJourneys.length + validationJourneys.length + packageIds.length + 1 + contractInventory.nodeServerUnit.required.length + contractInventory.editorUnit.required.length + contractInventory.editorDrivers.required.length;
 
 function nativeTap(names) {
   return `TAP version 13\n${names.map((name, index) => `ok ${index + 1} - ${name}`).join('\n')}\n1..${names.length}\n# tests ${names.length}\n# suites 0\n# pass ${names.length}\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n`;
@@ -430,6 +437,7 @@ function reports() {
     'node-server.json': nativeJest(),
     'i18n/jasmine.json': nativeJasmine(),
     'editor/jasmine.json': nativeJasmine(contractInventory.editorUnit.required),
+    'editor/driver.json': { errors: [], suites: [{ specs: contractInventory.editorDrivers.required.map(({ title, projectName }) => ({ title, tests: [{ projectName, expectedStatus: 'passed', status: 'expected', results: [{ status: 'passed' }] }] })) }] },
     'browser.json': { errors: [], suites: [{ specs: [journey, ...validationJourneys, ...i18nJourneys, ...dueDateJourneys, ...accessibilityJourneys, ...sessionDialogJourneys, ...primitiveJourneys, ...addedBrowserJourneys].map((title) => ({ title, tests: [{ projectName: 'chromium', expectedStatus: 'passed', status: 'expected', results: [{ status: 'passed' }] }] })) }] },
     'cache-upgrade-report.json': { errors: [], suites: [{ specs: cacheJourneys.map((title) => ({ title, tests: [{ projectName: 'chromium', expectedStatus: 'passed', status: 'expected', results: [{ status: 'passed' }] }] })) }] },
     'package.json': { schemaVersion: 1, package: { sha256: createHash('sha256').update(candidate).digest('hex'), ...identity, dirty: false, translationCounterpart: counterpartProof() }, tests: packageIds.map((id) => ({ id, status: 'passed' })) },
@@ -468,7 +476,7 @@ test('accepts all independently required successful contracts', (t) => {
   assert.equal(checkFixture(t, reports())(), expectedContracts);
 });
 
-for (const file of ['validation.tap', 'browser.json', 'cache-upgrade-report.json', 'package.json', 'node.tap', 'i18n/jasmine.json', 'editor/jasmine.json']) {
+for (const file of ['validation.tap', 'browser.json', 'cache-upgrade-report.json', 'package.json', 'node.tap', 'i18n/jasmine.json', 'editor/jasmine.json', 'editor/driver.json']) {
   test(`rejects missing ${file} even when other reports pass`, (t) => {
     const files = reports();
     delete files[file];
@@ -485,6 +493,75 @@ test('rejects a filtered-out editor contract', (t) => {
   const files = reports();
   files['editor/jasmine.json'] = nativeJasmine(contractInventory.editorUnit.required.slice(1));
   assert.throws(checkFixture(t, files), /missing|required/i);
+});
+
+for (const required of contractInventory.editorDrivers.required) {
+  test(`rejects a filtered-out editor browser driver: ${required.title}`, (t) => {
+    const files = reports();
+    files['editor/driver.json'].suites[0].specs = files['editor/driver.json'].suites[0].specs.filter(spec => spec.title !== required.title);
+    assert.throws(checkFixture(t, files), /editorDrivers required contract/i);
+  });
+}
+
+for (const mutation of [
+  spec => { spec.tests[0].status = 'skipped'; },
+  spec => { spec.tests[0].results[0].status = 'failed'; },
+  spec => { spec.tests[0].results.push({ status: 'passed' }); },
+  spec => { spec.tests[0].expectedStatus = 'skipped'; },
+  spec => { spec.tests[0].projectName = 'firefox'; },
+]) {
+  test('rejects an unsuccessful or incompatible editor browser result', (t) => {
+    const files = reports();
+    mutation(files['editor/driver.json'].suites[0].specs[0]);
+    assert.throws(checkFixture(t, files), /editorDrivers/i);
+  });
+}
+
+test('rejects duplicate and unregistered editor browser drivers', (t) => {
+  for (const extra of [contractInventory.editorDrivers.required[0].title, 'unregistered driver']) {
+    const files = reports();
+    const spec = structuredClone(files['editor/driver.json'].suites[0].specs[0]);
+    spec.title = extra;
+    files['editor/driver.json'].suites[0].specs.push(spec);
+    assert.throws(checkFixture(t, files), /editorDrivers/i);
+  }
+});
+
+test('editor browser evidence rejects changed or missing receipt and changed report', (t) => {
+  const check = checkFixture(t, reports());
+  assert.equal(check(), expectedContracts);
+  const receiptPath = join(check.root, 'test-results/lane-provenance/editorDrivers.json');
+  const original = readFileSync(receiptPath, 'utf8');
+  rmSync(receiptPath);
+  assert.throws(check, /ENOENT|editorDrivers/i);
+  writeFileSync(receiptPath, original);
+  const reportPath = join(check.root, 'test-results/editor/driver.json');
+  writeFileSync(reportPath, readFileSync(reportPath, 'utf8') + '\n');
+  assert.throws(check, /Unbound editorDrivers/i);
+});
+
+test('editor producer binds both reports and leaves no receipts when one is missing', (t) => {
+  const root = mkdtempSync(join(tmpdir(), 'editor-lane-'));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const git = (...args) => spawnSync('/usr/bin/git', args, { cwd: root, encoding: 'utf8' });
+  assert.equal(git('init', '-q').status, 0);
+  assert.equal(git('-c', 'user.name=Test', '-c', 'user.email=test@example.invalid', 'commit', '--allow-empty', '-qm', 'fixture').status, 0);
+  const sourceSha = git('rev-parse', 'HEAD').stdout.trim();
+  writeFileSync(join(root, '.gitignore'), 'test-results/\n');
+  mkdirSync(join(root, '.yarn/releases'), { recursive: true });
+  mkdirSync(join(root, 'test-results/editor'), { recursive: true });
+  mkdirSync(join(root, 'test-results/lane-provenance'), { recursive: true });
+  writeFileSync(join(root, '.yarn/releases/yarn-4.18.1.cjs'), "const fs=require('fs');fs.writeFileSync('test-results/editor/jasmine.json','jasmine');if(!process.env.OMIT_DRIVER)fs.writeFileSync('test-results/editor/driver.json','driver');");
+  const run = { sourceSha, runId: identity.invocationId, attempt: '1', invocationId: identity.invocationId, sourceSnapshot: sourceSnapshot(root) };
+  writeFileSync(join(root, 'test-results/lane-provenance/run.json'), JSON.stringify(run));
+  const env = { ...process.env, GITHUB_SHA: '', GITHUB_RUN_ID: '', GITHUB_RUN_ATTEMPT: '', CORE_EVIDENCE_RUN_ID: identity.invocationId };
+  const script = fileURLToPath(new URL('../scripts/run-evidence-lane.mjs', import.meta.url));
+  const invoke = (extra = {}) => spawnSync(process.execPath, [script, 'editorUnit', 'test:editor'], { cwd: root, env: { ...env, ...extra }, encoding: 'utf8' });
+  const receipt = name => join(root, 'test-results/lane-provenance', `${name}.json`);
+  assert.equal(invoke().status, 0);
+  for (const name of ['editorUnit', 'editorDrivers']) assert.equal(JSON.parse(readFileSync(receipt(name), 'utf8')).completed, true);
+  assert.notEqual(invoke({ OMIT_DRIVER: '1' }).status, 0);
+  for (const name of ['editorUnit', 'editorDrivers']) assert.throws(() => readFileSync(receipt(name)), /ENOENT/);
 });
 
 test('rejects an unregistered editor contract from the aggregate report', (t) => {
