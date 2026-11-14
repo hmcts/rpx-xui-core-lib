@@ -39,7 +39,10 @@ test('malformed and duplicate inventory and absent suite do not yield success', 
   assert.match(render(snapshot, null, true), /Summary unavailable/);
 });
 
-const reviewedContracts = `validation|keyboard checkbox toggles update real FormGroup validity and submitted errors
+const reviewedContracts = `service-messages|a corrupt dismissal cookie does not hide service messages
+service-messages|renders sanitized message and dismisses it with the keyboard across reloads
+service-messages|service messages have no automated accessibility violations
+validation|keyboard checkbox toggles update real FormGroup validity and submitted errors
 validation|validation keyboard traversal toggles roles and submits with Enter and Space
 validation|validation initial exposes accessible roles and passes axe
 validation|validation invalid-submit exposes accessible roles and passes axe

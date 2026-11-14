@@ -598,6 +598,7 @@ try {
     ['gov-select', 'gov-select-graph.mjs', ['ui-gov-select', 'ui-gov-input', 'i18n']],
     ['locations', 'location-graph.mjs', ['reference-locations']],
     ['ref-data', 'ref-data-graph.mjs', ['reference-ref-data']],
+    ['service-messages', 'service-messages-graph.mjs', ['ui-service-messages', 'ui-feature-toggle', 'i18n']],
     ['feature-toggle', 'feature-toggle-graph.mjs', ['ui-feature-toggle']],
     ['feature-directive', 'feature-directive-graph.mjs', ['ui-feature-toggle-directive', 'ui-feature-toggle']],
     ['role-state', 'role-state-graph.mjs', ['ui-role-state']],
@@ -619,6 +620,8 @@ try {
       assert.throws(() => verify(graph(source + extra)), /Unexpected Core entries/);
     });
   }
+  await cp(join(root, 'tests/service-messages/service-messages.test.mjs'), join(consumer, 'service-messages.test.mjs'));
+  await check('package.service-messages-behavior', () => run('service-messages-behavior', ['--test', 'service-messages.test.mjs'], consumer));
   await cp(join(root, 'tests/feature-toggle/feature-toggle.test.mjs'), join(consumer, 'feature-toggle.test.mjs'));
   await check('package.feature-toggle-behavior', () => run('feature-toggle-behavior', ['--test', 'feature-toggle.test.mjs'], consumer));
   await cp(join(root, 'tests/roles/roles.test.mjs'), join(consumer, 'roles.test.mjs'));

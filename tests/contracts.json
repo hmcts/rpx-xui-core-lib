@@ -2,6 +2,10 @@
   "unit": {
     "report": "test-results/validation.tap",
     "required": [
+      "refresh replaces the previous feature stream",
+      "a malformed dismissal cookie does not prevent messages from displaying",
+      "filters messages by role and date, and persists a dismissal",
+      "releases the feature subscription when destroyed",
       "rejects an empty group with the default minimum",
       "rejects unchecked controls",
       "accepts one actual true by default",
@@ -110,6 +114,21 @@
   "browser": {
     "report": "test-results/browser.json",
     "required": [
+      {
+        "projectName": "chromium",
+        "title": "a corrupt dismissal cookie does not hide service messages",
+        "feature": "service-messages"
+      },
+      {
+        "projectName": "chromium",
+        "title": "renders sanitized message and dismisses it with the keyboard across reloads",
+        "feature": "service-messages"
+      },
+      {
+        "projectName": "chromium",
+        "title": "service messages have no automated accessibility violations",
+        "feature": "service-messages"
+      },
       {
         "projectName": "chromium",
         "title": "keyboard checkbox toggles update real FormGroup validity and submitted errors",
@@ -717,6 +736,8 @@
       "package.locations-graph",
       "package.ref-data-behavior",
       "package.ref-data-graph",
+      "package.service-messages-graph",
+      "package.service-messages-behavior",
       "package.feature-toggle-graph",
       "package.feature-directive-graph",
       "package.role-state-graph",

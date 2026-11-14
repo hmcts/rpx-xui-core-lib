@@ -250,3 +250,17 @@ CORE_TRANSLATION_COUNTERPART_SOURCE=/absolute/path/to/rpx-xui-translation yarn t
 The supplied checkout must be clean and match the profiled local Git commit and source-file hashes. For an intentional counterpart change, commit locally and review the corresponding profile update; neither commit needs a remote development branch for the local gate. Wrong revisions, dirty source, changed inputs, extra or altered packed files and false provenance fail the check. Git is resolved through `/usr/bin/git`; counterpart packaging uses the pinned Node installation's npm CLI. Project-local PATH shadows cannot select either tool. The helper independently checks the tarball rather than trusting its packer report. The native package report embeds that provenance; aggregate replay checks it against the frozen source profile and retained proof file, and hashes the retained counterpart archive as well as the Core candidate. Missing or changed companion bytes cannot satisfy replay.
 
 The separate Translation command `node scripts/pack-core-facade.mjs <new-output-directory>` needs Node24.22.2 and npm, but no Angular dependency install. Its script-only packaging tests are `node --test scripts/core-facade.test.mjs`. Existing source-relative legacy tests remain comparison evidence, not proof of the forwarder. Publication is disabled for the preview; approved release versions, compatible Viewer/Payment packages, the real case path and application-owner acceptance remain unresolved.
+
+The in-progress service-messages entry releases its feature subscription on destruction, and a refresh replaces the earlier stream so stale updates cannot override newer results. It retains valid dismissal cookies. A malformed or non-array dismissal cookie is treated as empty rather than stopping message rendering; non-string entries are ignored. Its hide action uses a button rather than the legacy Router anchor. Consumers should review selectors and styling.
+
+Service messages inject Core's `FeatureToggleService`. During a mixed-library migration, Web App and Manage Organisations currently register the Common Lib token, so register a Core alias in the same injector as the existing provider:
+
+```ts
+import { FeatureToggleService as LegacyFeatureToggleService } from '@hmcts/rpx-xui-common-lib';
+import { FeatureToggleService as CoreFeatureToggleService } from '@hmcts/rpx-xui-core-lib/ui/feature-toggle';
+
+// Alongside the existing LegacyFeatureToggleService provider:
+{ provide: CoreFeatureToggleService, useExisting: LegacyFeatureToggleService }
+```
+
+Without this alias, Core resolves a separate default service whose methods throw. Provider shadowing and same-scope duplicate component selectors also need application-specific review. A local synthetic injector demonstrated the alias with installed Manage Organisations dependencies; a real application journey and released dependency graph have not yet been validated.

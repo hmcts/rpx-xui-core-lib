@@ -17,7 +17,9 @@ class ValidationGallery {
   submitted = false;
 }
 
-const application = window.location.pathname === '/task-lookups'
+const application = window.location.pathname === '/service-messages'
+  ? import('./service-messages').then(({ startServiceMessagesGallery }) => startServiceMessagesGallery())
+  : window.location.pathname === '/task-lookups'
   ? import('./task-lookups').then(({ startTaskLookupsGallery }) => startTaskLookupsGallery())
   : window.location.pathname === '/reuse-person'
   ? import('./reuse-person').then(({ startReusePersonHost }) => startReusePersonHost())

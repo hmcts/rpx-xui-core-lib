@@ -144,6 +144,11 @@
     },
     "assets": [
       {
+        "input": "ui/service-messages",
+        "glob": "LICENCE",
+        "output": "ui/service-messages"
+      },
+      {
         "input": "forms/validation",
         "glob": "LICENCE",
         "output": "forms/validation"

@@ -2,6 +2,18 @@
   "schemaVersion": 1,
   "features": [
     {
+      "feature": "Service messages",
+      "contracts": {
+        "package": ["package.service-messages-graph", "package.service-messages-behavior"],
+        "unit": ["refresh replaces the previous feature stream", "a malformed dismissal cookie does not prevent messages from displaying", "filters messages by role and date, and persists a dismissal", "releases the feature subscription when destroyed"],
+        "browser": [
+          { "projectName": "chromium", "title": "a corrupt dismissal cookie does not hide service messages", "feature": "service-messages" },
+          { "projectName": "chromium", "title": "renders sanitized message and dismisses it with the keyboard across reloads", "feature": "service-messages" },
+          { "projectName": "chromium", "title": "service messages have no automated accessibility violations", "feature": "service-messages" }
+        ]
+      }
+    },
+    {
       "feature": "Form validation",
       "contracts": {
         "unit": [
