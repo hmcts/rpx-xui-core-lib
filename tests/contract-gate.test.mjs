@@ -65,7 +65,9 @@ unitNames.push('selected case stops listening to shared state when destroyed',
   'ShareCaseConfirmComponent releases the host state subscription',
   'continue validation reads current state without keeping subscriptions',
   'user selection stops emitting when the component is destroyed',
-  'sharing supplies a label when the consumer does not provide one');
+  'sharing supplies a label when the consumer does not provide one',
+  'user lookup tolerates a user list that has not loaded yet',
+  'user lookup refreshes the current query when users arrive');
 const addedLaneNames = {
   "refDataUnit": [
     "reference data HTTP endpoints and encoded service-code parameter match the source",

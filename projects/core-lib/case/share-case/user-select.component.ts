@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
-import { Observable, Subscription } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { UserDetails } from '@hmcts/rpx-xui-core-lib/case/sharing';
 
@@ -14,8 +14,10 @@ import { UserDetails } from '@hmcts/rpx-xui-core-lib/case/sharing';
 export class UserSelectComponent implements OnInit, OnDestroy {
 
   private valueSubscription: Subscription;
+  private readonly usersSubject = new BehaviorSubject<UserDetails[]>([]);
 
-  @Input() public users: UserDetails[];
+  @Input() public set users(value: UserDetails[]) { this.usersSubject.next(value ?? []); }
+  public get users(): UserDetails[] { return this.usersSubject.value; }
   @Input() public label = 'Find a person';
 
   @Output() public selected = new EventEmitter<UserDetails>();
@@ -27,8 +29,8 @@ export class UserSelectComponent implements OnInit, OnDestroy {
   constructor() { }
 
   public ngOnInit() {
-    this.filteredUsers = this.control.valueChanges.pipe(
-      map(value => typeof value === typeof 'string' ? this.filterUsers(value) : this.users)
+    this.filteredUsers = combineLatest([this.control.valueChanges, this.usersSubject]).pipe(
+      map(([value, users]) => typeof value === 'string' ? this.filterUsers(value) : users)
     );
     // TEST-TODO
     // these are changes made per ngModel 18 upgrade and may not be correct

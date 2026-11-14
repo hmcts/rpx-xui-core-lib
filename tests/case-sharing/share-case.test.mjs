@@ -1,7 +1,7 @@
 import '@angular/compiler';
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, firstValueFrom } from 'rxjs';
 import { ShareCaseComponent, ShareCaseConfirmComponent, UserSelectComponent } from '@hmcts/rpx-xui-core-lib/case/share-case';
 import { CaseSharingStateService } from '@hmcts/rpx-xui-core-lib/case/sharing-state';
 
@@ -49,4 +49,34 @@ test('user selection stops emitting when the component is destroyed', () => {
   component.ngOnDestroy();
   component.control.setValue('second');
   assert.deepEqual(selected, [null]);
+});
+
+test('user lookup tolerates a user list that has not loaded yet', async () => {
+  const component = new UserSelectComponent();
+  component.users = /** @type {never} */ (null);
+  component.ngOnInit();
+  const result = firstValueFrom(component.filteredUsers);
+  component.control.setValue('Sam');
+  assert.deepEqual(await result, []);
+  component.users = [{ idamId: 'two', firstName: 'Sam', lastName: 'Example', email: 'sam@example.invalid' }];
+  const loadedResult = firstValueFrom(component.filteredUsers);
+  component.control.setValue('Sam');
+  assert.deepEqual(await loadedResult, component.users);
+  component.ngOnDestroy();
+});
+
+test('user lookup refreshes the current query when users arrive', () => {
+  const component = new UserSelectComponent();
+  component.users = /** @type {never} */ (null);
+  component.ngOnInit();
+  /** @type {Array<import('@hmcts/rpx-xui-core-lib/case/sharing').UserDetails[]>} */
+  const results = [];
+  const subscription = component.filteredUsers.subscribe(value => results.push(value));
+  component.control.setValue('Sam');
+  assert.deepEqual(results, [[]]);
+  const user = { idamId: 'two', firstName: 'Sam', lastName: 'Example', email: 'sam@example.invalid' };
+  component.users = [user];
+  assert.deepEqual(results, [[], [user]]);
+  subscription.unsubscribe();
+  component.ngOnDestroy();
 });
