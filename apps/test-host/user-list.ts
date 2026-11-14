@@ -9,7 +9,7 @@ import type { User } from '@hmcts/rpx-xui-core-lib/ui/user-details';
 <xuilib-user-list [users]="users" [currentPageNumber]="page" [pageTotalSize]="users.length" (pageChange)="page = $event" (userClick)="selected = $event.fullName ?? ''" />
 <output data-testid="page">{{page}}</output><output data-testid="selected">{{selected}}</output></main>` })
 class UserListGallery {
-  readonly users: User[] = Array.from({length:55}, (_, index) => ({ fullName:`Synthetic User ${index + 1}`, email:`user${index + 1}@example.invalid`, status:'Active' }));
+  readonly users: User[] = Array.from({length:55}, (_, index) => ({ fullName:`Synthetic User ${index + 1}`, email:`user${index + 1}@example.invalid`, status:'Active', ...(index === 1 ? { routerLink: '/user-list', routerLinkTitle: 'View user' } : {}) }));
   page = 1;
   selected = '';
 }

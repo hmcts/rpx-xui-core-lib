@@ -172,6 +172,8 @@ selected-cases|sharing forms distinguish the same case in each accordion
 user-details|user details shows roles and emits a suspend action
 user-details|pending user hides permissions and emits a reinvite action
 user-details|user details actions work from the keyboard and pass an axe scan
+user-list|users without a route can be selected with the keyboard
+user-list|users with a route retain a navigable link and emit selection
 user-list|user list pages through users and emits the chosen user
 user-list|pagination can be operated with the keyboard
 user-list|user list and pagination have no automated accessibility violations

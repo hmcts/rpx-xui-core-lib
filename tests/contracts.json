@@ -795,6 +795,16 @@
       },
       {
         "projectName": "chromium",
+        "title": "users without a route can be selected with the keyboard",
+        "feature": "user-list"
+      },
+      {
+        "projectName": "chromium",
+        "title": "users with a route retain a navigable link and emit selection",
+        "feature": "user-list"
+      },
+      {
+        "projectName": "chromium",
         "title": "user list pages through users and emits the chosen user",
         "feature": "user-list"
       },

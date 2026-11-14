@@ -1,5 +1,23 @@
 import { test, expect } from '@playwright/test';
 
+test('users without a route can be selected with the keyboard', async ({ page }) => {
+  await page.goto('/user-list');
+  await page.keyboard.press('Tab');
+  await expect(page.getByText('Synthetic User 1', { exact: true })).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(page.getByTestId('selected')).toHaveText('Synthetic User 1');
+});
+
+test('users with a route retain a navigable link and emit selection', async ({ page }) => {
+  await page.goto('/user-list');
+  const link = page.getByRole('link', { name: 'Synthetic User 2' });
+  await expect(link).toHaveAttribute('href', '/user-list');
+  await expect(link).toHaveAttribute('title', 'View user');
+  await link.focus();
+  await page.keyboard.press('Enter');
+  await expect(page.getByTestId('selected')).toHaveText('Synthetic User 2');
+});
+
 test('user list pages through users and emits the chosen user', async ({ page }) => {
   await page.goto('/user-list');
   await expect(page.locator('tbody tr')).toHaveCount(50);
