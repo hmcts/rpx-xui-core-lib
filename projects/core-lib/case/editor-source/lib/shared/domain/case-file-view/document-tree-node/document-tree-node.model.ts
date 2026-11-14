@@ -110,9 +110,7 @@ export class DocumentTreeNode {
 
     return [
       this,
-      ...this.children?.map(item => {
-        return flattenChildren(item);
-      }).flat()
+      ...(this.children?.flatMap(flattenChildren) ?? [])
     ];
   }
 

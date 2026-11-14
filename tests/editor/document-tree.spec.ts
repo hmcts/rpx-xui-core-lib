@@ -7,6 +7,13 @@ import { SortOrder } from '../../projects/core-lib/case/editor-source/lib/shared
 export const registered = true;
 
 describe('Document tree migration contract', () => {
+  it('flattens a leaf and nested folders even when children are absent', () => {
+    const leaf = Object.assign(new DocumentTreeNode(), { name: 'Leaf' });
+    const folder = Object.assign(new DocumentTreeNode(), { name: 'Folder', children: [leaf] });
+    const root = Object.assign(new DocumentTreeNode(), { name: 'Root', children: [folder] });
+    expect(leaf.flattenedAll).toEqual([leaf]);
+    expect(root.flattenedAll).toEqual([root, folder, leaf]);
+  });
   it('sorts document children recursively and retains document counts', () => {
     const root = new DocumentTreeNode();
     const folder = new DocumentTreeNode();

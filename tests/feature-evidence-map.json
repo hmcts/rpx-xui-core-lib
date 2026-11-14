@@ -1398,6 +1398,7 @@
           "Query list migration contract sorts text and dates in both directions",
           "Query list migration contract preserves Toolkit staff markers only on new staff queries",
           "Query list migration contract preserves the absent staff marker on query responses",
+          "Document tree migration contract flattens a leaf and nested folders even when children are absent",
           "Document tree migration contract sorts document children recursively and retains document counts",
           "Document type migration contract recognises HTML only by the allowed MIME type or missing-MIME extension fallback",
           "Document folder predicate migration contract preserves folder recognition for empty and populated child arrays",

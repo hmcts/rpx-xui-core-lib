@@ -286,6 +286,8 @@ Core error alerts follow updates from the active translation stream, and cancel 
 
 Event-trigger, case-history, print and event-completion error paths still pass a string to the alert service's object-shaped API, so their alerts may be empty; those inherited paths need repair and consumer review before claiming error-handling parity. A newer warning or success now cancels an earlier pending error translation so the earlier error cannot overwrite it.
 
+The document tree now treats an absent `children` array as an empty list when flattening a node. Toolkit threw for that case; nested traversal order is unchanged. This behavior change is covered locally and requires consumer review.
+
 The confirmed Core design uses an empty `FormGroup` for the unmerged case-confirmation component, where Toolkit used a `FormControl` for its public `formGroup` property. Angular's strict template compiler rejects the old control when bound to `[formGroup]`; the candidate's rendered submission is covered locally. The property type change is an intentional compatibility deviation requiring consumer review before adoption.
 
 The event-history API retains Toolkit's string-typed emitter and selected-event properties. Its template uses a localized Angular type escape because the source event model permits numeric IDs; the runtime value is forwarded unchanged. Consumers must not infer runtime string normalization from the legacy TypeScript annotation.

@@ -2,7 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { preparePackedWorkspace } from './packed-workspace.mjs';
 import { sourceSnapshot } from '../../scripts/evidence-source-snapshot.mjs';
 
@@ -19,7 +19,8 @@ run(process.execPath, ['.yarn/releases/yarn-4.18.1.cjs', 'build']);
 if (sourceSnapshot(root) !== initialSnapshot) throw new Error('Source changed during the packed editor build');
 const workspace = await preparePackedWorkspace(root);
 try {
-  const pack = spawnSync('npm', ['pack', join(root, 'dist/core-lib'), '--pack-destination', workspace, '--ignore-scripts', '--json'], {
+  const npm = join(dirname(process.execPath), '../lib/node_modules/npm/bin/npm-cli.js');
+  const pack = spawnSync(process.execPath, [npm, 'pack', join(root, 'dist/core-lib'), '--pack-destination', workspace, '--ignore-scripts', '--json'], {
     cwd: workspace, encoding: 'utf8', env: { ...process.env, npm_config_cache: join(workspace, 'npm-cache') }
   });
   if (pack.error) throw pack.error;
@@ -27,7 +28,7 @@ try {
   const artifact = JSON.parse(pack.stdout)[0].filename;
   const packageDirectory = join(workspace, 'node_modules/@hmcts/rpx-xui-core-lib');
   await mkdir(packageDirectory, { recursive: true });
-  run('tar', ['-xzf', join(workspace, artifact), '--strip-components=1', '-C', packageDirectory], { cwd: workspace });
+  run('/usr/bin/tar', ['-xzf', join(workspace, artifact), '--strip-components=1', '-C', packageDirectory], { cwd: workspace });
   const metadata = JSON.parse(await readFile(join(packageDirectory, 'package.json'), 'utf8'));
   if (metadata.name !== '@hmcts/rpx-xui-core-lib') throw new Error('Packed package has an unexpected name');
   console.log(`Testing packed ${metadata.name}@${metadata.version} in an isolated workspace`);

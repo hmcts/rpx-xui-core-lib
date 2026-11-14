@@ -41,7 +41,7 @@
     "test:roles": "node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=tap --test-reporter-destination=test-results/roles.tap tests/roles/roles.test.mjs",
     "test:diagnostic": "node scripts/diagnostic-current.mjs",
     "test:node:utils": "rm -rf test-results/node-unit test-results/node.tap && tsc -p tests/node/tsconfig.json && node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=tap --test-reporter-destination=test-results/node.tap test-results/node-unit/tests/node/*.spec.js && node --test tests/build-watch.test.mjs",
-    "test:editor": "node --test tests/editor/prosemirror-identity.test.mjs tests/editor/feature-report.test.mjs tests/editor/spec-imports.test.mjs tests/editor/wait-for-run.test.mjs tests/editor/full-suite.test.mjs tests/editor/parser-generation.test.mjs tests/editor/evidence-integration.test.mjs tests/editor/consumer-imports.test.mjs && playwright test -c tests/editor/playwright.config.mjs",
+    "test:editor": "node --test tests/editor/start.test.mjs tests/editor/prosemirror-identity.test.mjs tests/editor/feature-report.test.mjs tests/editor/spec-imports.test.mjs tests/editor/wait-for-run.test.mjs tests/editor/full-suite.test.mjs tests/editor/parser-generation.test.mjs tests/editor/evidence-integration.test.mjs tests/editor/consumer-imports.test.mjs && playwright test -c tests/editor/playwright.config.mjs",
     "test:editor:loading": "node --test tests/editor/selective-loading.test.mjs tests/editor/notifier-isolation.test.mjs && node tests/editor/selective-loading.mjs",
     "test:editor:packed": "node --test tests/editor/packed-workspace.test.mjs && node tests/editor/packed.mjs",
     "generate:condition-parser": "node tests/editor/generate-parser.mjs",
