@@ -565,7 +565,9 @@
       ],
       "classification": "peerDependency",
       "selection": "20.3.35",
-      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise"
+      "decision": "framework / host-visible provider or integration identity; exact initial cohort, not a support-range promise",
+      "optional": true,
+      "optionalReason": "Required by case/selected-case confirmation links; entries without routing can omit it."
     },
     {
       "name": "@angular/upgrade",

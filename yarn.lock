@@ -443,6 +443,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@angular/router@npm:20.3.35":
+  version: 20.3.35
+  resolution: "@angular/router@npm:20.3.35"
+  dependencies:
+    tslib: "npm:^2.3.0"
+  peerDependencies:
+    "@angular/common": 20.3.35
+    "@angular/core": 20.3.35
+    "@angular/platform-browser": 20.3.35
+    rxjs: ^6.5.3 || ^7.4.0
+  checksum: 10c0/0183445df727c33fc3eb3d586c29745c3ba3c6ed83380e4b7207a66cad0e5633eebc9e42430ffafe21d967a2323a2641c83654f7862e0b62415f6e292823d4c7
+  languageName: node
+  linkType: hard
+
 "@axe-core/playwright@npm:4.14.0":
   version: 4.14.0
   resolution: "@axe-core/playwright@npm:4.14.0"
@@ -1646,6 +1660,7 @@ __metadata:
     "@angular/forms": "npm:20.3.35"
     "@angular/material": "npm:20.2.14"
     "@angular/platform-browser": "npm:20.3.35"
+    "@angular/router": "npm:20.3.35"
     "@axe-core/playwright": "npm:4.14.0"
     "@playwright/test": "npm:1.65.0"
     "@types/jasmine": "npm:7.0.0"

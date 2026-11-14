@@ -553,6 +553,11 @@ try {
   await cp(join(root, 'tests/case-sharing/state.test.mjs'), join(consumer, 'case-sharing-state.test.mjs'));
   await check('package.case-sharing-state-behavior', () => run('case-sharing-state-behavior', ['--test', 'case-sharing-state.test.mjs'], consumer));
 
+  await cp(join(root, 'tests/case-sharing/selected-case.test.mjs'), join(consumer, 'selected-case.test.mjs'));
+  await cp(join(root, 'tests/case-sharing/share-case.test.mjs'), join(consumer, 'share-case.test.mjs'));
+  await check('package.selected-case-behavior', () => run('selected-case-behavior', ['--test', 'selected-case.test.mjs'], consumer));
+  await check('package.share-case-behavior', () => run('share-case-behavior', ['--test', 'share-case.test.mjs'], consumer));
+
   await cp(join(root, 'tests/cookie/cookie.test.mjs'), join(consumer, 'cookie.test.mjs'));
   await check('package.cookie-behavior', () => run('cookie-behavior', ['--test', 'cookie.test.mjs'], consumer));
 
@@ -585,6 +590,8 @@ try {
 
   /** @type {Array<[string, string, string[]]>} */
   const selectiveEntries = [
+    ['selected-case', 'selected-case-graph.mjs', ['case-selected-case', 'case-sharing-state', 'i18n']],
+    ['share-case', 'share-case-graph.mjs', ['case-share-case', 'case-selected-case', 'case-sharing-state', 'case-sharing', 'ui-gov-input', 'i18n']],
     ['find-task-name', 'find-task-name-graph.mjs', ['ui-find-task-name', 'ui-task-data', 'browser-session-storage', 'i18n']],
     ['search-work-type', 'search-work-type-graph.mjs', ['ui-search-work-type', 'ui-task-data', 'browser-session-storage', 'i18n']],
     ['find-work-type', 'find-work-type-graph.mjs', ['ui-find-work-type', 'ui-search-work-type', 'ui-task-data', 'browser-session-storage', 'i18n']],
@@ -611,6 +618,7 @@ try {
         assert.equal(core.length, entries.length, 'Unexpected Core entries in graph');
         for (const entry of entries) assert.ok(core.some(input => input.endsWith('/fesm2022/hmcts-rpx-xui-core-lib-' + entry + '.mjs')));
         assert.ok(!used.some(input => /(?:^|\/)node(?:\/|$)|^node:/.test(input)));
+        if (id === 'selected-case' || id === 'share-case') assert.ok(!used.some(input => /@hmcts\/(media-viewer|ccpay-web-component)/.test(input)));
         if (id === 'gov-input') assert.ok(!used.some(input => input.includes('@angular/router')));
       };
       const source = await readFile(join(consumer, file), 'utf8');

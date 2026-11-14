@@ -56,6 +56,16 @@ const unitNames = [
   "task name cancellation tears down the HTTP subscription without writing",
   "task service sends and caches through the Angular HTTP testing backend",
 ];
+unitNames.push('selected case stops listening to shared state when destroyed',
+  'SelectedCaseListComponent stops listening to shared state when destroyed',
+  'SelectedCaseConfirmComponent stops listening to shared state when destroyed',
+  'selected case actions use the same state and forward emitted changes',
+  'list forwards selection and confirmation displays pending changes only',
+  'ShareCaseComponent releases the host state subscription',
+  'ShareCaseConfirmComponent releases the host state subscription',
+  'continue validation reads current state without keeping subscriptions',
+  'user selection stops emitting when the component is destroyed',
+  'sharing supplies a label when the consumer does not provide one');
 const addedLaneNames = {
   "refDataUnit": [
     "reference data HTTP endpoints and encoded service-code parameter match the source",
@@ -375,6 +385,12 @@ packageIds.push('package.node-security-optional-peer', 'package.strict-node-secu
   'package.node-security-merge-fault', 'package.node-security-restored', 'package.node-security-browser-denied');
 packageIds.push('package.strict-node-logging-types', 'package.node-logging-isolation', 'package.node-logging-loading-fault', 'package.helmet-8_1_0-cohort', 'package.helmet-8_2_0-cohort');
 packageIds.push('package.translation-counterpart-artifact', 'package.translation-counterpart-browser', 'package.translation-counterpart-types', 'package.translation-counterpart-identity', 'package.translation-counterpart-identity-fault');
+packageIds.push('package.selected-case-behavior', 'package.share-case-behavior', 'package.selected-case-graph', 'package.share-case-graph');
+addedBrowserJourneys.push('selected case removal can be cancelled and reflected in confirmation',
+  'selected case accordion references its own content', 'selected case accordion can be operated with the keyboard',
+  'selected case controls have no automated accessibility violations', 'sharing requires a change and adds a selected user',
+  'sharing can remove a selected existing user from all cases', 'sharing user lookup has its visible label and accessible description',
+  'sharing cannot add a person before an autocomplete selection', 'selected cases keep user identifiers unique across multiple cases');
 const expectedContracts = addedBrowserJourneys.length + Object.values(addedLaneNames).reduce((sum, names) => sum + names.length, 0) + unitNames.length + nodeNames.length + i18nNames.length + i18nJourneys.length + dueDateJourneys.length + accessibilityJourneys.length + sessionDialogJourneys.length + primitiveJourneys.length + cacheJourneys.length + validationJourneys.length + packageIds.length + 1 + contractInventory.nodeServerUnit.required.length;
 
 function nativeTap(names) {

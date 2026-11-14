@@ -59,7 +59,8 @@
     "ng-packagr": "20.3.2",
     "rxjs": "7.8.2",
     "typescript": "5.9.3",
-    "zone.js": "0.15.1"
+    "zone.js": "0.15.1",
+    "@angular/router": "20.3.35"
   },
   "resolutions": {
     "eslint@npm:10.14.0/minimatch": "11.0.8",
@@ -86,7 +87,8 @@
     "@angular/cdk": "20.2.14",
     "@angular/platform-browser": "^20.3.27",
     "express": "5.2.1",
-    "helmet": "^8.1.0"
+    "helmet": "^8.1.0",
+    "@angular/router": "20.3.35"
   },
   "libraryPeerDependenciesMeta": {
     "@angular/common": {
@@ -114,6 +116,9 @@
       "optional": true
     },
     "helmet": {
+      "optional": true
+    },
+    "@angular/router": {
       "optional": true
     }
   },
@@ -386,6 +391,7 @@
     "passport": "0.7.0",
     "passport-oauth2": "1.8.0",
     "redis": "6.3.1",
-    "session-file-store": "1.5.0"
+    "session-file-store": "1.5.0",
+    "@angular/router": "20.3.35"
   }
 }

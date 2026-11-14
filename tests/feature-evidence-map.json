@@ -1355,6 +1355,87 @@
           "package.translation-counterpart-identity-fault"
         ]
       }
+    },
+    {
+      "feature": "Selected case sharing components",
+      "contracts": {
+        "unit": [
+          "selected case stops listening to shared state when destroyed",
+          "SelectedCaseListComponent stops listening to shared state when destroyed",
+          "SelectedCaseConfirmComponent stops listening to shared state when destroyed",
+          "selected case actions use the same state and forward emitted changes",
+          "list forwards selection and confirmation displays pending changes only"
+        ],
+        "browser": [
+          {
+            "projectName": "chromium",
+            "title": "selected case removal can be cancelled and reflected in confirmation",
+            "feature": "selected-cases"
+          },
+          {
+            "projectName": "chromium",
+            "title": "selected case accordion references its own content",
+            "feature": "selected-cases"
+          },
+          {
+            "projectName": "chromium",
+            "title": "selected case accordion can be operated with the keyboard",
+            "feature": "selected-cases"
+          },
+          {
+            "projectName": "chromium",
+            "title": "selected case controls have no automated accessibility violations",
+            "feature": "selected-cases"
+          },
+          {
+            "projectName": "chromium",
+            "title": "selected cases keep user identifiers unique across multiple cases",
+            "feature": "selected-cases"
+          }
+        ],
+        "package": [
+          "package.selected-case-behavior",
+          "package.selected-case-graph"
+        ]
+      }
+    },
+    {
+      "feature": "Case sharing containers",
+      "contracts": {
+        "unit": [
+          "ShareCaseComponent releases the host state subscription",
+          "ShareCaseConfirmComponent releases the host state subscription",
+          "continue validation reads current state without keeping subscriptions",
+          "user selection stops emitting when the component is destroyed",
+          "sharing supplies a label when the consumer does not provide one"
+        ],
+        "browser": [
+          {
+            "projectName": "chromium",
+            "title": "sharing requires a change and adds a selected user",
+            "feature": "selected-cases"
+          },
+          {
+            "projectName": "chromium",
+            "title": "sharing can remove a selected existing user from all cases",
+            "feature": "selected-cases"
+          },
+          {
+            "projectName": "chromium",
+            "title": "sharing user lookup has its visible label and accessible description",
+            "feature": "selected-cases"
+          },
+          {
+            "projectName": "chromium",
+            "title": "sharing cannot add a person before an autocomplete selection",
+            "feature": "selected-cases"
+          }
+        ],
+        "package": [
+          "package.share-case-behavior",
+          "package.share-case-graph"
+        ]
+      }
     }
   ],
   "suiteGroups": [

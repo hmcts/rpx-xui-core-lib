@@ -1,0 +1,30 @@
+@use "govuk-frontend/dist/govuk/base" as *;
+
+.case-share-confirm {
+
+    &__title {
+        margin-bottom: 0;
+    }
+
+    &__caption-area {
+        border-bottom: 1px solid $govuk-border-colour;
+        padding-bottom: 10px;
+        display: inline-block;
+        width: 100%;
+        clear: both;
+    }
+
+    &__caption {
+        float: left;
+    }
+
+    &__change-link {
+        float: right;
+    }
+}
+.govuk-table-column-header {
+  width: 45%;
+}
+.govuk-table-column-actions {
+  width: 10%;
+}

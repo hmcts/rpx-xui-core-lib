@@ -13,18 +13,40 @@
     "@angular/cdk": "20.2.14",
     "@angular/platform-browser": "^20.3.27",
     "express": "5.2.1",
-    "helmet": "^8.1.0"
+    "helmet": "^8.1.0",
+    "@angular/router": "20.3.35"
   },
   "peerDependenciesMeta": {
-    "@angular/common": { "optional": true },
-    "@angular/core": { "optional": true },
-    "@angular/forms": { "optional": true },
-    "rxjs": { "optional": true },
-    "@angular/material": { "optional": true },
-    "@angular/cdk": { "optional": true },
-    "@angular/platform-browser": { "optional": true },
-    "express": { "optional": true },
-    "helmet": { "optional": true }
+    "@angular/common": {
+      "optional": true
+    },
+    "@angular/core": {
+      "optional": true
+    },
+    "@angular/forms": {
+      "optional": true
+    },
+    "rxjs": {
+      "optional": true
+    },
+    "@angular/material": {
+      "optional": true
+    },
+    "@angular/cdk": {
+      "optional": true
+    },
+    "@angular/platform-browser": {
+      "optional": true
+    },
+    "express": {
+      "optional": true
+    },
+    "helmet": {
+      "optional": true
+    },
+    "@angular/router": {
+      "optional": true
+    }
   },
   "exports": {
     "./node": {

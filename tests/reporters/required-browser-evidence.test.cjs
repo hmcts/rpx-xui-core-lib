@@ -150,7 +150,16 @@ task-lookups|task-name ignores stale success after the service changes
 task-lookups|task-name ignores stale error after the service changes
 node-security|CSP enforcement runs nonce scripts and styles while blocking unapproved inline code
 node-security|CSP report-only emits its header and allows the identical unapproved script to execute
-node-security|CSP reload receives a new nonce matching the served script`.split('\n').map(row => {
+node-security|CSP reload receives a new nonce matching the served script
+selected-cases|selected case removal can be cancelled and reflected in confirmation
+selected-cases|selected case accordion references its own content
+selected-cases|selected case accordion can be operated with the keyboard
+selected-cases|selected case controls have no automated accessibility violations
+selected-cases|sharing requires a change and adds a selected user
+selected-cases|sharing can remove a selected existing user from all cases
+selected-cases|sharing user lookup has its visible label and accessible description
+selected-cases|sharing cannot add a person before an autocomplete selection
+selected-cases|selected cases keep user identifiers unique across multiple cases`.split('\n').map(row => {
   const [feature, title] = row.split('|');
   return ['chromium', title, feature];
 });
