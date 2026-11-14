@@ -1,0 +1,96 @@
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable, of } from 'rxjs';
+import { catchError, map, publishReplay, refCount, take } from 'rxjs/operators';
+import { AbstractAppConfig } from '../../../app.config';
+import { StructuredLoggerService } from '../logging';
+
+export interface OrganisationSuperUser {
+    firstName: string;
+    lastName: string;
+    email: string;
+}
+
+export interface OrganisationAddress {
+    addressLine1: string;
+    addressLine2: string;
+    addressLine3: string;
+    townCity: string;
+    county: string;
+    country: string;
+    postCode: string;
+    // Preserve the Toolkit public type until consumers migrate.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    dxAddress: any [];
+}
+
+export interface Organisation {
+    organisationIdentifier: string;
+    name: string;
+    status: string;
+    sraId: string;
+    sraRegulated: boolean;
+    companyNumber: string;
+    companyUrl: string;
+    superUser: OrganisationSuperUser;
+    paymentAccount: string [];
+    contactInformation: OrganisationAddress [];
+}
+
+export interface OrganisationVm {
+    organisationIdentifier: string;
+    name: string;
+    addressLine1: string;
+    addressLine2: string;
+    addressLine3: string;
+    townCity: string;
+    county: string;
+    country: string;
+    postCode: string;
+}
+
+@Injectable()
+export class OrganisationService {
+    private readonly logger = new StructuredLoggerService();
+
+    constructor(private readonly http: HttpClient,
+                private readonly appconfig: AbstractAppConfig) {}
+
+    private organisations$: Observable<OrganisationVm[]>;
+    public static mapOrganisation(organisations: Organisation[]): OrganisationVm [] {
+        const organisationsVm = new Array<OrganisationVm>();
+        organisations.forEach(org => {
+            let contactInformation = null;
+            if (org.contactInformation &&  org.contactInformation[0]) {
+                contactInformation = org.contactInformation[0];
+            }
+            organisationsVm.push({
+                organisationIdentifier: org.organisationIdentifier,
+                name: org.name,
+                addressLine1: contactInformation !== null ? contactInformation.addressLine1 : null,
+                addressLine2: contactInformation !== null ? contactInformation.addressLine2 : null,
+                addressLine3: contactInformation !== null ? contactInformation.addressLine3 : null,
+                townCity: contactInformation !== null ? contactInformation.townCity : null,
+                county: contactInformation !== null ? contactInformation.county : null,
+                country: contactInformation !== null ? contactInformation.country : null,
+                postCode: contactInformation !== null ? contactInformation.postCode : null,
+            });
+        });
+        return organisationsVm;
+    }
+
+    public getActiveOrganisations(): Observable<OrganisationVm[]> {
+        if (!this.organisations$) {
+            const url = this.appconfig.getPrdUrl();
+            const cacheTimeOut = this.appconfig.getCacheTimeOut();
+            this.organisations$ = this.http.get<Organisation[]>(url)
+            .pipe(map((orgs) => OrganisationService.mapOrganisation(orgs)),
+            publishReplay(1, cacheTimeOut), refCount(), take(1), catchError(e => {
+                this.logger.error('Error while retrieving active organisations.', { error: e });
+                // Handle error and return blank Observable array
+                return of([]);
+            }));
+        }
+        return this.organisations$;
+    }
+}

@@ -1,0 +1,536 @@
+import { Location } from '@angular/common';
+import {
+  ChangeDetectorRef, Component, Input, NgZone, OnChanges, OnDestroy, OnInit,
+  SimpleChanges, ViewChild
+} from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { MatTabGroup } from '@angular/material/tabs';
+import { ActivatedRoute, NavigationEnd, Params, Router } from '@angular/router';
+import { plainToClass } from 'class-transformer';
+import { RpxTranslatePipe } from '@hmcts/rpx-xui-core-lib/i18n';
+import { Observable, Subscription } from 'rxjs';
+import { filter, take } from 'rxjs/operators';
+import {
+  NotificationBannerConfig,
+  NotificationBannerHeaderClass,
+  NotificationBannerType
+} from '../../../../components/banners/notification-banner';
+import { ShowCondition } from '../../../directives';
+import { Activity, CaseField, CaseTab, CaseView, CaseViewTrigger, DRAFT_QUERY_PARAM, DisplayMode, Draft } from '../../../domain';
+import { CaseViewEventIds } from '../../../domain/case-view/case-view-event-ids.enum';
+import {
+  ActivityPollingService,
+  AlertService,
+  DraftService,
+  ErrorNotifierService,
+  FieldsUtils,
+  LoadingService,
+  NavigationNotifierService,
+  NavigationOrigin,
+  OrderService,
+  SessionStorageService
+} from '../../../services';
+import { ConvertHrefToRouterService } from '../../case-editor/services/convert-href-to-router.service';
+import { DeleteOrCancelDialogComponent } from '../../dialogs/delete-or-cancel-dialog/delete-or-cancel-dialog.component';
+import { CallbackErrorsContext } from '../../error';
+import { initDialog } from '../../helpers';
+import { LinkedCasesService } from '../../palette/linked-cases/services';
+import { CaseFlagStateService } from '../../case-editor/services/case-flag-state.service';
+import { PVP_DISPLAY_TEXT, hasActivePvpFlagInCaseFields } from '../../palette/case-flag/utils/case-flag-priority.utils';
+
+@Component({
+  selector: 'ccd-case-full-access-view',
+  templateUrl: './case-full-access-view.component.html',
+  styleUrls: ['./case-full-access-view.component.scss'],
+  standalone: false
+})
+export class CaseFullAccessViewComponent implements OnInit, OnDestroy, OnChanges {
+  public static readonly ORIGIN_QUERY_PARAM = 'origin';
+  public static readonly TRIGGER_TEXT_START = 'Go';
+  public static readonly TRIGGER_TEXT_CONTINUE = 'Ignore Warning and Go';
+  public static readonly UNICODE_SPACE = '%20';
+  public static readonly EMPTY_SPACE = ' ';
+
+
+  @Input() public hasPrint = true;
+  @Input() public hasEventSelector = true;
+  @Input() public caseDetails: CaseView;
+  @Input() public prependedTabs: CaseTab[] = [];
+  @Input() public appendedTabs: CaseTab[] = [];
+
+  public BANNER = DisplayMode.BANNER;
+  public sortedTabs: CaseTab[];
+  public caseFields: CaseField[];
+  public formGroup: FormGroup;
+  // Preserve the Toolkit public contract until consumer migration.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public error: any;
+  public triggerTextStart = CaseFullAccessViewComponent.TRIGGER_TEXT_START;
+  public triggerTextIgnoreWarnings = CaseFullAccessViewComponent.TRIGGER_TEXT_CONTINUE;
+  public triggerText: string = CaseFullAccessViewComponent.TRIGGER_TEXT_START;
+  public ignoreWarning = false;
+  public activitySubscription: Subscription;
+  public caseSubscription: Subscription;
+  public errorSubscription: Subscription;
+  public dialogConfig: MatDialogConfig;
+  public message: string;
+  public subscription: Subscription;
+  public notificationBannerConfig: NotificationBannerConfig;
+  public selectedTabIndex = 0;
+  public activeCaseFlags = false;
+  public caseFlagsExternalUser = false;
+  private readonly caseFlagsReadExternalMode = '#ARGUMENT(READ,EXTERNAL)';
+  private readonly potentiallyViolentPersonFlagPrefix = `${PVP_DISPLAY_TEXT}.`;
+  private subs: Subscription[] = [];
+  public eventId: string;
+  public isEventButtonClicked: boolean = false;
+
+  // Preserve the Toolkit public contract until consumer migration.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public callbackErrorsSubject: Observable<any>;
+  @ViewChild('tabGroup', { static: false }) public tabGroup: MatTabGroup;
+
+  constructor(
+    private readonly ngZone: NgZone,
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
+    private readonly navigationNotifierService: NavigationNotifierService,
+    private readonly orderService: OrderService,
+    private readonly activityPollingService: ActivityPollingService,
+    private readonly dialog: MatDialog,
+    private readonly alertService: AlertService,
+    private readonly draftService: DraftService,
+    private readonly errorNotifierService: ErrorNotifierService,
+    private readonly convertHrefToRouterService: ConvertHrefToRouterService,
+    private readonly location: Location,
+    private readonly crf: ChangeDetectorRef,
+    private readonly sessionStorageService: SessionStorageService,
+    // Keep the existing constructor injection position.
+    _rpxTranslationPipe: RpxTranslatePipe,
+    private readonly loadingService: LoadingService,
+    private readonly linkedCasesService: LinkedCasesService,
+    private readonly caseFlagStateService: CaseFlagStateService,
+    private zone: NgZone
+  ) {
+  }
+
+  public ngOnInit(): void {
+    this.callbackErrorsSubject = this.errorNotifierService.errorSource.pipe(filter((x) => {
+      if (x && x.status !== 401 && x.status !== 403) {
+        this.error = x;
+        this.isEventButtonClicked = false;
+        return true;
+      }
+      return false;
+    }));
+
+    initDialog();
+    this.init();
+
+    this.sessionStorageService?.removeItem('eventUrl');
+
+    this.subscription = this.convertHrefToRouterService?.getHrefMarkdownLinkContent().subscribe((hrefMarkdownLinkContent: string) => {
+      // do not convert router with initial default value; convert to router only on updated link content
+      if (hrefMarkdownLinkContent !== 'Default') {
+        this.convertHrefToRouterService.callAngularRouter(hrefMarkdownLinkContent);
+      }
+    });
+
+    if (this.activityPollingService.isEnabled && !this.activitySubscription) {
+      this.ngZone.runOutsideAngular(() => {
+        this.activitySubscription = this.postViewActivity().subscribe();
+      });
+    }
+
+    this.checkRouteAndSetCaseViewTab();
+
+    // Check for active Case Flags
+    this.activeCaseFlags = this.hasActiveCaseFlags();
+    this.linkedCasesService.resetLinkedCaseData();
+    this.caseFlagStateService.resetInitialCaseFlags();
+  }
+
+  public ngOnChanges(changes: SimpleChanges) {
+    if (changes && changes.prependedTabs && !changes.prependedTabs.firstChange) {
+      this.init();
+      this.crf.detectChanges();
+      this.organiseTabPosition();
+    }
+  }
+
+  public isPrintEnabled(): boolean {
+    return this.caseDetails.case_type.printEnabled;
+  }
+
+  public ngOnDestroy(): void {
+    if (this.activityPollingService.isEnabled) {
+      this.unsubscribe(this.activitySubscription);
+    }
+    if (!this.route.snapshot.data.case) {
+      this.unsubscribe(this.caseSubscription);
+    }
+    this.unsubscribe(this.callbackErrorsSubject);
+    this.unsubscribe(this.errorSubscription);
+    this.unsubscribe(this.subscription);
+    this.subs.forEach((s) => s.unsubscribe());
+  }
+
+  // Preserve the Toolkit public contract until consumer migration.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public unsubscribe(subscription: any) {
+    if (subscription) {
+      subscription.unsubscribe();
+    }
+  }
+
+  private normalizeLabel(label: string): string {
+    return (label || '').toString().replace(/\s+/g, '').toLowerCase();
+  }
+
+  private getAbsoluteTabIndexByLabel(label: string): number {
+    const normalized = this.normalizeLabel(label);
+    const tabs = this.tabGroup?._tabs?.toArray?.() ?? [];
+    return tabs.findIndex((tab) => this.normalizeLabel(tab?.textLabel) === normalized);
+  }
+
+  private selectTabByLabel(label: string): void {
+    const index = this.getAbsoluteTabIndexByLabel(label);
+    if (index > -1) {
+      this.selectedTabIndex = index;
+      if (this.tabGroup) {
+        this.tabGroup.selectedIndex = index;
+      }
+    }
+  }
+
+  private checkRouteAndSetCaseViewTab(): void {
+    this.subs.push(this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe((event: NavigationEnd) => {
+        const url = event && event.url;
+        if (url) {
+          const tabUrl = url ? url.split('#') : null;
+          const tab = tabUrl && tabUrl.length > 1 ? tabUrl[tabUrl.length - 1].replaceAll('%20', ' ') : '';
+          // Use absolute index rather than relative position
+          this.selectTabByLabel(tab);
+        }
+      }));
+  }
+
+  public postViewActivity(): Observable<Activity[]> {
+    return this.activityPollingService.postViewActivity(this.caseDetails?.case_id);
+  }
+
+  public clearErrorsAndWarnings(): void {
+    this.resetErrors();
+    this.ignoreWarning = false;
+    this.triggerText = CaseFullAccessViewComponent.TRIGGER_TEXT_START;
+    this.isEventButtonClicked = false;
+  }
+
+  public async applyTrigger(trigger: CaseViewTrigger): Promise<void> {
+    if (this.isEventButtonClicked){
+      return;
+    }
+    this.isEventButtonClicked = true;
+    const spinner = this.loadingService.register();
+    this.loadingService.addSharedSpinner(spinner);
+    this.errorNotifierService.announceError(null);
+    const theQueryParams: Params = {};
+
+    if (this.ignoreWarning) {
+      theQueryParams.ignoreWarning = this.ignoreWarning;
+    }
+
+    // we may need to take care of different triggers in the future
+    if (trigger.id === CaseViewEventIds.QueryManagementRaiseQuery) {
+      await this.router.navigate([`/query-management/query/${this.caseDetails.case_id}`]);
+      this.loadingService.unregister(spinner);
+    } else if (trigger.id === CaseViewEventIds.DELETE) {
+      const dialogRef = this.dialog.open(DeleteOrCancelDialogComponent, this.dialogConfig);
+      dialogRef.afterClosed().subscribe((result) => {
+        if (result === 'Delete') {
+          this.draftService.deleteDraft(this.caseDetails.case_id)
+            .subscribe(() => {
+              this.navigationNotifierService.announceNavigation({ action: NavigationOrigin.DRAFT_DELETED });
+            }, () => {
+              this.navigationNotifierService.announceNavigation({ action: NavigationOrigin.ERROR_DELETING_DRAFT });
+            });
+        }
+      });
+    } else if (this.isDraft() && trigger.id !== CaseViewEventIds.DELETE) {
+      theQueryParams[DRAFT_QUERY_PARAM] = this.caseDetails.case_id;
+      theQueryParams[CaseFullAccessViewComponent.ORIGIN_QUERY_PARAM] = 'viewDraft';
+      this.navigationNotifierService.announceNavigation(
+        {
+          action: NavigationOrigin.DRAFT_RESUMED,
+          jid: this.caseDetails.case_type.jurisdiction.id,
+          ctid: this.caseDetails.case_type.id,
+          etid: trigger.id,
+          queryParams: theQueryParams
+        });
+    } else {
+      this.navigationNotifierService.announceNavigation(
+        {
+          action: NavigationOrigin.EVENT_TRIGGERED,
+          queryParams: theQueryParams,
+          etid: trigger.id,
+          relativeTo: this.route
+        });
+    }
+  }
+
+  public hasTabsPresent(): boolean {
+    return this.sortedTabs.length > 0 || this.prependedTabs.length > 0 || this.appendedTabs.length > 0;
+  }
+
+  public callbackErrorsNotify(callbackErrorsContext: CallbackErrorsContext): void {
+    this.ignoreWarning = callbackErrorsContext.ignoreWarning;
+    this.triggerText = callbackErrorsContext.triggerText;
+    this.eventId = callbackErrorsContext.eventId;
+  }
+
+  public isDraft(): boolean {
+    return Draft.isDraft(this.caseDetails.case_id);
+  }
+
+  public isTriggerButtonDisabled(): boolean {
+    return (this.error
+      && this.error.callbackErrors
+      && this.error.callbackErrors.length)
+      || (this.error
+        && this.error.details
+        && this.error.details.field_errors
+        && this.error.details.field_errors.length);
+  }
+
+  public organiseTabPosition(): void {
+    const url = this.location.path(true);
+    let hashValue = url.substring(url.indexOf('#') + 1);
+    const hasHash = url.includes('#');
+    const isSpecialTabPath = url.includes('roles-and-access') || url.includes('tasks') || url.includes('hearings');
+    if (!hasHash && !isSpecialTabPath) {
+      const paths = url.split('/');
+      const lastPath = decodeURIComponent(paths[paths.length - 1]);
+      let foundTab: CaseTab | undefined;
+      if (!this.prependedTabs) {
+        this.prependedTabs = [];
+      }
+      const additionalTabs = [...this.prependedTabs, ...this.appendedTabs];
+      if (additionalTabs && additionalTabs.length) {
+        foundTab = additionalTabs.find((caseTab: CaseTab) => caseTab.id.toLowerCase() === lastPath.toLowerCase());
+      }
+      if (foundTab) {
+        this.router.navigate([
+          'cases',
+          'case-details',
+          this.caseDetails.case_type.jurisdiction.id,
+          this.caseDetails.case_type.id,
+          this.caseDetails.case_id,
+          foundTab.id
+        ]).then(() => {
+          this.selectTabByLabel(foundTab.label);
+        });
+      } else {
+        this.caseDetails.tabs = this.orderService.sort(this.caseDetails.tabs);
+        // Presuming default focus only set for one tab here - multiple tabs with default focus are not handled as is a contradiction
+        let preSelectTab: CaseTab | null = this.caseDetails.tabs.find((tab) => tab.defaultFocus === true) ?? null;
+        // Attempt to pre-select the tab based on the preferred label for the current case type
+        const preferredLabel = FieldsUtils.defaultTabList?.[this.caseDetails?.case_type?.id];
+        // If no tab has default focus, attempt to use the preferred label for the current case type
+        if (!preSelectTab && preferredLabel) {
+          preSelectTab = this.caseDetails.tabs.find((tab) => (tab.label === preferredLabel) || (tab.id === preferredLabel)) ?? null;
+        }
+
+        if (!preSelectTab) {
+          preSelectTab = this.findPreSelectedActiveTab();
+        }
+        const renderedTabs = this.tabGroup?._tabs?.toArray?.() ?? [];
+        const preferredRendered = preSelectTab && renderedTabs.some((tab) => tab.textLabel === preSelectTab.label || tab.textLabel?.toLowerCase() === preSelectTab.label?.toLowerCase());
+        if (!preferredRendered) {
+          preSelectTab = this.findPreSelectedActiveTab();
+        }
+        this.router.navigate([
+          'cases',
+          'case-details',
+          this.caseDetails.case_type.jurisdiction.id,
+          this.caseDetails.case_type.id,
+          this.caseDetails.case_id
+        ], { fragment: preSelectTab.label }).then(() => {
+          this.selectTabByLabel(preSelectTab.label);
+        });
+      }
+    } else {
+      const regExp = new RegExp(CaseFullAccessViewComponent.UNICODE_SPACE, 'g');
+      hashValue = hashValue.replace(regExp, CaseFullAccessViewComponent.EMPTY_SPACE);
+      if (hashValue.includes('hearings')) {
+        hashValue = 'hearings';
+      } else if (hashValue.includes('roles-and-access') || hashValue.includes('tasks')) {
+        hashValue = hashValue.includes('roles-and-access') ? 'roles and access' : 'tasks';
+      }
+      this.selectTabByLabel(hashValue);
+      if (!hasHash && isSpecialTabPath) {
+        const tabIndex = this.getAbsoluteTabIndexByLabel(hashValue);
+        const tabLabel = tabIndex > -1 ? this.tabGroup?._tabs?.toArray?.()[tabIndex]?.textLabel : null;
+        if (tabLabel) {
+          this.router.navigate([
+            'cases',
+            'case-details',
+            this.caseDetails.case_type.jurisdiction.id,
+            this.caseDetails.case_type.id,
+            this.caseDetails.case_id
+          ], { fragment: tabLabel });
+        }
+      }
+    }
+    // once the page has beeen stabilised, ensure the selected tab is scrolled into view
+    this.zone.onStable.pipe(take(1)).subscribe(() => {
+      const header = (this.tabGroup as unknown as { _tabHeader?: { _scrollToLabel?: (index: number) => void } })._tabHeader;
+      if (this.selectedTabIndex < 5){
+        header?._scrollToLabel?.(0);
+      } else {
+        header?._scrollToLabel?.(this.selectedTabIndex);
+      }
+      this.tabGroup.realignInkBar();
+    });
+  }
+
+  public findPreSelectedActiveTab(): CaseTab {
+    const unOrderedTabsInSortedTabs = this.caseDetails.tabs
+      .filter((tab) => !tab.order && this.sortedTabs.some((sortedTab) => sortedTab.id === tab.id));
+    return unOrderedTabsInSortedTabs.length ? unOrderedTabsInSortedTabs[0] : this.sortedTabs[0];
+  }
+
+  // Refactored under EXUI-110 to address infinite tab loop to use tabIndexChanged instead
+  public tabChanged(tabIndexChanged: number): void {
+    void tabIndexChanged;
+    const matTab = this.tabGroup._tabs.find((tab) => tab.isActive);
+    const tabLabel = matTab?.textLabel;
+    this.router.navigate(['cases', 'case-details', this.caseDetails.case_type.jurisdiction.id, this.caseDetails.case_type.id, this.caseDetails.case_id], { fragment: tabLabel });
+  }
+
+  public onLinkClicked(triggerOutputEventText: string): void {
+    // Get the *absolute* (not relative) index of the target tab and set as the active tab, using the selectedIndex input
+    // of mat-tab-group (bound to selectedTabIndex)
+    const targetTabIndex = this.tabGroup._tabs.toArray().findIndex((tab) => tab.textLabel === triggerOutputEventText);
+    if (targetTabIndex > -1) {
+      this.selectedTabIndex = targetTabIndex;
+      this.tabGroup.selectedIndex = targetTabIndex;
+    }
+  }
+
+  public hasActiveCaseFlags(): boolean {
+    // Determine which tab contains the FlagLauncher CaseField type, from the CaseView object in the snapshot data
+    const caseFlagsTab = this.caseDetails?.tabs?.find(
+      (tab) => tab.fields?.some((caseField) => FieldsUtils.isFlagLauncherCaseField(caseField))
+    ) ?? null;
+
+    if (caseFlagsTab) {
+      // Check whether the FlagLauncher CaseField is in external mode or not; the notification banner should not be
+      // displayed for external users
+      this.caseFlagsExternalUser = caseFlagsTab.fields.find(
+        (caseField) => FieldsUtils.isFlagLauncherCaseField(caseField)).display_context_parameter === this.caseFlagsReadExternalMode;
+
+      // Get the active case flags count
+      // Cannot filter out anything other than to remove the FlagLauncher CaseField because Flags fields may be
+      // contained in other CaseField instances, either as a sub-field of a Complex field, or fields in a collection
+      // (or sub-fields of Complex fields in a collection)
+      const activeCaseFlags = caseFlagsTab.fields
+        .filter((caseField) => !FieldsUtils.isFlagLauncherCaseField(caseField) && caseField.value)
+        .reduce((active, caseFlag) => {
+          return FieldsUtils.countActiveFlagsInCaseField(active, caseFlag);
+        }, 0);
+
+      if (activeCaseFlags > 0) {
+        const hasActivePotentiallyViolentPersonFlag = this.hasActivePotentiallyViolentPersonFlag(caseFlagsTab.fields);
+        const baseDescription = activeCaseFlags > 1
+          ? `There are ${activeCaseFlags} active flags on this case.` : 'There is 1 active flag on this case.';
+        const description = hasActivePotentiallyViolentPersonFlag
+          ? `${this.potentiallyViolentPersonFlagPrefix} ${baseDescription}`
+          : baseDescription;
+        // Initialise and display notification banner
+        this.notificationBannerConfig = {
+          bannerType: NotificationBannerType.INFORMATION,
+          headingText: 'Important',
+          description,
+          showLink: true,
+          linkText: 'View case flags',
+          triggerOutputEvent: true,
+          triggerOutputEventText: caseFlagsTab.label,
+          headerClass: NotificationBannerHeaderClass.INFORMATION
+        };
+
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  private hasActivePotentiallyViolentPersonFlag(caseFields: CaseField[]): boolean {
+    return hasActivePvpFlagInCaseFields(caseFields);
+  }
+
+  /**
+   * Indicates that a CaseField is to be displayed without a label, as is expected for all ComponentLauncher-type
+   * fields.
+   * @param caseField The `CaseField` instance to check
+   * @returns `true` if it should not have a label; `false` otherwise
+   */
+  public isFieldToHaveNoLabel(caseField: CaseField): boolean {
+    return caseField.field_type.type === 'ComponentLauncher'
+      && caseField.display_context_parameter === '#ARGUMENT(CaseFileView)';
+  }
+
+  private init(): void {
+    // Clone and sort tabs array
+    this.sortedTabs = this.orderService.sort(this.caseDetails?.tabs);
+    this.caseFields = this.getTabFields();
+    this.sortedTabs = this.sortTabFieldsAndFilterTabs(this.sortedTabs);
+    this.formGroup = this.buildFormGroup(this.caseFields);
+    if (this.caseDetails?.triggers && this.error) {
+      this.resetErrors();
+    }
+  }
+
+  private sortTabFieldsAndFilterTabs(tabs: CaseTab[]): CaseTab[] {
+    return tabs?.map((tab) => ({ 
+        ...tab,
+        fields: this.orderService.sort(tab.fields) 
+      }))
+      .filter((tab) => ShowCondition.getInstance(tab.show_condition).matchByContextFields(this.caseFields));
+  }
+
+  private getTabFields(): CaseField[] {
+    const caseDataFields = this.sortedTabs?.reduce((acc, tab) => {
+      return acc.concat(plainToClass(CaseField, tab.fields));
+    }, []);
+
+    return caseDataFields?.concat(this.caseDetails.metadataFields);
+  }
+
+  /**
+   * For EUI-3825:
+   * Builds a FormGroup from all the CaseFields contained within the view.
+   * This FormGroup is necessary for evaluation the show/hide conditions of
+   * fields that are dependent on a field only available on a DIFFERENT tab.
+   */
+  private buildFormGroup(caseFields: CaseField[]): FormGroup {
+    let value: object = {};
+    if (caseFields) {
+      caseFields.forEach((caseField) => {
+        value = {
+          ...value,
+          [caseField.id]: caseField.value
+        };
+      });
+    }
+    return new FormGroup({ data: new FormControl(value) });
+  }
+
+  private resetErrors(): void {
+    this.errorNotifierService.announceError(null);
+    this.alertService.clear();
+  }
+}

@@ -152,13 +152,14 @@ function packageOutcomes(report, reportRoot, expectedIdentity) {
 export function checkContracts(reportRoot = root, expectedIdentity) {
   if (!expectedIdentity || ['sourceSha', 'runId', 'attempt'].some((key) => typeof expectedIdentity[key] !== 'string' || !expectedIdentity[key])) throw new Error('Expected run identity is required');
   verifyBoundEvidence(reportRoot, expectedIdentity);
-  const parsers = { refDataUnit: unitOutcomes, locationUnit: unitOutcomes, windowUnit: unitOutcomes, cookieUnit: unitOutcomes, featureToggleUnit: unitOutcomes, roleUnit: unitOutcomes, i18nUnit: jasmineOutcomes, nodeUnit: unitOutcomes, nodeServerUnit: jestOutcomes, unit: unitOutcomes, browser: (text) => browserOutcomes(JSON.parse(text)), cacheBrowser: (text) => browserOutcomes(JSON.parse(text)), package: (text) => packageOutcomes(JSON.parse(text), reportRoot, expectedIdentity) };
+  const parsers = { refDataUnit: unitOutcomes, locationUnit: unitOutcomes, windowUnit: unitOutcomes, cookieUnit: unitOutcomes, featureToggleUnit: unitOutcomes, roleUnit: unitOutcomes, i18nUnit: jasmineOutcomes, editorUnit: jasmineOutcomes, editorDrivers: (text) => browserOutcomes(JSON.parse(text)), nodeUnit: unitOutcomes, nodeServerUnit: jestOutcomes, unit: unitOutcomes, browser: (text) => browserOutcomes(JSON.parse(text)), cacheBrowser: (text) => browserOutcomes(JSON.parse(text)), package: (text) => packageOutcomes(JSON.parse(text), reportRoot, expectedIdentity) };
   let count = 0;
   for (const [kind, inventory] of Object.entries(contracts)) {
     const outcomes = parsers[kind](readFileSync(resolve(reportRoot, inventory.report), 'utf8'));
     for (const outcome of outcomes) {
       if (typeof outcome.id !== 'string' || !outcome.passed) throw new Error(`${kind} contract did not pass: ${outcome.id}`);
-      if ((kind === 'package' || kind === 'nodeServerUnit') && !inventory.required.includes(outcome.id)) throw new Error(`${kind} unregistered contract: ${outcome.id}`);
+      const registered = inventory.required.some(required => (typeof required === 'string' ? required : JSON.stringify([required.projectName, required.title])) === outcome.id);
+      if (['package', 'nodeServerUnit', 'editorUnit', 'editorDrivers'].includes(kind) && !registered) throw new Error(`${kind} unregistered contract: ${outcome.id}`);
     }
     for (const required of inventory.required) {
       const id = typeof required === 'string' ? required : JSON.stringify([required.projectName, required.title]);

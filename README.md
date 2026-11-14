@@ -43,6 +43,10 @@ For individual checks, run `yarn build` before `yarn lint`, `yarn test`, `yarn t
 
 `test:package` packs the actual built output, hashes the tarball, installs it into a fresh external consumer and checks the public import under strict legacy `moduleResolution: node` and modern `bundler` with library checks enabled. It executes the real validator on installed bytes, proves an omitted secondary declaration fails legacy resolution and verifies restoration. This narrow package proof does not establish the complete future dependency manifest or actual application adoption.
 
+The local editor dependency cohort pins KaTeX **0.18.2** only for ngx-markdown **20.1.0** and Mermaid **11.17.2**, and UUID **11.1.1** only for ExcelJS **4.4.0**. These scoped overrides address GHSA-238p-pmpm-9mq7 and GHSA-w5hq-g745-h8pq. Parent-contract checks exercise math rendering, auto-render imports, extended conditional-formatting IDs and XLSX write/readback. These pins exceed the parents' declared ranges; they prove the tested local cohort, not upstream support or independent consumer graphs. Mermaid's exported core uses external KaTeX, while its alternative prebundled distributions retain embedded older KaTeX and are not covered by the override. Core source does not directly import Mermaid.
+
+The vulnerability gate runs `yarn npm audit --all --recursive --no-deprecations --json` across all workspaces, dependencies and severities. Yarn's official `--no-deprecations` switch separates vulnerability advisories from package-maintenance notices; no advisories, packages or severities are excluded. CI separately retains the complete raw audit and its exit code in `dependency-maintenance.jsonl` and `dependency-maintenance.exit-code`. A deprecation-only raw audit can exit `1` even when the vulnerability gate passes. Deprecated Angular animation/bootstrap APIs and the external archive stack remain maintenance work; this change does not retire those APIs or certify consumers.
+
 ## Replaying contract evidence
 
 `check:contracts` validates native Node TAP and complete Jasmine event receipts, rejecting browser, suite and global failures, verifies the actual `test-results/package-evidence/candidate.tgz` digest, and checks each required lane's receipt against its report bytes and run identity. CI retains `GITHUB_SHA`, `GITHUB_RUN_ID` and `GITHUB_RUN_ATTEMPT`; a local full run uses the current commit, a newly generated UUID as its run ID, and attempt `1`. Each full run also has a distinct invocation UUID. Keep the local diff with any dirty-tree evidence.
@@ -264,3 +268,69 @@ import { FeatureToggleService as CoreFeatureToggleService } from '@hmcts/rpx-xui
 ```
 
 Without this alias, Core resolves a separate default service whose methods throw. Provider shadowing and same-scope duplicate component selectors also need application-specific review. A local synthetic injector demonstrated the alias with installed Manage Organisations dependencies; a real application journey and released dependency graph have not yet been validated.
+
+### Case editor migration candidate: interpreter language display
+
+The local case-editor candidate changes legacy interpreter-language display when an existing pipe instance receives a different language object: Core displays the new language instead of returning an empty value. This is an intentional compatibility deviation under review, not a released or adopted feature. The case-editor package build and real application acceptance are still outstanding.
+
+The same local candidate corrects flag-title display when an existing title pipe receives a different flag; previously it could display an undefined title. This change requires the same review, rendered journey and release gates.
+
+The local case-editor candidate recalculates a replacement form control after inheriting its validator. An empty replacement that violates an existing required validator is now invalid immediately; the legacy code could leave the control and parent valid until later validation. This intentional behaviour change is unmerged and requires broader form-journey and application acceptance.
+
+The local case-editor candidate also avoids failing when a newly added case flag has no matching persisted detail. The flag remains selectable and has no persisted original status. The legacy path could throw before displaying it; this change remains unmerged and requires full case-flag journey and consumer acceptance.
+
+The local editor candidate uses the datetime-picker package's own toggle with its picker. This replaces the legacy Material toggle because the current picker is not compatible with that toggle's Angular type contract. Package compilation accepts the binding, and local Chromium checks cover opening it by keyboard and selecting a date; real consumer verification remains required before adoption.
+
+The local editor candidate retains the toolkit's existing payment input values using narrowly scoped Angular template casts because the payment package declares different types. In particular, changing `SERVICEREQUEST` from boolean `false` to the string `'false'` changes a truthiness-based branch in the dependency. These casts do not establish payment compatibility: the declared consumer dependency version, real payment flow, and host integration remain acceptance gates.
+
+The local editor candidate retains the existing complex-field `formGroup` binding using a template type escape because the inherited input admits `AbstractControl` while Angular's form directive declares `FormGroup`. A passing package build does not validate arbitrary controls at runtime; the supported host inputs and nested complex-field rendering still require integration checks.
+
+The unmerged editor candidate separates `CaseNotifier` into `@hmcts/rpx-xui-core-lib/case/notifier`, while preserving its editor entry-point export. A local bundle probe excludes payment and Media Viewer for notifier-only imports. Run `yarn test:editor` for the editor browser contracts and `yarn test:editor:loading` after a package build to check selective imports, and `yarn test:editor:packed` to rebuild and run the browser contracts against the packed build in a temporary workspace. The packed check reuses the local dependency installation and writes its report to `test-results/editor-packed`. The candidate has passed these checks using its declared dependencies; packed-consumer and peer-compatibility validation remain outstanding. See `tests/editor/DEPENDENCIES.md` for evidence and outstanding acceptance gates.
+
+The aggregate feature matrix requires the five editor Playwright drivers as well as the Jasmine scenarios, with separately bound native reports. `test-results/editor/features.html` describes Jasmine scenarios only; driver results are in `driver.json` and `driver-junit.xml`. These show required test outcomes, not a code-coverage percentage or complete consumer acceptance.
+
+The full local suite now runs the editor source, selective-loading and packed checks before its existing contract gate. Editor feature results are written to `test-results/editor/features.html` and `test-results/editor-packed/features.html`. The source-based editor contracts also appear in the aggregate feature evidence matrix when the complete evidence run succeeds; the packed check remains a separate full-suite gate. A full-suite pass also requires every earlier gate, including lint, to pass.
+
+The case editor's conditional-show parser is generated from its checked-in Peggy grammar. After editing the grammar, run `yarn generate:condition-parser`; `yarn test:editor` verifies that the generated file matches it.
+
+The editor preserves the Toolkit's broad public `FormGroup` types. Its submit template uses Angular type escapes for the existing assumption that the `data` control is a form group; those escapes do not validate arbitrary host-provided controls at runtime.
+
+Core's callback-errors component unsubscribes its own error stream when it is destroyed; the Toolkit component left that subscription active. Events emitted after destruction therefore no longer update the old component.
+
+The inherited linked-case `getSelectedCCDTypeCaseReason()` declaration says `LinkReason[]`, but its runtime CCD entries wrap each reason as `{ value: reason }`. Core preserves both the existing declaration and runtime shape; callers should not rely on the declaration as proof of the payload shape. A future type correction requires consumer review.
+
+For case lookup errors other than 401 and 403, Core emits the user-facing alert `Unable to load case details. Please try again.` Toolkit passed the error message as a string to an alert API expecting an object, which produced an undefined alert message in the local reproduction. This is an intentional behaviour change; the original error is retained on the error path, and consumer review and translation checks are still required.
+
+Core error alerts follow updates from the active translation stream, and cancel that stream when the alert is replaced or cleared. Toolkit emitted only the translation available at the initial call. This intentional change is locally tested for delayed and stale responses; consumer review and real Welsh rendering remain outstanding. Warning and success alert translation behaviour remains unchanged.
+
+Event-trigger, case-history, print and event-completion error paths use the alert service's object-shaped API, correcting the inherited empty-alert behavior. Real consumer error-handling parity remains unverified. A newer warning or success now cancels an earlier pending error translation so the earlier error cannot overwrite it.
+
+The document tree now treats an absent `children` array as an empty list when flattening a node. Toolkit threw for that case; nested traversal order is unchanged. This behavior change is covered locally and requires consumer review.
+
+Wizard redirects still resolve the route immediately. Failed wizard, review-page and confirmation navigation promises now reach Angular's `ErrorHandler` with the original error; confirmation navigation failure does not resubmit an accepted event. Host error handlers may log error details; consumers should review their logging policy.
+
+Field-read initialization remains deferred, but no longer starts after the field has been destroyed. Initialization errors now reach Angular's `ErrorHandler` as the original error rather than an unhandled promise rejection. A host's error handler may log error details, so consumers should review its logging policy.
+
+The linked-cases form now labels the case-reference and comments fields and removes a duplicate `caseNumber` ID from the proposed-links container. The original `caseNumber` error-summary anchor remains on the reference field container; consumers with selectors that depended on the duplicate ID should review them.
+
+The linked-cases retry links no longer carry the `reload-linked-cases-tab` ID, which could occur more than once when both directions fail. Consumers using that selector should update it; the links retain their text and navigation.
+
+Each collection item is now a separately labelled fieldset instead of sharing an unnamed fieldset. Item IDs, visible headings and add/remove behavior are retained; visual layout and screen-reader behavior still need consumer review.
+
+Editor dialog close controls are now labelled buttons instead of clickable headings. Consumers using the former heading selector should update it; the controls retain their cancel result.
+
+The confirmed Core design uses an empty `FormGroup` for the unmerged case-confirmation component, where Toolkit used a `FormControl` for its public `formGroup` property. Angular's strict template compiler rejects the old control when bound to `[formGroup]`; the candidate's rendered submission is covered locally. The property type change is an intentional compatibility deviation requiring consumer review before adoption.
+
+The event-history API retains Toolkit's string-typed emitter and selected-event properties. Its template uses a localized Angular type escape because the source event model permits numeric IDs; the runtime value is forwarded unchanged. Consumers must not infer runtime string normalization from the legacy TypeScript annotation.
+
+Editor link navigation retains Toolkit's empty-string `queryParams` fallback when no query is present. Angular's current router types require a localized TypeScript cast for that legacy runtime value; local tests confirm both the exact argument and its URL behavior.
+
+The case notifier and editor use the existing Core `SessionStorageService` token rather than a second Toolkit copy. Normal one-argument reads retain Toolkit behavior. Core also supports `getItem(key, true)` to remove the item after reading; Toolkit's JavaScript implementation ignored an extra second argument, so callers relying on that unsupported usage must review the change.
+
+The case notifier reuses Core's existing `CaseDetails` and `Draft` classes. Their field and draft helper definitions match the migrated Toolkit versions; class identity is now shared across these Core entry points, which changes `instanceof` results compared with two independent copies.
+
+The editor's pipe module reuses Core's `CaseReferencePipe` and `CaseReferenceModule`. Formatting behavior is unchanged for the tested reference and draft examples; class identity is now shared instead of duplicated.
+
+The editor's form module reuses the existing Core `DateInputComponent` and `DateInputModule` instead of a second component. The shared class identity is observable to consumers and remains subject to adoption review.
+
+`yarn test:editor:translation-compatibility` is a strict adoption diagnostic for the installed legacy translation package. It currently fails against `rpx-xui-translation` 1.2.18 because its module and service are separate from Core's; it is intentionally separate from the Core development suite while the translation facade and consumer release path are unresolved. The packed preview facade is tested separately by `yarn test:package` and is not a released replacement.

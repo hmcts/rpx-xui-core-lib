@@ -6,6 +6,7 @@ import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 import { ESLint } from 'eslint';
 import tseslint from 'typescript-eslint';
 
@@ -28,7 +29,7 @@ async function fixture(/** @type {import('node:test').TestContext} */ t) {
   return root;
 }
 
-test('only the reviewed tooling parents resolve the pinned security fixes', () => {
+test('only the reviewed dependency parents resolve the pinned security fixes', () => {
   const manifest = require('../package.json');
   assert.equal(manifest.devDependencies.eslint, '10.14.0');
   assert.equal(manifest.devDependencies['typescript-eslint'], '8.72.2');
@@ -46,6 +47,9 @@ test('only the reviewed tooling parents resolve the pinned security fixes', () =
     'test-exclude@npm:7.0.2/glob': '14.0.6',
     'test-exclude@npm:7.0.2/minimatch': '11.0.8',
     'jest-config@npm:30.5.1/deepmerge': 'npm:@shivammathur/deepmerge@4.3.2',
+    'ngx-markdown@npm:20.1.0/katex': '0.18.2',
+    'mermaid@npm:11.17.2/katex': '0.18.2',
+    'exceljs@npm:4.4.0/uuid': '11.1.1',
   });
   for (const parent of [eslint, configArray, estree, ignoreWalk, tuf]) assert.equal(parent('minimatch/package.json').version, '11.0.8');
   assert.equal(packageJson('glob/package.json').version, '14.0.6');
@@ -267,4 +271,112 @@ test('Jest config merging keeps normal merge contracts and rejects prototype key
     assert.equal(merged.marker, undefined);
     assert.equal(merged.safe, 1);
   }
+});
+
+
+test('reviewed markdown parents retain KaTeX rendering and auto-render APIs', async () => {
+  const markdown = createRequire(require.resolve('ngx-markdown/package.json'));
+  const mermaid = createRequire(markdown.resolve('mermaid/package.json'));
+  for (const parent of [markdown, mermaid]) {
+    const katex = parent('katex');
+    assert.equal(parent('katex/package.json').version, '0.18.2');
+    assert.match(katex.renderToString('x^2 + 1', { displayMode: false, throwOnError: true, trust: false }), /class="katex"/);
+    assert.match(katex.renderToString('\\frac{1}{2}', { displayMode: true, throwOnError: true, trust: false }), /katex-display/);
+    assert.throws(() => katex.renderToString('\\frac{', { throwOnError: true, trust: false }), /parse error/i);
+    const untrusted = katex.renderToString('\\href{https://example.com}{sample}', { throwOnError: false, trust: false });
+    assert.doesNotMatch(untrusted, /<a[^>]+href=/);
+    assert.equal(typeof parent('katex/contrib/auto-render'), 'function');
+    const esm = await import(new URL('./contrib/auto-render.mjs', pathToFileURL(parent.resolve('katex'))).href);
+    assert.equal(typeof esm.default, 'function');
+  }
+});
+
+test('ExcelJS keeps extended conditional-formatting IDs and workbook round trips with UUID11', async () => {
+  const viewer = createRequire(require.resolve('@hmcts/media-viewer/package.json'));
+  const excel = createRequire(viewer.resolve('exceljs/package.json'));
+  assert.equal(excel('uuid/package.json').version, '11.1.1');
+  const CfRuleExtXform = excel('./lib/xlsx/xform/sheet/cf-ext/cf-rule-ext-xform');
+  const first = { type: 'dataBar', gradient: false, x14Id: '' };
+  const second = { type: 'dataBar', gradient: false, x14Id: '' };
+  const transform = new CfRuleExtXform();
+  transform.prepare(first);
+  transform.prepare(second);
+  assert.match(first.x14Id, /^\{[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}\}$/);
+  assert.notEqual(first.x14Id, second.x14Id);
+  const ExcelJS = viewer('exceljs');
+  const workbook = new ExcelJS.Workbook();
+  const sheet = workbook.addWorksheet('Synthetic');
+  sheet.addRows([[1], [2]]);
+  sheet.addConditionalFormatting({ ref: 'A1:A2', rules: [{ type: 'dataBar', gradient: false, cfvo: [{ type: 'min' }, { type: 'max' }], color: { argb: 'FF00FF00' } }] });
+  const bytes = await workbook.xlsx.writeBuffer();
+  const restored = new ExcelJS.Workbook();
+  await restored.xlsx.load(bytes);
+  const actual = restored.getWorksheet('Synthetic');
+  assert.equal(actual.getCell('A1').value, 1);
+  assert.equal(actual.getCell('A2').value, 2);
+  const rule = actual.conditionalFormattings[0].rules[0];
+  assert.equal(rule.type, 'dataBar');
+  assert.equal(rule.gradient, false);
+  assert.match(rule.x14Id, /^\{[0-9A-F-]+\}$/);
+});
+
+for (const scenario of ['advisory', 'deprecation']) {
+  test(`dependency audit keeps ${scenario} evidence and the vulnerability exit contract`, async t => {
+    const root = await fixture(t);
+    const workflow = require('js-yaml').load(await readFile(new URL('../.github/workflows/ci.yml', import.meta.url), 'utf8'));
+    const steps = workflow.jobs['dependency-audit'].steps;
+    const security = steps.find(step => step.name === 'Audit runtime and development vulnerabilities');
+    const maintenance = steps.find(step => step.name === 'Record dependency maintenance warnings');
+    assert.ok(security, 'A blocking vulnerability audit is required');
+    assert.ok(maintenance, 'Raw maintenance evidence must remain visible');
+    assert.notEqual(security['continue-on-error'], true);
+    await mkdir(join(root, '.yarn/releases'), { recursive: true });
+    const entry = { value: 'synthetic-package', children: { ID: scenario === 'advisory' ? 123 : 'synthetic-package (deprecation)', Issue: 'Synthetic audit receipt' } };
+    await writeFile(join(root, '.yarn/releases/yarn-4.18.1.cjs'), `
+      const assert = require('node:assert/strict');
+      const args = process.argv.slice(2);
+      for (const flag of ['--all', '--recursive', '--json']) assert.ok(args.includes(flag));
+      for (const flag of ['--severity', '--exclude', '--ignore']) assert.ok(!args.includes(flag));
+      const visible = ${JSON.stringify(scenario)} === 'advisory' || !args.includes('--no-deprecations');
+      if (visible) console.log(${JSON.stringify(JSON.stringify(entry))});
+      process.exit(visible ? 1 : 0);
+    `);
+    const audit = spawnSync('/bin/bash', ['-e', '-c', security.run], { cwd: root, encoding: 'utf8' });
+    assert.equal(audit.status, scenario === 'advisory' ? 1 : 0, audit.stderr);
+    const captured = await readFile(join(root, 'test-results/dependency-audit.jsonl'), 'utf8');
+    if (scenario === 'advisory') assert.equal(JSON.parse(captured).children.ID, 123);
+    else assert.equal(captured, '');
+    const raw = spawnSync('/bin/bash', ['-e', '-c', maintenance.run], { cwd: root, encoding: 'utf8' });
+    assert.equal(raw.status, 0, raw.stderr);
+    assert.deepEqual(JSON.parse(await readFile(join(root, 'test-results/dependency-maintenance.jsonl'), 'utf8')), entry);
+    assert.equal((await readFile(join(root, 'test-results/dependency-maintenance.exit-code'), 'utf8')).trim(), '1');
+    const retained = steps.find(step => step.name === 'Retain dependency audit');
+    assert.match(retained.with.path, /dependency-maintenance/);
+  });
+}
+
+
+test('maintenance audit evidence write failures remain fatal', async t => {
+  const root = await fixture(t);
+  const workflow = require('js-yaml').load(await readFile(new URL('../.github/workflows/ci.yml', import.meta.url), 'utf8'));
+  const maintenance = workflow.jobs['dependency-audit'].steps.find(step => step.name === 'Record dependency maintenance warnings');
+  await mkdir(join(root, '.yarn/releases'), { recursive: true });
+  await mkdir(join(root, 'test-results/dependency-maintenance.exit-code'), { recursive: true });
+  await writeFile(join(root, '.yarn/releases/yarn-4.18.1.cjs'), "console.log('{}'); process.exit(1);\n");
+  const result = spawnSync('/bin/bash', ['-e', '-c', maintenance.run], { cwd: root, encoding: 'utf8' });
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /is a directory/i);
+});
+
+
+test('maintenance audit output-open failures remain fatal', async t => {
+  const root = await fixture(t);
+  const workflow = require('js-yaml').load(await readFile(new URL('../.github/workflows/ci.yml', import.meta.url), 'utf8'));
+  const maintenance = workflow.jobs['dependency-audit'].steps.find(step => step.name === 'Record dependency maintenance warnings');
+  await mkdir(join(root, '.yarn/releases'), { recursive: true });
+  await mkdir(join(root, 'test-results/dependency-maintenance.jsonl'), { recursive: true });
+  await writeFile(join(root, '.yarn/releases/yarn-4.18.1.cjs'), "console.log('{}'); process.exit(1);\n");
+  const result = spawnSync('/bin/bash', ['-e', '-c', maintenance.run], { cwd: root, encoding: 'utf8' });
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /is a directory/i);
 });

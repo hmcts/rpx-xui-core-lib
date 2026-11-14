@@ -1,0 +1,63 @@
+import { HttpErrorResponse } from '@angular/common/http';
+
+export class HttpError {
+
+  constructor() {
+    this.timestamp = new Date().toISOString();
+    this.error = HttpError.DEFAULT_ERROR;
+    this.message = HttpError.DEFAULT_MESSAGE;
+    this.status = HttpError.DEFAULT_STATUS;
+    this.exception = null;
+    this.path = null;
+    this.details = null;
+    this.callbackErrors = null;
+    this.callbackWarnings = null;
+  }
+  private static readonly DEFAULT_ERROR = 'Unknown error';
+  private static readonly DEFAULT_MESSAGE = 'Sorry, there is a problem with this service. Please try again later.';
+  private static readonly DEFAULT_STATUS = 500;
+
+  private static readonly MESSAGE_ERROR_429 ='Your request was rate limited. Please wait a few seconds before retrying your document upload';
+
+  public timestamp: string;
+  public status: number;
+  public error: string;
+  public exception: string;
+  public message: string;
+  public path: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Toolkit accepts varied error payloads; narrow after consumer migration.
+  public details?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Toolkit accepts varied error payloads; narrow after consumer migration.
+  public callbackErrors?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Toolkit accepts varied error payloads; narrow after consumer migration.
+  public callbackWarnings?: any;
+
+  public static from(response: HttpErrorResponse): HttpError {
+    const error = new HttpError();
+    error.status = response?.status ?? error.status;
+
+    if (response?.status === 429) {
+      error.error = HttpError.MESSAGE_ERROR_429;
+      error.status = response.status;
+      error.message = response.message;
+    }
+
+    // Check that the HttpErrorResponse contains an "error" object before mapping the error properties
+    if (!!(response && response.error)) {
+      const properties = error as unknown as Record<string, unknown>;
+      Object.keys(error).forEach((key) => {
+        properties[key] = response.error.hasOwnProperty(key) && response.error[key] ? response.error[key] : properties[key];
+      });
+    }
+
+    // Error object in HttpErrorResponse will be empty for 403 errors
+    // Set the error properties of HttpError accordingly
+    if (response?.status === 403) {
+      error.error = response.statusText;
+      error.status = response.status;
+      error.message = response.message;
+    }
+
+    return error;
+  }
+}
