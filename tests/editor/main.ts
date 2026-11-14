@@ -1,3 +1,4 @@
+import './review-access-fieldset.spec';
 import './challenged-access-a11y.spec';
 import { registered as richTextBrowserRegistered } from './rich-text-browser.spec';
 import { registered as dynamicSanitiserRegistered } from './dynamic-list-sanitiser.spec';
