@@ -88,7 +88,8 @@
     "@angular/platform-browser": "^20.3.27",
     "express": "5.2.1",
     "helmet": "^8.1.0",
-    "@angular/router": "20.3.35"
+    "@angular/router": "20.3.35",
+    "ngx-pagination": "6.0.3"
   },
   "libraryPeerDependenciesMeta": {
     "@angular/common": {
@@ -119,6 +120,9 @@
       "optional": true
     },
     "@angular/router": {
+      "optional": true
+    },
+    "ngx-pagination": {
       "optional": true
     }
   },
@@ -162,6 +166,21 @@
         "input": "i18n",
         "glob": "LICENCE",
         "output": "i18n"
+      },
+      {
+        "input": "ui/invitation",
+        "glob": "LICENCE",
+        "output": "ui/invitation"
+      },
+      {
+        "input": "ui/user-list",
+        "glob": "LICENCE",
+        "output": "ui/user-list"
+      },
+      {
+        "input": "ui/user-details",
+        "glob": "LICENCE",
+        "output": "ui/user-details"
       },
       {
         "input": "ui/contact-details",

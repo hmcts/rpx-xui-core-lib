@@ -1,0 +1,42 @@
+<pagination-template #p="paginationApi" [id]="id" [maxSize]="maxSize" (pageChange)="pageChange.emit($event)"
+  (pageBoundsCorrection)="pageBoundsCorrection.emit($event)">
+
+  <nav class="hmcts-pagination" [attr.aria-label]="'Pagination navigation' | rpxTranslate">
+    @if (!(p.pages.length <= 1)) {
+      <ul class="hmcts-pagination__list">
+        <li class="hmcts-pagination__item  hmcts-pagination__item--prev" [class.disabled]="p.isFirstPage()">
+          @if (1 < p.getCurrent()) {
+            <button type="button" class="hmcts-pagination__link" (click)="p.previous()">{{'Previous' | rpxTranslate}} <span class="govuk-visually-hidden">{{'set of pages' | rpxTranslate}}</span></button>
+            }
+          </li>
+          @if (showPageNumbers) {
+            @for (page of p.pages; track page) {
+              <li class="hmcts-pagination__item" [class.hmcts-pagination__item--active]="p.getCurrent() === page.value"
+                [class.hmcts-pagination__item--dots]="page.label === '...'">
+                @if (p.getCurrent() !== page.value) {
+                  <button type="button" class="hmcts-pagination__link" (click)="p.setCurrent(page.value)">
+                    <span class="govuk-visually-hidden">{{'page' | rpxTranslate}} </span>
+                    <span>{{ (page.label === '...') ? page.label : (page.label | number:'') }}</span>
+                  </button>
+                }
+                @if (p.getCurrent() === page.value) {
+                  <span aria-current="page">{{ (page.label === '...') ? page.label : (page.label | number:'') }}</span>
+                }
+              </li>
+            }
+          }
+          <li class="hmcts-pagination__item  hmcts-pagination__item--next" [class.disabled]="p.isLastPage()">
+            @if (!p.isLastPage()) {
+              <button type="button" class="hmcts-pagination__link" (click)="p.next()">{{'Next' | rpxTranslate}}<span class="govuk-visually-hidden"> {{'page' | rpxTranslate}}</span></button>
+              }
+            </li>
+          </ul>
+        }
+        @if (showResultCount) {
+          <p class="hmcts-pagination__results">{{'Showing' | rpxTranslate}} <b>{{(p.getCurrent() * pageSize) - pageSize + 1}}</b>
+          {{'to' | rpxTranslate}} <b>{{ p.getCurrent() * pageSize > p.getTotalItems() ? p.getTotalItems() : p.getCurrent() *
+          pageSize}}</b> {{'of' | rpxTranslate}} <b>{{p.getTotalItems()}}</b> {{'results' | rpxTranslate}}</p>
+        }
+      </nav>
+
+    </pagination-template>

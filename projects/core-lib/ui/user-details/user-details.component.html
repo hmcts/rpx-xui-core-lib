@@ -1,0 +1,71 @@
+@if (warningTitle && warningTitle !== '') {
+  <div class="govuk-warning-text">
+    <span class="govuk-warning-text__icon">!</span>
+    <span class="govuk-visually-hidden">Warning</span>
+    <strong class="govuk-warning-text__text">
+      {{ warningTitle | rpxTranslate}}
+    </strong>
+  </div>
+}
+@if (user) {
+  <dl class="govuk-table">
+      <div class="govuk-table__row">
+        <dt class="govuk-table__header">{{'Name' | rpxTranslate}}</dt>
+        <dd class="govuk-table__cell">{{user.fullName | rpxTranslate}}</dd>
+        <dd class="govuk-table__cell"></dd>
+      </div>
+      <div class="govuk-table__row">
+        <dt class="govuk-table__header">{{'Email address' | rpxTranslate}}</dt>
+        <dd class="govuk-table__cell">{{user.email}}</dd>
+        <dd class="govuk-table__cell"></dd>
+      </div>
+      @if (!user.resendInvite) {
+        <div class="govuk-table__row">
+          <dt class="govuk-table__header">{{'Permissions' | rpxTranslate}}</dt>
+          <dd class="govuk-table__cell">
+            @if (user.manageOrganisations === 'Yes') {
+              <div>{{'Manage organisations' | rpxTranslate}}</div>
+            }
+            @if (user.manageUsers === 'Yes') {
+              <div>{{'Manage users' | rpxTranslate}}</div>
+            }
+            @if (user.manageCases === 'Yes') {
+              <div>{{'Manage cases' | rpxTranslate}}</div>
+            }
+            @if (userHasRole('pui-caa')) {
+              <div>{{'Case access administrator' | rpxTranslate}}</div>
+            }
+            @if (userHasRole('pui-finance-manager')) {
+              <div>{{'Manage fee accounts' | rpxTranslate}}</div>
+            }
+            @for (accesstype of enabledAccessTypes; track accesstype) {
+              <div>{{ accesstype | rpxTranslate}}</div>
+            }
+          </dd>
+          <dd class="govuk-table__cell">@if (editPermissionRouterLink && showEditLink) {
+            <a role="link" [routerLink]="editPermissionRouterLink">{{'Change' | rpxTranslate}} <span class="govuk-visually-hidden">{{'roles' | rpxTranslate}}</span></a>
+          }</dd>
+        </div>
+      }
+  </dl>
+}
+@if (showSuspendUserButton) {
+  <button class="govuk-button govuk-button--warning" tabindex="0" (click)="suspendUser(user)">
+    {{'Suspend account' | rpxTranslate}}
+  </button>
+}
+@if (user && user.resendInvite) {
+  <div>
+    <div class="govuk-inset-text">
+      <p>{{'This user has already been invited but has not activated their account.' | rpxTranslate}}</p>
+      <p>{{'If you resend an invitation, they\'ll receive an email from HM Courts and Tribunals to finish setting up their account.' | rpxTranslate}}</p>
+      <p>{{'You can\'t invite the same user more than once an hour.' | rpxTranslate}}</p>
+    </div>
+    <button class="govuk-button" tabindex="0" (click)="reinviteClick(user)" id="resend-invite-button">
+      {{'Resend invitation' | rpxTranslate}}
+    </button>
+  </div>
+}
+@if (showHelpLink && suspendHelpLink) {
+  <p class="govuk-body"><a [routerLink]="suspendHelpLink" target="_blank">{{'Get help' | rpxTranslate}}</a> {{'to reactivate this account.' | rpxTranslate}}</p>
+}

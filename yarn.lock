@@ -1676,6 +1676,7 @@ __metadata:
     js-yaml: "npm:4.3.2"
     luxon: "npm:2.5.2"
     ng-packagr: "npm:20.3.2"
+    ngx-pagination: "npm:6.0.3"
     node-html-parser: "npm:7.1.0"
     odhin-reports-playwright: "file:.yarn/patches/odhin-reports-playwright-1.1.8-core.tgz"
     playwright-core: "npm:1.65.0"
@@ -8153,6 +8154,18 @@ __metadata:
   bin:
     ng-packagr: src/cli/main.js
   checksum: 10c0/1bfc63fa91e281ff95e5e13b3bce2ac8588a83be28649184717c5b559186de45885f94f0264027fbfa1d4a8b0ac33b17099a392ee60b22dad146b7a9e00f55fe
+  languageName: node
+  linkType: hard
+
+"ngx-pagination@npm:6.0.3":
+  version: 6.0.3
+  resolution: "ngx-pagination@npm:6.0.3"
+  dependencies:
+    tslib: "npm:^2.3.0"
+  peerDependencies:
+    "@angular/common": ">=13.0.0"
+    "@angular/core": ">=13.0.0"
+  checksum: 10c0/234651c89b1bed7ea4113b62ecf038376604b7c0a882a0834c54026e073cf8d1ad28ea6760f757a1c9445fae2c2abf89b37b73e2251eca49abfd1d1e522b489b
   languageName: node
   linkType: hard
 
