@@ -724,6 +724,11 @@
         "projectName": "chromium",
         "title": "selected cases keep user identifiers unique across multiple cases",
         "feature": "selected-cases"
+      },
+      {
+        "projectName": "chromium",
+        "title": "sharing preserves a caller supplied user lookup label",
+        "feature": "selected-cases"
       }
     ]
   },

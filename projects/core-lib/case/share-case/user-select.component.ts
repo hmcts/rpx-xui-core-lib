@@ -16,6 +16,7 @@ export class UserSelectComponent implements OnInit, OnDestroy {
   private valueSubscription: Subscription;
 
   @Input() public users: UserDetails[];
+  @Input() public label = 'Find a person';
 
   @Output() public selected = new EventEmitter<UserDetails>();
 

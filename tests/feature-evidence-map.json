@@ -1429,6 +1429,11 @@
             "projectName": "chromium",
             "title": "sharing cannot add a person before an autocomplete selection",
             "feature": "selected-cases"
+          },
+          {
+            "projectName": "chromium",
+            "title": "sharing preserves a caller supplied user lookup label",
+            "feature": "selected-cases"
           }
         ],
         "package": [

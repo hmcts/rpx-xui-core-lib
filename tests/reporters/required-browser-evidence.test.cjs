@@ -159,7 +159,8 @@ selected-cases|sharing requires a change and adds a selected user
 selected-cases|sharing can remove a selected existing user from all cases
 selected-cases|sharing user lookup has its visible label and accessible description
 selected-cases|sharing cannot add a person before an autocomplete selection
-selected-cases|selected cases keep user identifiers unique across multiple cases`.split('\n').map(row => {
+selected-cases|selected cases keep user identifiers unique across multiple cases
+selected-cases|sharing preserves a caller supplied user lookup label`.split('\n').map(row => {
   const [feature, title] = row.split('|');
   return ['chromium', title, feature];
 });

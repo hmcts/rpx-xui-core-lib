@@ -12,7 +12,7 @@
 }
 <div id="add-user">
   <div class="govuk-form-group">
-      <label id="add-user-label" class="govuk-label govuk-!-font-weight-bold" for="add-user-control">{{addUserLabel | rpxTranslate}}</label>
+      <label class="govuk-label govuk-!-font-weight-bold" for="add-user-control">{{addUserLabel | rpxTranslate}}</label>
     <span id="add-user-hint" class="govuk-hint">
       {{'Search by name or email address. You can share access with as many people as you need.' | rpxTranslate}}
     </span>
@@ -20,6 +20,7 @@
       <div class="govuk-grid-column-two-thirds">
         <xuilib-user-select
           id="add-user-input"
+          [label]="addUserLabel"
           [users]="users"
           (selected)="onSelectedUser($event)">
         </xuilib-user-select>

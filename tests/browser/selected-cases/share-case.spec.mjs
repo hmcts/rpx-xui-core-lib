@@ -39,6 +39,12 @@ test('sharing user lookup has its visible label and accessible description', asy
   expect(results.violations).toEqual([]);
 });
 
+test('sharing preserves a caller supplied user lookup label', async ({ page }) => {
+  await page.goto('/share-case?label=Choose%20recipient');
+  await expect(page.locator('xuilib-user-select input')).toHaveAccessibleName('Choose recipient');
+  await expect(page.getByText('Choose recipient', { exact: true }).first()).toBeVisible();
+});
+
 test('sharing can remove a selected existing user from all cases', async ({ page }) => {
   await page.goto('/share-case');
   await page.locator('#remove-user-input').selectOption({ label: 'Alex Example - alex@example.invalid' });

@@ -13,11 +13,12 @@ import { initAll } from 'govuk-frontend';
   selector: 'core-test-host',
   imports: [ShareCaseModule, RouterOutlet],
   template: `<main>
-    <xuilib-share-case title="Share cases" confirmLink="/confirmation" [users]="users" [shareCases$]="store.cases" [removeUserFromCaseToggleOn]="true" [showRemoveUsers]="true" (synchronizeStore)="sync($event)" />
+    <xuilib-share-case title="Share cases" [addUserLabel]="label" confirmLink="/confirmation" [users]="users" [shareCases$]="store.cases" [removeUserFromCaseToggleOn]="true" [showRemoveUsers]="true" (synchronizeStore)="sync($event)" />
     <router-outlet />
   </main>`
 })
 class ShareCaseGallery {
+  readonly label = new URLSearchParams(window.location.search).get('label') ?? 'Find a person';
   constructor(public readonly store: ShareCaseFixtureState) { afterNextRender(() => { document.body.classList.add('govuk-frontend-supported'); initAll(); }); }
   get users() { return this.store.users; }
   sync(cases: SharedCase[]) { this.store.cases.next(cases); }
