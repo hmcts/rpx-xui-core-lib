@@ -1,0 +1,27 @@
+@use 'components/govuk-toolkit-shim' as *;
+
+@media (max-width: 991px) {
+  [class*="col-md"] {
+    margin-bottom: 30px;
+  }
+}
+
+.column-half,
+.column-one-half {
+  float: left;
+  width: 50%;
+}
+
+// Apply vertical scrollbar to case history div
+@media (min-width: 641px) {
+  .scrollbar {
+    height: 70vh;
+    overflow-y: auto;
+  }
+}
+
+.EventLog-DetailsPanel {
+  border: 1px solid $border-colour;
+  padding: 0px 10px 10px 10px;
+  margin-top: 20px;
+}

@@ -1,0 +1,33 @@
+@use '../../../components/typography.scss' as *;
+
+div select {
+  @include core-12pt;
+}
+
+.form-group {
+  margin-bottom: 7px;
+
+  &.flex {
+    display: flex;
+    align-items: baseline;
+
+    // The heading used to be a <fieldset>, which host apps style with width: 100%,
+    // pushing the Apply/Reset buttons to the right-hand edge. Keep that layout for the <h2>.
+    h2 {
+      flex: 1 1 auto;
+      margin-bottom: 0;
+    }
+
+    button {
+      margin: 0.25rem;
+    }
+  }
+}
+
+.ccd-dropdown {
+  width: 100%;
+}
+
+span.heading-medium {
+  margin-top: 0;
+}

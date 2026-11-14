@@ -1,0 +1,27 @@
+@use '../../palette/base-field/grey-bar.scss';
+@use 'components/govuk-toolkit-shim' as *;
+@use 'components/govuk-toolkit-shim' as conditionals;
+
+.case-field {
+
+  @extend %contain-floats;
+  @include box-sizing(border-box);
+
+  margin-bottom: $gutter-half;
+
+  @include conditionals.media(tablet) {
+    margin-bottom: $gutter;
+  }
+
+  .case-field__label {
+    display: block;
+    color: $text-colour;
+    padding-bottom: 2px;
+
+    @include bold-19;
+  }
+
+  .case-field__value {
+    @include core-19;
+  }
+}

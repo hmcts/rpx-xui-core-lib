@@ -207,13 +207,15 @@ test('OIDC loginHandler ignores non-string login_hint values', async () => {
 })
 
 test('OIDC jwTokenExpired', () => {
-    let jwtData = { exp: new Date('Jun 04, 2020').getTime() / 1000 }
-    let isTokenExpired = oidc.jwTokenExpired(jwtData)
-    expect(isTokenExpired).toBeTruthy()
-
-    jwtData = { exp: new Date().getTime() / 1000 }
-    isTokenExpired = oidc.jwTokenExpired(jwtData)
-    expect(isTokenExpired).toBeFalsy()
+    jest.useFakeTimers().setSystemTime(new Date('2026-01-01T00:00:00.000Z'))
+    try {
+        const now = Date.now() / 1000
+        expect(oidc.jwTokenExpired({ exp: now - 1 })).toBe(true)
+        expect(oidc.jwTokenExpired({ exp: now })).toBe(false)
+        expect(oidc.jwTokenExpired({ exp: now + 1 })).toBe(false)
+    } finally {
+        jest.useRealTimers()
+    }
 })
 
 test('OIDC configure initializePassport', () => {

@@ -1,0 +1,67 @@
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { Task } from '../../../../domain/work-allocation/Task';
+import { CaseworkerService } from '../../../case-editor/services/case-worker.service';
+import { JudicialworkerService } from '../../../case-editor/services/judicial-worker.service';
+
+@Component({
+  selector: 'app-task-assigned',
+  templateUrl: './task-assigned.component.html',
+  standalone: false
+})
+export class TaskAssignedComponent implements OnInit, OnDestroy {
+
+  public task: Task = null;
+  public caseId: string;
+  public jurisdiction: string;
+  public caseType: string;
+  public assignedUserName: string;
+  public caseworkerSubscription: Subscription;
+  public judicialworkerSubscription: Subscription;
+
+  constructor(private readonly route: ActivatedRoute,
+    private readonly judicialworkerService: JudicialworkerService,
+    private readonly caseworkerService: CaseworkerService) {
+    this.caseId = this.route.snapshot.data.case.case_id;
+    this.task = this.route.snapshot.queryParams as Task;
+  }
+
+  public ngOnInit(): void {
+    // Current user is a caseworker?
+    this.jurisdiction = this.task.jurisdiction;
+    this.caseType = this.task.case_type_id;
+    this.caseworkerSubscription = this.caseworkerService.getUserByIdamId(this.task.assignee as string).subscribe(caseworker => {
+      if (caseworker) {
+        this.assignedUserName = `${caseworker.firstName} ${caseworker.lastName}`;
+      }
+
+      if (!this.assignedUserName) {
+        // Current user is a judicial user?
+        this.judicialworkerSubscription =
+          this.judicialworkerService.getJudicialworkers([this.task.assignee], this.task.jurisdiction)
+            .subscribe(judicialworkers => {
+              if (judicialworkers) {
+                const judicialworker = judicialworkers.find(x => x.sidam_id === this.task.assignee);
+                if (judicialworker) {
+                  this.assignedUserName = judicialworker.full_name;
+                }
+              }
+
+              if (!this.assignedUserName) {
+                this.assignedUserName = 'another user';
+              }
+            });
+      }
+    });
+  }
+
+  public ngOnDestroy(): void {
+    if (this.caseworkerSubscription) {
+      this.caseworkerSubscription.unsubscribe();
+    }
+    if (this.judicialworkerSubscription) {
+      this.judicialworkerSubscription.unsubscribe();
+    }
+  }
+}

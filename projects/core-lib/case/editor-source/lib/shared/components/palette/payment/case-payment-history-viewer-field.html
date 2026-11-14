@@ -1,0 +1,26 @@
+<div class="govuk-warning-text">
+    <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+    <strong class="govuk-warning-text__text">
+        <span class="govuk-visually-hidden">{{'Warning' | rpxTranslate}}</span>
+        {{PAYMENT_HISTORY_WARNING | rpxTranslate}}
+    </strong>
+</div>
+<!-- Preserve the toolkit's runtime inputs: the payment package declares narrower, incompatible types. -->
+<ccpay-payment-lib
+    [API_ROOT]="getBaseURL()"
+    [CCD_CASE_NUMBER]="caseReference"
+    [BULKSCAN_API_ROOT]="getPayBulkScanBaseURL()"
+    [SELECTED_OPTION]="'CCDorException'"
+    [ISBSENABLE]="$any('true')"
+    [LOGGEDINUSEREMAIL]="getUserEmail()"
+    [LOGGEDINUSERROLES]="getUserRoles()"
+    [REFUNDS_API_ROOT]="getRefundsUrl()"
+    [NOTIFICATION_API_ROOT]="getNotificationUrl()"
+    [VIEW]="'case-transactions'"
+    [TAKEPAYMENT]="false"
+    [SERVICEREQUEST]="$any(false)"
+    [PAYMENT_GROUP_REF]="null"
+    [EXC_REFERENCE]="caseReference"
+    [DCN_NUMBER]="null"
+    [ISPAYMENTSTATUSENABLED]="$any('Enable')"
+></ccpay-payment-lib>

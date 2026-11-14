@@ -81,6 +81,50 @@
           }
         }
       }
+    },
+    "editor-tests": {
+      "projectType": "application",
+      "root": "tests/editor",
+      "sourceRoot": "tests/editor",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "tests/editor/main.ts",
+            "index": "tests/editor/index.html",
+            "tsConfig": "tests/editor/tsconfig.json",
+            "outputPath": "dist/editor-tests",
+            "styles": [],
+            "polyfills": [
+              "reflect-metadata",
+              "zone.js",
+              "zone.js/testing"
+            ],
+            "assets": [
+              {
+                "glob": "{jasmine.js,jasmine-html.js,boot0.js}",
+                "input": "node_modules/jasmine-core/lib/jasmine-core",
+                "output": "/"
+              }
+            ],
+            "optimization": false,
+            "sourceMap": true,
+            "outputHashing": "none",
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "projects/core-lib/case/editor-source/lib",
+                "node_modules"
+              ]
+            }
+          }
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "options": {
+            "buildTarget": "editor-tests:build"
+          }
+        }
+      }
     }
   },
   "cli": {

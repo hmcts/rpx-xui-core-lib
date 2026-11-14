@@ -5,10 +5,11 @@ export const steps = [
   ['build', 'yarn', 'build'], ['lint', 'yarn', 'lint'],
   ['tooling-security', 'yarn', 'test:tooling-security'], ['reporters', 'yarn', 'test:reporters'],
   ['contracts-tests', 'yarn', 'test:contracts'], ['compatibility-contracts', 'yarn', 'test:compatibility:contracts'],
-  ['refDataUnit', 'lane', 'test:ref-data'], ['locationUnit', 'lane', 'test:locations'], ['windowUnit', 'lane', 'test:window'], ['cookieUnit', 'lane', 'test:cookie'], ['featureToggleUnit', 'lane', 'test:feature-toggle'], ['roleUnit', 'lane', 'test:roles'], ['unit', 'lane', 'test'], ['nodeUnit', 'lane', 'test:node:utils'], ['nodeServerUnit', 'lane', 'test:node:server'], ['i18nUnit', 'lane', 'test:i18n'],
+  ['refDataUnit', 'lane', 'test:ref-data'], ['locationUnit', 'lane', 'test:locations'], ['windowUnit', 'lane', 'test:window'], ['cookieUnit', 'lane', 'test:cookie'], ['featureToggleUnit', 'lane', 'test:feature-toggle'], ['roleUnit', 'lane', 'test:roles'], ['unit', 'lane', 'test'], ['nodeUnit', 'lane', 'test:node:utils'], ['nodeServerUnit', 'lane', 'test:node:server'], ['i18nUnit', 'lane', 'test:i18n'], ['editorUnit', 'lane', 'test:editor'],
  ['package', 'lane', 'test:package'],
   ['host-build', 'yarn', 'build:host'], ['browser-support', 'yarn', 'test:browser:support'],
   ['browser', 'lane', 'test:browser'], ['cacheBrowser', 'lane', 'test:cache-upgrade'],
+  ['editor-loading', 'yarn', 'test:editor:loading'], ['editor-packed', 'yarn', 'test:editor:packed'],
   ['contracts-gate', 'yarn', 'check:contracts'],
   ['publisher-check', 'node', 'tests/reporters/odhin-site-publisher.cjs --check-source test-results/odhin'],
   ['browser-report', 'node', 'tests/reporters/browser-check.cjs test-results/odhin/browser/index.html'],
@@ -17,11 +18,11 @@ export const steps = [
 
 /** @type {Record<string, string[]>} */
 export const prerequisites = {
-  refDataUnit: ['build'], locationUnit: ['build'], windowUnit: ['build'], cookieUnit: ['build'], featureToggleUnit: ['build'], roleUnit: ['build'], unit: ['build'], nodeUnit: ['build'], nodeServerUnit: ['build'], i18nUnit: ['build'],
-  package: ['build'], 'host-build': ['build'],
+  refDataUnit: ['build'], locationUnit: ['build'], windowUnit: ['build'], cookieUnit: ['build'], featureToggleUnit: ['build'], roleUnit: ['build'], unit: ['build'], nodeUnit: ['build'], nodeServerUnit: ['build'], i18nUnit: ['build'], editorUnit: ['build'],
+  package: ['build'], 'host-build': ['build'], 'editor-loading': ['build'], 'editor-packed': ['build'],
   browser: ['host-build', 'browser-support'],
   cacheBrowser: ['package', 'host-build', 'browser-support'],
-  'contracts-gate': ['refDataUnit', 'locationUnit', 'windowUnit', 'cookieUnit', 'featureToggleUnit', 'roleUnit', 'unit', 'nodeUnit', 'nodeServerUnit', 'i18nUnit', 'package', 'browser', 'cacheBrowser'],
+  'contracts-gate': ['refDataUnit', 'locationUnit', 'windowUnit', 'cookieUnit', 'featureToggleUnit', 'roleUnit', 'unit', 'nodeUnit', 'nodeServerUnit', 'i18nUnit', 'editorUnit', 'editor-loading', 'editor-packed', 'package', 'browser', 'cacheBrowser'],
   'publisher-check': ['contracts-gate'], 'browser-report': ['browser'], 'cache-report': ['cacheBrowser']
 };
 

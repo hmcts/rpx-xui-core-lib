@@ -1,0 +1,133 @@
+import { Injectable } from '@angular/core';
+import { FormGroup } from '@angular/forms';
+import { Document, FormDocument, CaseField } from '../../../../domain';
+import { CaseMessage, QueryCreateContext, QueryListItem } from '../models';
+import { v4 as uuidv4 } from 'uuid';
+import moment from 'moment';
+
+@Injectable()
+export class QueryManagementUtils {
+  private static readonly caseLevelCaseFieldId = 'CaseQueriesCollection';
+  public static readonly FIELD_TYPE_COLLECTION = 'Collection';
+  public static readonly FIELD_TYPE_COMPLEX = 'Complex';
+  public static readonly DISPLAY_CONTEXT_READONLY = 'READONLY';
+
+  public static extractCaseQueriesFromCaseField(caseField: CaseField) {
+    const { field_type, value, display_context } = caseField;
+
+    // Handle Complex type fields
+    if (field_type.type === QueryManagementUtils.FIELD_TYPE_COMPLEX) {
+      if (field_type.id === QueryManagementUtils.caseLevelCaseFieldId && display_context !== QueryManagementUtils.DISPLAY_CONTEXT_READONLY && QueryManagementUtils.isNonEmptyObject(value)) {
+        return value;
+      }
+      return null;
+    }
+  }
+
+  public static documentToCollectionFormDocument(document: Document): { id: string; value: FormDocument } {
+    return {
+      id: null,
+      value: {
+        document_filename: document?.originalDocumentName,
+        document_url: document?._links?.self?.href,
+        document_binary_url: document?._links?.binary?.href
+      }
+    };
+  }
+
+  // Preserve the Toolkit public type until consumers migrate.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public static getNewQueryData(formGroup: FormGroup, currentUserDetails: any, isHmctsStaff: string): CaseMessage {
+    const attachments = formGroup.get('attachments').value;
+    const formDocument = attachments.map((document: Document) => this.documentToCollectionFormDocument(document));
+    const currentUserId = currentUserDetails?.uid || currentUserDetails?.id;
+    const currentUserName = currentUserDetails?.name || `${currentUserDetails?.forename} ${currentUserDetails?.surname}`;
+    const subject = formGroup.get('subject').value.trim();
+    const body = formGroup.get('body').value.trim();
+    const isHearingRelated = formGroup.get('isHearingRelated').value ? 'Yes' : 'No';
+    const hearingDate = (isHearingRelated === 'Yes')
+      ? this.formattedDate(formGroup.get('hearingDate').value)
+      : null;
+
+    const message: CaseMessage = {
+      id: uuidv4(),
+      subject,
+      name: currentUserName,
+      body,
+      attachments: formDocument,
+      isHearingRelated,
+      hearingDate,
+      createdOn: new Date(),
+      createdBy: currentUserId,
+      messageType: QueryCreateContext.FOLLOWUP // Default to value new queries will be FOLLOWUP
+    };
+
+    if (typeof isHmctsStaff === 'string' && isHmctsStaff.trim().toLowerCase() === 'yes') {
+      message.isHmctsStaff = isHmctsStaff;
+    }
+
+    return message;
+  }
+
+  // Preserve the Toolkit public type and callback signature until consumers migrate.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
+  public static getRespondOrFollowupQueryData(formGroup: FormGroup, queryItem: QueryListItem, currentUserDetails: any, messageTypeParam: string, _isHmctsStaff: string): CaseMessage {
+    const currentUserId = currentUserDetails?.uid || currentUserDetails?.id;
+    const currentUserName = currentUserDetails?.name || `${currentUserDetails?.forename} ${currentUserDetails?.surname}`;
+    const body = formGroup.get('body').value.trim();
+    const attachments = formGroup.get('attachments').value;
+    const formDocument = attachments.map((document: Document) => this.documentToCollectionFormDocument(document));
+    const isClosed = formGroup.get('closeQuery').value ? 'Yes' : 'No';
+
+    const messageType =
+      messageTypeParam === QueryCreateContext.RESPOND
+        ? QueryCreateContext.RESPOND
+        : messageTypeParam === QueryCreateContext.FOLLOWUP
+          ? QueryCreateContext.FOLLOWUP
+          : undefined;
+
+    const message: CaseMessage = {
+      id: uuidv4(),
+      subject: queryItem.subject.trim(),
+      name: currentUserName,
+      body,
+      attachments: formDocument,
+      isHearingRelated: queryItem.isHearingRelated,
+      hearingDate: queryItem.hearingDate,
+      createdOn: new Date(),
+      createdBy: currentUserId,
+      parentId: queryItem.id,
+      isClosed,
+      messageType
+    };
+
+    // TODO HMCTS_QUERY_USER_TYPE: Enable when isHmctsStaff persistence is supported by the query data contract.
+    // this.setHmctsStaffStatus(message, isHmctsStaff);
+
+    return message;
+  }
+
+  // Preserve the Toolkit public type until consumers migrate.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public static isObject(elem: any): boolean {
+    return typeof elem === 'object' && elem !== null;
+  }
+
+  // Preserve the Toolkit public type until consumers migrate.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public static isNonEmptyObject(elem: any): boolean {
+    return this.isObject(elem) && Object.keys(elem).length !== 0;
+  }
+
+  private static formattedDate(date: unknown): string {
+    const formattedDate = moment(date as moment.MomentInput).format('YYYY-MM-DD');
+    return formattedDate;
+  }
+
+  // TODO HMCTS_QUERY_USER_TYPE: Enable when isHmctsStaff persistence is supported by the query data contract.
+  // private static setHmctsStaffStatus(message: CaseMessage, isHmctsStaff: string): void {
+  //   if (typeof isHmctsStaff === 'string' && isHmctsStaff) {
+  //     message.isHmctsStaff = this.normalizeHmctsStaffStatus(isHmctsStaff);
+  //   }
+  // }
+}
