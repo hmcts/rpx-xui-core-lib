@@ -4,6 +4,9 @@ import { FieldsUtils } from '../../../services/fields/fields.utils';
 import { ShowCondition } from '../../conditional-show/domain/conditional-show.model';
 import peg from './condition.peg';
 
+// Match the legacy Array.sort ordering used by selected values.
+const compareCodeUnits = (a: string, b: string): number => a < b ? -1 : a > b ? 1 : 0;
+
 export class ConditionParser {
   private static readonly logger = new StructuredLoggerService();
 
@@ -132,7 +135,7 @@ export class ConditionParser {
   }
 
   private static checkMultiSelectListEquals(expectedValue: string, currentValue: unknown, conditionSeparator: string): boolean {
-    const expectedValues = expectedValue.split(',').sort().toString();
+    const expectedValues = expectedValue.split(',').sort(compareCodeUnits).toString();
     const values = currentValue ? (currentValue as { sort(): unknown[] }).sort().toString() : '';
     if (conditionSeparator === ShowCondition.CONDITION_NOT_EQUALS) {
       return expectedValues !== values;
@@ -143,7 +146,7 @@ export class ConditionParser {
 
   private static checkValueContains(expectedValue: string, currentValue: unknown): boolean {
     if (expectedValue.search(',') > -1) {
-      const expectedValues = expectedValue.split(',').sort();
+      const expectedValues = expectedValue.split(',').sort(compareCodeUnits);
       const values = currentValue ? (currentValue as { sort(): unknown[] }).sort().toString() : '';
       return expectedValues.every(item => values.search(item) >= 0);
     } else {

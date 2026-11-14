@@ -22,4 +22,13 @@ describe('Condition parser migration contract', () => {
     expect(ConditionParser.evaluate(fields, condition, 'items_0')).toBeTrue();
     expect(ConditionParser.evaluate(fields, condition, 'items_1')).toBeFalse();
   });
+  it('matches multi-select values using the existing code-unit ordering', () => {
+    const values = ['beta', 'alpha', 'Zeta'];
+    const condition = ConditionParser.parse('choices="beta,alpha,Zeta"');
+    expect(ConditionParser.evaluate({ choices: values }, condition)).toBeTrue();
+    expect(values).toEqual(['Zeta', 'alpha', 'beta']);
+    expect(ConditionParser.evaluate({ choices: values }, ConditionParser.parse('choices CONTAINS \"beta,Zeta\"'))).toBeTrue();
+    expect(ConditionParser.evaluate({ choices: values }, ConditionParser.parse('choices CONTAINS \"beta,missing\"'))).toBeFalse();
+  });
+
 });

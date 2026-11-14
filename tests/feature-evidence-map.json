@@ -2,6 +2,31 @@
   "schemaVersion": 1,
   "features": [
     {
+      "feature": "Case editor: rich text",
+      "contracts": {
+        "editorDrivers": [
+          {
+            "projectName": "chromium",
+            "title": "edits rich text and serialises a numbered list"
+          }
+        ],
+        "editorUnit": [
+          "Rich text migration contract renders the real editable control and formatting toolbar"
+        ]
+      }
+    },
+    {
+      "feature": "Case editor: component contract driver",
+      "contracts": {
+        "editorDrivers": [
+          {
+            "projectName": "chromium",
+            "title": "runs the required editor component contracts"
+          }
+        ]
+      }
+    },
+    {
       "feature": "Form validation",
       "contracts": {
         "unit": [
@@ -1369,13 +1394,26 @@
           "Case history event identifier preserves the Toolkit string-typed event API",
           "Case history event identifier reports and rethrows the original case history failure",
           "Case notifier migration contract shares the existing Core session storage injection token",
-          "Case notifier migration contract shares existing Core case detail and draft model identities"
+          "Case notifier migration contract shares existing Core case detail and draft model identities",
+          "Event completion migration contract reports a failed wizard redirect without delaying resolution",
+          "Event completion migration contract preserves first-page navigation and the invalid-page alert",
+          "Jurisdiction selection migration contract retains current selection separately from non-replaying announcements"
         ]
       }
     },
     {
       "feature": "Case editor: date and markdown",
       "contracts": {
+        "editorDrivers": [
+          {
+            "projectName": "chromium",
+            "title": "opens the datetime calendar with the keyboard"
+          },
+          {
+            "projectName": "chromium",
+            "title": "selects a date from the datetime calendar"
+          }
+        ],
         "editorUnit": [
           "Datetime toggle integration focuses the toggle and opens the picker on click",
           "Editor datetime component renders the real editor template and opens the calendar",
@@ -1431,7 +1469,6 @@
           "Editor alert migration contract keeps a preserved error translated after the permitted navigation",
           "Editor alert migration contract uses the replacement translation stream for errors and stops it on clear",
           "Editor notifier migration contract replays the latest error to late subscribers without copying it",
-          "Rich text migration contract renders the real editable control and formatting toolbar",
           "Editor notifier migration contract replays the latest navigation to late subscribers without copying it",
           "Editor HTTP error contract uses the response status for forbidden errors",
           "Editor HTTP error contract provides the rate-limit message when no body overrides it",
@@ -1450,14 +1487,24 @@
           "Editor HTTP error handler contract passes an existing HTTP error through unchanged",
           "Editor HTTP error handler contract does not redirect when authentication recovery is disabled",
           "Editor HTTP error handler contract uses the transport status when direct model conversion has no body status",
-          "Editor alert migration contract shows the event-trigger failure message and preserves its rejection"
+          "Editor alert migration contract shows the event-trigger failure message and preserves its rejection",
+          "Editor error summary accessibility associates one heading for each generic or event error branch",
+          "Editor error summary accessibility associates one heading for each generic or callback viewer error branch"
         ]
       }
     },
     {
       "feature": "Case editor: fields and forms",
       "contracts": {
+        "editorDrivers": [
+          {
+            "projectName": "chromium",
+            "title": "closes each editor dialog using Enter and Space"
+          }
+        ],
         "editorUnit": [
+          "FieldReadComponent reports the original deferred initialization error to Angular",
+          "FieldReadComponent does not initialize a field destroyed before its deferred callback",
           "FieldReadComponent normalizes a plain fixed-list field before passing it to the child",
           "FieldReadComponent passes a plain nested text field through unchanged",
           "FieldReadComponent should NOT display label by default",
@@ -1627,6 +1674,8 @@
           "Condition parser migration contract evaluates collection paths and dynamic lists",
           "Case editor submission data contract clears empty complex values but retains collections and populated objects",
           "Case edit page form patch contract reports a required field using its component prefix",
+          "Collection field migration contract renders an accessible close button for each migrated dialog",
+          "Collection field migration contract groups each rendered item while preserving add, focus, scroll and removal",
           "Collection field migration contract preserves distinct prefixes for complex items and labels",
           "Collection field migration contract removes only the confirmed item and keeps remaining control identity",
           "Collection field migration contract keeps all items when removal is cancelled",
@@ -1663,7 +1712,10 @@
           "Case notifier migration contract injects the date format translator into the moved pipe",
           "Case editor submission data contract accepts existing host-owned form groups on editor and submit components",
           "palette registry provider uses a child PaletteService override for read rendering",
-          "palette registry provider uses a child PaletteService override for write rendering"
+          "palette registry provider uses a child PaletteService override for write rendering",
+          "Case editor submission data contract reports a failed review-page navigation with the original error",
+          "Case editor submission data contract reports failed confirmation navigation without resubmitting an accepted event",
+          "Condition parser migration contract matches multi-select values using the existing code-unit ordering"
         ]
       }
     },
@@ -1725,14 +1777,19 @@
           "FieldsUtils isLinkedCasesCaseField() function test should return true if case field is of type ComponentLauncher",
           "FormValueService component launcher linked cases should populate linked cases details from case fields",
           "FormValueService component launcher linked cases should remove component launcher field",
+          "LinkedCasesService migration contract uses the last case name found and retains the missing-name fallback",
           "LinkedCasesService migration contract groups case references and resets journey state",
           "Linked cases table migration contract orders reason codes and cases without dropping their values",
           "No linked cases migration contract returns to the linked cases tab with the existing case identifiers",
+          "Specific access review accessibility labels the page and radio group with direct legends and retains validation",
+          "Challenged access accessibility names the conditional reason field and links its validation error",
+          "Linked case reasons migration contract labels case reference and comments and keeps form IDs unique",
           "Linked case reasons migration contract retains distinct display and CCD collection shapes for selected reasons",
           "Linked case reasons migration contract removes the selected case from all three journey lists",
           "Unlink case migration contract accepts both standard and challenged-access case identifiers",
           "Unlink case migration contract updates only the selected case when checking and unchecking it",
           "Unlink case migration contract reports a lookup failure without changing the linked cases",
+          "Linked cases display migration contract renders unique retry links for failures in both directions",
           "Linked cases display migration contract keeps incoming and outgoing lookup failures separate",
           "Case link validation migration contract accepts formatted sixteen-digit references and rejects invalid values",
           "Linked-case validators migration contract requires a selected option and a correctly shaped reference",

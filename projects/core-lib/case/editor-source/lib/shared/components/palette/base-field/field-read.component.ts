@@ -1,4 +1,4 @@
-import { Inject, Component, ComponentFactoryResolver, Injector, Input, Type, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
+import { Inject, Component, ComponentFactoryResolver, ErrorHandler, Injector, Input, Type, OnDestroy, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { plainToClassFromExist } from 'class-transformer';
 import { CaseField } from '../../../domain/definition/case-field.model';
@@ -12,8 +12,10 @@ const FIX_CASEFIELD_FOR = ['FixedList', 'DynamicList', 'DynamicMultiSelectList']
   templateUrl: './field-read.html',
   standalone: false
 })
-export class FieldReadComponent extends AbstractFieldReadComponent implements OnInit {
+export class FieldReadComponent extends AbstractFieldReadComponent implements OnInit, OnDestroy {
   private readonly paletteService: PaletteRegistry;
+  private readonly errorHandler: ErrorHandler;
+  private destroyed = false;
   @Input()
   public withLabel = false;
 
@@ -30,11 +32,13 @@ export class FieldReadComponent extends AbstractFieldReadComponent implements On
   constructor(private readonly resolver: ComponentFactoryResolver, @Inject(PALETTE_REGISTRY) registryToken: Type<PaletteRegistry>, injector: Injector) {
     super();
     this.paletteService = injector.get(registryToken);
+    this.errorHandler = injector.get(ErrorHandler);
   }
 
   public ngOnInit(): void {
     // Ensure all field values are resolved by label interpolation before the component is fully initialised.
     Promise.resolve(null).then(() => {
+      if (this.destroyed) return;
       const componentClass = this.paletteService.getFieldComponentClass(this.caseField, false);
       const injector = Injector.create({
         providers: [],
@@ -64,7 +68,11 @@ export class FieldReadComponent extends AbstractFieldReadComponent implements On
       instance['labelCanBeTranslated'] = this.labelCanBeTranslated(this.caseField);
 
       this.fieldContainer?.insert(component.hostView);
-    });
+    }).catch(error => this.errorHandler.handleError(error));
+  }
+
+  public ngOnDestroy(): void {
+    this.destroyed = true;
   }
 
   private labelCanBeTranslated(caseField: CaseField): boolean {

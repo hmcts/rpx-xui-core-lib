@@ -3,8 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup } from '@angular/forms';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { CaseEditComponent } from '../case-edit/case-edit.component';
-import { CaseEditConfirmComponent } from './case-edit-confirm.component';
+import { CaseEditComponent, CaseEditConfirmComponent } from '@hmcts/rpx-xui-core-lib/case/editor-source';
 
 @Pipe({ name: 'rpxTranslate', standalone: false })
 class TranslateStub implements PipeTransform { transform(value: string): string { return value; } }

@@ -32,7 +32,7 @@ import {
   SessionStorageService
 } from '../../../services';
 import { ConvertHrefToRouterService } from '../../case-editor/services/convert-href-to-router.service';
-import { DeleteOrCancelDialogComponent } from '../../dialogs';
+import { DeleteOrCancelDialogComponent } from '../../dialogs/delete-or-cancel-dialog/delete-or-cancel-dialog.component';
 import { CallbackErrorsContext } from '../../error';
 import { initDialog } from '../../helpers';
 import { LinkedCasesService } from '../../palette/linked-cases/services';

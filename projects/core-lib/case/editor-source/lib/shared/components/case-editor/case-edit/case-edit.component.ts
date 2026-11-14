@@ -1,5 +1,5 @@
 import { CLIENT_CONTEXT_KEY } from '../domain/client-context-key';
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, ErrorHandler, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Observable, Subject, of } from 'rxjs';
@@ -127,8 +127,8 @@ export class CaseEditComponent implements OnInit, OnDestroy {
     private readonly alertService: AlertService,
     private readonly abstractConfig: AbstractAppConfig,
     // Preserve the Toolkit constructor dependency for Angular injection.
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _cookieService: ReadCookieService
+    _cookieService: ReadCookieService,
+    private readonly errorHandler: ErrorHandler = new ErrorHandler()
   ) {}
 
   public ngOnInit(): void {
@@ -560,7 +560,7 @@ export class CaseEditComponent implements OnInit, OnDestroy {
     this.sessionStorageService.removeItem('eventUrl');
     const confirmation: Confirmation = this.buildConfirmation(eventResponse);
     if (confirmation && (confirmation.getHeader() || confirmation.getBody())) {
-      this.confirm(confirmation);
+      this.confirm(confirmation).catch(error => this.errorHandler.handleError(error));
     } else {
       this.emitSubmitted(eventResponse as Record<string, unknown>);
     }
