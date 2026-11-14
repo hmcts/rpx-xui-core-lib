@@ -1391,6 +1391,11 @@
             "projectName": "chromium",
             "title": "selected cases keep user identifiers unique across multiple cases",
             "feature": "selected-cases"
+          },
+          {
+            "projectName": "chromium",
+            "title": "selected cases gallery starts without Angular routing errors",
+            "feature": "selected-cases"
           }
         ],
         "package": [
@@ -1440,6 +1445,11 @@
           {
             "projectName": "chromium",
             "title": "sharing refreshes a typed search when users finish loading",
+            "feature": "selected-cases"
+          },
+          {
+            "projectName": "chromium",
+            "title": "sharing gallery starts without Angular routing errors",
             "feature": "selected-cases"
           }
         ],

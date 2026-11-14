@@ -1,6 +1,15 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
+test('selected cases gallery starts without Angular routing errors', async ({ page }) => {
+  const errors = [];
+  page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/selected-cases');
+  await expect(page.getByRole('heading', { name: 'Selected cases' })).toBeVisible();
+  expect(errors.filter(error => /NG04002|Cannot match any routes/.test(error))).toEqual([]);
+});
+
 test('selected case removal can be cancelled and reflected in confirmation', async ({ page }) => {
   await page.goto('/selected-cases');
   await expect(page.getByText('Synthetic case', { exact: true })).toBeVisible();

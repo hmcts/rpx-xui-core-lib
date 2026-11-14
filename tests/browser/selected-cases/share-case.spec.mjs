@@ -1,6 +1,15 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
+test('sharing gallery starts without Angular routing errors', async ({ page }) => {
+  const errors = [];
+  page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/share-case');
+  await expect(page.getByRole('heading', { name: 'Share cases' })).toBeVisible();
+  expect(errors.filter(error => /NG04002|Cannot match any routes/.test(error))).toEqual([]);
+});
+
 test('sharing cannot add a person before an autocomplete selection', async ({ page }) => {
   await page.goto('/share-case');
   const add = page.getByRole('button', { name: /Add user/ });

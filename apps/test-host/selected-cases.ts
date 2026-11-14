@@ -1,4 +1,4 @@
-import { afterNextRender, Component, importProvidersFrom } from '@angular/core';
+import { afterNextRender, Component, importProvidersFrom, ViewEncapsulation } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import { SharedCase } from '@hmcts/rpx-xui-core-lib/case/sharing';
@@ -12,6 +12,8 @@ import { initAll } from 'govuk-frontend';
 @Component({
   selector: 'core-test-host',
   imports: [SelectedCaseModule],
+  styleUrl: './sharing-gallery.scss',
+  encapsulation: ViewEncapsulation.None,
   template: `<main><h1>Selected cases</h1>
     <h2>Current cases</h2>
     <div class="govuk-accordion" data-module="govuk-accordion" id="accordion-with-summary-sections">
@@ -32,6 +34,9 @@ class SelectedCasesGallery {
   sync(cases: SharedCase[]) { this.state.setCases(cases); }
 }
 
+@Component({ template: '' })
+class SelectedCasesStart {}
+
 export function startSelectedCasesGallery() {
-  return bootstrapApplication(SelectedCasesGallery, { providers: [provideRouter([]), importProvidersFrom(RpxTranslationModule.forRoot({ baseUrl: '/translations', debounceTimeMs: 20, validity: { days: 1 }, testMode: false }))] });
+  return bootstrapApplication(SelectedCasesGallery, { providers: [provideRouter([{ path: 'selected-cases', component: SelectedCasesStart }]), importProvidersFrom(RpxTranslationModule.forRoot({ baseUrl: '/translations', debounceTimeMs: 20, validity: { days: 1 }, testMode: false }))] });
 }

@@ -1,4 +1,4 @@
-import { afterNextRender, Component, importProvidersFrom, Injectable } from '@angular/core';
+import { afterNextRender, Component, importProvidersFrom, Injectable, ViewEncapsulation } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideRouter, RouterOutlet } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
@@ -12,6 +12,8 @@ import { initAll } from 'govuk-frontend';
 @Component({
   selector: 'core-test-host',
   imports: [ShareCaseModule, RouterOutlet],
+  styleUrl: './sharing-gallery.scss',
+  encapsulation: ViewEncapsulation.None,
   template: `<main>
     @if (store.delayed) { <button type="button" (click)="store.loadUsers()">Load users</button> }
     <xuilib-share-case title="Share cases" [addUserLabel]="label" confirmLink="/confirmation" [users]="users" [shareCases$]="store.cases" [removeUserFromCaseToggleOn]="true" [showRemoveUsers]="true" (synchronizeStore)="sync($event)" />
@@ -45,6 +47,9 @@ class ShareCaseConfirmation {
   constructor(public readonly store: ShareCaseFixtureState) {}
 }
 
+@Component({ template: '' })
+class ShareCaseStart {}
+
 export function startShareCaseGallery() {
-  return bootstrapApplication(ShareCaseGallery, { providers: [provideRouter([{ path: 'confirmation', component: ShareCaseConfirmation }]), importProvidersFrom(RpxTranslationModule.forRoot({ baseUrl: '/translations', debounceTimeMs: 20, validity: { days: 1 }, testMode: false }))] });
+  return bootstrapApplication(ShareCaseGallery, { providers: [provideRouter([{ path: 'share-case', component: ShareCaseStart }, { path: 'confirmation', component: ShareCaseConfirmation }]), importProvidersFrom(RpxTranslationModule.forRoot({ baseUrl: '/translations', debounceTimeMs: 20, validity: { days: 1 }, testMode: false }))] });
 }
