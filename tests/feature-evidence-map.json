@@ -1701,7 +1701,8 @@
           "palette registry provider uses a child PaletteService override for read rendering",
           "palette registry provider uses a child PaletteService override for write rendering",
           "Case editor submission data contract reports a failed review-page navigation with the original error",
-          "Case editor submission data contract reports failed confirmation navigation without resubmitting an accepted event"
+          "Case editor submission data contract reports failed confirmation navigation without resubmitting an accepted event",
+          "Condition parser migration contract matches multi-select values using the existing code-unit ordering"
         ]
       }
     },

@@ -1528,7 +1528,8 @@
       "Case editor submission data contract reports a failed review-page navigation with the original error",
       "Case editor submission data contract reports failed confirmation navigation without resubmitting an accepted event",
       "Editor error summary accessibility associates one heading for each generic or event error branch",
-      "Editor error summary accessibility associates one heading for each generic or callback viewer error branch"
+      "Editor error summary accessibility associates one heading for each generic or callback viewer error branch",
+      "Condition parser migration contract matches multi-select values using the existing code-unit ordering"
     ]
   }
 }
