@@ -16,14 +16,15 @@
     </h2>
 
     <div class="form-group" [hidden]="caseField.hidden" *ngIf="caseField.value && caseField.value.length">
-      <fieldset class="govuk-fieldset">
-        <div *ngFor="let item of collItems; let i = index; trackBy: trackByCollectionItem" #collectionItem
-            [id]="this.buildIdPrefix(i) + i" class="form-group">
+      <div *ngFor="let item of collItems; let i = index; trackBy: trackByCollectionItem" #collectionItem
+          [id]="this.buildIdPrefix(i) + i" class="form-group">
+        <fieldset class="govuk-fieldset">
+          <legend class="govuk-visually-hidden">{{itemLabel(i) | rpxTranslate}}</legend>
           <div class="collection-title">
             <div class="float-left">
-              <legend class="govuk-fieldset__legend">
+              <div class="govuk-fieldset__legend">
                 <label [for]="item.prefix + i"><h3 class="heading-h3">{{itemLabel(i) | rpxTranslate}}</h3></label>
-              </legend>
+              </div>
             </div>
             <div class="float-right">
               <button class="button button-secondary" type="button" (click)="openModal(i)"
@@ -40,8 +41,8 @@
                           [isExpanded]="isExpanded"
                           [isInSearchBlock]="isInSearchBlock">
           </ccd-field-write>
-        </div>
-      </fieldset>
+        </fieldset>
+      </div>
     </div>
 
     <button class="button write-collection-add-item__bottom" type="button" (click)="addItem(false)" [disabled]="isNotAuthorisedToCreate() || isSearchFilter()" *ngIf="caseField.value && caseField.value.length">{{'Add new' | rpxTranslate }}</button>

@@ -1394,6 +1394,7 @@
       "Case edit page form patch contract reports a required field using its component prefix",
       "Flag display migration contract switches languages and falls back when a translation is absent",
       "Collection field migration contract renders an accessible close button for each migrated dialog",
+      "Collection field migration contract groups each rendered item while preserving add, focus, scroll and removal",
       "Collection field migration contract preserves distinct prefixes for complex items and labels",
       "Collection field migration contract removes only the confirmed item and keeps remaining control identity",
       "Collection field migration contract keeps all items when removal is cancelled",

@@ -294,6 +294,8 @@ The linked-cases form now labels the case-reference and comments fields and remo
 
 The linked-cases retry links no longer carry the `reload-linked-cases-tab` ID, which could occur more than once when both directions fail. Consumers using that selector should update it; the links retain their text and navigation.
 
+Each collection item is now a separately labelled fieldset instead of sharing an unnamed fieldset. Item IDs, visible headings and add/remove behavior are retained; visual layout and screen-reader behavior still need consumer review.
+
 Editor dialog close controls are now labelled buttons instead of clickable headings. Consumers using the former heading selector should update it; the controls retain their cancel result.
 
 The confirmed Core design uses an empty `FormGroup` for the unmerged case-confirmation component, where Toolkit used a `FormControl` for its public `formGroup` property. Angular's strict template compiler rejects the old control when bound to `[formGroup]`; the candidate's rendered submission is covered locally. The property type change is an intentional compatibility deviation requiring consumer review before adoption.

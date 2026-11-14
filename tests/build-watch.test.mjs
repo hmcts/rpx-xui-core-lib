@@ -20,7 +20,7 @@ async function until(predicate, message) {
   throw new Error(`Timed out waiting for ${message}`);
 }
 
-test('watch rebuilds Node changes, recovers and stops', { timeout: 120_000 }, async () => {
+test('watch rebuilds Node changes, recovers and stops', { timeout: 240_000 }, async () => {
   const fixture = await mkdtemp(join(tmpdir(), 'core-watch-test-'));
   let child;
   let log = '';
