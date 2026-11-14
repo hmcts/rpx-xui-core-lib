@@ -37,6 +37,9 @@ test('watch rebuilds Node changes, recovers and stops', { timeout: 120_000 }, as
     for (const name of await readdir(join(root, 'node_modules'))) {
       if (name !== '@hmcts') await symlink(resolve(root, 'node_modules', name), join(fixture, 'node_modules', name));
     }
+    for (const name of await readdir(join(root, 'node_modules/@hmcts'))) {
+      if (name !== 'rpx-xui-core-lib') await symlink(resolve(root, 'node_modules/@hmcts', name), join(fixture, 'node_modules/@hmcts', name));
+    }
     await symlink(resolve(root, 'projects/core-lib/node/node_modules'), join(fixture, 'projects/core-lib/node/node_modules'));
     child = spawn(process.execPath, ['scripts/build.mjs', '--watch'], { cwd: fixture, stdio: ['ignore', 'pipe', 'pipe'] });
     child.on('error', (error) => { childError = error; });

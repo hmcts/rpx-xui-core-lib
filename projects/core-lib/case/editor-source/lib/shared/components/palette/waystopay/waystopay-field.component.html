@@ -1,0 +1,18 @@
+<!-- Preserve the toolkit's runtime inputs: the payment package declares narrower, incompatible types. -->
+<ccpay-payment-lib *ngIf="getUserRoles().length > 0"
+    [API_ROOT]="getBaseURL()"
+    [BULKSCAN_API_ROOT]="getPayBulkScanBaseURL()"
+    [REFUNDS_API_ROOT]="getRefundsUrl()"
+    [NOTIFICATION_API_ROOT]="getNotificationUrl()"
+    [CCD_CASE_NUMBER]="caseReference"
+    [VIEW]="'case-transactions'"
+    [TAKEPAYMENT]="false"
+    [SERVICEREQUEST]="$any(true)"
+    [PAYMENT_GROUP_REF]="null"
+    [EXC_REFERENCE]="caseReference"
+    [DCN_NUMBER]="null"
+    [SELECTED_OPTION]="'CCDorException'"
+    [LOGGEDINUSERROLES]="getUserRoles()"
+    [CARDPAYMENTRETURNURL]="getCardPaymentReturnUrl()"
+    [ISPAYMENTSTATUSENABLED]="$any('Enable')"
+></ccpay-payment-lib>

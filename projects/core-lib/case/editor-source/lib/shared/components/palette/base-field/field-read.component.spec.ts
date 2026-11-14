@@ -1,0 +1,176 @@
+import { Component, DebugElement, Input } from '@angular/core';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { By } from '@angular/platform-browser';
+import { plainToClassFromExist } from 'class-transformer';
+import { CaseField } from '../../../domain/definition';
+import { MockRpxTranslatePipe } from '../../../test/mock-rpx-translate.pipe';
+import { PaletteService } from '../palette.service';
+import { PALETTE_REGISTRY } from '../palette-token';
+import { FieldReadComponent } from './field-read.component';
+import { PaletteContext } from './palette-context.enum';
+
+import createSpyObj = jasmine.createSpyObj;
+
+const $FIELD_READ_LABEL = By.css('ccd-field-read-label');
+const $FIELD_TEST = By.css('ccd-field-read-label span.text-cls');
+
+const CASE_FIELD: CaseField = plainToClassFromExist(new CaseField(), {
+  _list_items: [],
+  id: 'PersonFirstName',
+  label: 'First name',
+  field_type: {
+    id: 'Text',
+    type: 'Text'
+  },
+  _value: 'Johnny',
+  display_context: 'READONLY'
+});
+
+const CLASS = 'text-cls';
+
+@Component({
+  template: `
+    <span class="${CLASS}"></span>
+  `,
+  standalone: false
+})
+class FieldTestComponent { }
+
+@Component({
+  selector: 'ccd-field-read-label',
+  template: `
+    <ng-content></ng-content>
+  `,
+  standalone: false
+})
+class FieldReadLabelComponent {
+  @Input()
+  public caseField: CaseField;
+
+  @Input()
+  public withLabel: boolean;
+
+  @Input()
+  public topLevelFormGroup: FormGroup;
+
+}
+
+describe('FieldReadComponent', () => {
+  let fixture: ComponentFixture<FieldReadComponent>;
+  let component: FieldReadComponent;
+  let de: DebugElement;
+
+  let paletteService: jasmine.SpyObj<PaletteService>;
+
+  const formGroup: FormGroup = new FormGroup({});
+  const caseFields: CaseField[] = [CASE_FIELD];
+  beforeEach(waitForAsync(() => {
+    paletteService = createSpyObj<PaletteService>('paletteService', [
+      'getFieldComponentClass'
+    ]);
+    paletteService.getFieldComponentClass.and.returnValue(FieldTestComponent);
+
+    TestBed
+      .configureTestingModule({
+        imports: [
+          ReactiveFormsModule,
+          FormsModule
+        ],
+        declarations: [
+          FieldReadComponent,
+          FieldTestComponent,
+          FieldReadLabelComponent,
+          // Mocks
+          MockRpxTranslatePipe
+        ],
+        providers: [
+          { provide: PaletteService, useValue: paletteService },
+          { provide: PALETTE_REGISTRY, useValue: PaletteService },
+        ]
+      })
+      .compileComponents();
+
+    fixture = TestBed.createComponent(FieldReadComponent);
+    component = fixture.componentInstance;
+
+    component.caseField = CASE_FIELD;
+    component.caseFields = caseFields;
+    component.formGroup = formGroup;
+    component.context = PaletteContext.CHECK_YOUR_ANSWER;
+
+    de = fixture.debugElement;
+    fixture.detectChanges();
+  }));
+
+  it('should get field read class from PaletteService', () => {
+    expect(paletteService.getFieldComponentClass).toHaveBeenCalledWith(CASE_FIELD, false);
+  });
+
+  it('should inject component instance as child', () => {
+    fixture.detectChanges();
+
+    const fieldReadLabelComponent = de.query($FIELD_READ_LABEL);
+    expect(fieldReadLabelComponent.children.length).toBe(1);
+
+    const fieldReadLabel = fieldReadLabelComponent.componentInstance;
+    expect(fieldReadLabel.caseField).toBe(CASE_FIELD);
+
+    const fieldTestComponent = de.query($FIELD_TEST);
+    expect(fieldTestComponent).toBeTruthy();
+
+    const fieldTest = fieldTestComponent.componentInstance;
+    expect(fieldTest.caseField).toEqual(CASE_FIELD);
+    expect(fieldTest.caseFields).toBe(caseFields);
+    expect(fieldTest.formGroup).toBe(formGroup);
+  });
+
+  it('passes a plain nested text field through unchanged', async () => {
+    const field = { id: 'nested', label: 'Nested', field_type: { id: 'Text', type: 'Text' }, value: 'value' } as CaseField;
+    const fresh = TestBed.createComponent(FieldReadComponent);
+    fresh.componentInstance.caseField = field;
+    fresh.detectChanges();
+    await fresh.whenStable();
+    expect(fresh.debugElement.query($FIELD_TEST).componentInstance.caseField).toBe(field);
+  });
+
+  it('normalizes a plain fixed-list field before passing it to the child', async () => {
+    const field = { id: 'nested', label: 'Nested', field_type: { id: 'FixedList', type: 'FixedList' }, value: 'value' } as CaseField;
+    const fresh = TestBed.createComponent(FieldReadComponent);
+    fresh.componentInstance.caseField = field;
+    fresh.detectChanges();
+    await fresh.whenStable();
+    const childField = fresh.debugElement.query($FIELD_TEST).componentInstance.caseField;
+    expect(childField instanceof CaseField).toBeTrue();
+    expect(childField.id).toBe('nested');
+    expect(childField.value).toBe('value');
+  });
+
+  it('should pass context to field instance', () => {
+    fixture.detectChanges();
+
+    const fieldTest = de.query($FIELD_TEST).componentInstance;
+    expect(fieldTest.context).toBe(PaletteContext.CHECK_YOUR_ANSWER);
+  });
+
+  it('should NOT display label by default', () => {
+    fixture.detectChanges();
+
+    const fieldReadLabelComponent = de.query(By.css('ccd-field-read-label'));
+    const fieldReadLabel = fieldReadLabelComponent.componentInstance;
+    expect(fieldReadLabel.withLabel).toBe(false);
+  });
+
+  it('should display label if required', () => {
+    component.withLabel = true;
+    fixture.detectChanges();
+
+    const fieldReadLabelComponent = de.query(By.css('ccd-field-read-label'));
+    const fieldReadLabel = fieldReadLabelComponent.componentInstance;
+    expect(fieldReadLabel.withLabel).toBe(true);
+  });
+
+
+});
+
+export const registered = true;

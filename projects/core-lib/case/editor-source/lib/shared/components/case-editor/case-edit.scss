@@ -1,0 +1,82 @@
+#fieldset-case-data {
+  margin-bottom: 30px;
+
+  th {
+    width: 1%;
+    white-space: nowrap;
+    vertical-align: top;
+  }
+}
+
+.compound-field {
+  td {
+    padding: 0;
+  }
+}
+
+#confirmation-header {
+  width: 630px;
+  background-color: #17958b;
+  border: solid 1px #979797;
+  color: #ffffff;
+  text-align: center;
+}
+
+#confirmation-body {
+  width: 630px;
+  background-color: #ffffff;
+}
+
+.valign-top {
+  vertical-align: top;
+}
+
+.summary-fields {
+  margin-bottom: 30px;
+  tbody tr th, tbody tr td {
+    border-bottom: 0px;
+  }
+}
+
+a.disabled {
+  pointer-events: none;
+  cursor: default;
+}
+
+.case-field-label {
+  width: 45%
+}
+
+.case-field-content {
+  width: 50%
+}
+
+.no-bottom-border {
+  border-bottom: none;
+}
+
+.case-field-change {
+  width: 5%
+}
+
+.refresh-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  .refresh-modal {
+    background: #fff;
+    padding: 24px;
+    max-width: 520px;
+    width: 90%;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    border-radius: 4px;
+    text-align: center;
+  }
+  .refresh-modal .button {
+    margin-top: 12px;
+  }

@@ -7,7 +7,7 @@ import { sourceSnapshot } from './evidence-source-snapshot.mjs';
 
 const [lane, command] = process.argv.slice(2);
 const inventory = JSON.parse(readFileSync(new URL('../tests/contracts.json', import.meta.url), 'utf8'));
-const allowed = { refDataUnit: 'test:ref-data', locationUnit: 'test:locations', windowUnit: 'test:window', cookieUnit: 'test:cookie', featureToggleUnit: 'test:feature-toggle', roleUnit: 'test:roles', unit: 'test', nodeUnit: 'test:node:utils', nodeServerUnit: 'test:node:server', i18nUnit: 'test:i18n', package: 'test:package', browser: 'test:browser', cacheBrowser: 'test:cache-upgrade' };
+const allowed = { refDataUnit: 'test:ref-data', locationUnit: 'test:locations', windowUnit: 'test:window', cookieUnit: 'test:cookie', featureToggleUnit: 'test:feature-toggle', roleUnit: 'test:roles', unit: 'test', nodeUnit: 'test:node:utils', nodeServerUnit: 'test:node:server', i18nUnit: 'test:i18n', editorUnit: 'test:editor', package: 'test:package', browser: 'test:browser', cacheBrowser: 'test:cache-upgrade' };
 if (!process.env.CORE_EVIDENCE_RUN_ID || allowed[lane] !== command) throw new Error('Evidence lane must run under the supervised full suite');
 const identity = currentIdentity(process.cwd());
 const run = JSON.parse(readFileSync('test-results/lane-provenance/run.json', 'utf8'));

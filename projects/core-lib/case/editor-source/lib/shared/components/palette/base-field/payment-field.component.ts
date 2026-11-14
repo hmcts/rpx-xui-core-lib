@@ -1,0 +1,49 @@
+import { AbstractAppConfig } from '../../../../app.config';
+import { SessionStorageService } from '../../../services/session/session-storage.service';
+import { AbstractFieldReadComponent } from './abstract-field-read.component';
+import { safeJsonParse } from '../../../json-utils';
+
+export abstract class PaymentField extends AbstractFieldReadComponent {
+    constructor(
+        protected readonly appConfig: AbstractAppConfig,
+        protected readonly sessionStorage: SessionStorageService
+    ) {
+        super();
+    }
+
+    public getBaseURL() {
+        return this.appConfig.getPaymentsUrl();
+    }
+
+    public getPayBulkScanBaseURL() {
+        return this.appConfig.getPayBulkScanBaseUrl();
+    }
+
+    public getRefundsUrl() {
+        return this.appConfig.getRefundsUrl();
+    }
+
+    public getNotificationUrl() {
+        return this.appConfig.getNotificationUrl();
+    }
+
+    public getUserRoles() {
+        // Preserve the Toolkit payment return values for arbitrary stored user data.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const userDetails = safeJsonParse<any>(this.sessionStorage.getItem('userDetails'), null);
+        if (!userDetails || !userDetails.hasOwnProperty('roles')) {
+            return [];
+        }
+        return userDetails.roles;
+    }
+
+    public getUserEmail() {
+        // Preserve the Toolkit payment return values for arbitrary stored user data.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const userDetails = safeJsonParse<any>(this.sessionStorage.getItem('userDetails'), null);
+        if (!userDetails || !userDetails.hasOwnProperty('sub')) {
+            return '';
+        }
+        return userDetails.sub;
+    }
+}

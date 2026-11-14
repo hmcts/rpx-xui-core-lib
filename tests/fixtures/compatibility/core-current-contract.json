@@ -30,6 +30,7 @@
       "debug": "^4.4.3",
       "express": "^5.2.1",
       "express-session": "^1.19.0",
+      "helmet": "8.3.0",
       "jest": "30.5.1",
       "joi": "^18.3.0",
       "jwt-decode": "^4.0.0",
@@ -40,11 +41,11 @@
       "redis": "^6.1.0",
       "session-file-store": "^1.5.0",
       "ts-jest": "29.4.12",
-      "typescript": "5.9.3",
-      "helmet": "8.3.0"
+      "typescript": "5.9.3"
     }
   },
   "devCohort": {
+    "@angular/animations": "20.3.35",
     "@angular/build": "20.3.42",
     "@angular/cdk": "20.2.14",
     "@angular/cli": "20.3.42",
@@ -54,7 +55,10 @@
     "@angular/core": "20.3.35",
     "@angular/forms": "20.3.35",
     "@angular/material": "20.2.14",
+    "@angular/material-moment-adapter": "20.2.14",
     "@angular/platform-browser": "20.3.35",
+    "@angular/platform-browser-dynamic": "20.3.35",
+    "@angular/router": "20.3.35",
     "govuk-frontend": "5.14.0",
     "ng-packagr": "20.3.2",
     "rxjs": "7.8.2",
@@ -86,7 +90,15 @@
     "@angular/cdk": "20.2.14",
     "@angular/platform-browser": "^20.3.27",
     "express": "5.2.1",
-    "helmet": "^8.1.0"
+    "helmet": "^8.1.0",
+    "@angular/router": "^20.3.27",
+    "@angular/material-moment-adapter": "20.2.14",
+    "@hmcts/ccpay-web-component": "6.5.28",
+    "@hmcts/media-viewer": "4.2.48",
+    "@ngxmc/datetime-picker": "20.1.0",
+    "ngx-editor": "19.0.0-beta.1",
+    "ngx-markdown": "20.1.0",
+    "ngx-pagination": "6.0.3"
   },
   "libraryPeerDependenciesMeta": {
     "@angular/common": {
@@ -115,6 +127,30 @@
     },
     "helmet": {
       "optional": true
+    },
+    "@angular/router": {
+      "optional": true
+    },
+    "@angular/material-moment-adapter": {
+      "optional": true
+    },
+    "@hmcts/ccpay-web-component": {
+      "optional": true
+    },
+    "@hmcts/media-viewer": {
+      "optional": true
+    },
+    "@ngxmc/datetime-picker": {
+      "optional": true
+    },
+    "ngx-editor": {
+      "optional": true
+    },
+    "ngx-markdown": {
+      "optional": true
+    },
+    "ngx-pagination": {
+      "optional": true
     }
   },
   "libraryDependencies": {
@@ -122,17 +158,31 @@
     "connect-redis": "^9.0.0",
     "debug": "^4.4.3",
     "dexie": "4.4.7",
-    "express-session": "^1.19.0",
     "joi": "^18.3.0",
     "jwt-decode": "^4.0.0",
     "luxon": "2.5.2",
     "axios": "^1.20.0",
+    "express-session": "^1.19.0",
     "openid-client": "^5.7.1",
     "otplib": "^13.4.0",
     "passport": "^0.7.0",
     "passport-oauth2": "^1.8.0",
     "redis": "^6.1.0",
-    "session-file-store": "^1.5.0"
+    "session-file-store": "^1.5.0",
+    "@edium/fsm": "3.0.2",
+    "class-transformer": "0.5.1",
+    "lodash": "4.18.1",
+    "lz-string": "1.5.0",
+    "marked": "16.4.2",
+    "moment": "2.31.0",
+    "prosemirror-commands": "1.7.1",
+    "prosemirror-history": "1.5.0",
+    "prosemirror-model": "1.25.13",
+    "prosemirror-schema-list": "1.5.1",
+    "prosemirror-state": "1.4.4",
+    "reflect-metadata": "0.1.14",
+    "underscore": "1.13.8",
+    "uuid": "11.1.1"
   },
   "libraryResolutions": {},
   "libraryOverrides": {},
@@ -344,7 +394,21 @@
       "passport",
       "passport-oauth2",
       "redis",
-      "session-file-store"
+      "session-file-store",
+      "@edium/fsm",
+      "class-transformer",
+      "lodash",
+      "lz-string",
+      "marked",
+      "moment",
+      "prosemirror-commands",
+      "prosemirror-history",
+      "prosemirror-model",
+      "prosemirror-schema-list",
+      "prosemirror-state",
+      "reflect-metadata",
+      "underscore",
+      "uuid"
     ]
   },
   "yarnConfig": {
@@ -357,6 +421,7 @@
     "nmHoistingLimits": "workspaces"
   },
   "lockedVersions": {
+    "@angular/animations": "20.3.35",
     "@angular/build": "20.3.42",
     "@angular/cdk": "20.2.14",
     "@angular/cli": "20.3.42",
@@ -366,7 +431,10 @@
     "@angular/core": "20.3.35",
     "@angular/forms": "20.3.35",
     "@angular/material": "20.2.14",
+    "@angular/material-moment-adapter": "20.2.14",
     "@angular/platform-browser": "20.3.35",
+    "@angular/platform-browser-dynamic": "20.3.35",
+    "@angular/router": "20.3.35",
     "govuk-frontend": "5.14.0",
     "ng-packagr": "20.3.2",
     "rxjs": "7.8.2",
@@ -376,16 +444,30 @@
     "connect-redis": "9.0.0",
     "debug": "4.4.3",
     "dexie": "4.4.7",
-    "express-session": "1.19.0",
     "joi": "18.3.2",
     "jwt-decode": "4.0.0",
     "luxon": "2.5.2",
     "axios": "1.21.1",
+    "express-session": "1.19.0",
     "openid-client": "5.7.1",
     "otplib": "13.6.0",
     "passport": "0.7.0",
     "passport-oauth2": "1.8.0",
     "redis": "6.3.1",
-    "session-file-store": "1.5.0"
+    "session-file-store": "1.5.0",
+    "@edium/fsm": "3.0.2",
+    "class-transformer": "0.5.1",
+    "lodash": "4.18.1",
+    "lz-string": "1.5.0",
+    "marked": "16.4.2",
+    "moment": "2.31.0",
+    "prosemirror-commands": "1.7.1",
+    "prosemirror-history": "1.5.0",
+    "prosemirror-model": "1.25.13",
+    "prosemirror-schema-list": "1.5.1",
+    "prosemirror-state": "1.4.4",
+    "reflect-metadata": "0.1.14",
+    "underscore": "1.13.8",
+    "uuid": "11.1.1"
   }
 }

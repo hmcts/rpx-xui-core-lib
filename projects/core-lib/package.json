@@ -13,18 +13,68 @@
     "@angular/cdk": "20.2.14",
     "@angular/platform-browser": "^20.3.27",
     "express": "5.2.1",
-    "helmet": "^8.1.0"
+    "helmet": "^8.1.0",
+    "@angular/router": "^20.3.27",
+    "@angular/material-moment-adapter": "20.2.14",
+    "@hmcts/ccpay-web-component": "6.5.28",
+    "@hmcts/media-viewer": "4.2.48",
+    "@ngxmc/datetime-picker": "20.1.0",
+    "ngx-editor": "19.0.0-beta.1",
+    "ngx-markdown": "20.1.0",
+    "ngx-pagination": "6.0.3"
   },
   "peerDependenciesMeta": {
-    "@angular/common": { "optional": true },
-    "@angular/core": { "optional": true },
-    "@angular/forms": { "optional": true },
-    "rxjs": { "optional": true },
-    "@angular/material": { "optional": true },
-    "@angular/cdk": { "optional": true },
-    "@angular/platform-browser": { "optional": true },
-    "express": { "optional": true },
-    "helmet": { "optional": true }
+    "@angular/common": {
+      "optional": true
+    },
+    "@angular/core": {
+      "optional": true
+    },
+    "@angular/forms": {
+      "optional": true
+    },
+    "rxjs": {
+      "optional": true
+    },
+    "@angular/material": {
+      "optional": true
+    },
+    "@angular/cdk": {
+      "optional": true
+    },
+    "@angular/platform-browser": {
+      "optional": true
+    },
+    "express": {
+      "optional": true
+    },
+    "helmet": {
+      "optional": true
+    },
+    "@angular/router": {
+      "optional": true
+    },
+    "@angular/material-moment-adapter": {
+      "optional": true
+    },
+    "@hmcts/ccpay-web-component": {
+      "optional": true
+    },
+    "@hmcts/media-viewer": {
+      "optional": true
+    },
+    "@ngxmc/datetime-picker": {
+      "optional": true
+    },
+    "ngx-editor": {
+      "optional": true
+    },
+    "ngx-markdown": {
+      "optional": true
+    },
+    "ngx-pagination": {
+      "optional": true
+    }
   },
   "exports": {
     "./node": {
@@ -85,6 +135,20 @@
     "passport": "^0.7.0",
     "passport-oauth2": "^1.8.0",
     "redis": "^6.1.0",
-    "session-file-store": "^1.5.0"
+    "session-file-store": "^1.5.0",
+    "@edium/fsm": "3.0.2",
+    "class-transformer": "0.5.1",
+    "lodash": "4.18.1",
+    "lz-string": "1.5.0",
+    "marked": "16.4.2",
+    "moment": "2.31.0",
+    "prosemirror-commands": "1.7.1",
+    "prosemirror-history": "1.5.0",
+    "prosemirror-model": "1.25.13",
+    "prosemirror-schema-list": "1.5.1",
+    "prosemirror-state": "1.4.4",
+    "reflect-metadata": "0.1.14",
+    "underscore": "1.13.8",
+    "uuid": "11.1.1"
   }
 }

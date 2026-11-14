@@ -375,18 +375,18 @@ packageIds.push('package.node-security-optional-peer', 'package.strict-node-secu
   'package.node-security-merge-fault', 'package.node-security-restored', 'package.node-security-browser-denied');
 packageIds.push('package.strict-node-logging-types', 'package.node-logging-isolation', 'package.node-logging-loading-fault', 'package.helmet-8_1_0-cohort', 'package.helmet-8_2_0-cohort');
 packageIds.push('package.translation-counterpart-artifact', 'package.translation-counterpart-browser', 'package.translation-counterpart-types', 'package.translation-counterpart-identity', 'package.translation-counterpart-identity-fault');
-const expectedContracts = addedBrowserJourneys.length + Object.values(addedLaneNames).reduce((sum, names) => sum + names.length, 0) + unitNames.length + nodeNames.length + i18nNames.length + i18nJourneys.length + dueDateJourneys.length + accessibilityJourneys.length + sessionDialogJourneys.length + primitiveJourneys.length + cacheJourneys.length + validationJourneys.length + packageIds.length + 1 + contractInventory.nodeServerUnit.required.length;
+const expectedContracts = addedBrowserJourneys.length + Object.values(addedLaneNames).reduce((sum, names) => sum + names.length, 0) + unitNames.length + nodeNames.length + i18nNames.length + i18nJourneys.length + dueDateJourneys.length + accessibilityJourneys.length + sessionDialogJourneys.length + primitiveJourneys.length + cacheJourneys.length + validationJourneys.length + packageIds.length + 1 + contractInventory.nodeServerUnit.required.length + contractInventory.editorUnit.required.length;
 
 function nativeTap(names) {
   return `TAP version 13\n${names.map((name, index) => `ok ${index + 1} - ${name}`).join('\n')}\n1..${names.length}\n# tests ${names.length}\n# suites 0\n# pass ${names.length}\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n`;
 }
 
-function nativeJasmine() {
+function nativeJasmine(names = i18nNames) {
   return {
     schemaVersion: 1, jasmineVersion, complete: true, browserErrors: [],
     events: [
-      { type: 'jasmineStarted', result: { totalSpecsDefined: i18nNames.length } },
-      ...i18nNames.map((fullName, index) => ({ type: 'specDone', result: {
+      { type: 'jasmineStarted', result: { totalSpecsDefined: names.length } },
+      ...names.map((fullName, index) => ({ type: 'specDone', result: {
         id: `spec${index}`, fullName, status: 'passed', failedExpectations: [], deprecationWarnings: []
       } })),
       { type: 'suiteDone', result: { id: 'suite0', fullName: 'fixture suite', status: 'passed', failedExpectations: [], deprecationWarnings: [] } },
@@ -429,6 +429,7 @@ function reports() {
     'node.tap': nativeTap(nodeNames),
     'node-server.json': nativeJest(),
     'i18n/jasmine.json': nativeJasmine(),
+    'editor/jasmine.json': nativeJasmine(contractInventory.editorUnit.required),
     'browser.json': { errors: [], suites: [{ specs: [journey, ...validationJourneys, ...i18nJourneys, ...dueDateJourneys, ...accessibilityJourneys, ...sessionDialogJourneys, ...primitiveJourneys, ...addedBrowserJourneys].map((title) => ({ title, tests: [{ projectName: 'chromium', expectedStatus: 'passed', status: 'expected', results: [{ status: 'passed' }] }] })) }] },
     'cache-upgrade-report.json': { errors: [], suites: [{ specs: cacheJourneys.map((title) => ({ title, tests: [{ projectName: 'chromium', expectedStatus: 'passed', status: 'expected', results: [{ status: 'passed' }] }] })) }] },
     'package.json': { schemaVersion: 1, package: { sha256: createHash('sha256').update(candidate).digest('hex'), ...identity, dirty: false, translationCounterpart: counterpartProof() }, tests: packageIds.map((id) => ({ id, status: 'passed' })) },
@@ -467,7 +468,7 @@ test('accepts all independently required successful contracts', (t) => {
   assert.equal(checkFixture(t, reports())(), expectedContracts);
 });
 
-for (const file of ['validation.tap', 'browser.json', 'cache-upgrade-report.json', 'package.json', 'node.tap', 'i18n/jasmine.json']) {
+for (const file of ['validation.tap', 'browser.json', 'cache-upgrade-report.json', 'package.json', 'node.tap', 'i18n/jasmine.json', 'editor/jasmine.json']) {
   test(`rejects missing ${file} even when other reports pass`, (t) => {
     const files = reports();
     delete files[file];
@@ -479,6 +480,32 @@ for (const file of ['validation.tap', 'browser.json', 'cache-upgrade-report.json
     assert.throws(checkFixture(t, files));
   });
 }
+
+test('rejects a filtered-out editor contract', (t) => {
+  const files = reports();
+  files['editor/jasmine.json'] = nativeJasmine(contractInventory.editorUnit.required.slice(1));
+  assert.throws(checkFixture(t, files), /missing|required/i);
+});
+
+test('rejects an unregistered editor contract from the aggregate report', (t) => {
+  const files = reports();
+  files['editor/jasmine.json'] = nativeJasmine([...contractInventory.editorUnit.required, 'Unreviewed editor contract']);
+  assert.throws(checkFixture(t, files), /editorUnit unregistered contract/i);
+});
+
+test('editor receipt cannot be reused after its report changes', (t) => {
+  const check = checkFixture(t, reports());
+  assert.equal(check(), expectedContracts);
+  const file = join(check.root, 'test-results/editor/jasmine.json');
+  writeFileSync(file, readFileSync(file, 'utf8') + '\n');
+  assert.throws(check, /Unbound editorUnit/);
+});
+
+test('rejects an unsuccessful editor contract', (t) => {
+  const files = reports();
+  files['editor/jasmine.json'].events[1].result.status = 'failed';
+  assert.throws(checkFixture(t, files), /Jasmine|contract/i);
+});
 
 for (const name of unitNames) {
   test(`rejects a filtered-out unit contract: ${name}`, (t) => {
