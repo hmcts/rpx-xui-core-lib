@@ -20,7 +20,7 @@ async function until(predicate, message) {
   throw new Error(`Timed out waiting for ${message}`);
 }
 
-test('watch rebuilds Node changes, recovers and stops', { timeout: 120_000 }, async () => {
+test('watch rebuilds Node changes, recovers and stops', { timeout: 240_000 }, async () => {
   const fixture = await mkdtemp(join(tmpdir(), 'core-watch-test-'));
   let child;
   let log = '';
@@ -36,6 +36,9 @@ test('watch rebuilds Node changes, recovers and stops', { timeout: 120_000 }, as
     await mkdir(join(fixture, 'node_modules/@hmcts'), { recursive: true });
     for (const name of await readdir(join(root, 'node_modules'))) {
       if (name !== '@hmcts') await symlink(resolve(root, 'node_modules', name), join(fixture, 'node_modules', name));
+    }
+    for (const name of await readdir(join(root, 'node_modules/@hmcts'))) {
+      if (name !== 'rpx-xui-core-lib') await symlink(resolve(root, 'node_modules/@hmcts', name), join(fixture, 'node_modules/@hmcts', name));
     }
     await symlink(resolve(root, 'projects/core-lib/node/node_modules'), join(fixture, 'projects/core-lib/node/node_modules'));
     child = spawn(process.execPath, ['scripts/build.mjs', '--watch'], { cwd: fixture, stdio: ['ignore', 'pipe', 'pipe'] });

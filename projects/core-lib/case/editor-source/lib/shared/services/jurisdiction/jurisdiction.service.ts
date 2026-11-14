@@ -1,0 +1,49 @@
+import { Injectable } from '@angular/core';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { Jurisdiction } from '../../domain/definition/jurisdiction.model';
+import { JudicialUserModel } from '../../domain/jurisdiction';
+import { HttpService } from '../http';
+
+@Injectable()
+export class JurisdictionService {
+  // We retain the Subject observable because subscribing code couldn't happen a null value
+  public readonly selectedJurisdictionSource = new Subject<Jurisdiction>();
+  private readonly _selectedJurisdictionBS = new BehaviorSubject<Jurisdiction>(null);
+  public readonly selectedJurisdiction: Observable<Jurisdiction>;
+
+  constructor(private readonly httpService: HttpService) {
+    this.selectedJurisdiction = this.selectedJurisdictionSource.asObservable();
+  }
+
+  public getJurisdictions(): Observable<Jurisdiction[]> {
+    return this.httpService.get('/aggregated/caseworkers/:uid/jurisdictions?access=read');
+  }
+
+  public announceSelectedJurisdiction(jurisdiction: Jurisdiction): void {
+    this.selectedJurisdictionSource.next(jurisdiction);
+    this._selectedJurisdictionBS.next(jurisdiction);
+  }
+
+  // S4275: selectedJurisdiction announces changes; callers need the replaying state and getValue().
+  public getSelectedJurisdiction(): BehaviorSubject<Jurisdiction> { // NOSONAR
+    return this._selectedJurisdictionBS;
+  }
+
+  public searchJudicialUsers(searchTerm: string, serviceId: string): Observable<JudicialUserModel[]> {
+    return this.httpService.post('api/prd/judicial/getJudicialUsersSearch', {
+      searchString: searchTerm,
+      serviceCode: serviceId
+    });
+  }
+
+  public searchJudicialUsersByPersonalCodes(personalCodes: string[]): Observable<JudicialUserModel[]> {
+    return this.httpService.post('api/prd/judicial/searchJudicialUserByPersonalCodes', { personal_code: personalCodes });
+  }
+
+  public getJudicialUserByIdamId(idamId: string): Observable<JudicialUserModel | null> {
+    return this.httpService.post('api/prd/judicial/searchJudicialUserByIdamId', { sidam_ids: [idamId] }).pipe(
+      map((users: JudicialUserModel[]) => (users && users.length > 0 ? users[0] : null))
+    );
+  }
+}

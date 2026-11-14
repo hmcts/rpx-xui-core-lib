@@ -12,4 +12,5 @@ coverage/
 .DS_Store
 .angular/
 playwright-report/
+.playwright-cli/
 test-results/

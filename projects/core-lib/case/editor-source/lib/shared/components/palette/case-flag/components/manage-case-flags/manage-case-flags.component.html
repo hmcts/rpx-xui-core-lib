@@ -1,0 +1,24 @@
+<ng-container [formGroup]="formGroup">
+  <div class="govuk-form-group" [ngClass]="{'form-group-error': errorMessages.length > 0}">
+    <fieldset class="govuk-fieldset" aria-describedby="manage-case-flag-heading">
+      <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+        <h1 id="manage-case-flag-heading" class="govuk-fieldset__heading">
+          {{manageCaseFlagTitle | rpxTranslate}}
+        </h1>
+      </legend>
+      <div id="manage-case-flag-not-selected-error-message" class="govuk-error-message"
+        *ngIf="manageCaseFlagSelectedErrorMessage">
+        <span class="govuk-visually-hidden">{{'Error:' | rpxTranslate}}</span> {{manageCaseFlagSelectedErrorMessage | rpxTranslate}}
+      </div>
+      <div class="govuk-radios govuk-radios--conditional" data-module="govuk-radios" id="conditional-radios-list">
+        <div class="govuk-radios__item" *ngFor="let flagDisplay of flagsDisplayData; index as i">
+          <input class="govuk-radios__input" id="flag-selection-{{i}}"
+            type="radio"
+            [checked]="isSelected(flagDisplay)"
+            (change)="onFlagSelectionChange(flagDisplay)"/>
+          <label class="govuk-label govuk-radios__label" for="flag-selection-{{i}}" [innerHTML]="sanitizeHtml(flagDisplay | manageCaseFlagsLabelDisplay)"></label>
+        </div>
+      </div>
+    </fieldset>
+  </div>
+</ng-container>

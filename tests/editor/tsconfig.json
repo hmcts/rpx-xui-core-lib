@@ -1,0 +1,37 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "strict": false,
+    "noImplicitAny": true,
+    "types": [
+      "jasmine"
+    ],
+    "paths": {
+      "@hmcts/rpx-xui-core-lib/i18n": [
+        "../../projects/core-lib/i18n/public-api.ts"
+      ],
+      "@hmcts/rpx-xui-core-lib/case/notifier": [
+        "../../projects/core-lib/case/notifier/public-api.ts"
+      ],
+      "@hmcts/rpx-xui-core-lib/case/editor-source": [
+        "../../projects/core-lib/case/editor-source/public-api.ts"
+      ],
+      "@hmcts/rpx-xui-core-lib/browser/session-storage": [
+        "../../projects/core-lib/browser/session-storage/public-api.ts"
+      ],
+      "@hmcts/rpx-xui-core-lib/case/models": [
+        "../../projects/core-lib/case/models/public-api.ts"
+      ],
+      "@hmcts/rpx-xui-core-lib/case/reference": [
+        "../../projects/core-lib/case/reference/public-api.ts"
+      ],
+      "@hmcts/rpx-xui-core-lib/case/editor-date": [
+        "../../projects/core-lib/case/editor-date/public-api.ts"
+      ]
+    },
+    "outDir": "../../test-results/i18n-compiled"
+  },
+  "include": [
+    "**/*.ts"
+  ]
+}

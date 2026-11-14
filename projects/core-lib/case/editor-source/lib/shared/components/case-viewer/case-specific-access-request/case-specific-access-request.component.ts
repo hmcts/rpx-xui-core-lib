@@ -1,0 +1,153 @@
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  AbstractControl,
+  FormBuilder,
+  FormControl,
+  FormGroup
+} from '@angular/forms';
+import { Title } from '@angular/platform-browser';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
+import { ErrorMessage, SpecificAccessRequest } from '../../../domain';
+import { CaseNotifier, CasesService } from '../../case-editor';
+import {
+  SpecificAccessRequestErrors,
+  SpecificAccessRequestPageText
+} from './models';
+
+@Component({
+  selector: 'ccd-case-specific-access-request',
+  templateUrl: './case-specific-access-request.component.html',
+  standalone: false
+})
+export class CaseSpecificAccessRequestComponent implements OnDestroy, OnInit {
+  public static CANCEL_LINK_DESTINATION = '/work/my-work/list';
+  public collapsed = false;
+  public title: string;
+  public hint: string;
+  public caseRefLabel: string;
+  public formGroup: FormGroup;
+  public submitted = false;
+  public errorMessage: ErrorMessage;
+  public $roleAssignmentResponseSubscription: Subscription;
+
+  private readonly genericError = 'There is a problem';
+  private readonly specificReasonControlName = 'specificReason';
+  public getSpecificAccessError = false;
+  private originalDocumentTitle: string;
+
+  constructor(
+    private readonly fb: FormBuilder,
+    private readonly router: Router,
+    private readonly casesService: CasesService,
+    private readonly route: ActivatedRoute,
+    private readonly caseNotifier: CaseNotifier,
+    private readonly titleService: Title
+  ) { }
+
+  public ngOnInit(): void {
+    this.title = SpecificAccessRequestPageText.TITLE;
+    this.hint = SpecificAccessRequestPageText.HINT;
+    this.caseRefLabel = SpecificAccessRequestPageText.CASE_REF;
+    this.originalDocumentTitle = this.titleService.getTitle();
+    this.formGroup = this.fb.group({
+      radioSelected: new FormControl(null, null),
+    });
+
+    this.formGroup.addControl(
+      this.specificReasonControlName,
+      new FormControl('', {
+        validators: [
+          (control: AbstractControl): { [key: string]: boolean } | null => {
+            if (this.inputEmpty(control)) {
+              return { invalid: true };
+            }
+            return null;
+          },
+        ],
+        updateOn: 'submit',
+      })
+    );
+  }
+
+  public onChange(): void {
+    this.submitted = false;
+    this.restoreDocumentTitle();
+    // Clear the "specific reason" fields manually. This prevents any previous value being retained by
+    // the field's FormControl when the field itself is removed from the DOM by *ngIf. (If it is subsequently added back
+    // to the DOM by *ngIf, it will appear empty but the associated FormControl still has the previous value.)
+    this.formGroup.get(this.specificReasonControlName).setValue('');
+  }
+
+  public onSubmit(): void {
+    this.submitted = true;
+    if (this.formGroup.get(this.specificReasonControlName).invalid) {
+      this.errorMessage = {
+        title: this.genericError,
+        description: SpecificAccessRequestErrors.NO_REASON,
+        fieldId: 'specific-reason',
+      };
+      this.prefixDocumentTitleWithError();
+    } else {
+      this.restoreDocumentTitle();
+    }
+
+    // Initiate Specific Access Request
+    if (this.formGroup.valid) {
+      // Get the Case Reference (for which access is being requested) from the ActivatedRouteSnapshot data
+      const caseId = this.route.snapshot.params.cid;
+      const specificAccessRequest = {
+        specificReason: this.formGroup.get(this.specificReasonControlName).value
+      } as SpecificAccessRequest;
+
+      this.$roleAssignmentResponseSubscription = this.casesService.createSpecificAccessRequest(caseId, specificAccessRequest)
+        .pipe(switchMap(() => this.caseNotifier.fetchAndRefresh(caseId)))
+        .subscribe(
+          () => {
+            // Would have been nice to pass the caseId within state.data, but this isn't part of NavigationExtras until
+            // Angular 7.2
+            this.getSpecificAccessError = false;
+            this.router.navigate(['success'], { relativeTo: this.route });
+          },
+          () => {
+            // Show the generic error message
+            this.getSpecificAccessError = true;
+            this.errorMessage = {
+              title: this.genericError,
+              description: 'Sorry, there is a problem with the service; Try again later.',
+              fieldId: 'specific-reason'
+            };
+            this.prefixDocumentTitleWithError();
+          }
+        );
+    }
+  }
+
+  private prefixDocumentTitleWithError(): void {
+    if (!this.titleService.getTitle().startsWith('Error:')) {
+      this.titleService.setTitle(`Error: ${this.originalDocumentTitle}`);
+    }
+  }
+
+  private restoreDocumentTitle(): void {
+    if (this.titleService.getTitle() !== this.originalDocumentTitle) {
+      this.titleService.setTitle(this.originalDocumentTitle);
+    }
+  }
+
+  public onCancel(): void {
+    // Navigate to the page before previous one (should be Search Results or Case List page, for example)
+    this.router.navigateByUrl(CaseSpecificAccessRequestComponent.CANCEL_LINK_DESTINATION);
+  }
+
+  public ngOnDestroy(): void {
+    if (this.$roleAssignmentResponseSubscription) {
+      this.$roleAssignmentResponseSubscription.unsubscribe();
+    }
+  }
+
+  private inputEmpty(input: AbstractControl): boolean {
+    return input.value === null || input.value.trim().length === 0;
+  }
+}
