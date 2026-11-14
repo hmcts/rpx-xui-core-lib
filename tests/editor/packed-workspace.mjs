@@ -8,6 +8,10 @@ export async function preparePackedWorkspace(root) {
   for (const entry of ['angular.json', 'package.json', 'tsconfig.json', 'projects', 'tests/editor']) {
     await cp(join(root, entry), join(workspace, entry), { recursive: true });
   }
+  const sourcePackagePath = join(workspace, 'projects/core-lib/package.json');
+  const sourcePackage = JSON.parse(await readFile(sourcePackagePath, 'utf8'));
+  sourcePackage.name = '@hmcts/core-editor-source-fixture';
+  await writeFile(sourcePackagePath, JSON.stringify(sourcePackage, null, 2) + '\n');
   const modules = join(workspace, 'node_modules');
   await mkdir(join(modules, '@hmcts'), { recursive: true });
   for (const entry of await readdir(join(root, 'node_modules'))) {

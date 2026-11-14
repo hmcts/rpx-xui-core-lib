@@ -1418,6 +1418,7 @@
       "Unlink case migration contract accepts both standard and challenged-access case identifiers",
       "Unlink case migration contract updates only the selected case when checking and unchecking it",
       "Unlink case migration contract reports a lookup failure without changing the linked cases",
+      "Linked cases display migration contract renders unique retry links for failures in both directions",
       "Linked cases display migration contract keeps incoming and outgoing lookup failures separate",
       "Read field filtering migration contract keeps populated fields and labels while filtering empty values",
       "Query attachment migration contract preserves document links and filename in the CCD collection format",

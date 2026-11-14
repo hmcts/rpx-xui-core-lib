@@ -1722,6 +1722,7 @@
           "Unlink case migration contract accepts both standard and challenged-access case identifiers",
           "Unlink case migration contract updates only the selected case when checking and unchecking it",
           "Unlink case migration contract reports a lookup failure without changing the linked cases",
+          "Linked cases display migration contract renders unique retry links for failures in both directions",
           "Linked cases display migration contract keeps incoming and outgoing lookup failures separate",
           "Case link validation migration contract accepts formatted sixteen-digit references and rejects invalid values",
           "Linked-case validators migration contract requires a selected option and a correctly shaped reference",
