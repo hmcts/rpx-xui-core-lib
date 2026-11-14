@@ -1,3 +1,4 @@
+import './error-summary-ids.spec';
 import './review-access-fieldset.spec';
 import './challenged-access-a11y.spec';
 import { registered as richTextBrowserRegistered } from './rich-text-browser.spec';
@@ -56,7 +57,6 @@ import { registered as pagePatchRegistered } from './page-patch.spec';
 import { registered as linkedCasesTableRegistered } from './linked-cases-table.spec';
 import { registered as formatRegistered } from './format-translator.spec';
 import { registered as linkedCasesRegistered } from './linked-cases.spec';
-import './error-summary-ids.spec';
 import './setup';
 import { registered as formValueRegistered } from '../../projects/core-lib/case/editor-source/lib/shared/services/form/form-value.service.spec';
 import { registered as fieldsRegistered } from '../../projects/core-lib/case/editor-source/lib/shared/services/fields/fields.utils.spec';
