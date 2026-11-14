@@ -1,0 +1,111 @@
+<xuilib-hmcts-error-summary
+  [idPrefix]="idPrefix"
+  [errorMessages]="validationErrors"
+  [header]="'There is a problem'"
+></xuilib-hmcts-error-summary>
+@if (title) {
+  <h1 class="govuk-heading-xl govuk-!-margin-top-2">
+    @if (fnTitle) {
+      <span class="govuk-caption-xl">{{fnTitle | rpxTranslate}}</span>
+    }
+    {{title | rpxTranslate}}
+  </h1>
+}
+<div [id]="elementId('add-user')">
+  <div class="govuk-form-group">
+      <label class="govuk-label govuk-!-font-weight-bold" [attr.for]="elementId('add-user-control')">{{addUserLabel | rpxTranslate}}</label>
+    <span [id]="elementId('add-user-hint')" class="govuk-hint">
+      {{'Search by name or email address. You can share access with as many people as you need.' | rpxTranslate}}
+    </span>
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        <xuilib-user-select
+          [id]="elementId('add-user-input')"
+          [idPrefix]="idPrefix"
+          [label]="addUserLabel"
+          [users]="users"
+          (selected)="onSelectedUser($event)">
+        </xuilib-user-select>
+      </div>
+      <div class="govuk-grid-column-one-thirds">
+        <button [id]="elementId('btn-add-user')" (click)="addUser()"
+          class="govuk-button govuk-button--secondary" [disabled]="isDisabledAdd()"
+          title="{{'Add user to selected cases' | rpxTranslate}}">
+          {{'Add' | rpxTranslate}}
+          <span class="govuk-visually-hidden">{{'user' | rpxTranslate}}</span>
+        </button>
+      </div>
+    </div>
+    <details [id]="elementId('add-user-help')" class="govuk-details">
+      <summary class="govuk-details__summary">
+        <span [id]="elementId('content-why-can-not-find-email')" class="govuk-details__summary-text">
+          {{"Can't find an email address?" | rpxTranslate}}
+        </span>
+      </summary>
+      <div [id]="elementId('content-reason-can-not-find-email')" class="govuk-details__text">
+        {{"If you can't find your colleague's email address, they will need to complete their registration. Contact your administrator for help." | rpxTranslate}}
+      </div>
+    </details>
+  </div>
+  @if (showRemoveUsers) {
+    <div class="govuk-form-group">
+      <label class="govuk-label govuk-!-font-weight-bold" [attr.for]="elementId('remove-user-input')">
+        {{'Remove a person from all cases' | rpxTranslate}}
+      </label>
+      <span [id]="elementId('remove-user-hint')" class="govuk-hint">
+        {{'Select a person to remove them from all selected cases.' | rpxTranslate}}
+      </span>
+      <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+          <select [value]="selectedUserToRemove" (change)="onSelectedUserToRemoveChanged($any($event.target).value)" class="govuk-select" [id]="elementId('remove-user-input')" [attr.aria-describedby]="elementId('remove-user-hint')">
+            <option [ngValue]="null" selected>Select a person</option>
+            @for (user of assignedUsers; track user) {
+              <option [ngValue]="user">{{user.firstName}} {{user.lastName}} - {{user.email}}</option>
+            }
+          </select>
+        </div>
+        <div class="govuk-grid-column-one-thirds">
+          <button [id]="elementId('btn-remove-user')" (click)="removeUser()" class="govuk-button govuk-button--secondary" title="{{'Remove user from selected cases' | rpxTranslate}}">
+            {{'Remove' | rpxTranslate}}
+            <span class="govuk-visually-hidden"> {{'user' | rpxTranslate}}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+<div tabindex="-1" [id]="elementId('cases')" [ngClass]="{'govuk-form-group--error': shareCaseErrorMessage.messages && shareCaseErrorMessage.messages.length > 0}">
+  <h2 [id]="elementId('title-selected-cases')" class="govuk-heading-m">
+    {{'Selected cases' | rpxTranslate}}
+  </h2>
+  <xuilib-gov-uk-error-message [config]="selectedCasesErrorMessageConfig" [errorMessage]="shareCaseErrorMessage"></xuilib-gov-uk-error-message>
+  @if (shareCases && shareCases.length > 0) {
+    <div class="govuk-accordion" data-module="govuk-accordion" [id]="elementId('accordion-with-summary-sections')">
+      <xuilib-selected-case-list
+        [idPrefix]="idPrefix"
+        [shareCases$]="shareCases$"
+        [removeUserFromCaseToggleOn]="removeUserFromCaseToggleOn"
+        (unselect)="onUnselect($event)"
+        (synchronizeStore)="onSynchronizeStore($event)"
+        >
+      </xuilib-selected-case-list>
+    </div>
+  }
+
+  @if (shareCases && shareCases.length === 0) {
+    <div [id]="elementId('noCaseDisplay')" class="govuk-hint">
+      {{'No cases to display.' | rpxTranslate}}
+    </div>
+  }
+
+</div>
+
+<div [id]="elementId('share-case-nav')" class="govuk-button-group">
+  <button [id]="elementId('btn-continue')" class="govuk-button" data-module="govuk-button" (click)="onContinue()" title="{{'Continue' | rpxTranslate}}">
+    {{'Continue' | rpxTranslate}}
+  </button>
+  <button [id]="elementId('btn-cancel')" class="govuk-button govuk-button--secondary" data-module="govuk-button" title="{{'Cancel' | rpxTranslate}}" [routerLink]="cancelLink">
+    {{'Cancel' | rpxTranslate}}
+  </button>
+</div>

@@ -85,13 +85,32 @@
     "zone.js": "0.15.1"
   },
   "peerDependenciesMeta": {
-    "@angular/cdk": { "optional": true },
-    "@angular/common": { "optional": true },
-    "@angular/core": { "optional": true },
-    "@angular/forms": { "optional": true },
-    "@angular/material": { "optional": true },
-    "@angular/platform-browser": { "optional": true },
-    "rxjs": { "optional": true },
-    "helmet": { "optional": true }
+    "@angular/cdk": {
+      "optional": true
+    },
+    "@angular/common": {
+      "optional": true
+    },
+    "@angular/core": {
+      "optional": true
+    },
+    "@angular/forms": {
+      "optional": true
+    },
+    "@angular/material": {
+      "optional": true
+    },
+    "@angular/platform-browser": {
+      "optional": true
+    },
+    "rxjs": {
+      "optional": true
+    },
+    "helmet": {
+      "optional": true
+    },
+    "@angular/router": {
+      "optional": true
+    }
   }
 }

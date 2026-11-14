@@ -63,6 +63,21 @@ const unitNames = [
   "task name cancellation tears down the HTTP subscription without writing",
   "task service sends and caches through the Angular HTTP testing backend",
 ];
+unitNames.push('selected case stops listening to shared state when destroyed',
+  'SelectedCaseListComponent stops listening to shared state when destroyed',
+  'SelectedCaseConfirmComponent stops listening to shared state when destroyed',
+  'selected case actions use the same state and forward emitted changes',
+  'list forwards selection and confirmation displays pending changes only',
+  'ShareCaseComponent releases the host state subscription',
+  'ShareCaseConfirmComponent releases the host state subscription',
+  'continue validation reads current state without keeping subscriptions',
+  'user selection stops emitting when the component is destroyed',
+  'sharing supplies a label when the consumer does not provide one',
+  'user lookup tolerates a user list that has not loaded yet',
+  'user lookup refreshes the current query when users arrive');
+unitNames.push('user details checks roles safely for absent and present users', 'user details emits the original user for suspend and reinvite actions');
+unitNames.push('user list retains the legacy 50-item page and emits the selected user', 'user list updates the current page and emits the requested page');
+unitNames.push('invitation form defaults missing errors and emits a submit event', 'invitation permissions retain legacy default flags');
 const addedLaneNames = {
   "refDataUnit": [
     "reference data HTTP endpoints and encoded service-code parameter match the source",
@@ -382,6 +397,21 @@ packageIds.push('package.node-security-optional-peer', 'package.strict-node-secu
   'package.node-security-merge-fault', 'package.node-security-restored', 'package.node-security-browser-denied');
 packageIds.push('package.strict-node-logging-types', 'package.node-logging-isolation', 'package.node-logging-loading-fault', 'package.helmet-8_1_0-cohort', 'package.helmet-8_2_0-cohort');
 packageIds.push('package.translation-counterpart-artifact', 'package.translation-counterpart-browser', 'package.translation-counterpart-types', 'package.translation-counterpart-identity', 'package.translation-counterpart-identity-fault');
+packageIds.push('package.selected-case-behavior', 'package.share-case-behavior', 'package.selected-case-graph', 'package.share-case-graph');
+addedBrowserJourneys.push('selected case removal can be cancelled and reflected in confirmation',
+  'selected case accordion references its own content', 'selected case accordion can be operated with the keyboard',
+  'selected case controls have no automated accessibility violations', 'sharing requires a change and adds a selected user',
+  'sharing can remove a selected existing user from all cases', 'sharing user lookup has its visible label and accessible description',
+  'sharing cannot add a person before an autocomplete selection', 'selected cases keep user identifiers unique across multiple cases', 'sharing preserves a caller supplied user lookup label', 'sharing refreshes a typed search when users finish loading',
+  'sharing gallery starts without Angular routing errors', 'selected cases gallery starts without Angular routing errors',
+  'simultaneous sharing forms retain separate cases', 'simultaneous sharing forms retain their own accessible labels', 'prefixed sharing forms have unique IDs and show their own errors', 'sharing error links work with valid ID prefixes containing punctuation', 'sharing forms distinguish the same case in each accordion');
+addedBrowserJourneys.push('user details shows roles and emits a suspend action', 'pending user hides permissions and emits a reinvite action', 'user details actions work from the keyboard and pass an axe scan');
+addedBrowserJourneys.push('users without a route can be selected with the keyboard', 'users with a route retain a navigable link and emit selection');
+addedBrowserJourneys.push('user list pages through users and emits the chosen user', 'pagination can be operated with the keyboard', 'user list and pagination have no automated accessibility violations');
+addedBrowserJourneys.push('invitation emits submit and displays parent validation', 'invitation emits entered details and selected permissions', 'invitation form supports keyboard selection and passes axe', 'invalid invitation inputs expose their errors accessibly', 'invitation retains and updates a preselected permission', 'permission error is announced by the permissions fieldset', 'permissions with an empty error never reference a missing message');
+packageIds.push('package.user-details-behavior', 'package.user-details-graph');
+packageIds.push('package.user-list-behavior', 'package.user-list-graph');
+packageIds.push('package.invitation-behavior', 'package.invitation-graph');
 const expectedContracts = addedBrowserJourneys.length + Object.values(addedLaneNames).reduce((sum, names) => sum + names.length, 0) + unitNames.length + nodeNames.length + i18nNames.length + i18nJourneys.length + dueDateJourneys.length + accessibilityJourneys.length + sessionDialogJourneys.length + primitiveJourneys.length + cacheJourneys.length + validationJourneys.length + packageIds.length + 1 + contractInventory.nodeServerUnit.required.length + contractInventory.editorUnit.required.length + contractInventory.editorDrivers.required.length;
 
 function nativeTap(names) {
