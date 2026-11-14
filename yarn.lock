@@ -1839,7 +1839,7 @@ __metadata:
     esbuild: "npm:0.28.2"
     eslint: "npm:10.14.0"
     govuk-frontend: "npm:5.14.0"
-    jasmine-core: "npm:5.13.0"
+    jasmine-core: "npm:7.0.2"
     js-yaml: "npm:4.3.2"
     lodash: "npm:4.18.1"
     luxon: "npm:2.5.2"
@@ -9008,10 +9008,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jasmine-core@npm:5.13.0":
-  version: 5.13.0
-  resolution: "jasmine-core@npm:5.13.0"
-  checksum: 10c0/3bbf1dbbde8017f41872a27f22bafd164fe4fcf834347af23d7d5a63e7e35c72c79e1596e6b384dd2906e885518419e13a6c7535ffabf8256b624110d664599d
+"jasmine-core@npm:7.0.2":
+  version: 7.0.2
+  resolution: "jasmine-core@npm:7.0.2"
+  checksum: 10c0/335304a185284bb7cac23810e5f4547211b6b00c783ea1fad02e24bb0ef4a3b8f87d46a72c6650cbaed647bcf325b22a5a0322afc17602565450dc3bd8f24cda
   languageName: node
   linkType: hard
 
