@@ -1526,7 +1526,9 @@
       "Event completion migration contract reports a failed wizard redirect without delaying resolution",
       "Event completion migration contract preserves first-page navigation and the invalid-page alert",
       "Case editor submission data contract reports a failed review-page navigation with the original error",
-      "Case editor submission data contract reports failed confirmation navigation without resubmitting an accepted event"
+      "Case editor submission data contract reports failed confirmation navigation without resubmitting an accepted event",
+      "Editor error summary accessibility associates one heading for each generic or event error branch",
+      "Editor error summary accessibility associates one heading for each generic or callback viewer error branch"
     ]
   }
 }

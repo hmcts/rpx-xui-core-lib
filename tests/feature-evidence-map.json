@@ -1474,7 +1474,9 @@
           "Condition parser migration contract preserves the parser default export across entry points",
           "Editor HTTP error contract preserves varied callback error payloads by reference",
           "Case reference shared identity uses the same pipe class across editor and Core entry points",
-          "Case reference shared identity renders both formatted references and drafts with both modules imported"
+          "Case reference shared identity renders both formatted references and drafts with both modules imported",
+          "Editor error summary accessibility associates one heading for each generic or event error branch",
+          "Editor error summary accessibility associates one heading for each generic or callback viewer error branch"
         ]
       }
     },
