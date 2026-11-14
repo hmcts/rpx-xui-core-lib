@@ -25,7 +25,8 @@ export class JurisdictionService {
     this._selectedJurisdictionBS.next(jurisdiction);
   }
 
-  public getSelectedJurisdiction(): BehaviorSubject<Jurisdiction> {
+  // S4275: selectedJurisdiction announces changes; callers need the replaying state and getValue().
+  public getSelectedJurisdiction(): BehaviorSubject<Jurisdiction> { // NOSONAR
     return this._selectedJurisdictionBS;
   }
 
