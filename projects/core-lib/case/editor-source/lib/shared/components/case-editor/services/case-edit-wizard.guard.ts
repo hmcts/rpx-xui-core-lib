@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { ErrorHandler, Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, Resolve, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 import { ShowCondition } from '../../../directives/conditional-show/domain/conditional-show.model';
@@ -22,14 +22,15 @@ export class CaseEditWizardGuard implements Resolve<boolean> {
     private readonly routerHelper: RouterHelperService,
     private readonly wizardFactory: WizardFactoryService,
     private readonly alertService: AlertService,
-    private readonly eventTriggerService: EventTriggerService
+    private readonly eventTriggerService: EventTriggerService,
+    private readonly errorHandler: ErrorHandler = new ErrorHandler()
   ) {}
 
   public resolve(route: ActivatedRouteSnapshot): Promise<boolean> {
     this.eventTriggerService.eventTriggerSource.asObservable().pipe(
       first(),
     ).subscribe(eventTrigger => {
-      this.processEventTrigger(route, eventTrigger);
+      this.processEventTrigger(route, eventTrigger).catch(error => this.errorHandler.handleError(error));
     });
     if (route.parent.data.eventTrigger) {
       this.eventTriggerService.announceEventTrigger(route.parent.data.eventTrigger);
@@ -39,8 +40,7 @@ export class CaseEditWizardGuard implements Resolve<boolean> {
 
   private processEventTrigger(route: ActivatedRouteSnapshot, eventTrigger: CaseEventTrigger): Promise<boolean> {
     if (!eventTrigger.hasFields() || !eventTrigger.hasPages()) {
-      this.goToSubmit(route);
-      return Promise.resolve(false);
+      return this.goToSubmit(route).then(() => false);
     }
 
     const wizard = this.wizardFactory.create(eventTrigger);
@@ -51,19 +51,18 @@ export class CaseEditWizardGuard implements Resolve<boolean> {
     };
 
     if (!route.params['page']) {
-      this.goToFirst(wizard, canShowPredicate, route);
-      return Promise.resolve(false);
+      return this.goToFirst(wizard, canShowPredicate, route).then(() => false);
     }
 
     const pageId = route.params['page'];
 
     if (!wizard.hasPage(pageId)) {
-      this.goToFirst(wizard, canShowPredicate, route)
+      return this.goToFirst(wizard, canShowPredicate, route)
         .then(() => {
           const replacements = { PAGEID: pageId };
           this.alertService.error({ phrase: 'No page could be found for %PAGEID%', replacements });
+          return false;
         });
-      return Promise.resolve(false);
     }
     return Promise.resolve(true);
   }

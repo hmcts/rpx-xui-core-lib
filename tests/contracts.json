@@ -1522,7 +1522,9 @@
       "Media viewer handoff sends to the current origin and stops after the matching acknowledgement",
       "Media viewer handoff ignores acknowledgements from the wrong origin, window or token",
       "Media viewer handoff stops retrying and releases the opener after the retry limit",
-      "Media viewer handoff stops retrying when the viewer window closes"
+      "Media viewer handoff stops retrying when the viewer window closes",
+      "Event completion migration contract reports a failed wizard redirect without delaying resolution",
+      "Event completion migration contract preserves first-page navigation and the invalid-page alert"
     ]
   }
 }

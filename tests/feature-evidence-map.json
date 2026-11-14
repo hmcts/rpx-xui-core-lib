@@ -1394,7 +1394,9 @@
           "Case history event identifier preserves the Toolkit string-typed event API",
           "Case history event identifier reports and rethrows the original case history failure",
           "Case notifier migration contract shares the existing Core session storage injection token",
-          "Case notifier migration contract shares existing Core case detail and draft model identities"
+          "Case notifier migration contract shares existing Core case detail and draft model identities",
+          "Event completion migration contract reports a failed wizard redirect without delaying resolution",
+          "Event completion migration contract preserves first-page navigation and the invalid-page alert"
         ]
       }
     },

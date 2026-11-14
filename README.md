@@ -290,6 +290,8 @@ Event-trigger, case-history, print and event-completion error paths still pass a
 
 The document tree now treats an absent `children` array as an empty list when flattening a node. Toolkit threw for that case; nested traversal order is unchanged. This behavior change is covered locally and requires consumer review.
 
+Wizard redirects still resolve the route immediately, but failed redirect promises now reach Angular's `ErrorHandler` with the original error. Host error handlers may log error details; consumers should review their logging policy.
+
 Field-read initialization remains deferred, but no longer starts after the field has been destroyed. Initialization errors now reach Angular's `ErrorHandler` as the original error rather than an unhandled promise rejection. A host's error handler may log error details, so consumers should review its logging policy.
 
 The linked-cases form now labels the case-reference and comments fields and removes a duplicate `caseNumber` ID from the proposed-links container. The original `caseNumber` error-summary anchor remains on the reference field container; consumers with selectors that depended on the duplicate ID should review them.
