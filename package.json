@@ -49,9 +49,9 @@
   },
   "devDependencies": {
     "@angular/animations": "20.3.35",
-    "@angular/build": "20.3.43",
+    "@angular/build": "22.2.7",
     "@angular/cdk": "20.2.14",
-    "@angular/cli": "20.3.43",
+    "@angular/cli": "22.2.7",
     "@angular/common": "20.3.35",
     "@angular/compiler": "20.3.35",
     "@angular/compiler-cli": "20.3.35",
