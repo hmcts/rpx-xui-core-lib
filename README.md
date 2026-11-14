@@ -261,6 +261,20 @@ The supplied checkout must be clean and match the profiled local Git commit and 
 
 The separate Translation command `node scripts/pack-core-facade.mjs <new-output-directory>` needs Node24.22.2 and npm, but no Angular dependency install. Its script-only packaging tests are `node --test scripts/core-facade.test.mjs`. Existing source-relative legacy tests remain comparison evidence, not proof of the forwarder. Publication is disabled for the preview; approved release versions, compatible Viewer/Payment packages, the real case path and application-owner acceptance remain unresolved.
 
+The in-progress service-messages entry releases its feature subscription on destruction, and a refresh replaces the earlier stream so stale updates cannot override newer results. It retains valid dismissal cookies. A malformed or non-array dismissal cookie is treated as empty rather than stopping message rendering; non-string entries are ignored. Its hide action uses a button rather than the legacy Router anchor. Consumers should review selectors and styling.
+
+Service messages inject Core's `FeatureToggleService`. During a mixed-library migration, Web App and Manage Organisations currently register the Common Lib token, so register a Core alias in the same injector as the existing provider:
+
+```ts
+import { FeatureToggleService as LegacyFeatureToggleService } from '@hmcts/rpx-xui-common-lib';
+import { FeatureToggleService as CoreFeatureToggleService } from '@hmcts/rpx-xui-core-lib/ui/feature-toggle';
+
+// Alongside the existing LegacyFeatureToggleService provider:
+{ provide: CoreFeatureToggleService, useExisting: LegacyFeatureToggleService }
+```
+
+Without this alias, Core resolves a separate default service whose methods throw. Provider shadowing and same-scope duplicate component selectors also need application-specific review. A local synthetic injector demonstrated the alias with installed Manage Organisations dependencies; a real application journey and released dependency graph have not yet been validated.
+
 The in-progress `ui/user-details` migration preserves the user and action contracts but corrects the legacy description-list structure so assistive technology can associate terms and values. The local synthetic keyboard and Axe check covers the active-user view; consumer layout, real translations and screen-reader review remain outstanding.
 
 The in-progress `ui/user-list` migration keeps the 50-item paging and output contracts. User names without a route use buttons so they can be reached and activated by keyboard; users with a route retain links. Consumers targeting user-name anchors for action-only users must update their selectors. Pagination actions use buttons instead of the legacy anchor elements so they can receive keyboard focus and activate with Enter; consumers with selectors targeting pagination anchors must update them. Real consumer styling, translated content and screen-reader review remain outstanding.

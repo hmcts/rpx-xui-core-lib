@@ -17,7 +17,9 @@ class ValidationGallery {
   submitted = false;
 }
 
-const application = window.location.pathname === '/invitation'
+const application = window.location.pathname === '/service-messages'
+  ? import('./service-messages').then(({ startServiceMessagesGallery }) => startServiceMessagesGallery())
+  : window.location.pathname === '/invitation'
   ? import('./invitation').then(({ startInvitationGallery }) => startInvitationGallery())
   : window.location.pathname === '/user-list'
   ? import('./user-list').then(({ startUserListGallery }) => startUserListGallery())

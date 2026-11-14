@@ -326,6 +326,8 @@ const packageIds = [
 
 packageIds.push("package.session-storage-behavior", "package.session-storage-graph", "package.task-data-behavior", "package.task-data-graph", "package.case-sharing-state-graph", "package.case-sharing-state-behavior", "package.cookie-behavior", "package.cookie-graph", "package.terms-type", "package.terms-graph", "package.window-behavior", "package.window-graph", "package.locations-behavior", "package.locations-graph", "package.ref-data-behavior", "package.ref-data-graph");
 
+packageIds.push("package.service-messages-graph", "package.service-messages-behavior");
+
 packageIds.push("package.feature-toggle-graph", "package.feature-directive-graph", "package.role-state-graph", "package.feature-toggle-behavior", "package.role-state-behavior");
 
 packageIds.push('package.editor-date-graph');
@@ -397,6 +399,13 @@ packageIds.push('package.node-security-optional-peer', 'package.strict-node-secu
   'package.node-security-merge-fault', 'package.node-security-restored', 'package.node-security-browser-denied');
 packageIds.push('package.strict-node-logging-types', 'package.node-logging-isolation', 'package.node-logging-loading-fault', 'package.helmet-8_1_0-cohort', 'package.helmet-8_2_0-cohort');
 packageIds.push('package.translation-counterpart-artifact', 'package.translation-counterpart-browser', 'package.translation-counterpart-types', 'package.translation-counterpart-identity', 'package.translation-counterpart-identity-fault');
+unitNames.push("a single public message can display before roles load, but multiple messages require a role match", "future and invalid dates are not displayed and invalid dates produce a warning");
+unitNames.push("refresh replaces the previous feature stream");
+unitNames.push("a malformed dismissal cookie does not prevent messages from displaying");
+unitNames.push("filters messages by role and date, and persists a dismissal", "releases the feature subscription when destroyed");
+addedBrowserJourneys.push("a corrupt dismissal cookie does not hide service messages");
+addedBrowserJourneys.push("renders sanitized message and dismisses it with the keyboard across reloads", "service messages have no automated accessibility violations");
+
 packageIds.push('package.selected-case-behavior', 'package.share-case-behavior', 'package.selected-case-graph', 'package.share-case-graph');
 addedBrowserJourneys.push('selected case removal can be cancelled and reflected in confirmation',
   'selected case accordion references its own content', 'selected case accordion can be operated with the keyboard',
@@ -454,6 +463,8 @@ function nativeJest() {
 }
 
 /** @returns {Record<string, any>} */
+
+
 function reports() {
   return {
     'validation.tap': nativeTap(unitNames),
