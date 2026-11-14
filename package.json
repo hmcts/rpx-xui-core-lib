@@ -128,7 +128,10 @@
     "jest-runtime@npm:30.5.1/glob": "14.0.6",
     "test-exclude@npm:7.0.2/glob": "14.0.6",
     "test-exclude@npm:7.0.2/minimatch": "11.0.8",
-    "jest-config@npm:30.5.1/deepmerge": "npm:@shivammathur/deepmerge@4.3.2"
+    "jest-config@npm:30.5.1/deepmerge": "npm:@shivammathur/deepmerge@4.3.2",
+    "ngx-markdown@npm:20.1.0/katex": "0.18.2",
+    "mermaid@npm:11.17.2/katex": "0.18.2",
+    "exceljs@npm:4.4.0/uuid": "11.1.1"
   },
   "workspaces": [
     "projects/core-lib/node"
