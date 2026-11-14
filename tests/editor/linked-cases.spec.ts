@@ -4,6 +4,12 @@ import { LinkedCasesService } from '../../projects/core-lib/case/editor-source/l
 export const registered = true;
 
 describe('LinkedCasesService migration contract', () => {
+  it('uses the last case name found and retains the missing-name fallback', () => {
+    const service = new LinkedCasesService({ getJurisdictions: () => of([]) } as unknown as ConstructorParameters<typeof LinkedCasesService>[0], {} as unknown as ConstructorParameters<typeof LinkedCasesService>[1]);
+    const view = { tabs: [{ fields: [{ id: 'caseNameHmctsInternal', value: 'First' }] }, { fields: [{ id: 'caseNameHmctsInternal', value: 'Last' }] }] } as unknown as Parameters<typeof service.getCaseName>[0];
+    expect(service.getCaseName(view)).toBe('Last');
+    expect(service.getCaseName({ tabs: [] } as unknown as typeof view)).toBe('Case name missing');
+  });
   it('groups case references and resets journey state', () => {
     const service = new LinkedCasesService({ getJurisdictions: () => of([]) } as unknown as ConstructorParameters<typeof LinkedCasesService>[0], {} as unknown as ConstructorParameters<typeof LinkedCasesService>[1]);
     service.caseFieldValue = [

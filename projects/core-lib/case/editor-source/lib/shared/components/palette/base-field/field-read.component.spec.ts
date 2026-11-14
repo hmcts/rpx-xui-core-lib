@@ -1,4 +1,4 @@
-import { Component, DebugElement, Input } from '@angular/core';
+import { Component, DebugElement, ErrorHandler, Input } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
@@ -144,6 +144,29 @@ describe('FieldReadComponent', () => {
     expect(childField instanceof CaseField).toBeTrue();
     expect(childField.id).toBe('nested');
     expect(childField.value).toBe('value');
+  });
+
+  it('reports the original deferred initialization error to Angular', async () => {
+    const error = new Error('Synthetic field initialization failure');
+    const handler = spyOn(TestBed.inject(ErrorHandler), 'handleError');
+    paletteService.getFieldComponentClass.and.throwError(error);
+    const fresh = TestBed.createComponent(FieldReadComponent);
+    fresh.componentInstance.caseField = CASE_FIELD;
+    fresh.detectChanges();
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(handler).toHaveBeenCalledOnceWith(error);
+    fresh.destroy();
+  });
+
+  it('does not initialize a field destroyed before its deferred callback', async () => {
+    paletteService.getFieldComponentClass.calls.reset();
+    const fresh = TestBed.createComponent(FieldReadComponent);
+    fresh.componentInstance.caseField = CASE_FIELD;
+    fresh.detectChanges();
+    fresh.destroy();
+    await Promise.resolve();
+    expect(paletteService.getFieldComponentClass).not.toHaveBeenCalled();
   });
 
   it('should pass context to field instance', () => {

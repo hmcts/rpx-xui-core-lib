@@ -1180,6 +1180,8 @@
   "editorUnit": {
     "report": "test-results/editor/jasmine.json",
     "required": [
+      "FieldReadComponent reports the original deferred initialization error to Angular",
+      "FieldReadComponent does not initialize a field destroyed before its deferred callback",
       "FieldReadComponent normalizes a plain fixed-list field before passing it to the child",
       "FieldReadComponent passes a plain nested text field through unchanged",
       "FieldReadComponent should NOT display label by default",
@@ -1378,6 +1380,7 @@
       "editor translation identity uses the canonical Core module and service",
       "field control references attaches the original field and component to the same control",
       "field control references maps a nested complex field without changing its values",
+      "LinkedCasesService migration contract uses the last case name found and retains the missing-name fallback",
       "LinkedCasesService migration contract groups case references and resets journey state",
       "FormatTranslatorService migration contract translates date tokens and preserves literal handling",
       "FormatTranslatorService migration contract marks unsupported nanosecond tokens",

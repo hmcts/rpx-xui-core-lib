@@ -1486,6 +1486,8 @@
           }
         ],
         "editorUnit": [
+          "FieldReadComponent reports the original deferred initialization error to Angular",
+          "FieldReadComponent does not initialize a field destroyed before its deferred callback",
           "FieldReadComponent normalizes a plain fixed-list field before passing it to the child",
           "FieldReadComponent passes a plain nested text field through unchanged",
           "FieldReadComponent should NOT display label by default",
@@ -1755,6 +1757,7 @@
           "FieldsUtils isLinkedCasesCaseField() function test should return true if case field is of type ComponentLauncher",
           "FormValueService component launcher linked cases should populate linked cases details from case fields",
           "FormValueService component launcher linked cases should remove component launcher field",
+          "LinkedCasesService migration contract uses the last case name found and retains the missing-name fallback",
           "LinkedCasesService migration contract groups case references and resets journey state",
           "Linked cases table migration contract orders reason codes and cases without dropping their values",
           "No linked cases migration contract returns to the linked cases tab with the existing case identifiers",

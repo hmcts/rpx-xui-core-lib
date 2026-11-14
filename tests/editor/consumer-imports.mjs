@@ -2,6 +2,9 @@ import ts from 'typescript';
 import { pathToFileURL } from 'node:url';
 import { resolve } from 'node:path';
 
+/** @param {string} left @param {string} right */
+const compareCodeUnits = (left, right) => left < right ? -1 : left > right ? 1 : 0;
+
 export function toolkitImports(source) {
   const file = ts.createSourceFile('consumer.ts', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
   const names = new Set();
@@ -29,7 +32,7 @@ export function toolkitImports(source) {
     ts.forEachChild(node, visit);
   }
   visit(file);
-  return { names: [...names].sort(), unsupported: [...unsupported].sort() };
+  return { names: [...names].sort(compareCodeUnits), unsupported: [...unsupported].sort(compareCodeUnits) };
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
@@ -58,7 +61,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
       for (const name of imports.names) names.add(name);
       if (imports.unsupported.length) unanalysed.push({ file, forms: imports.unsupported });
     }
-    const missing = [...names].filter(name => !exported.has(name)).sort();
+    const missing = [...names].filter(name => !exported.has(name)).sort(compareCodeUnits);
     console.log(JSON.stringify({ repository: root, namedImports: names.size, noMatchingCoreExport: missing, unanalysed }, null, 2));
   }
 }

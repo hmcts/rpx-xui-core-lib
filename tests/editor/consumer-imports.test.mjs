@@ -22,3 +22,8 @@ test('reports unsupported namespace, deep, dynamic, side-effect and re-export fo
     unsupported: ['deep import', 'dynamic import', 'namespace import', 're-export', 'side-effect import', 'type import']
   });
 });
+
+test('orders imported names consistently by code unit', () => {
+  const source = "import { Éclair, alpha, Zeta } from '@hmcts/ccd-case-ui-toolkit';";
+  assert.deepEqual(toolkitImports(source).names, ['Zeta', 'alpha', 'Éclair']);
+});
