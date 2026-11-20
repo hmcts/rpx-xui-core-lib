@@ -302,17 +302,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@angular/cdk@npm:20.2.14":
-  version: 20.2.14
-  resolution: "@angular/cdk@npm:20.2.14"
+"@angular/cdk@npm:22.3.0":
+  version: 22.3.0
+  resolution: "@angular/cdk@npm:22.3.0"
   dependencies:
     parse5: "npm:^8.0.0"
     tslib: "npm:^2.3.0"
   peerDependencies:
-    "@angular/common": ^20.0.0 || ^21.0.0
-    "@angular/core": ^20.0.0 || ^21.0.0
+    "@angular/common": ^22.0.0 || ^23.0.0
+    "@angular/core": ^22.0.0 || ^23.0.0
+    "@angular/forms": ^22.0.0 || ^23.0.0
+    "@angular/platform-browser": ^22.0.0 || ^23.0.0
     rxjs: ^6.5.3 || ^7.4.0
-  checksum: 10c0/8f6463252d942cc2a62b861fcb206abeca097e89018191c7d8f390187a7ff6917ee42918e53b4da40e2f9d407fb42bb94b515d82e1daa17fa0c7be4d4fce6de8
+  checksum: 10c0/db252df10750f51de004ea58f37651b4afc715f8bbff086a921f52ec51e673a772d2cfd08ea6ab664a67459b37f40b2c1cdc46b052090f6ef8dc193ec29a2370
   languageName: node
   linkType: hard
 
@@ -422,32 +424,32 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@angular/material-moment-adapter@npm:20.2.14":
-  version: 20.2.14
-  resolution: "@angular/material-moment-adapter@npm:20.2.14"
+"@angular/material-moment-adapter@npm:22.3.0":
+  version: 22.3.0
+  resolution: "@angular/material-moment-adapter@npm:22.3.0"
   dependencies:
     tslib: "npm:^2.3.0"
   peerDependencies:
-    "@angular/core": ^20.0.0 || ^21.0.0
-    "@angular/material": 20.2.14
+    "@angular/core": ^22.0.0 || ^23.0.0
+    "@angular/material": 22.3.0
     moment: ^2.18.1
-  checksum: 10c0/c7d6c91dadfdca4a7e64ac5f4e0b339f63b976103226a3137d95f9f5958abafe1d4fb8c6c51c6b0adcb974935a76898013ab86c8f1b8dfcc780462c2d3798e46
+  checksum: 10c0/31acc25d8aa3f5fc1b4157d6d0d804ba6cef6ba3fb52574a8d5f09a480e207c1f0fef26c3436b2891f18193cb94f25188d8e00032e1679f708c3367ad1f438f8
   languageName: node
   linkType: hard
 
-"@angular/material@npm:20.2.14":
-  version: 20.2.14
-  resolution: "@angular/material@npm:20.2.14"
+"@angular/material@npm:22.3.0":
+  version: 22.3.0
+  resolution: "@angular/material@npm:22.3.0"
   dependencies:
     tslib: "npm:^2.3.0"
   peerDependencies:
-    "@angular/cdk": 20.2.14
-    "@angular/common": ^20.0.0 || ^21.0.0
-    "@angular/core": ^20.0.0 || ^21.0.0
-    "@angular/forms": ^20.0.0 || ^21.0.0
-    "@angular/platform-browser": ^20.0.0 || ^21.0.0
+    "@angular/cdk": 22.3.0
+    "@angular/common": ^22.0.0 || ^23.0.0
+    "@angular/core": ^22.0.0 || ^23.0.0
+    "@angular/forms": ^22.0.0 || ^23.0.0
+    "@angular/platform-browser": ^22.0.0 || ^23.0.0
     rxjs: ^6.5.3 || ^7.4.0
-  checksum: 10c0/6acfc033f7817f0237968fcc5e24500d949afecf88e3d6e20fcbcdeeac4747942a97e210475511d96db1157519df4e5089d8a36e2f1ad53fad5169bb452c0b40
+  checksum: 10c0/4acd6a4e38ac25b87d84b19341ec9cb78129b7b3bb4026a58456141a8a9eaa698323708b773afd1f907a9775b7fc4a3403f2e2d345bece7c4f8eb14ad7ef0a8e
   languageName: node
   linkType: hard
 
@@ -1807,15 +1809,15 @@ __metadata:
   dependencies:
     "@angular/animations": "npm:20.3.35"
     "@angular/build": "npm:20.3.43"
-    "@angular/cdk": "npm:20.2.14"
+    "@angular/cdk": "npm:22.3.0"
     "@angular/cli": "npm:20.3.43"
     "@angular/common": "npm:20.3.35"
     "@angular/compiler": "npm:20.3.35"
     "@angular/compiler-cli": "npm:20.3.35"
     "@angular/core": "npm:20.3.35"
     "@angular/forms": "npm:20.3.35"
-    "@angular/material": "npm:20.2.14"
-    "@angular/material-moment-adapter": "npm:20.2.14"
+    "@angular/material": "npm:22.3.0"
+    "@angular/material-moment-adapter": "npm:22.3.0"
     "@angular/platform-browser": "npm:20.3.35"
     "@angular/router": "npm:20.3.35"
     "@axe-core/playwright": "npm:4.14.0"
