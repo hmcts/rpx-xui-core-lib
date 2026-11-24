@@ -2,13 +2,14 @@
   <div class="search-service">
     <div class="govuk-body">
       @if (serviceTitle) {
-        <label id="selectServiceSearch-label" for="inputServiceSearch">
+        <label [id]="inputId === 'inputServiceSearch' ? 'selectServiceSearch-label' : inputId + '-label'" [for]="inputId">
           {{ serviceTitle | rpxTranslate}}
         </label>
       }
     </div>
     <div class="search-service__input-container">
       <exui-search-service class="search-service__input"
+        [inputId]="inputId"
         [options]="field.options"
         [selectedOptions]="selectedServices"
         [disabled]="disabled"
@@ -16,8 +17,8 @@
       </exui-search-service>
       @if (field?.enableAddButton) {
         <a href="#" (click)="addOption(tempSelectedService); $event.preventDefault()"
-          class="govuk-button govuk-button--secondary govuk-!-margin-bottom-0" data-module="govuk-button"
-          id="add-service">
+          class="govuk-button govuk-button--secondary govuk-!-margin-bottom-0 add-service" data-module="govuk-button"
+          [id]="inputId === 'inputServiceSearch' ? 'add-service' : inputId + '-add'">
           {{ 'Add' | rpxTranslate}}
           <span class="govuk-visually-hidden">{{'service' | rpxTranslate}}</span>
         </a>

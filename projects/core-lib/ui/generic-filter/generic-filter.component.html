@@ -19,7 +19,7 @@
               <div class="xui-generic-filter__field-title">
                 <h3 [id]="field.name + '-label'" [class]="field.titleClasses ? field.titleClasses : 'govuk-heading-s'" style="margin-bottom: 0!important">
                   @if (field.type === 'find-service') {
-                    <label for="inputServiceSearch">{{ field.title | capitalize }}</label>
+                    <label [for]="serviceInputId(field)">{{ field.title | capitalize }}</label>
                   } @else {
                     {{ field.title | capitalize }}
                   }
@@ -206,6 +206,7 @@
                     <span class="govuk-error-message">{{serviceErrorMsg | rpxTranslate}}</span>
                   }
                   <xuilib-find-service (serviceFieldChanged)="inputServiceChanged(field)"
+                    [inputId]="serviceInputId(field)"
                     [field]="field"
                     [form]="form"
                     [formSubmissionEvent$]="formSubmissionEvent$"

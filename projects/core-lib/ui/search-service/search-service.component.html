@@ -1,5 +1,5 @@
 <div class="auto-complete-container">
-  <input #serviceInput id="inputServiceSearch"
+  <input #serviceInput [id]="inputId"
     class="govuk-input"
     [value]="searchTerm"
     (input)="onSearchTermChanged(serviceInput.value)"

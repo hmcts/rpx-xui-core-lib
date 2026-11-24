@@ -114,7 +114,7 @@ test('Staff Admin titles its combobox, filters skills, and persists venue record
   const errors = checkPageErrors(page);
   await page.goto('/generic-filter?mode=staff');
   const widget = page.locator('xuilib-generic-filter');
-  const service = widget.locator('#user-services exui-search-service #inputServiceSearch');
+  const service = widget.locator('#user-services exui-search-service input');
   const skills = widget.getByRole('combobox', { name: 'Skills' });
   await expect(service).toHaveAccessibleName('Service');
   await expect(widget.getByRole('heading', { name: 'Service', exact: true })).toHaveCount(1);
@@ -155,6 +155,31 @@ test('Staff Admin titles its combobox, filters skills, and persists venue record
   await expect(skills.getByRole('option', { name: 'Unmatched skill' })).toHaveCount(1);
   await widget.getByRole('button', { name: 'Search' }).click();
   expect((await persistedFields(page))['user-services']).toEqual([]);
+  expect(errors).toEqual([]);
+});
+
+test('two composed service fields each have a unique input and a label that focuses only that input', async ({ page }) => {
+  const errors = checkPageErrors(page);
+  await page.goto('/generic-filter?mode=services');
+  const widget = page.locator('xuilib-generic-filter');
+  for (const [name, title, option, term] of [
+    ['primary-service', 'Primary service', 'Alpha service', 'alpha'],
+    ['secondary-service', 'Secondary service', 'Beta service', 'beta'],
+  ]) {
+    const field = widget.locator('#' + name);
+    const label = field.locator('h3 label');
+    const input = field.getByRole('combobox');
+    await expect(label).toHaveText(title);
+    await expect(input).toHaveAccessibleName(title);
+    await expect(label).toHaveAttribute('for', await input.getAttribute('id'));
+    await label.click();
+    await expect(input).toBeFocused();
+    await selectSuggestion(page, input, term, option);
+    await field.getByRole('link', { name: 'Add service' }).click();
+    await expect(field.locator('.hmcts-filter__tag')).toHaveText(option);
+  }
+  const ids = await widget.locator('[id]').evaluateAll(elements => elements.map(element => element.id));
+  expect(new Set(ids).size).toBe(ids.length);
   expect(errors).toEqual([]);
 });
 

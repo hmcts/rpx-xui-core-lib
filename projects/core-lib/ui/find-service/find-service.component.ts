@@ -13,6 +13,7 @@ import { SearchServiceComponent } from '@hmcts/rpx-xui-core-lib/ui/search-servic
 export class FindServiceComponent implements OnInit, OnDestroy {
   @Input() public field: FilterFieldConfig;
   @Input() public serviceTitle: string;
+  @Input() public inputId = 'inputServiceSearch';
   @Input() public form: FormGroup;
   @Input() public disabled: boolean | null | undefined = false;
   @Input() public formSubmissionEvent$: Subject<void>;

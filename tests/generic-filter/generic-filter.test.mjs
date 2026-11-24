@@ -155,6 +155,39 @@ test('Reset, Apply and edit observe the active form, detach the old form, then u
   assert.deepEqual(order.at(-1), ['errors', null]);
 });
 
+test('Reset restores checkbox, location and service arrays from the configured defaults before reapplying', () => {
+  const stale = option('old');
+  const current = option('default');
+  const staleLocation = { epimms_id: 'stale-venue' };
+  const defaultLocation = { epimms_id: 'default-venue' };
+  const fields = [
+    makeField('checkbox', 'checkboxes', { options: [stale, current] }),
+    makeField('find-location', 'location'),
+    makeField('find-service', 'services', { options: [stale, current] }),
+  ];
+  const seed = setting({ checkboxes: ['old'], location: [staleLocation], services: [stale] });
+  const defaults = setting({ checkboxes: ['default'], location: [defaultLocation], services: [current] });
+  const { component, calls } = fixture(fields, { cancelSetting: defaults }, seed);
+
+  assert.deepEqual(component.form.value, { checkboxes: [true, false], location: [staleLocation], services: [stale] });
+  component.cancelFilter();
+  assert.deepEqual(calls, [['persist', { ...defaults, reset: true }, 'memory']]);
+  assert.deepEqual(component.form.value, { checkboxes: [false, true], location: [defaultLocation], services: [current] });
+  component.applyFilter(component.form);
+  assert.deepEqual(calls.at(-1), ['persist', { ...defaults, reset: false }, 'memory']);
+});
+
+test('Reset still empties the work-type form array even when a work-type default is configured', () => {
+  const defaults = setting({ workTypes: [option('default')] });
+  const seed = setting({ workTypes: [option('old')] });
+  const { component, calls } = fixture([makeField('find-work-type', 'workTypes')], { cancelSetting: defaults }, seed);
+  assert.deepEqual(component.form.get('workTypes').value, [option('old')]);
+  component.cancelFilter();
+  assert.deepEqual(component.form.get('workTypes').value, []);
+  component.applyFilter(component.form);
+  assert.deepEqual(calls.at(-1), ['persist', { ...setting({ workTypes: [] }), reset: false }, 'memory']);
+});
+
 test('copyFields may return a replacement FormGroup used for Apply and edits', () => {
   const replacement = new FormGroup({ name: new FormControl('copied') });
   /** @type {FormGroup | undefined} */

@@ -237,8 +237,12 @@ export class GenericFilterComponent implements OnInit, OnDestroy {
     }
   }
 
+  public serviceInputId(field: FilterFieldConfig): string {
+    return `inputServiceSearch-${this.config.id}-${field.name}`;
+  }
+
   public cancelFilter(): void {
-    this.buildForm(this.config, this.settings, true);
+    this.buildForm(this.config, this.config.cancelSetting ?? this.settings, true);
     this.subscribeToFormChanges();
     if (this.config && this.config.cancelSetting) {
       this._settings.fields = JSON.parse(JSON.stringify(this.config.cancelSetting.fields));

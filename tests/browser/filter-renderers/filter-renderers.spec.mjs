@@ -47,6 +47,7 @@ test('FindService exposes the service label, native disabling, Add and the Selec
   const input = renderer.locator('exui-search-service #inputServiceSearch');
   const add = renderer.locator('#add-service');
   await expect(input).toHaveAccessibleName('Search for a service');
+  await expect(renderer.locator('#selectServiceSearch-label')).toHaveAttribute('for', 'inputServiceSearch');
   await expect(add).toHaveAccessibleName('Add service');
   await page.getByRole('button', { name: 'Toggle native disabled' }).click();
   await expect(input).toBeDisabled();

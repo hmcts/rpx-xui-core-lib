@@ -9,6 +9,7 @@ import type { MatOptionSelectionChange } from '@angular/material/core';
   standalone: false
 })
 export class SearchServiceComponent {
+  @Input() public inputId = 'inputServiceSearch';
   @Input() public options: FilterConfigOption[];
   @Input() public selectedOptions: FilterConfigOption[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Preserve the published CommonLib input type for legacy template bindings.

@@ -141,15 +141,19 @@ class GenericFilterGallery {
     const staff = this.mode === 'staff';
     const validation = this.mode === 'validation';
     const checkbox = this.mode === 'checkbox';
+    const multipleServices = this.mode === 'services';
     const id = `core-generic-filter-${this.mode}`;
-    const defaults: Record<string, unknown[]> = staff ? { 'user-skills': ['All'] }
+    const defaults: Record<string, unknown[]> = multipleServices ? {} : staff ? { 'user-skills': ['All'] }
       : validation ? { name: ['Default name'], email: ['initial@example.com'] }
         : {
           'location-scope': ['location_all'],
           ...(checkbox ? {} : { service: ['A'], role: [PersonRole.LEGAL_OPERATIONS] }),
         };
     this.config = {
-      id, fields: staff ? staffFields() : validation ? validationFields() : workFields(checkbox),
+      id, fields: multipleServices ? [
+        field('find-service', 'primary-service', 'Primary service', { options: [serviceA], enableAddButton: true }),
+        field('find-service', 'secondary-service', 'Secondary service', { options: [serviceB], enableAddButton: true }),
+      ] : staff ? staffFields() : validation ? validationFields() : workFields(checkbox),
       persistence: staff ? 'session' : validation ? 'memory' : 'local',
       applyButtonText: staff ? 'Search' : 'Apply', cancelButtonText: 'Reset to default',
       cancelSetting: setting(id, defaults), showCancelFilterButton: !staff,
