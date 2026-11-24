@@ -27,10 +27,16 @@ import { PaginationModule } from '@hmcts/rpx-xui-core-lib/ui/pagination';
       <xuilib-hmcts-pagination id="second-list" [navigationLabel]="'Second list pagination'" [pageSize]="10" (pageChange)="secondPage = $event" />
       <output data-testid="hmcts-second-page">{{ secondPage }}</output>
     </section>
+    <section aria-label="HMCTS single result paging">
+      <p *ngFor="let item of singleItem | paginate: { itemsPerPage: 10, currentPage: 1, id: 'single-list' }">{{ item }}</p>
+      <xuilib-hmcts-pagination id="single-list" [navigationLabel]="'Single result pagination'" [pageSize]="10"
+        [showPageNumbers]="false" [showResultCount]="false" />
+    </section>
   </main>`,
 })
 class PaginationGallery {
   readonly items = Array.from({ length: 25 }, (_, index) => `Synthetic item ${index + 1}`);
+  readonly singleItem = ['Single synthetic item'];
   firstRecord = 1;
   moreItems = true;
   firstPage = 1;
@@ -40,7 +46,7 @@ class PaginationGallery {
   record(action: 'next' | 'previous', payload: unknown): void {
     this.lastEvent = `${action}:${payload === null ? 'null' : 'unexpected'}`;
     this.firstRecord = action === 'next' ? this.firstRecord + 10 : Math.max(1, this.firstRecord - 10);
-    this.moreItems = this.firstRecord < this.items.length;
+    this.moreItems = this.firstRecord + 9 < this.items.length;
   }
 }
 
