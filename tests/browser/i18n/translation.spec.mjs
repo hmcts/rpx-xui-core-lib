@@ -44,6 +44,32 @@ test('a translation HTTP failure returns and caches the original phrase', async 
   await expect(page.getByTestId('translation')).toHaveAttribute('lang', 'en');
 });
 
+test('a malformed Welsh response falls back without caching and retries successfully', async ({ page }) => {
+  const requests = [];
+  await page.route('**/translations/cy', async (route) => {
+    requests.push(route.request().postDataJSON());
+    if (requests.length === 1) {
+      await route.fulfill({ json: { translations: { 'Hello world': { translation: 42 } } } });
+      return;
+    }
+    await route.fulfill({ json: { translations: { 'Hello world': 'Helo byd' } } });
+  });
+  await page.goto('/translation');
+  await page.getByRole('button', { name: 'Cymraeg' }).click();
+  await expect(page.getByTestId('translation')).toHaveText('Hello world');
+  await expect(page.getByTestId('translation')).toHaveAttribute('lang', 'en');
+  await expect.poll(() => cachedTranslations(page)).toEqual([]);
+
+  await page.getByRole('button', { name: 'English' }).click();
+  await page.getByRole('button', { name: 'Cymraeg' }).click();
+  await expect(page.getByTestId('translation')).toHaveText('Helo byd');
+  await expect(page.getByTestId('translation')).toHaveAttribute('lang', 'cy');
+  await expect.poll(() => cachedTranslations(page)).toEqual([
+    expect.objectContaining({ phrase: 'Hello world', lang: 'cy', translation: { translation: 'Helo byd' } }),
+  ]);
+  expect(requests).toEqual([{ phrases: ['Hello world'] }, { phrases: ['Hello world'] }]);
+});
+
 test('a late Welsh response preserves English and is reused after switching back', async ({ page }) => {
   const held = await holdWelshTranslation(page);
   await page.goto('/translation');
