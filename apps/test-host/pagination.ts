@@ -38,7 +38,7 @@ class PaginationGallery {
   lastEvent = 'none';
 
   record(action: 'next' | 'previous', payload: unknown): void {
-    this.lastEvent = `${action}:${payload === null ? 'null' : String(payload)}`;
+    this.lastEvent = `${action}:${payload === null ? 'null' : 'unexpected'}`;
     this.firstRecord = action === 'next' ? this.firstRecord + 10 : Math.max(1, this.firstRecord - 10);
     this.moreItems = this.firstRecord < this.items.length;
   }
