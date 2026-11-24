@@ -1,7 +1,7 @@
 export * from './activity';
 export * from './case-editor';
 export * from './case-header';
-export * from './case-list';
+export * from '@hmcts/rpx-xui-core-lib/ui/case-list';
 export * from './case-list-filters';
 export * from './case-timeline';
 export * from './case-viewer';
@@ -12,7 +12,7 @@ export * from './error-message';
 export * from './event-start';
 export * from './helpers';
 export * from './loading-spinner';
-export * from './pagination';
+export * from '@hmcts/rpx-xui-core-lib/ui/ccd-pagination';
 export * from './palette';
 export * from './search-filters';
 export * from './search-result';

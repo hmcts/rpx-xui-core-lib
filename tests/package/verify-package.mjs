@@ -63,7 +63,7 @@ try {
   const consumer = join(scratch, 'consumer');
   const dist = join(root, 'dist/core-lib');
   const declaration = 'forms/validation/index.d.ts';
-  const sourceLicenceEntries = ['ui/find-task-name', 'ui/find-work-type', 'ui/search-work-type', 'ui/find-person', 'ui/checkbox-list', 'ui/gov-date', 'ui/gov-select', 'ui/search-location', 'ui/search-judicials', 'ui/search-venue', 'ui/pagination', 'ui/hmcts-pagination', 'terms/display', 'ui/gov-input', 'case/session-error', 'case/editor-date', 'browser/window', 'browser/session-storage', 'reference/locations', 'reference/ref-data', 'terms/models', 'ui/cookie', 'ui/feature-toggle', 'ui/feature-toggle-directive', 'ui/role-state', 'ui/task-data', 'case/sharing-state', 'ui/contact-details', 'ui/loading-spinner', 'ui/loading-state', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog', 'ui/banner', 'ui/form-label', 'case/models', 'case/reference', 'case/sharing', 'address/normalization', 'ui/address'];
+  const sourceLicenceEntries = ['ui/find-task-name', 'ui/find-work-type', 'ui/search-work-type', 'ui/find-person', 'ui/checkbox-list', 'ui/gov-date', 'ui/gov-select', 'ui/search-location', 'ui/search-judicials', 'ui/search-venue', 'ui/pagination', 'ui/hmcts-pagination', 'terms/display', 'ui/gov-input', 'case/session-error', 'case/editor-date', 'browser/window', 'browser/session-storage', 'reference/locations', 'reference/ref-data', 'terms/models', 'ui/cookie', 'ui/feature-toggle', 'ui/feature-toggle-directive', 'ui/role-state', 'ui/task-data', 'case/sharing-state', 'ui/contact-details', 'ui/loading-spinner', 'ui/loading-state', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog', 'ui/banner', 'ui/form-label', 'case/models', 'case/reference', 'case/sharing', 'browser/user-agent', 'ui/ccd-pagination', 'ui/case-list', 'address/normalization', 'ui/address'];
 
   // Fail before dependency setup when the legacy TypeScript entry point is absent.
   await check('package.physical-secondary-declaration', async () => {
@@ -567,6 +567,10 @@ try {
   await cp(join(root, 'tests/address/address.test.mjs'), join(consumer, 'address.test.mjs'));
   await cp(join(root, 'tests/address/normalization.test.mjs'), join(consumer, 'address-normalization.test.mjs'));
   await check('package.address-behavior', () => run('address-behavior', ['--test', 'address.test.mjs', 'address-normalization.test.mjs'], consumer));
+  await cp(join(root, 'tests/case-list/case-list.test.mjs'), join(consumer, 'case-list.test.mjs'));
+  await check('package.case-list-behavior', () => run('case-list-behavior', ['--test', 'case-list.test.mjs'], consumer));
+  await cp(join(root, 'tests/browser/user-agent.test.mjs'), join(consumer, 'user-agent.test.mjs'));
+  await check('package.user-agent-behavior', () => run('user-agent-behavior', ['--test', 'user-agent.test.mjs'], consumer));
   await cp(join(root, 'tests/organisation/invitation.test.mjs'), join(consumer, 'invitation.test.mjs'));
   await check('package.invitation-behavior', () => run('invitation-behavior', ['--test', 'invitation.test.mjs'], consumer));
 
@@ -607,6 +611,9 @@ try {
     ['pagination', 'pagination-graph.mjs', ['ui-pagination', 'i18n']],
     ['hmcts-pagination', 'hmcts-pagination-graph.mjs', ['ui-hmcts-pagination', 'i18n']],
     ['address', 'address-graph.mjs', ['ui-address', 'address-normalization']],
+    ['case-list', 'case-list-graph.mjs', ['ui-case-list', 'ui-ccd-pagination', 'browser-user-agent', 'i18n']],
+    ['ccd-pagination', 'ccd-pagination-graph.mjs', ['ui-ccd-pagination', 'i18n']],
+    ['user-agent', 'user-agent-graph.mjs', ['browser-user-agent']],
     ['invitation', 'invitation-graph.mjs', ['ui-invitation', 'ui-gov-input', 'i18n']],
     ['selected-case', 'selected-case-graph.mjs', ['case-selected-case', 'case-sharing-state', 'i18n']],
     ['share-case', 'share-case-graph.mjs', ['case-share-case', 'case-selected-case', 'case-sharing-state', 'case-sharing', 'ui-gov-input', 'i18n']],

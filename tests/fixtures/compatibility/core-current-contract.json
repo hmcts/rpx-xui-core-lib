@@ -201,6 +201,21 @@
         "output": "ui/service-messages"
       },
       {
+        "input": "browser/user-agent",
+        "glob": "LICENCE",
+        "output": "browser/user-agent"
+      },
+      {
+        "input": "ui/ccd-pagination",
+        "glob": "LICENCE",
+        "output": "ui/ccd-pagination"
+      },
+      {
+        "input": "ui/case-list",
+        "glob": "LICENCE",
+        "output": "ui/case-list"
+      },
+      {
         "input": "forms/validation",
         "glob": "LICENCE",
         "output": "forms/validation"

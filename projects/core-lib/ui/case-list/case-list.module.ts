@@ -1,19 +1,15 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { NgxPaginationModule } from 'ngx-pagination';
 import { RpxTranslationModule } from '@hmcts/rpx-xui-core-lib/i18n';
-import { BrowserService } from '../../services';
-import { PaginationModule } from '../pagination/pagination.module';
+import { BrowserService } from '@hmcts/rpx-xui-core-lib/browser/user-agent';
+import { PaginationModule } from '@hmcts/rpx-xui-core-lib/ui/ccd-pagination';
 import { CaseListComponent } from './case-list.component';
 
 @NgModule({
   imports: [
     CommonModule,
-    FormsModule,
     RouterModule,
-    NgxPaginationModule,
     PaginationModule,
     RpxTranslationModule.forChild()
   ],

@@ -199,7 +199,12 @@ hearing-lookups|venue lookup supports keyboard selection and unique labelled ins
 hearing-lookups|an exact judicial name auto-selects while retaining its visible input label
 hearing-lookups|an exact venue name auto-selects while retaining its visible input label
 hearing-lookups|duplicate exact judicial names stay visible without auto-selecting either person
-hearing-lookups|duplicate exact venue names stay visible without auto-selecting either venue`.split('\n').map(row => {
+hearing-lookups|duplicate exact venue names stay visible without auto-selecting either venue
+case-list|case list renders configured columns and selects a case once with the keyboard
+case-list|case list emits the page selection and displays the requested page
+case-list|case list exposes accessible selection names and has no duplicate checkbox IDs
+case-list|case identifiers stay local when translating accessible selection labels
+case-list|case selection and select-all remain independent between list instances`.split('\n').map(row => {
   const [feature, title] = row.split('|');
   return ['chromium', title, feature];
 });

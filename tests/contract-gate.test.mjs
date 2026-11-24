@@ -80,6 +80,15 @@ unitNames.push('user list retains the legacy 50-item page and emits the selected
 unitNames.push('generic pagination retains the null payload on both public outputs', 'user-list and standalone HMCTS pagination share one component identity', 'both pagination entries allow a caller to distinguish navigation landmarks');
 unitNames.push('postcode parser preserves RD06 address line placement and country metadata', 'postcode parser removes absent fields and shifts formatted lines upward', 'postcode formatter preserves the existing first-line priority and capitalization', 'postcode parser ignores null and missing source fields without leaking sentinel text', 'address service preserves the external postcode endpoint and formats returned models', 'address service returns an empty list without a request for an empty postcode', 'address service propagates postcode lookup failures', 'address service drops results without a DPA record and handles a missing result list', 'address models and address option labels keep the CommonLib public field contract', 'address option keeps the supplied default row label without inventing an address value', 'address component rejects a blank postcode and emits the CommonLib lookup outputs', 'address component retains manual and international selection events');
 unitNames.push('invitation form defaults missing errors and emits a submit event', 'invitation permissions retain legacy default flags');
+unitNames.push(
+  'case list retains its public table configuration and date formatting contract',
+  'case selection changes once for the supported legacy Space key event',
+  'case list does not synthesize a Space-key selection in browsers using native checkbox change',
+  'an empty case list is not reported as fully selected',
+  'an undefined cases input is normalized before selection and rendering',
+  'case list emits the requested current page',
+  'browser service classifies legacy browser user-agent strings',
+);
 const addedLaneNames = {
   "refDataUnit": [
     "reference data HTTP endpoints and encoded service-code parameter match the source",
@@ -454,10 +463,18 @@ addedBrowserJourneys.push('user list pages through users and emits the chosen us
 addedBrowserJourneys.push('generic pagination preserves null events and exposes keyboard-operable page actions', 'HMCTS paginator is independently usable and keeps separate list state', 'pagination entries have no automated accessibility violations');
 addedBrowserJourneys.push('address lookup uses the external endpoint and writes the selected public model', 'address lookup presents the empty state after an unsuccessful request', 'address entry has no automated accessibility violations');
 addedBrowserJourneys.push('invitation emits submit and displays parent validation', 'invitation emits entered details and selected permissions', 'invitation form supports keyboard selection and passes axe', 'invalid invitation inputs expose their errors accessibly', 'invitation retains and updates a preselected permission', 'permission error is announced by the permissions fieldset', 'permissions with an empty error never reference a missing message');
+addedBrowserJourneys.push(
+  'case list renders configured columns and selects a case once with the keyboard',
+  'case list emits the page selection and displays the requested page',
+  'case list exposes accessible selection names and has no duplicate checkbox IDs',
+  'case identifiers stay local when translating accessible selection labels',
+  'case selection and select-all remain independent between list instances',
+);
 packageIds.push('package.user-details-behavior', 'package.user-details-graph');
 packageIds.push('package.user-list-behavior', 'package.user-list-graph');
 packageIds.push('package.pagination-behavior', 'package.pagination-graph', 'package.hmcts-pagination-graph');
 packageIds.push('package.invitation-behavior', 'package.invitation-graph');
+packageIds.push('package.case-list-behavior', 'package.user-agent-behavior', 'package.case-list-graph', 'package.ccd-pagination-graph', 'package.user-agent-graph');
 const expectedContracts = addedBrowserJourneys.length + Object.values(addedLaneNames).reduce((sum, names) => sum + names.length, 0) + unitNames.length + nodeNames.length + i18nNames.length + i18nJourneys.length + dueDateJourneys.length + accessibilityJourneys.length + sessionDialogJourneys.length + primitiveJourneys.length + cacheJourneys.length + validationJourneys.length + packageIds.length + 1 + contractInventory.nodeServerUnit.required.length + contractInventory.editorUnit.required.length + contractInventory.editorDrivers.required.length;
 
 function nativeTap(names) {

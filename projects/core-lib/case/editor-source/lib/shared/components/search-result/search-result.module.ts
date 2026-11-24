@@ -6,10 +6,10 @@ import { NgxPaginationModule } from 'ngx-pagination';
 import { RpxTranslationModule } from '@hmcts/rpx-xui-core-lib/i18n';
 import { LabelSubstitutorModule } from '../../directives/substitutor/label-substitutor.module';
 import { PipesModule } from '../../pipes/pipes.module';
-import { BrowserService } from '../../services/browser/browser.service';
+import { BrowserService } from '@hmcts/rpx-xui-core-lib/browser/user-agent';
 import { SearchResultViewItemComparatorFactory } from '../../services/search-result/sorting/search-result-view-item-comparator-factory';
 import { ActivityModule } from '../activity/activity.module';
-import { PaginationModule } from '../pagination/pagination.module';
+import { PaginationModule } from '@hmcts/rpx-xui-core-lib/ui/ccd-pagination';
 import { PaletteModule } from '../palette/palette.module';
 import { SearchResultComponent } from './search-result.component';
 

@@ -22,6 +22,7 @@ const galleries: Array<{ matches: (path: string) => boolean; start: () => Promis
   { matches: path => path === '/invitation', start: () => import('./invitation').then(({ startInvitationGallery }) => startInvitationGallery()) },
   { matches: path => path === '/user-list', start: () => import('./user-list').then(({ startUserListGallery }) => startUserListGallery()) },
   { matches: path => path === '/user-details', start: () => import('./user-details').then(({ startUserDetailsGallery }) => startUserDetailsGallery()) },
+  { matches: path => path === '/case-list', start: () => import('./case-list').then(({ startCaseListGallery }) => startCaseListGallery()) },
   { matches: path => path === '/pagination', start: () => import('./pagination').then(({ startPaginationGallery }) => startPaginationGallery()) },
   { matches: path => path === '/address', start: () => import('./address').then(({ startAddressGallery }) => startAddressGallery()) },
   { matches: path => path === '/task-lookups', start: () => import('./task-lookups').then(({ startTaskLookupsGallery }) => startTaskLookupsGallery()) },
