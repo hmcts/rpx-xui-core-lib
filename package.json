@@ -64,7 +64,7 @@
     "@axe-core/playwright": "4.14.0",
     "@edium/fsm": "3.0.2",
     "@hmcts/ccpay-web-component": "6.5.28",
-    "@hmcts/media-viewer": "4.2.48",
+    "@hmcts/media-viewer": "4.2.49",
     "@ngrx/effects": "20.1.0",
     "@ngrx/store": "20.1.0",
     "@ngrx/store-devtools": "20.1.0",
