@@ -23,6 +23,8 @@ const application = window.location.pathname === '/service-messages'
   ? import('./invitation').then(({ startInvitationGallery }) => startInvitationGallery())
   : window.location.pathname === '/user-list'
   ? import('./user-list').then(({ startUserListGallery }) => startUserListGallery())
+  : window.location.pathname === '/case-list'
+  ? import('./case-list').then(({ startCaseListGallery }) => startCaseListGallery())
   : window.location.pathname === '/user-details'
   ? import('./user-details').then(({ startUserDetailsGallery }) => startUserDetailsGallery())
   : window.location.pathname === '/task-lookups'

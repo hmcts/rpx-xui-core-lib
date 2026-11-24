@@ -1,6 +1,6 @@
 import { formatDate } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { BrowserService } from '../../services/browser/browser.service';
+import { BrowserService } from '@hmcts/rpx-xui-core-lib/browser/user-agent';
 
 export class DateTimeFormatUtils {
   public static formatDateAtTime(date: Date, is24Hour: boolean): string {
@@ -25,7 +25,16 @@ export class CaseListComponent {
   @Input() public caption: string;
   @Input() public firstCellIsHeader = false;
 
-  @Input() public cases: object[];
+  private caseRows: object[] = [];
+
+  @Input()
+  public set cases(value: object[]) {
+    this.caseRows = value ?? [];
+  }
+
+  public get cases(): object[] {
+    return this.caseRows;
+  }
 
   @Input() public tableConfig: TableConfig = {
     idField: 'id',
@@ -65,7 +74,7 @@ export class CaseListComponent {
 
   // Preserve the Toolkit public signature until consumers migrate.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
-  public canBeShared(c: any): boolean {
+  public canBeShared(_c: any): boolean {
     return true;
   }
 
@@ -118,14 +127,14 @@ export class CaseListComponent {
   }
 
   public allOnPageSelected(): boolean {
-    return !this.cases.some(aCase => !this.isSelected(aCase));
+    return this.cases.length > 0 && !this.cases.some(aCase => !this.isSelected(aCase));
   }
 
   // Preserve the Toolkit public type until consumers migrate.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public onKeyUp($event: KeyboardEvent, aCase: any): void {
     if ($event.key === 'Space') {
-      if (this.browserService.isFirefox || this.browserService.isSafari || this.browserService.isIEOrEdge) {
+      if (this.browserService.isFirefox() || this.browserService.isSafari() || this.browserService.isIEOrEdge()) {
         this.changeSelection(aCase);
       }
     }

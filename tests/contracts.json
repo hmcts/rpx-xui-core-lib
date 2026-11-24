@@ -148,7 +148,14 @@
       "an exact venue-name result is selected and emitted automatically",
       "an exact venue match appends its EPIMMS ID when the selected control is a FormArray",
       "duplicate exact venue names remain available for explicit selection",
-      "new raw venue input cancels before debounce and destruction prevents its pending search"
+      "new raw venue input cancels before debounce and destruction prevents its pending search",
+      "case list retains its public table configuration and date formatting contract",
+      "case selection changes once for the supported legacy Space key event",
+      "case list does not synthesize a Space-key selection in browsers using native checkbox change",
+      "an empty case list is not reported as fully selected",
+      "an undefined cases input is normalized before selection and rendering",
+      "case list emits the requested current page",
+      "browser service classifies legacy browser user-agent strings"
     ]
   },
   "browser": {
@@ -928,6 +935,31 @@
         "projectName": "chromium",
         "title": "duplicate exact venue names stay visible without auto-selecting either venue",
         "feature": "hearing-lookups"
+      },
+      {
+        "projectName": "chromium",
+        "title": "case list renders configured columns and selects a case once with the keyboard",
+        "feature": "case-list"
+      },
+      {
+        "projectName": "chromium",
+        "title": "case list emits the page selection and displays the requested page",
+        "feature": "case-list"
+      },
+      {
+        "projectName": "chromium",
+        "title": "case list exposes accessible selection names and has no duplicate checkbox IDs",
+        "feature": "case-list"
+      },
+      {
+        "projectName": "chromium",
+        "title": "case identifiers stay local when translating accessible selection labels",
+        "feature": "case-list"
+      },
+      {
+        "projectName": "chromium",
+        "title": "case selection and select-all remain independent between list instances",
+        "feature": "case-list"
       }
     ]
   },
@@ -1036,7 +1068,12 @@
       "package.invitation-behavior",
       "package.invitation-graph",
       "package.search-judicials-graph",
-      "package.search-venue-graph"
+      "package.search-venue-graph",
+      "package.case-list-behavior",
+      "package.user-agent-behavior",
+      "package.case-list-graph",
+      "package.ccd-pagination-graph",
+      "package.user-agent-graph"
     ]
   },
   "nodeUnit": {

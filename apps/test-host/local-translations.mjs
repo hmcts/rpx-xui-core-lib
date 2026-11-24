@@ -9,6 +9,7 @@ const welsh = new Map([
   ['We are about to sign you out', 'Rydym ar fin eich allgofnodi'],
   ['Saved', 'Wedi cadw'],
   ['Case name', 'Enw achos'],
+  ['Select case', 'Dewis achos'],
   ['Hello world', 'Helo byd'],
   ['Searching', 'Chwilio'],
   ['Phone:', 'Ffôn:'],

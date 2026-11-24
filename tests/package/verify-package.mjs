@@ -63,7 +63,7 @@ try {
   const consumer = join(scratch, 'consumer');
   const dist = join(root, 'dist/core-lib');
   const declaration = 'forms/validation/index.d.ts';
-  const sourceLicenceEntries = ['ui/find-task-name', 'ui/find-work-type', 'ui/search-work-type', 'ui/find-person', 'ui/checkbox-list', 'ui/gov-date', 'ui/gov-select', 'ui/search-location', 'ui/search-judicials', 'ui/search-venue', 'terms/display', 'ui/gov-input', 'case/session-error', 'case/editor-date', 'browser/window', 'browser/session-storage', 'reference/locations', 'reference/ref-data', 'terms/models', 'ui/cookie', 'ui/feature-toggle', 'ui/feature-toggle-directive', 'ui/role-state', 'ui/task-data', 'case/sharing-state', 'ui/contact-details', 'ui/loading-spinner', 'ui/loading-state', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog', 'ui/banner', 'ui/form-label', 'case/models', 'case/reference', 'case/sharing'];
+  const sourceLicenceEntries = ['ui/find-task-name', 'ui/find-work-type', 'ui/search-work-type', 'ui/find-person', 'ui/checkbox-list', 'ui/gov-date', 'ui/gov-select', 'ui/search-location', 'ui/search-judicials', 'ui/search-venue', 'terms/display', 'ui/gov-input', 'case/session-error', 'case/editor-date', 'browser/window', 'browser/session-storage', 'reference/locations', 'reference/ref-data', 'terms/models', 'ui/cookie', 'ui/feature-toggle', 'ui/feature-toggle-directive', 'ui/role-state', 'ui/task-data', 'case/sharing-state', 'ui/contact-details', 'ui/loading-spinner', 'ui/loading-state', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog', 'ui/banner', 'ui/form-label', 'case/models', 'case/reference', 'case/sharing', 'browser/user-agent', 'ui/ccd-pagination', 'ui/case-list'];
 
   // Fail before dependency setup when the legacy TypeScript entry point is absent.
   await check('package.physical-secondary-declaration', async () => {
@@ -562,6 +562,10 @@ try {
   await check('package.user-details-behavior', () => run('user-details-behavior', ['--test', 'user-details.test.mjs'], consumer));
   await cp(join(root, 'tests/organisation/user-list.test.mjs'), join(consumer, 'user-list.test.mjs'));
   await check('package.user-list-behavior', () => run('user-list-behavior', ['--test', 'user-list.test.mjs'], consumer));
+  await cp(join(root, 'tests/case-list/case-list.test.mjs'), join(consumer, 'case-list.test.mjs'));
+  await check('package.case-list-behavior', () => run('case-list-behavior', ['--test', 'case-list.test.mjs'], consumer));
+  await cp(join(root, 'tests/browser/user-agent.test.mjs'), join(consumer, 'user-agent.test.mjs'));
+  await check('package.user-agent-behavior', () => run('user-agent-behavior', ['--test', 'user-agent.test.mjs'], consumer));
   await cp(join(root, 'tests/organisation/invitation.test.mjs'), join(consumer, 'invitation.test.mjs'));
   await check('package.invitation-behavior', () => run('invitation-behavior', ['--test', 'invitation.test.mjs'], consumer));
 
@@ -599,6 +603,9 @@ try {
   const selectiveEntries = [
     ['user-details', 'user-details-graph.mjs', ['ui-user-details', 'i18n']],
     ['user-list', 'user-list-graph.mjs', ['ui-user-list', 'i18n']],
+    ['case-list', 'case-list-graph.mjs', ['ui-case-list', 'ui-ccd-pagination', 'browser-user-agent', 'i18n']],
+    ['ccd-pagination', 'ccd-pagination-graph.mjs', ['ui-ccd-pagination', 'i18n']],
+    ['user-agent', 'user-agent-graph.mjs', ['browser-user-agent']],
     ['invitation', 'invitation-graph.mjs', ['ui-invitation', 'ui-gov-input', 'i18n']],
     ['selected-case', 'selected-case-graph.mjs', ['case-selected-case', 'case-sharing-state', 'i18n']],
     ['share-case', 'share-case-graph.mjs', ['case-share-case', 'case-selected-case', 'case-sharing-state', 'case-sharing', 'ui-gov-input', 'i18n']],
@@ -631,7 +638,7 @@ try {
         assert.equal(core.length, entries.length, 'Unexpected Core entries in graph');
         for (const entry of entries) assert.ok(core.some(input => input.endsWith('/fesm2022/hmcts-rpx-xui-core-lib-' + entry + '.mjs')));
         assert.ok(!used.some(input => /(?:^|\/)node(?:\/|$)|^node:/.test(input)));
-        if (['selected-case', 'share-case', 'user-details', 'user-list', 'invitation'].includes(id)) assert.ok(!used.some(input => /@hmcts\/(media-viewer|ccpay-web-component)/.test(input)));
+        if (['selected-case', 'share-case', 'user-details', 'user-list', 'invitation', 'case-list'].includes(id)) assert.ok(!used.some(input => /@hmcts\/(media-viewer|ccpay-web-component)/.test(input)));
         if (id === 'user-details' || id === 'invitation') assert.ok(!used.some(input => input.includes('/ngx-pagination/')));
         if (id === 'invitation') assert.ok(!used.some(input => input.includes('@angular/router')));
         if (id === 'gov-input') assert.ok(!used.some(input => input.includes('@angular/router')));

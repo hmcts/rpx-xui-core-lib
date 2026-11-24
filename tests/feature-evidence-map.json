@@ -2182,6 +2182,54 @@
           "package.search-venue-graph"
         ]
       }
+    },
+    {
+      "feature": "Case list and numbered pagination",
+      "contracts": {
+        "unit": [
+          "case list retains its public table configuration and date formatting contract",
+          "case selection changes once for the supported legacy Space key event",
+          "case list does not synthesize a Space-key selection in browsers using native checkbox change",
+          "an empty case list is not reported as fully selected",
+          "an undefined cases input is normalized before selection and rendering",
+          "case list emits the requested current page",
+          "browser service classifies legacy browser user-agent strings"
+        ],
+        "browser": [
+          {
+            "projectName": "chromium",
+            "title": "case list renders configured columns and selects a case once with the keyboard",
+            "feature": "case-list"
+          },
+          {
+            "projectName": "chromium",
+            "title": "case list emits the page selection and displays the requested page",
+            "feature": "case-list"
+          },
+          {
+            "projectName": "chromium",
+            "title": "case list exposes accessible selection names and has no duplicate checkbox IDs",
+            "feature": "case-list"
+          },
+          {
+            "projectName": "chromium",
+            "title": "case identifiers stay local when translating accessible selection labels",
+            "feature": "case-list"
+          },
+          {
+            "projectName": "chromium",
+            "title": "case selection and select-all remain independent between list instances",
+            "feature": "case-list"
+          }
+        ],
+        "package": [
+          "package.case-list-behavior",
+          "package.user-agent-behavior",
+          "package.case-list-graph",
+          "package.ccd-pagination-graph",
+          "package.user-agent-graph"
+        ]
+      }
     }
   ],
   "suiteGroups": [

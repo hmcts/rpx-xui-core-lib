@@ -1,5 +1,3 @@
-@use 'components/govuk-toolkit-shim' as *;
-
 $blue_pagination: #005da6;
 
 .ngx-pagination {
@@ -41,7 +39,7 @@ $blue_pagination: #005da6;
 }
 .ngx-pagination .current {
     padding: 0.1875rem 0.625rem;
-    background: $white;
+    background: #fff;
     color:  #4c2c92;
     cursor: default;
     font-weight: 900;
