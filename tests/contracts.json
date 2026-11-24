@@ -191,6 +191,11 @@
       },
       {
         "projectName": "chromium",
+        "title": "a malformed Welsh response falls back without caching and retries successfully",
+        "feature": "i18n"
+      },
+      {
+        "projectName": "chromium",
         "title": "a late Welsh response preserves English and is reused after switching back",
         "feature": "i18n"
       },
