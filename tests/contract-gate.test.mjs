@@ -344,6 +344,37 @@ addedBrowserJourneys.push('unlabelled booking-style host exposes the existing ac
 addedBrowserJourneys.push('explicit labels preserve caller context and distinct input identifiers', 'changing, clearing and removing a supplied label updates the input name', 'synthetic Welsh responses update explicit names without replacing an external label');
 addedBrowserJourneys.push('blank opt-in preserves the external name and explicit text takes precedence');
 packageIds.push('package.search-location-graph');
+packageIds.push('package.search-judicials-graph', 'package.search-venue-graph');
+unitNames.push(
+  'judicial search skips short terms, forwards service ID, cancels stale searches and excludes selected people',
+  'judicial selection keeps the source object and emits the exact source events',
+  'judicial control displays the selected model using the source formatted label',
+  'judicial input follows parent control changes after initialization',
+  'judicial selection appends the IDAM ID to an existing FormArray',
+  'judicial request failures use the legacy empty state and later searches recover',
+  'an exact judicial full-name result is selected and emitted automatically',
+  'an exact judicial match appends its IDAM ID when the selected control is a FormArray',
+  'duplicate exact judicial names remain available for explicit selection',
+  'new raw judicial input cancels before debounce and destruction prevents its pending search',
+  'venue search skips short terms, forwards source parameters, cancels stale searches and excludes selected venues',
+  'venue selection keeps the source object and emits the exact source events',
+  'venue control displays the selected court name on initialization',
+  'venue input follows parent control changes after initialization',
+  'venue selection appends the EPIMMS ID to an existing FormArray',
+  'venue request failures use the legacy empty state and later searches recover',
+  'an exact venue-name result is selected and emitted automatically',
+  'an exact venue match appends its EPIMMS ID when the selected control is a FormArray',
+  'duplicate exact venue names remain available for explicit selection',
+  'new raw venue input cancels before debounce and destruction prevents its pending search',
+);
+addedBrowserJourneys.push(
+  'judicial lookup supports keyboard selection and an accessible name',
+  'venue lookup supports keyboard selection and unique labelled instances',
+  'an exact judicial name auto-selects while retaining its visible input label',
+  'an exact venue name auto-selects while retaining its visible input label',
+  'duplicate exact judicial names stay visible without auto-selecting either person',
+  'duplicate exact venue names stay visible without auto-selecting either venue',
+);
 
 packageIds.push('package.loading-angular-build', 'package.loading-eager-fault');
 

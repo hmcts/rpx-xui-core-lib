@@ -2108,6 +2108,80 @@
           }
         ]
       }
+    },
+    {
+      "feature": "Judicial lookup",
+      "contracts": {
+        "unit": [
+          "judicial search skips short terms, forwards service ID, cancels stale searches and excludes selected people",
+          "judicial selection keeps the source object and emits the exact source events",
+          "judicial control displays the selected model using the source formatted label",
+          "judicial input follows parent control changes after initialization",
+          "judicial selection appends the IDAM ID to an existing FormArray",
+          "judicial request failures use the legacy empty state and later searches recover",
+          "an exact judicial full-name result is selected and emitted automatically",
+          "an exact judicial match appends its IDAM ID when the selected control is a FormArray",
+          "duplicate exact judicial names remain available for explicit selection",
+          "new raw judicial input cancels before debounce and destruction prevents its pending search"
+        ],
+        "browser": [
+          {
+            "projectName": "chromium",
+            "title": "judicial lookup supports keyboard selection and an accessible name",
+            "feature": "hearing-lookups"
+          },
+          {
+            "projectName": "chromium",
+            "title": "an exact judicial name auto-selects while retaining its visible input label",
+            "feature": "hearing-lookups"
+          },
+          {
+            "projectName": "chromium",
+            "title": "duplicate exact judicial names stay visible without auto-selecting either person",
+            "feature": "hearing-lookups"
+          }
+        ],
+        "package": [
+          "package.search-judicials-graph"
+        ]
+      }
+    },
+    {
+      "feature": "Venue lookup",
+      "contracts": {
+        "unit": [
+          "venue search skips short terms, forwards source parameters, cancels stale searches and excludes selected venues",
+          "venue selection keeps the source object and emits the exact source events",
+          "venue control displays the selected court name on initialization",
+          "venue input follows parent control changes after initialization",
+          "venue selection appends the EPIMMS ID to an existing FormArray",
+          "venue request failures use the legacy empty state and later searches recover",
+          "an exact venue-name result is selected and emitted automatically",
+          "an exact venue match appends its EPIMMS ID when the selected control is a FormArray",
+          "duplicate exact venue names remain available for explicit selection",
+          "new raw venue input cancels before debounce and destruction prevents its pending search"
+        ],
+        "browser": [
+          {
+            "projectName": "chromium",
+            "title": "venue lookup supports keyboard selection and unique labelled instances",
+            "feature": "hearing-lookups"
+          },
+          {
+            "projectName": "chromium",
+            "title": "an exact venue name auto-selects while retaining its visible input label",
+            "feature": "hearing-lookups"
+          },
+          {
+            "projectName": "chromium",
+            "title": "duplicate exact venue names stay visible without auto-selecting either venue",
+            "feature": "hearing-lookups"
+          }
+        ],
+        "package": [
+          "package.search-venue-graph"
+        ]
+      }
     }
   ],
   "suiteGroups": [
