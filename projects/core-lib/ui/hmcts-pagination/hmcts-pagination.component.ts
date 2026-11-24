@@ -9,6 +9,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 export class HmctsPaginationComponent {
 
   @Input() public id: string;
+  @Input() public navigationLabel = 'Pagination navigation';
   @Input() public maxSize: number = 7;
   @Input() public pageSize: number = 10;
   @Input() public showPageNumbers: boolean = true;

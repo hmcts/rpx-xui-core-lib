@@ -1,12 +1,12 @@
 <pagination-template #p="paginationApi" [id]="id" [maxSize]="maxSize" (pageChange)="pageChange.emit($event)"
   (pageBoundsCorrection)="pageBoundsCorrection.emit($event)">
 
-  <nav class="hmcts-pagination" [attr.aria-label]="'Pagination navigation' | rpxTranslate">
+  <nav class="hmcts-pagination" [attr.aria-label]="navigationLabel | rpxTranslate">
     @if (!(p.pages.length <= 1)) {
       <ul class="hmcts-pagination__list">
         <li class="hmcts-pagination__item  hmcts-pagination__item--prev" [class.disabled]="p.isFirstPage()">
           @if (1 < p.getCurrent()) {
-            <button type="button" class="hmcts-pagination__link" (click)="p.previous()">{{'Previous' | rpxTranslate}} <span class="govuk-visually-hidden">{{'set of pages' | rpxTranslate}}</span></button>
+            <a href="#" class="hmcts-pagination__link" (click)="p.previous(); $event.preventDefault()">{{'Previous' | rpxTranslate}} <span class="govuk-visually-hidden">{{'set of pages' | rpxTranslate}}</span></a>
             }
           </li>
           @if (showPageNumbers) {
@@ -14,10 +14,10 @@
               <li class="hmcts-pagination__item" [class.hmcts-pagination__item--active]="p.getCurrent() === page.value"
                 [class.hmcts-pagination__item--dots]="page.label === '...'">
                 @if (p.getCurrent() !== page.value) {
-                  <button type="button" class="hmcts-pagination__link" (click)="p.setCurrent(page.value)">
+                  <a href="#" class="hmcts-pagination__link" (click)="p.setCurrent(page.value); $event.preventDefault()">
                     <span class="govuk-visually-hidden">{{'page' | rpxTranslate}} </span>
                     <span>{{ (page.label === '...') ? page.label : (page.label | number:'') }}</span>
-                  </button>
+                  </a>
                 }
                 @if (p.getCurrent() === page.value) {
                   <span aria-current="page">{{ (page.label === '...') ? page.label : (page.label | number:'') }}</span>
@@ -27,7 +27,7 @@
           }
           <li class="hmcts-pagination__item  hmcts-pagination__item--next" [class.disabled]="p.isLastPage()">
             @if (!p.isLastPage()) {
-              <button type="button" class="hmcts-pagination__link" (click)="p.next()">{{'Next' | rpxTranslate}}<span class="govuk-visually-hidden"> {{'page' | rpxTranslate}}</span></button>
+            <a href="#" class="hmcts-pagination__link" (click)="p.next(); $event.preventDefault()">{{'Next' | rpxTranslate}}<span class="govuk-visually-hidden"> {{'page' | rpxTranslate}}</span></a>
               }
             </li>
           </ul>

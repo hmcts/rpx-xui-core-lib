@@ -25,6 +25,8 @@ const application = window.location.pathname === '/service-messages'
   ? import('./user-list').then(({ startUserListGallery }) => startUserListGallery())
   : window.location.pathname === '/user-details'
   ? import('./user-details').then(({ startUserDetailsGallery }) => startUserDetailsGallery())
+  : window.location.pathname === '/pagination'
+  ? import('./pagination').then(({ startPaginationGallery }) => startPaginationGallery())
   : window.location.pathname === '/task-lookups'
   ? import('./task-lookups').then(({ startTaskLookupsGallery }) => startTaskLookupsGallery())
   : window.location.pathname === '/selected-cases'

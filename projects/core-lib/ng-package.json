@@ -32,6 +32,16 @@
       "output": "ui/user-list"
     },
     {
+      "input": "ui/hmcts-pagination",
+      "glob": "LICENCE",
+      "output": "ui/hmcts-pagination"
+    },
+    {
+      "input": "ui/pagination",
+      "glob": "LICENCE",
+      "output": "ui/pagination"
+    },
+    {
       "input": "ui/user-details",
       "glob": "LICENCE",
       "output": "ui/user-details"

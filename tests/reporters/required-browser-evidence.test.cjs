@@ -181,6 +181,9 @@ user-list|users with a route retain a navigable link and emit selection
 user-list|user list pages through users and emits the chosen user
 user-list|pagination can be operated with the keyboard
 user-list|user list and pagination have no automated accessibility violations
+pagination|generic pagination preserves null events and exposes keyboard-operable page actions
+pagination|HMCTS paginator is independently usable and keeps separate list state
+pagination|pagination entries have no automated accessibility violations
 invitation|invitation emits submit and displays parent validation
 invitation|invitation emits entered details and selected permissions
 invitation|invitation form supports keyboard selection and passes axe

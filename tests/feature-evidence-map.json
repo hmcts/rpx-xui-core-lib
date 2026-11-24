@@ -2026,6 +2026,38 @@
       }
     },
     {
+      "feature": "Pagination controls",
+      "contracts": {
+        "unit": [
+          "generic pagination retains the null payload on both public outputs",
+          "user-list and standalone HMCTS pagination share one component identity",
+          "both pagination entries allow a caller to distinguish navigation landmarks"
+        ],
+        "browser": [
+          {
+            "projectName": "chromium",
+            "title": "generic pagination preserves null events and exposes keyboard-operable page actions",
+            "feature": "pagination"
+          },
+          {
+            "projectName": "chromium",
+            "title": "HMCTS paginator is independently usable and keeps separate list state",
+            "feature": "pagination"
+          },
+          {
+            "projectName": "chromium",
+            "title": "pagination entries have no automated accessibility violations",
+            "feature": "pagination"
+          }
+        ],
+        "package": [
+          "package.pagination-behavior",
+          "package.pagination-graph",
+          "package.hmcts-pagination-graph"
+        ]
+      }
+    },
+    {
       "feature": "User invitation",
       "contracts": {
         "unit": [

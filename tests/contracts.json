@@ -127,6 +127,9 @@
       "user details emits the original user for suspend and reinvite actions",
       "user list retains the legacy 50-item page and emits the selected user",
       "user list updates the current page and emits the requested page",
+      "generic pagination retains the null payload on both public outputs",
+      "user-list and standalone HMCTS pagination share one component identity",
+      "both pagination entries allow a caller to distinguish navigation landmarks",
       "invitation form defaults missing errors and emits a submit event",
       "invitation permissions retain legacy default flags",
       "judicial search skips short terms, forwards service ID, cancels stale searches and excludes selected people",
@@ -866,6 +869,21 @@
       },
       {
         "projectName": "chromium",
+        "title": "generic pagination preserves null events and exposes keyboard-operable page actions",
+        "feature": "pagination"
+      },
+      {
+        "projectName": "chromium",
+        "title": "HMCTS paginator is independently usable and keeps separate list state",
+        "feature": "pagination"
+      },
+      {
+        "projectName": "chromium",
+        "title": "pagination entries have no automated accessibility violations",
+        "feature": "pagination"
+      },
+      {
+        "projectName": "chromium",
         "title": "invitation emits submit and displays parent validation",
         "feature": "invitation"
       },
@@ -1033,6 +1051,9 @@
       "package.user-details-graph",
       "package.user-list-behavior",
       "package.user-list-graph",
+      "package.pagination-behavior",
+      "package.pagination-graph",
+      "package.hmcts-pagination-graph",
       "package.invitation-behavior",
       "package.invitation-graph",
       "package.search-judicials-graph",

@@ -63,7 +63,7 @@ try {
   const consumer = join(scratch, 'consumer');
   const dist = join(root, 'dist/core-lib');
   const declaration = 'forms/validation/index.d.ts';
-  const sourceLicenceEntries = ['ui/find-task-name', 'ui/find-work-type', 'ui/search-work-type', 'ui/find-person', 'ui/checkbox-list', 'ui/gov-date', 'ui/gov-select', 'ui/search-location', 'ui/search-judicials', 'ui/search-venue', 'terms/display', 'ui/gov-input', 'case/session-error', 'case/editor-date', 'browser/window', 'browser/session-storage', 'reference/locations', 'reference/ref-data', 'terms/models', 'ui/cookie', 'ui/feature-toggle', 'ui/feature-toggle-directive', 'ui/role-state', 'ui/task-data', 'case/sharing-state', 'ui/contact-details', 'ui/loading-spinner', 'ui/loading-state', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog', 'ui/banner', 'ui/form-label', 'case/models', 'case/reference', 'case/sharing'];
+  const sourceLicenceEntries = ['ui/find-task-name', 'ui/find-work-type', 'ui/search-work-type', 'ui/find-person', 'ui/checkbox-list', 'ui/gov-date', 'ui/gov-select', 'ui/search-location', 'ui/search-judicials', 'ui/search-venue', 'ui/pagination', 'ui/hmcts-pagination', 'terms/display', 'ui/gov-input', 'case/session-error', 'case/editor-date', 'browser/window', 'browser/session-storage', 'reference/locations', 'reference/ref-data', 'terms/models', 'ui/cookie', 'ui/feature-toggle', 'ui/feature-toggle-directive', 'ui/role-state', 'ui/task-data', 'case/sharing-state', 'ui/contact-details', 'ui/loading-spinner', 'ui/loading-state', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog', 'ui/banner', 'ui/form-label', 'case/models', 'case/reference', 'case/sharing'];
 
   // Fail before dependency setup when the legacy TypeScript entry point is absent.
   await check('package.physical-secondary-declaration', async () => {
@@ -562,6 +562,8 @@ try {
   await check('package.user-details-behavior', () => run('user-details-behavior', ['--test', 'user-details.test.mjs'], consumer));
   await cp(join(root, 'tests/organisation/user-list.test.mjs'), join(consumer, 'user-list.test.mjs'));
   await check('package.user-list-behavior', () => run('user-list-behavior', ['--test', 'user-list.test.mjs'], consumer));
+  await cp(join(root, 'tests/pagination/pagination.test.mjs'), join(consumer, 'pagination.test.mjs'));
+  await check('package.pagination-behavior', () => run('pagination-behavior', ['--test', 'pagination.test.mjs'], consumer));
   await cp(join(root, 'tests/organisation/invitation.test.mjs'), join(consumer, 'invitation.test.mjs'));
   await check('package.invitation-behavior', () => run('invitation-behavior', ['--test', 'invitation.test.mjs'], consumer));
 
@@ -598,7 +600,9 @@ try {
   /** @type {Array<[string, string, string[]]>} */
   const selectiveEntries = [
     ['user-details', 'user-details-graph.mjs', ['ui-user-details', 'i18n']],
-    ['user-list', 'user-list-graph.mjs', ['ui-user-list', 'i18n']],
+    ['user-list', 'user-list-graph.mjs', ['ui-user-list', 'ui-hmcts-pagination', 'i18n']],
+    ['pagination', 'pagination-graph.mjs', ['ui-pagination', 'i18n']],
+    ['hmcts-pagination', 'hmcts-pagination-graph.mjs', ['ui-hmcts-pagination', 'i18n']],
     ['invitation', 'invitation-graph.mjs', ['ui-invitation', 'ui-gov-input', 'i18n']],
     ['selected-case', 'selected-case-graph.mjs', ['case-selected-case', 'case-sharing-state', 'i18n']],
     ['share-case', 'share-case-graph.mjs', ['case-share-case', 'case-selected-case', 'case-sharing-state', 'case-sharing', 'ui-gov-input', 'i18n']],
@@ -633,6 +637,8 @@ try {
         assert.ok(!used.some(input => /(?:^|\/)node(?:\/|$)|^node:/.test(input)));
         if (['selected-case', 'share-case', 'user-details', 'user-list', 'invitation'].includes(id)) assert.ok(!used.some(input => /@hmcts\/(media-viewer|ccpay-web-component)/.test(input)));
         if (id === 'user-details' || id === 'invitation') assert.ok(!used.some(input => input.includes('/ngx-pagination/')));
+        if (id === 'pagination') assert.ok(!used.some(input => /(?:\/ngx-pagination\/|@angular\/router|hmcts-rpx-xui-core-lib-ui-hmcts-pagination)/.test(input)), 'Generic pagination must not pull the numbered paginator or routing');
+        if (id === 'hmcts-pagination') assert.ok(!used.some(input => /(?:hmcts-rpx-xui-core-lib-ui-user-list|hmcts-rpx-xui-core-lib-ui-pagination|@angular\/router|@hmcts\/(?:media-viewer|ccpay-web-component))/.test(input)), 'HMCTS pagination must not pull user-list, generic pagination, routing or heavy peers');
         if (id === 'invitation') assert.ok(!used.some(input => input.includes('@angular/router')));
         if (id === 'gov-input') assert.ok(!used.some(input => input.includes('@angular/router')));
       };
