@@ -9,6 +9,7 @@
     { "input": "browser/user-agent", "glob": "LICENCE", "output": "browser/user-agent" },
     { "input": "ui/ccd-pagination", "glob": "LICENCE", "output": "ui/ccd-pagination" },
     { "input": "ui/case-list", "glob": "LICENCE", "output": "ui/case-list" },
+    { "input": "ui/filter-state", "glob": "LICENCE", "output": "ui/filter-state" },
     {
       "input": "forms/validation",
       "glob": "LICENCE",
