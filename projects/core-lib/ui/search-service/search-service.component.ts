@@ -11,7 +11,8 @@ import type { MatOptionSelectionChange } from '@angular/material/core';
 export class SearchServiceComponent {
   @Input() public options: FilterConfigOption[];
   @Input() public selectedOptions: FilterConfigOption[];
-  @Input() public disabled: boolean | null | undefined;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Preserve the published CommonLib input type for legacy template bindings.
+  @Input() public disabled: any;
   @Input() public showAutocomplete: boolean = false;
   @Input() public searchTerm = '';
   @Output() public searchTermChange: EventEmitter<string> = new EventEmitter<string>();
