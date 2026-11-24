@@ -1,5 +1,6 @@
+import { beforeEach, describe, expect, it } from 'vitest';
 import { Component, DebugElement, ErrorHandler, Input } from '@angular/core';
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { plainToClassFromExist } from 'class-transformer';
@@ -10,7 +11,6 @@ import { PALETTE_REGISTRY } from '../palette-token';
 import { FieldReadComponent } from './field-read.component';
 import { PaletteContext } from './palette-context.enum';
 
-import createSpyObj = jasmine.createSpyObj;
 
 const $FIELD_READ_LABEL = By.css('ccd-field-read-label');
 const $FIELD_TEST = By.css('ccd-field-read-label span.text-cls');
@@ -61,17 +61,15 @@ describe('FieldReadComponent', () => {
   let component: FieldReadComponent;
   let de: DebugElement;
 
-  let paletteService: jasmine.SpyObj<PaletteService>;
+  let paletteService: { getFieldComponentClass: ReturnType<typeof vi.fn> };
 
   const formGroup: FormGroup = new FormGroup({});
   const caseFields: CaseField[] = [CASE_FIELD];
-  beforeEach(waitForAsync(() => {
-    paletteService = createSpyObj<PaletteService>('paletteService', [
-      'getFieldComponentClass'
-    ]);
-    paletteService.getFieldComponentClass.and.returnValue(FieldTestComponent);
+  beforeEach(async () => {
+    paletteService = { getFieldComponentClass: vi.fn() };
+    paletteService.getFieldComponentClass.mockReturnValue(FieldTestComponent);
 
-    TestBed
+    await TestBed
       .configureTestingModule({
         imports: [
           ReactiveFormsModule,
@@ -101,7 +99,7 @@ describe('FieldReadComponent', () => {
 
     de = fixture.debugElement;
     fixture.detectChanges();
-  }));
+  });
 
   it('should get field read class from PaletteService', () => {
     expect(paletteService.getFieldComponentClass).toHaveBeenCalledWith(CASE_FIELD, false);
@@ -141,26 +139,26 @@ describe('FieldReadComponent', () => {
     fresh.detectChanges();
     await fresh.whenStable();
     const childField = fresh.debugElement.query($FIELD_TEST).componentInstance.caseField;
-    expect(childField instanceof CaseField).toBeTrue();
+    expect(childField instanceof CaseField).toBe(true);
     expect(childField.id).toBe('nested');
     expect(childField.value).toBe('value');
   });
 
   it('reports the original deferred initialization error to Angular', async () => {
     const error = new Error('Synthetic field initialization failure');
-    const handler = spyOn(TestBed.inject(ErrorHandler), 'handleError');
-    paletteService.getFieldComponentClass.and.throwError(error);
+    const handler = vi.spyOn(TestBed.inject(ErrorHandler), 'handleError').mockImplementation(() => undefined);
+    paletteService.getFieldComponentClass.mockImplementation(() => { throw error; });
     const fresh = TestBed.createComponent(FieldReadComponent);
     fresh.componentInstance.caseField = CASE_FIELD;
     fresh.detectChanges();
     await Promise.resolve();
     await Promise.resolve();
-    expect(handler).toHaveBeenCalledOnceWith(error);
+    expect(handler).toHaveBeenCalledExactlyOnceWith(error);
     fresh.destroy();
   });
 
   it('does not initialize a field destroyed before its deferred callback', async () => {
-    paletteService.getFieldComponentClass.calls.reset();
+    paletteService.getFieldComponentClass.mockClear();
     const fresh = TestBed.createComponent(FieldReadComponent);
     fresh.componentInstance.caseField = CASE_FIELD;
     fresh.detectChanges();
@@ -186,6 +184,7 @@ describe('FieldReadComponent', () => {
 
   it('should display label if required', () => {
     component.withLabel = true;
+    fixture.changeDetectorRef.markForCheck();
     fixture.detectChanges();
 
     const fieldReadLabelComponent = de.query(By.css('ccd-field-read-label'));

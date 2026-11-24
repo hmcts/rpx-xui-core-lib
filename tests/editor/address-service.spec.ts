@@ -1,3 +1,4 @@
+import { describe, expect, it, vi } from 'vitest';
 import { firstValueFrom, of } from 'rxjs';
 import { AddressesService } from '../../projects/core-lib/case/editor-source/lib/shared/services/addresses/addresses.service';
 import { AddressParser } from '../../projects/core-lib/case/editor-source/lib/shared/services/addresses/address-parser';
@@ -13,7 +14,7 @@ describe('Address lookup migration contract', () => {
     expect(result.Country).toBe('Deyrnas Unedig');
   });
   it('uses the postcode lookup and formats returned address lines', async () => {
-    const http = { get: jasmine.createSpy('get').and.returnValue(of({ results: [{ DPA: { BUILDING_NUMBER: '10', THOROUGHFARE_NAME: 'DOWNING STREET', POST_TOWN: 'LONDON', POSTCODE: 'SW1A 2AA' } }] })) };
+    const http = { get: vi.fn().mockReturnValue(of({ results: [{ DPA: { BUILDING_NUMBER: '10', THOROUGHFARE_NAME: 'DOWNING STREET', POST_TOWN: 'LONDON', POSTCODE: 'SW1A 2AA' } }] })) };
     type Dependencies = ConstructorParameters<typeof AddressesService>;
     const config = { getPostcodeLookupUrl: () => '/lookup/${postcode}' };
     const service = new AddressesService(http as unknown as Dependencies[0], config as unknown as Dependencies[1]);

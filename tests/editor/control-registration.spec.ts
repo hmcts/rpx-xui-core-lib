@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { AbstractFormFieldComponent } from '../../projects/core-lib/case/editor-source/lib/shared/components/palette/base-field/abstract-form-field.component';
 
@@ -31,7 +32,7 @@ describe('Field control registration migration contract', () => {
     expect(field.register(replacement, true)).toBe(replacement);
     expect(field.formGroup.get('field')).toBe(replacement);
     expect(replacement.validator(replacement)).toEqual({ required: true });
-    expect(replacement.invalid).toBeTrue();
-    expect(field.formGroup.invalid).toBeTrue();
+    expect(replacement.invalid).toBe(true);
+    expect(field.formGroup.invalid).toBe(true);
   });
 });

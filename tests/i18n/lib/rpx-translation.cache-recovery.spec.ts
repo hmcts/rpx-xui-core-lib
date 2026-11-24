@@ -1,9 +1,13 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { HttpClient, provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, TestRequest, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { db, Translation } from '../../../projects/core-lib/i18n/lib/db';
 import { TranslatedData } from '../../../projects/core-lib/i18n/lib/models/translated-data.model';
 import { RpxTranslationService } from '../../../projects/core-lib/i18n/lib/rpx-translation.service';
+
+afterEach(() => vi.useRealTimers());
 
 const config = { baseUrl: '/translations', debounceTimeMs: 10, validity: { days: 1 }, testMode: false };
 
@@ -41,7 +45,7 @@ describe('translation real cache recovery', () => {
     client = TestBed.inject(HttpClient);
     http = TestBed.inject(HttpTestingController);
     services = [];
-    spyOn(console, 'warn');
+    vi.spyOn(console, 'warn');
   });
 
   afterEach(async () => {
@@ -74,7 +78,7 @@ describe('translation real cache recovery', () => {
       const data = kind === 'invalid' ? { translation: null } as unknown as TranslatedData : { translation: 'old' };
       const validity = kind === 'expired' ? '2000-01-01T00:00:00.000Z' : '2999-01-01T00:00:00.000Z';
       await db.translations.add(Translation.create('source', 'cy', data, validity));
-      const deletion = spyOn(db.translations, 'delete').and.rejectWith(new Error('synthetic failure'));
+      const deletion = vi.spyOn(db.translations, 'delete').mockRejectedValue(new Error('synthetic failure'));
       const service = createService();
       const values: string[] = [];
       service.getTranslation$('source').subscribe(value => values.push(value));

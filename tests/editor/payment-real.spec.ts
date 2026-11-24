@@ -1,3 +1,4 @@
+import { describe, expect, it, vi } from 'vitest';
 import { PaymentLibComponent } from '@hmcts/ccpay-web-component';
 
 export const registered = true;
@@ -13,13 +14,13 @@ describe('Installed payment component input contract', () => {
   });
   it('retains ways-to-pay inputs and configures the real payment component', () => {
     const paymentService = {
-      setApiRootUrl: jasmine.createSpy('api'),
-      setBulkScanApiRootUrl: jasmine.createSpy('bulk'),
-      setRefundndsApiRootUrl: jasmine.createSpy('refunds'),
-      setNoticationApiRootUrl: jasmine.createSpy('notifications'),
-      setCardPaymentReturnUrl: jasmine.createSpy('return')
+      setApiRootUrl: vi.fn(),
+      setBulkScanApiRootUrl: vi.fn(),
+      setRefundndsApiRootUrl: vi.fn(),
+      setNoticationApiRootUrl: vi.fn(),
+      setCardPaymentReturnUrl: vi.fn()
     };
-    const roles = { setUserRolesList: jasmine.createSpy('roles') };
+    const roles = { setUserRolesList: vi.fn() };
     const payment = new PaymentLibComponent(paymentService as unknown as ConstructorParameters<typeof PaymentLibComponent>[0], { detectChanges() {} } as unknown as ConstructorParameters<typeof PaymentLibComponent>[1], roles as unknown as ConstructorParameters<typeof PaymentLibComponent>[2]);
     Object.assign(payment, { API_ROOT: '/pay', BULKSCAN_API_ROOT: '/bulk', REFUNDS_API_ROOT: '/refund', NOTIFICATION_API_ROOT: '/notify', CARDPAYMENTRETURNURL: '/return', VIEW: 'case-transactions', LOGGEDINUSERROLES: ['role'], SERVICEREQUEST: true, ISPAYMENTSTATUSENABLED: 'Enable' });
     payment.ngOnInit();

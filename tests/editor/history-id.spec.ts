@@ -1,3 +1,4 @@
+import { describe, expect, it, vi } from 'vitest';
 import { EventEmitter } from '@angular/core';
 import { of, throwError } from 'rxjs';
 import { EventLogTableComponent } from '../../projects/core-lib/case/editor-source/lib/shared/components/palette/history/event-log/event-log-table.component';
@@ -9,7 +10,7 @@ export const registered = true;
 describe('Case history event identifier', () => {
   it('reports and rethrows the original case history failure', () => {
     const failure = { status: 503, message: 'Unavailable' };
-    const setError = jasmine.createSpy('setError');
+    const setError = vi.fn();
     type Dependencies = ConstructorParameters<typeof CaseHistoryService>;
     const service = new CaseHistoryService(
       { get: () => throwError(() => failure) } as unknown as Dependencies[0],
@@ -18,7 +19,7 @@ describe('Case history event identifier', () => {
     );
     let observed: unknown;
     service.get('case', 'event').subscribe({ error: error => observed = error });
-    expect(setError).toHaveBeenCalledOnceWith(failure);
+    expect(setError).toHaveBeenCalledExactlyOnceWith(failure);
     expect(observed).toBe(failure);
   });
   it('preserves the Toolkit string-typed event API', () => {
@@ -36,7 +37,7 @@ describe('Case history event identifier', () => {
     const timeline = new CaseTimelineComponent({} as unknown as ConstructorParameters<typeof CaseTimelineComponent>[0], {} as unknown as ConstructorParameters<typeof CaseTimelineComponent>[1], {} as unknown as ConstructorParameters<typeof CaseTimelineComponent>[2]);
     table.onCaseHistory.subscribe(id => log.caseHistoryClicked(id));
     log.onCaseHistory.subscribe(id => timeline.caseHistoryClicked(id));
-    const provider = jasmine.createSpy('url').and.returnValue('/history');
+    const provider = vi.fn().mockReturnValue('/history');
     const history = new CaseHistoryService({ get: () => of({}) } as unknown as ConstructorParameters<typeof CaseHistoryService>[0], {} as unknown as ConstructorParameters<typeof CaseHistoryService>[1], { getCaseHistoryUrl: provider } as unknown as ConstructorParameters<typeof CaseHistoryService>[2]);
     for (const id of [123, 'event-id']) {
       table.caseHistoryClicked(id as unknown as string);

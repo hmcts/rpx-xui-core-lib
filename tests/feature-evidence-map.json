@@ -21,7 +21,7 @@
         "editorDrivers": [
           {
             "projectName": "chromium",
-            "title": "runs the required editor component contracts"
+            "title": "loads the editor browser host without errors"
           }
         ]
       }
