@@ -50,6 +50,7 @@ validation|validation valid exposes accessible roles and passes axe
 validation|validation axe detects the label rule when a checkbox label is removed
 i18n|locale switches reuse persisted translations across English and page reloads
 i18n|a translation HTTP failure returns and caches the original phrase
+i18n|a malformed Welsh response falls back without caching and retries successfully
 i18n|a late Welsh response preserves English and is reused after switching back
 i18n|local gallery translates through its own synthetic service
 i18n|local gallery demonstrates a synthetic service failure
