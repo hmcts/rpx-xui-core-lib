@@ -50,6 +50,7 @@ validation|validation valid exposes accessible roles and passes axe
 validation|validation axe detects the label rule when a checkbox label is removed
 i18n|locale switches reuse persisted translations across English and page reloads
 i18n|a translation HTTP failure returns and caches the original phrase
+i18n|a malformed Welsh response falls back without caching and retries successfully
 i18n|a late Welsh response preserves English and is reused after switching back
 i18n|local gallery translates through its own synthetic service
 i18n|local gallery demonstrates a synthetic service failure
@@ -186,7 +187,13 @@ invitation|invitation form supports keyboard selection and passes axe
 invitation|invalid invitation inputs expose their errors accessibly
 invitation|invitation retains and updates a preselected permission
 invitation|permission error is announced by the permissions fieldset
-invitation|permissions with an empty error never reference a missing message`.split('\n').map(row => {
+invitation|permissions with an empty error never reference a missing message
+hearing-lookups|judicial lookup supports keyboard selection and an accessible name
+hearing-lookups|venue lookup supports keyboard selection and unique labelled instances
+hearing-lookups|an exact judicial name auto-selects while retaining its visible input label
+hearing-lookups|an exact venue name auto-selects while retaining its visible input label
+hearing-lookups|duplicate exact judicial names stay visible without auto-selecting either person
+hearing-lookups|duplicate exact venue names stay visible without auto-selecting either venue`.split('\n').map(row => {
   const [feature, title] = row.split('|');
   return ['chromium', title, feature];
 });
