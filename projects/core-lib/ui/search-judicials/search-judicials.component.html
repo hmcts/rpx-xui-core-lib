@@ -1,0 +1,28 @@
+<div class="govuk-form-group">
+  <input
+    [id]="resolvedInputId"
+    [attr.aria-label]="accessibleLabel?.trim() ? (accessibleLabel | rpxTranslate) : null"
+    [placeholder]="placeholderContent | rpxTranslate"
+    [formControl]="searchControl"
+    [matAutocomplete]="autoComplete"
+    [disabled]="disabled === true"
+    (keydown)="onKeyDown()"
+    (input)="onKeyUp($event)"
+    (focus)="onFocus()"
+    #inputSelection
+    class="govuk-input">
+  <mat-autocomplete
+    #autoComplete="matAutocomplete"
+    autoActiveFirstOption
+    [displayWith]="getDisplayName.bind(this)"
+    (optionSelected)="onSelectionChange($event.option.value)">
+    @for (judicial of displayedJudicialsDuplicationFiltered; track judicial.idamId) {
+      <mat-option class="select-option" [value]="judicial">
+        {{ getDisplayName(judicial) }}
+      </mat-option>
+    }
+    @if (!displayedJudicialsDuplicationFiltered.length && showAutocomplete && !searchInProgress) {
+      <mat-option disabled>{{ 'No results found' | rpxTranslate }}</mat-option>
+    }
+  </mat-autocomplete>
+</div>
