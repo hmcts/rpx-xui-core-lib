@@ -1772,9 +1772,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hmcts/media-viewer@npm:4.2.48":
-  version: 4.2.48
-  resolution: "@hmcts/media-viewer@npm:4.2.48"
+"@hmcts/media-viewer@npm:4.2.49":
+  version: 4.2.49
+  resolution: "@hmcts/media-viewer@npm:4.2.49"
   dependencies:
     "@swimlane/ngx-datatable": "npm:^23.0.1"
     moment-timezone: "npm:^0.6.2"
@@ -1797,7 +1797,7 @@ __metadata:
     ngx-chips: 3.0.0
     rpx-xui-translation: 1.2.18
     rxjs: ^7.8.2
-  checksum: 10c0/dfbb49a6bc02d6cb1bf9606247556e6aa0e7450a0b5d87996ce10cb1fbe245715a43b359faa02f097fe282d049f86855652eee74a6c10d77dc09a7b8c67f672a
+  checksum: 10c0/624e270fc093f6d441b057ed43e8264dffcc92498e1e815492fd165e692b9915282d76d7ce532b95588858f79dcc079f865b9606fd9cb9dc8d672d49c65e757c
   languageName: node
   linkType: hard
 
@@ -1821,7 +1821,7 @@ __metadata:
     "@axe-core/playwright": "npm:4.14.0"
     "@edium/fsm": "npm:3.0.2"
     "@hmcts/ccpay-web-component": "npm:6.5.28"
-    "@hmcts/media-viewer": "npm:4.2.48"
+    "@hmcts/media-viewer": "npm:4.2.49"
     "@ngrx/effects": "npm:20.1.0"
     "@ngrx/store": "npm:20.1.0"
     "@ngrx/store-devtools": "npm:20.1.0"
