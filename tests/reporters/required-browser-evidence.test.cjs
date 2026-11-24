@@ -204,7 +204,18 @@ case-list|case list renders configured columns and selects a case once with the 
 case-list|case list emits the page selection and displays the requested page
 case-list|case list exposes accessible selection names and has no duplicate checkbox IDs
 case-list|case identifiers stay local when translating accessible selection labels
-case-list|case selection and select-all remain independent between list instances`.split('\n').map(row => {
+case-list|case selection and select-all remain independent between list instances
+filter-renderers|SearchService binds native disabled, two-way terms, visibility, selected keys and option objects
+filter-renderers|FindService exposes the service label, native disabling, Add and the Select All display tag
+filter-renderers|single service selection commits immediately and keeps its text on submission
+filter-renderers|Work Allocation lookup uses scalar and positional codes with booking context, then clears every location
+filter-renderers|Staff Admin lookup uses service option objects and displays venue names, then resets on submission
+filter-renderers|single location selection keeps its committed text on submission
+generic-filter|Work Allocation composes scalar service, booking location, person, task and work-type fields
+generic-filter|Work Allocation checkbox service lookup omits services_all and disabling clears all selected locations
+generic-filter|invalid Apply exposes template errors and Reset rebinds edits to the active form
+generic-filter-accessibility|Staff Admin titles its combobox, filters skills, and persists venue records from option-object services
+generic-filter-accessibility|two composed service fields each have a unique input and a label that focuses only that input`.split('\n').map(row => {
   const [feature, title] = row.split('|');
   return ['chromium', title, feature];
 });

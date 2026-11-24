@@ -475,6 +475,110 @@ packageIds.push('package.user-list-behavior', 'package.user-list-graph');
 packageIds.push('package.pagination-behavior', 'package.pagination-graph', 'package.hmcts-pagination-graph');
 packageIds.push('package.invitation-behavior', 'package.invitation-graph');
 packageIds.push('package.case-list-behavior', 'package.user-agent-behavior', 'package.case-list-graph', 'package.ccd-pagination-graph', 'package.user-agent-graph');
+const filterFeatureContracts = [
+  { feature: "Filter state", contracts: {
+    unit: [
+      "local persistence replaces stale ownership and strips the raw ID from a copy",
+      "a fresh service restores matching local ownership across tabs",
+      "a matching local setting takes precedence over stale session data",
+      "a mismatched local owner is removed and the session setting survives",
+      "cached local settings become unavailable when the owner changes",
+      "a second user can save their own filter after rejecting the first owner",
+      "local restore removes settings with a legacy raw ID or no ownership metadata",
+      "an owned local selection is removed if no current owner is available",
+      "local writes fall back to session without a supplied owner hash",
+      "session writes remove colliding local data and survive only during that session",
+      "streams replay restored state, publish changes per ID and emit null on clear",
+      "malformed JSON still throws and leaves stored data untouched",
+      "getUserId retains ID-first and UID-fallback behavior",
+      "initial-setting and error notification state retain their public defaults",
+      "the browser package graph contains filter state and its low-level runtime dependencies",
+    ],
+    package: [
+      "package.filter-state-graph",
+      "package.filter-field-types",
+    ],
+  } },
+  { feature: "Filter renderers", contracts: {
+    unit: [
+      "disabling a location search clears all three selections and resets its search term once",
+      "location lookup preserves the fallback, scalar values and ordered checkbox service keys",
+      "location selection commits via Add, removes by ID without a search event and resets on submission",
+      "single location selection commits immediately, survives submission and clears on typing",
+      "removing Select All clears the service form and emits exactly once after the form and tags update",
+      "service defaults, replacement of All and removal use the configured option objects",
+      "service submission clears a draft term, keeps an immediate single selection and unsubscribes on destroy",
+      "search service filters by unselected key and case-insensitive label and emits the configured option",
+    ],
+    browser: [
+      "SearchService binds native disabled, two-way terms, visibility, selected keys and option objects",
+      "FindService exposes the service label, native disabling, Add and the Select All display tag",
+      "single service selection commits immediately and keeps its text on submission",
+      "Work Allocation lookup uses scalar and positional codes with booking context, then clears every location",
+      "Staff Admin lookup uses service option objects and displays venue names, then resets on submission",
+      "single location selection keeps its committed text on submission",
+    ],
+    package: [
+      "package.find-location-graph",
+      "package.find-service-graph",
+      "package.search-service-graph",
+    ],
+  } },
+  { feature: "Capitalize pipe", contracts: {
+    unit: [
+      "Capitalize lowers the input and capitalizes only the first character",
+    ],
+    package: [
+      "package.capitalize-graph",
+    ],
+  } },
+  { feature: "Generic Filter", contracts: {
+    unit: [
+      "all 14 field types restore their form shapes and project their saved records",
+      "configured defaults yield to explicit settings and the stored setting takes precedence",
+      "Apply emits the upstream public errors and callback order, then persists a valid projection",
+      "Reset, Apply and edit observe the active form, detach the old form, then unsubscribe on destroy",
+      "Reset restores checkbox, location and service arrays from the configured defaults before reapplying",
+      "Reset still empties the work-type form array even when a work-type default is configured",
+      "copyFields may return a replacement FormGroup used for Apply and edits",
+      "conditional fields toggle required validators, location reset and radio activation",
+      "nested skill checkbox selection maps back to keys and keeps the selected groups",
+      "known person and task values update only declared controls and the task clear sentinel empties task fields",
+    ],
+    browser: [
+      "Work Allocation composes scalar service, booking location, person, task and work-type fields",
+      "Work Allocation checkbox service lookup omits services_all and disabling clears all selected locations",
+      "invalid Apply exposes template errors and Reset rebinds edits to the active form",
+    ],
+    package: [
+      "package.generic-filter-graph",
+      "package.filter-service-identity",
+      "package.filter-service-identity-fault",
+    ],
+  } },
+  { feature: "Generic Filter accessibility", contracts: {
+    browser: [
+      "Staff Admin titles its combobox, filters skills, and persists venue records from option-object services",
+      "two composed service fields each have a unique input and a label that focuses only that input",
+    ],
+  } },
+];
+for (const { contracts } of filterFeatureContracts) {
+  unitNames.push(...(contracts.unit ?? []));
+  addedBrowserJourneys.push(...(contracts.browser ?? []));
+  packageIds.push(...(contracts.package ?? []));
+}
+
+test('registers each new filter feature against the independently required contracts', () => {
+  const map = JSON.parse(readFileSync(new URL('./feature-evidence-map.json', import.meta.url), 'utf8'));
+  for (const { feature, contracts } of filterFeatureContracts) {
+    const expected = contracts.browser
+      ? { ...contracts, browser: contracts.browser.map(title => ({ projectName: 'chromium', title })) }
+      : contracts;
+    assert.deepEqual(map.features.find(row => row.feature === feature)?.contracts, expected, feature);
+  }
+});
+
 const expectedContracts = addedBrowserJourneys.length + Object.values(addedLaneNames).reduce((sum, names) => sum + names.length, 0) + unitNames.length + nodeNames.length + i18nNames.length + i18nJourneys.length + dueDateJourneys.length + accessibilityJourneys.length + sessionDialogJourneys.length + primitiveJourneys.length + cacheJourneys.length + validationJourneys.length + packageIds.length + 1 + contractInventory.nodeServerUnit.required.length + contractInventory.editorUnit.required.length + contractInventory.editorDrivers.required.length;
 
 function nativeTap(names) {

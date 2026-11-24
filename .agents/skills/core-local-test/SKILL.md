@@ -19,6 +19,23 @@ Before a browser run, coordinate with other checkouts using this machine and ins
 - **Run checks:** choose the smallest relevant documented commands for a focused request. For a full local gate, run the repo's current `test:all` using its checked-in Yarn; it builds, lints, tests, checks the packed artifact and compares native reports with the required contract inventory. `test:cache-upgrade` needs the package artifact produced by `test:package`. Do not substitute test discovery, retries, filtered tests or `test:compatibility:contracts` for the full gate. The separate `test:compatibility` rehearsal currently reports a blocked full consumer graph; run it when compatibility is requested and report its nonzero result rather than treating it as the ordinary passing suite.
 - **Diagnose a failure:** retain the first failure and inspect native terminal logs and available Playwright HTML, JUnit, JSON and trace artifacts before proposing a cause. When broader local evidence is needed after a failed strict gate, `node .yarn/releases/yarn-4.18.1.cjs test:diagnostic` runs independent checks and records failed or blocked prerequisites in `test-results/diagnostic-status.json`; it preserves prior reports in a printed backup. It does not replace `test:all` or establish readiness. The diagnostic and strict full gate share an exclusive lock; focused and `test:all:sequence` commands do not. After an abrupt kill inspect the lock owner and processes before removing a stale lock. Identify the earliest causal error and classify product, test, setup or environment failure only when evidence supports it. Reproduce narrowly when useful; do not weaken assertions or hide failures. Explain the smallest supported next step. Make source fixes only when separately requested or already in scope.
 
+## Filter migration checks
+
+Use Node `24.22.2` and the checked-in Yarn `4.18.1`. Run these commands serially from the Core checkout.
+
+```sh
+yarn build
+node --test tests/filter-state/filter-state.test.mjs tests/filter-renderers/renderers.test.mjs tests/generic-filter/generic-filter.test.mjs
+yarn lint
+yarn test:browser filter-renderers generic-filter
+yarn test:package
+yarn test:all
+```
+
+The gallery uses fictional values at `http://127.0.0.1:4307/filter-renderers` and `http://127.0.0.1:4307/generic-filter`. The installed Angular consumer also needs port 14880. Review the packed graphs and shared/split FilterService browser results under `test-results/package-evidence/`. In the completed Odhín browser feature matrix check Filter state, Filter renderers, Capitalize pipe, Generic Filter and Generic Filter accessibility, then verify the native browser report and the supervised unit and package receipts.
+
+The [README](../../../README.md#generic-filter-and-saved-filter-state) records the pinned CommonLib and Web App revisions, verified compatibility changes, bundle sizes and the consumer adoption checks. Report local Core evidence and the separate gate for each consuming application.
+
 ## Protect local state
 
 Before any command, inspect its current script and runner configuration to identify every directory or report it can remove or replace. Preserve affected evidence owned by this task in a separate evidence directory before running. Never overwrite another task's reports or fixtures, even when its run is inactive; if ownership is uncertain or belongs to another task, use an isolated worktree/output or stop and report the conflict rather than overwrite or copy live evidence.

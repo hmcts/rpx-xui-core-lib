@@ -270,7 +270,37 @@ This entry fixes three inherited behaviors: non-heading labels now translate, mu
 
 Legacy and Core components retain the same selectors and must not be declared in the same Angular compilation scope. Core and the currently published legacy translation services are separate injection tokens; real application provider configuration, CSS, translation content and cutover need consumer-specific verification. The local gallery and package checks use synthetic data and do not establish production accessibility or application adoption.
 
-Filter-state migration is deferred until the consumer's owner reference, identity lifecycle, cross-owner storage and legacy migration contracts are agreed and tested. The existing CommonLib filter remains the consumer authority in the meantime.
+### Generic Filter and saved filter state
+
+Import the state service and models from `@hmcts/rpx-xui-core-lib/ui/filter-state`. Import `GenericFilterModule` from `@hmcts/rpx-xui-core-lib/ui/generic-filter` for the existing `xuilib-generic-filter` selector. The browser state entry stays independent of the widget and renderers. The widget statically imports the renderers it uses. Standalone consumers can import `ui/find-location`, `ui/find-service`, `ui/search-service` or the `ui/capitalize` pipe independently.
+
+The component, service, models, pipe and MIT licences are based on CommonLib revision `880125eec3a561ba5e4938a4fed8a6077688fb0e`. The synthetic Work Allocation and Staff Admin configurations use the relevant shapes from Web App revision `02c16611cb863100701af639ddb446b88e0097f1`. The installed consumer test mounts the real widget, applies a filter, and observes the change on the service injected directly from the state entry. The split-provider comparison writes the browser setting while leaving the direct service stream unchanged.
+
+Core uses the API-provided `userDetails.filterOwnerHash` to check ownership. A matching owned local setting takes precedence over a stale session setting. Core removes unmatched or legacy local entries and restores any valid session fallback. A local write without an owner hash goes to session storage. Core strips the legacy raw `idamId` when saving.
+
+The intentional compatibility improvements are:
+
+- Disabling FindLocation clears every selected location. The former forward-index removal could leave a location selected. The native disabled state follows `disableInputField` even when the separate reset trigger is unchanged.
+- Removing the FindService Select All tag emits one service change event after clearing the selections. Staff Admin then refreshes the service warning and the skill choices.
+- Reset listens to the form it builds, so editing the active form clears the Apply state and a detached form cannot change it. Reset restores configured checkbox, location and service selections in the live form, so an immediate Apply persists the restored values. The upstream work-type reset still empties its array.
+- Staff Admin names the service combobox from its visible heading. Composed service fields have IDs scoped to their filter and field, so each heading label focuses its own input. Standalone SearchService and FindService retain their default input, label and Add IDs.
+
+The measured Generic Filter fixture is approximately 1.25 MB minified and 329 KB gzip, including Angular and the browser dependencies. The widget's direct FESM is about 70.5 KB. The package check records precise bundle and direct-entry sizes for the state, pipe, standalone renderers and widget in `test-results/package-evidence/filter-graphs.json`.
+
+Use Node `24.22.2` and Yarn `4.18.1`. From the repository root run:
+
+```sh
+yarn build
+node --test tests/filter-state/filter-state.test.mjs tests/filter-renderers/renderers.test.mjs tests/generic-filter/generic-filter.test.mjs
+yarn lint
+yarn test:browser filter-renderers generic-filter
+yarn test:package
+yarn test:all
+```
+
+Run the browser and package gates serially in each checkout. The gallery paths are `/filter-renderers` and `/generic-filter` under `http://127.0.0.1:4307`. The full gate includes the three unit suites in `test-results/validation.tap` and reports the filter features and accessibility rows in `test-results/odhin/browser/index.html`.
+
+The local checks provide Core-only evidence. Before application cutover, each app owner needs to validate the real configuration and endpoints, owner-hash delivery, storage isolation, a single shared FilterService token across all widgets and direct consumers, and rendered accessibility. The packed candidate and synthetic galleries leave the current application integrations in CommonLib.
 
 
 The `ui/find-person` entry contains the CommonLib component and service with request-local filtering for built-in mapping methods and immediate stale-search cancellation. Legacy direct-selection calls without a control-value event can leave an older search active; instances sharing a default or identical idValue still have duplicate input, hint and error IDs, and the accessible name falls back to English when a translation is unavailable or blank; while pending, the name includes the English translation-in-progress marker; the real Welsh phrase and screen-reader behaviour remain unverified. Multiple instances sharing one parent FormGroup still share a control and can issue duplicate lookups; replacing the parent group after initialization is unverified. The service also retains the prior user ID if details are absent, and overrides that read mutable public fields are not request-isolated. These limitations are recorded as known gaps in the local report. Hint and error DOM IDs now include the supplied idValue; consumers with hard-coded references must be checked during cutover. The component retains the legacy selector and the service is a new public entry; real consumer identity, provider configuration and accessibility must be verified before adoption.

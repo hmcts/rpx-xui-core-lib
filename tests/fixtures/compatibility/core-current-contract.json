@@ -216,6 +216,36 @@
         "output": "ui/case-list"
       },
       {
+        "input": "ui/filter-state",
+        "glob": "LICENCE",
+        "output": "ui/filter-state"
+      },
+      {
+        "input": "ui/find-location",
+        "glob": "LICENCE",
+        "output": "ui/find-location"
+      },
+      {
+        "input": "ui/find-service",
+        "glob": "LICENCE",
+        "output": "ui/find-service"
+      },
+      {
+        "input": "ui/search-service",
+        "glob": "LICENCE",
+        "output": "ui/search-service"
+      },
+      {
+        "input": "ui/capitalize",
+        "glob": "LICENCE",
+        "output": "ui/capitalize"
+      },
+      {
+        "input": "ui/generic-filter",
+        "glob": "LICENCE",
+        "output": "ui/generic-filter"
+      },
+      {
         "input": "forms/validation",
         "glob": "LICENCE",
         "output": "forms/validation"

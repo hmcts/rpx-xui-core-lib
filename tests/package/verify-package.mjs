@@ -6,6 +6,7 @@ import { browserOutcomes } from '../../scripts/check-contracts.mjs';
 import { buildSync } from 'esbuild';
 import { inspectLoadingGraph, assertPackedBytes, assertEagerDateFailure } from '../packed-loading/graph.mjs';
 import { createHash, randomUUID } from 'node:crypto';
+import { gzipSync } from 'node:zlib';
 import { spawnSync } from 'node:child_process';
 import { cp, lstat, mkdir, mkdtemp, readFile, readdir, realpath, rename, rm, stat, symlink, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
@@ -63,7 +64,8 @@ try {
   const consumer = join(scratch, 'consumer');
   const dist = join(root, 'dist/core-lib');
   const declaration = 'forms/validation/index.d.ts';
-  const sourceLicenceEntries = ['ui/find-task-name', 'ui/find-work-type', 'ui/search-work-type', 'ui/find-person', 'ui/checkbox-list', 'ui/gov-date', 'ui/gov-select', 'ui/search-location', 'ui/search-judicials', 'ui/search-venue', 'ui/pagination', 'ui/hmcts-pagination', 'terms/display', 'ui/gov-input', 'case/session-error', 'case/editor-date', 'browser/window', 'browser/session-storage', 'reference/locations', 'reference/ref-data', 'terms/models', 'ui/cookie', 'ui/feature-toggle', 'ui/feature-toggle-directive', 'ui/role-state', 'ui/task-data', 'case/sharing-state', 'ui/contact-details', 'ui/loading-spinner', 'ui/loading-state', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog', 'ui/banner', 'ui/form-label', 'case/models', 'case/reference', 'case/sharing', 'browser/user-agent', 'ui/ccd-pagination', 'ui/case-list', 'address/normalization', 'ui/address'];
+  const filterLicenceEntries = ['ui/filter-state', 'ui/find-location', 'ui/find-service', 'ui/search-service', 'ui/capitalize', 'ui/generic-filter'];
+  const sourceLicenceEntries = [...filterLicenceEntries, 'ui/find-task-name', 'ui/find-work-type', 'ui/search-work-type', 'ui/find-person', 'ui/checkbox-list', 'ui/gov-date', 'ui/gov-select', 'ui/search-location', 'ui/search-judicials', 'ui/search-venue', 'ui/pagination', 'ui/hmcts-pagination', 'terms/display', 'ui/gov-input', 'case/session-error', 'case/editor-date', 'browser/window', 'browser/session-storage', 'reference/locations', 'reference/ref-data', 'terms/models', 'ui/cookie', 'ui/feature-toggle', 'ui/feature-toggle-directive', 'ui/role-state', 'ui/task-data', 'case/sharing-state', 'ui/contact-details', 'ui/loading-spinner', 'ui/loading-state', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog', 'ui/banner', 'ui/form-label', 'case/models', 'case/reference', 'case/sharing', 'browser/user-agent', 'ui/ccd-pagination', 'ui/case-list', 'address/normalization', 'ui/address'];
 
   // Fail before dependency setup when the legacy TypeScript entry point is absent.
   await check('package.physical-secondary-declaration', async () => {
@@ -432,6 +434,28 @@ try {
     }
   });
 
+  for (const split of [false, true]) {
+    const name = split ? 'filter-service-identity-fault' : 'filter-service-identity';
+    await check('package.' + name, async () => {
+      env.CORE_LOADING_HOST = join(consumer, 'loading-dist/browser');
+      env.CORE_LOADING_ID = randomUUID();
+      env.CORE_LOADING_REPORT = join(evidence, name + '-browser.json');
+      env.CORE_LOADING_OUTPUT = join(evidence, name + '-browser');
+      env.CORE_FILTER_SPLIT = split ? '1' : '0';
+      try {
+        const diagnostic = await run(name, [join(root, 'node_modules/@playwright/test/cli.js'), 'test',
+          '-c', join(root, 'tests/packed-loading/playwright.config.mjs'), 'filter.spec.mjs'], root, split ? 1 : 0);
+        const outcomes = browserOutcomes(JSON.parse(await readFile(env.CORE_LOADING_REPORT, 'utf8')));
+        assert.equal(outcomes.length, 1, 'The installed filter probe must execute exactly once');
+        assert.equal(outcomes[0].id, JSON.stringify(['chromium', 'the installed Generic Filter Apply updates the directly injected FilterService stream']));
+        assert.equal(outcomes[0].passed, !split);
+        if (split) assert.match(diagnostic, /Generic Filter Apply must notify the directly injected FilterService stream[\s\S]*Received: null/);
+      } finally {
+        for (const key of ['CORE_LOADING_HOST', 'CORE_LOADING_ID', 'CORE_LOADING_REPORT', 'CORE_LOADING_OUTPUT', 'CORE_FILTER_SPLIT']) delete env[key];
+      }
+    });
+  }
+
   await check('package.loading-eager-fault', async () => {
     const main = join(consumer, 'loading-host/main.ts');
     const original = await readFile(main, 'utf8');
@@ -660,6 +684,73 @@ try {
       assert.throws(() => verify(graph(source + extra)), /Unexpected Core entries/);
     });
   }
+  await check('package.filter-field-types', () => run('filter-field-types', [
+    compiler, '--strict', '--allowJs', '--checkJs', '--noEmit', '--target', 'ES2022', '--module', 'ES2022',
+    '--moduleResolution', 'bundler', 'filter-field-types.ts', 'search-service-graph.mjs',
+  ], consumer));
+
+  const filterGraphEntries = [
+    { name: 'filter-state', direct: [], closure: ['ui-filter-state'], limits: [450_000, 155_000] },
+    { name: 'capitalize', direct: [], closure: ['ui-capitalize'], limits: [450_000, 155_000] },
+    { name: 'search-service', direct: [], closure: ['ui-search-service'], limits: [1_100_000, 300_000] },
+    { name: 'find-service', direct: ['i18n', 'ui/search-service'],
+      closure: ['ui-find-service', 'ui-search-service', 'i18n'], limits: [1_300_000, 350_000] },
+    { name: 'find-location', direct: ['ui/search-location'], closure: [
+      'ui-find-location', 'ui-search-location', 'reference-locations', 'reference-ref-data', 'browser-session-storage', 'i18n',
+    ], limits: [1_300_000, 350_000] },
+    { name: 'generic-filter', direct: [
+      'i18n', 'ui/capitalize', 'ui/filter-state', 'ui/find-location', 'ui/find-person', 'ui/find-service', 'ui/find-task-name', 'ui/find-work-type',
+    ], closure: [
+      'ui-generic-filter', 'ui-capitalize', 'ui-filter-state', 'ui-find-location', 'ui-search-location',
+      'ui-find-person', 'ui-find-service', 'ui-search-service', 'ui-find-task-name', 'ui-find-work-type',
+      'ui-search-work-type', 'ui-task-data', 'reference-locations', 'reference-ref-data', 'browser-session-storage', 'i18n',
+    ], limits: [1_300_000, 350_000] },
+  ];
+  const filterGraphs = [];
+  const installedExports = JSON.parse(await readFile(join(installed, 'package.json'), 'utf8')).exports;
+  const filterForbidden = /(?:^|\/)(?:node|server)(?:\/|$)|^node:|rpx-xui-common-lib|case-editor|ngx-editor|prosemirror|@hmcts\/(?:media-viewer|ccpay-web-component)/;
+  for (const { name, direct, closure, limits } of filterGraphEntries) {
+    await check('package.' + name + '-graph', async () => {
+      const packedEntry = './fesm2022/hmcts-rpx-xui-core-lib-ui-' + name + '.mjs';
+      assert.equal(installedExports['./ui/' + name].default, packedEntry);
+      const fesm = await readFile(join(installed, packedEntry), 'utf8');
+      const imports = [...fesm.matchAll(/^import (?:.*? from )?['"]([^'"]+)['"]/gm)].map(match => match[1]);
+      assert.ok(imports.length, 'The installed FESM imports must be inspected');
+      for (const specifier of imports) assert.doesNotMatch(specifier, filterForbidden, 'Forbidden packed FESM import');
+      const corePrefix = '@hmcts/rpx-xui-core-lib/';
+      const coreImports = [...new Set(imports.filter(specifier => specifier.startsWith(corePrefix)).map(specifier => specifier.slice(corePrefix.length)))].sort();
+      assert.deepEqual(coreImports, direct, 'Unexpected direct Core imports in installed FESM');
+
+      const bundle = contents => buildSync({
+        stdin: { contents, resolveDir: consumer }, absWorkingDir: consumer, bundle: true,
+        minify: true, platform: 'browser', format: 'esm', metafile: true, write: false, logLevel: 'silent',
+      });
+      const normalize = path => path.replaceAll('\\', '/');
+      const coreIds = paths => paths.map(normalize).filter(path => path.includes('/@hmcts/rpx-xui-core-lib/'))
+        .map(path => path.match(/\/fesm2022\/hmcts-rpx-xui-core-lib-(.+)\.mjs$/)?.[1] ?? path).sort();
+      const verify = result => {
+        const inputs = Object.keys(result.metafile.inputs);
+        const emitted = Object.values(result.metafile.outputs).flatMap(output => Object.entries(output.inputs)
+          .filter(([, info]) => info.bytesInOutput > 0).map(([path]) => path));
+        for (const path of inputs.map(normalize)) assert.doesNotMatch(path, filterForbidden, 'Forbidden browser input');
+        const expected = [...closure].sort();
+        assert.deepEqual(coreIds(inputs), expected, 'Unexpected Core source inputs in filter graph');
+        assert.deepEqual(coreIds(emitted), expected, 'Unexpected emitted Core entries in filter graph');
+      };
+      const source = await readFile(join(consumer, name + '-graph.mjs'), 'utf8');
+      const result = bundle(source);
+      verify(result);
+      const fault = "\nimport { windowToken } from '@hmcts/rpx-xui-core-lib/browser/window'; console.log(windowToken);";
+      assert.throws(() => verify(bundle(source + fault)), /Unexpected Core source inputs/);
+      const bytes = result.outputFiles[0].contents;
+      const bundleBytes = bytes.length;
+      const gzipBytes = gzipSync(bytes).length;
+      assert.ok(bundleBytes <= limits[0] && gzipBytes <= limits[1], `Unexpected ${name} bundle size: ${bundleBytes} bytes, ${gzipBytes} gzip`);
+      filterGraphs.push({ name, coreImports, closure, bundleBytes, gzipBytes, fesmBytes: Buffer.byteLength(fesm), fesmGzipBytes: gzipSync(fesm).length });
+    });
+  }
+  await writeFile(join(evidence, 'filter-graphs.json'), JSON.stringify(filterGraphs, null, 2) + '\n');
+
   await cp(join(root, 'tests/service-messages/service-messages.test.mjs'), join(consumer, 'service-messages.test.mjs'));
   await check('package.service-messages-behavior', () => run('service-messages-behavior', ['--test', 'service-messages.test.mjs'], consumer));
   await cp(join(root, 'tests/feature-toggle/feature-toggle.test.mjs'), join(consumer, 'feature-toggle.test.mjs'));

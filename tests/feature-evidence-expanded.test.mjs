@@ -13,9 +13,24 @@ test('unknown contract fails closed', () => { const m = copy(mapping); Object.va
 test('a newly required contract fails closed until reviewed', () => { const value = copy(inventory); value.unit.required.push('new contract'); assert.throws(() => validateMapping(value, mapping), /Missing/); });
 test('unavailable evidence makes no passing or coverage claim', () => { const html = renderMatrix('unavailable', mapping, {}, inventory); assert.match(html, /not coverage or a complete feature inventory/); assert.match(html, /unclassified/); assert.match(html, /unavailable|incomplete/i); assert.doesNotMatch(html, /required cases passed/); });
 
-test('rendered feature report records deferred filter migration', () => {
+test('rendered filter rows show verified counts and the consumer adoption gate', () => {
   const html = parse(renderMatrix('verified', mapping, {}, inventory));
-  assert.match(html.text, /Filter state is deferred until the owner reference, identity lifecycle, cross-owner storage and legacy migration contracts are agreed and validated with consumers/);
+  const lanes = html.querySelectorAll('thead th').slice(1).map(cell => cell.text);
+  const expected = {
+    'Filter state': { unit: 15, package: 2 },
+    'Filter renderers': { unit: 8, browser: 6, package: 3 },
+    'Capitalize pipe': { unit: 1, package: 1 },
+    'Generic Filter': { unit: 10, browser: 3, package: 3 },
+    'Generic Filter accessibility': { browser: 2 },
+  };
+  for (const [name, counts] of Object.entries(expected)) {
+    const row = html.querySelectorAll('tbody tr').find(candidate => candidate.querySelector('th')?.text === name);
+    assert.ok(row, name);
+    assert.deepEqual(row.querySelectorAll('td').map(cell => cell.text),
+      lanes.map(lane => counts[lane] ? `${counts[lane]} required cases passed` : 'Not mapped'), name);
+  }
+  assert.match(html.text, /Filter state and Generic Filter have Core-only evidence/);
+  assert.match(html.text, /Each consuming application still needs to validate token identity, owner-hash delivery, storage lifecycle and its cutover/);
 });
 
 test('rendered feature report separates inherited find-person gaps from passing behavior', () => {
