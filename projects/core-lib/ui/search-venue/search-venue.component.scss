@@ -1,0 +1,22 @@
+.auto-complete-container {
+  min-width: 550px;
+  display: inline-block;
+  margin-right: 4px;
+}
+
+.autocomplete__input {
+  -webkit-appearance: none;
+  border: 2px solid #0b0c0c;
+  border-radius: 0;
+  box-sizing: border-box;
+  margin-bottom: 0;
+  width: 100%;
+  line-height: 24px;
+  font-size: 19px;
+  background-color: transparent;
+  position: relative;
+}
+
+.autocomplete__input--default {
+  padding: 5px;
+}

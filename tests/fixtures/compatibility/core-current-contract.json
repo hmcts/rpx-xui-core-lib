@@ -58,7 +58,7 @@
     "@angular/material-moment-adapter": "20.2.14",
     "@angular/platform-browser": "20.3.35",
     "@angular/router": "20.3.35",
-    "govuk-frontend": "5.14.0",
+    "govuk-frontend": "6.6.0",
     "ng-packagr": "20.3.2",
     "rxjs": "7.8.2",
     "typescript": "5.9.3",
@@ -356,6 +356,16 @@
         "output": "ui/search-location"
       },
       {
+        "input": "ui/search-judicials",
+        "glob": "LICENCE",
+        "output": "ui/search-judicials"
+      },
+      {
+        "input": "ui/search-venue",
+        "glob": "LICENCE",
+        "output": "ui/search-venue"
+      },
+      {
         "input": "terms/display",
         "glob": "LICENCE",
         "output": "terms/display"
@@ -456,7 +466,7 @@
     "@angular/material-moment-adapter": "20.2.14",
     "@angular/platform-browser": "20.3.35",
     "@angular/router": "20.3.35",
-    "govuk-frontend": "5.14.0",
+    "govuk-frontend": "6.6.0",
     "ng-packagr": "20.3.2",
     "rxjs": "7.8.2",
     "typescript": "5.9.3",
