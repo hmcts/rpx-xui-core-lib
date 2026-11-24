@@ -29,6 +29,7 @@ if (result.error) throw result.error;
 if (result.status !== 0) throw new Error(`${config.target} exited ${result.status ?? result.signal}`);
 const reportText = readFileSync(receipt, 'utf8');
 const actual = vitestOutcomes(reportText).map(item => item.id);
-assert.deepEqual([...actual].sort(), [...inventory.required].sort(), `${lane} Vitest contracts differ from inventory`);
+const compareIds = (left, right) => left < right ? -1 : left > right ? 1 : 0;
+assert.deepEqual([...actual].sort(compareIds), [...inventory.required].sort(compareIds), `${lane} Vitest contracts differ from inventory`);
 if (lane === 'editor') writeFileSync(resolve(root, 'test-results/editor/features.html'), renderFeatureReport(JSON.parse(reportText)));
 console.log(`${lane} native Vitest contracts passed: ${actual.length}`);
