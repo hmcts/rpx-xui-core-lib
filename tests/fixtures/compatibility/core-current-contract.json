@@ -356,6 +356,16 @@
         "output": "ui/search-location"
       },
       {
+        "input": "ui/search-judicials",
+        "glob": "LICENCE",
+        "output": "ui/search-judicials"
+      },
+      {
+        "input": "ui/search-venue",
+        "glob": "LICENCE",
+        "output": "ui/search-venue"
+      },
+      {
         "input": "terms/display",
         "glob": "LICENCE",
         "output": "terms/display"

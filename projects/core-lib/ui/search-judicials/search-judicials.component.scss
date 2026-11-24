@@ -1,0 +1,10 @@
+.hide-autocomplete {
+  display: none;
+}
+
+.mat-option {
+  &.select-option:hover {
+    background: #1d70b8;
+    color: #ffffff;
+  }
+}
