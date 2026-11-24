@@ -1,0 +1,20 @@
+<div class="auto-complete-container">
+  <input #serviceInput id="inputServiceSearch"
+    class="govuk-input"
+    [value]="searchTerm"
+    (input)="onSearchTermChanged(serviceInput.value)"
+    [matAutocomplete]="autoSearchService"
+    [disabled]="disabled ?? false">
+  <mat-autocomplete class="mat-autocomplete-panel-extend" autoActiveFirstOption #autoSearchService="matAutocomplete">
+    @for (service of filteredOptions; track service) {
+      <mat-option (onSelectionChange)="onSelectionChanged($event)" [value]="service.label">
+        {{ service.label }}
+      </mat-option>
+    }
+    @if (!filteredOptions.length && showAutocomplete) {
+      <mat-option>
+        No results found
+      </mat-option>
+    }
+  </mat-autocomplete>
+</div>

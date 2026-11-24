@@ -10,6 +10,9 @@
     { "input": "ui/ccd-pagination", "glob": "LICENCE", "output": "ui/ccd-pagination" },
     { "input": "ui/case-list", "glob": "LICENCE", "output": "ui/case-list" },
     { "input": "ui/filter-state", "glob": "LICENCE", "output": "ui/filter-state" },
+    { "input": "ui/find-location", "glob": "LICENCE", "output": "ui/find-location" },
+    { "input": "ui/find-service", "glob": "LICENCE", "output": "ui/find-service" },
+    { "input": "ui/search-service", "glob": "LICENCE", "output": "ui/search-service" },
     {
       "input": "forms/validation",
       "glob": "LICENCE",

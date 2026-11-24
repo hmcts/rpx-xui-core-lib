@@ -34,6 +34,7 @@ const galleries: Array<{ matches: (path: string) => boolean; start: () => Promis
   { matches: path => path === '/gov-date', start: () => import('./gov-date').then(({ startGovDateGallery }) => startGovDateGallery()) },
   { matches: path => path === '/gov-input', start: () => import('./gov-input').then(({ startGovInputGallery }) => startGovInputGallery()) },
   { matches: path => path === '/terms-display', start: () => import('./terms-display').then(({ startTermsDisplayGallery }) => startTermsDisplayGallery()) },
+  { matches: path => path === '/filter-renderers', start: () => import('./filter-renderers').then(({ startFilterRenderersGallery }) => startFilterRenderersGallery()) },
   { matches: path => path === '/search-location', start: () => import('./search-location').then(({ startSearchLocationGallery }) => startSearchLocationGallery()) },
   { matches: path => path === '/hearing-lookups', start: () => import('./hearing-lookups').then(({ startHearingLookupsGallery }) => startHearingLookupsGallery()) },
   { matches: path => path === '/session-error', start: () => import('./session-error').then(({ startSessionErrorGallery }) => startSessionErrorGallery()) },
