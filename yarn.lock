@@ -1838,7 +1838,7 @@ __metadata:
     dexie-baseline: "npm:dexie@4.4.4"
     esbuild: "npm:0.28.2"
     eslint: "npm:10.14.0"
-    govuk-frontend: "npm:5.14.0"
+    govuk-frontend: "npm:6.6.0"
     jasmine-core: "npm:5.13.0"
     js-yaml: "npm:4.3.2"
     lodash: "npm:4.18.1"
@@ -8197,10 +8197,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"govuk-frontend@npm:5.14.0":
-  version: 5.14.0
-  resolution: "govuk-frontend@npm:5.14.0"
-  checksum: 10c0/dcb1116003bb4a8ff167434bb30a779d6deafecb10687d044d5c560c0a7ff2053b8666000831c18ad3bcf4aa310678bf3c0cc40d734570b2b81c44853ddd388a
+"govuk-frontend@npm:6.6.0":
+  version: 6.6.0
+  resolution: "govuk-frontend@npm:6.6.0"
+  checksum: 10c0/7fb983ee21e97f19df9b980301a05e24a11f3301fcb8ecf5bc8f956b54bd61d55255b2c16fa9d60cf59fd984583b368e128075ea7348e74971e742adcc86a366
   languageName: node
   linkType: hard
 
