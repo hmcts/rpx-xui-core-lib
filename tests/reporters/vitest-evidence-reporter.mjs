@@ -22,10 +22,10 @@ export default class VitestEvidenceReporter {
     if (log.type === 'stderr') this.consoleErrors.push({ taskId: log.taskId ?? null, content: log.content });
   }
 
-  onFinished(files, errors) {
+  onTestRunEnd(modules, errors) {
     const output = process.env.XUI_VITEST_RECEIPT;
     if (!output) throw new Error('XUI_VITEST_RECEIPT is required for contract evidence');
     mkdirSync(dirname(output), { recursive: true });
-    writeFileSync(output, JSON.stringify(collectVitestResults(files, errors, this.consoleErrors), null, 2) + '\n');
+    writeFileSync(output, JSON.stringify(collectVitestResults(modules.map(module => module.task), errors, this.consoleErrors), null, 2) + '\n');
   }
 }

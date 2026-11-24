@@ -49,7 +49,7 @@
   },
   "devDependencies": {
     "@angular/animations": "20.3.35",
-    "@angular/build": "20.3.43",
+    "@angular/build": "patch:@angular/build@npm%3A20.3.43#~/.yarn/patches/@angular-build-npm-20.3.43-9fb027e883.patch",
     "@angular/cdk": "20.2.14",
     "@angular/cli": "20.3.43",
     "@angular/common": "20.3.35",
@@ -75,7 +75,8 @@
     "@types/node": "24.10.1",
     "@types/semver": "7.8.0",
     "@types/underscore": "1.13.0",
-    "@vitest/browser": "3.2.7",
+    "@vitest/browser": "4.1.12",
+    "@vitest/browser-playwright": "4.1.12",
     "class-transformer": "0.5.1",
     "dexie": "4.4.7",
     "dexie-baseline": "npm:dexie@4.4.4",
@@ -96,6 +97,7 @@
     "node-html-parser": "7.1.0",
     "odhin-reports-playwright": "file:.yarn/patches/odhin-reports-playwright-1.1.8-core.tgz",
     "peggy": "5.1.0",
+    "playwright": "1.65.0",
     "playwright-core": "1.65.0",
     "prosemirror-commands": "1.7.1",
     "prosemirror-history": "1.5.0",
@@ -111,7 +113,7 @@
     "typescript-eslint": "8.72.2",
     "underscore": "1.13.8",
     "uuid": "11.1.1",
-    "vitest": "3.2.7",
+    "vitest": "4.1.12",
     "zone.js": "0.15.1"
   },
   "resolutions": {

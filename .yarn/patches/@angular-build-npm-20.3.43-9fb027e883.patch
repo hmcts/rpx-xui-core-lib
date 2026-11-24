@@ -1,0 +1,13 @@
+diff --git a/src/builders/unit-test/builder.js b/src/builders/unit-test/builder.js
+index 225bb46711c05dda30dc1fcf49a56912aeded60d..5a7a0ed172673db9a64e4c0242337582114fb1f4 100755
+--- a/src/builders/unit-test/builder.js
++++ b/src/builders/unit-test/builder.js
+@@ -304,7 +304,7 @@ function setupBrowserConfiguration(browsers, debug, projectSourceRoot) {
+     }
+     const browser = {
+         enabled: true,
+-        provider,
++        provider: require('@vitest/browser-playwright').playwright(),
+         headless: browsers.some((name) => name.toLowerCase().includes('headless')),
+         instances: browsers.map((browserName) => ({
+             browser: normalizeBrowserName(browserName),
