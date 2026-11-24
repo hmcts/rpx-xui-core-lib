@@ -1,0 +1,48 @@
+<div class="govuk-form-group" [formGroup]="addressFormGroup" [class.govuk-form-group--error]="optionErrorsPresent">
+  @if (optionErrorsPresent) {
+    <p class="govuk-error-message"><span class="govuk-visually-hidden">Error:</span>{{ optionErrorMessage }}</p>
+  }
+  @if (postcodeLookupVisible()) {
+    <div>
+      <span class="govuk-label"><strong>Provide address details</strong></span>
+      <div class="govuk-body postcode-lookup" [class.govuk-form-group--error]="missingPostcode || postcodeErrorPresent(true)">
+        <label for="postcodeInput"><span class="govuk-hint">Enter a UK postcode</span></label>
+        @if (missingPostcode || postcodeErrorPresent(true)) {
+          <p class="govuk-error-message"><span class="govuk-visually-hidden">Error:</span>{{ postcodeErrorMessage }}</p>
+        }
+        <div class="govuk-body">
+          <input type="text" [class.govuk-input--error]="missingPostcode" id="postcodeInput" name="postcode" class="govuk-input govuk-!-width-one-third postcodeinput inline-block" formControlName="postcode">
+          <button type="button" class="govuk-button find-address" (click)="findAddress()">Find address</button>
+        </div>
+      </div>
+      @if (addressOptions) {
+        <div class="govuk-body" id="selectAddress">
+          <div class="govuk-body" [class.govuk-form-group--error]="postcodeErrorPresent(false)">
+            <label class="govuk-label" for="addressList"><span class="form-label">Select an address</span></label>
+            @if (postcodeErrorPresent(false)) {
+              <p class="govuk-error-message"><span class="govuk-visually-hidden">Error:</span>{{ selectErrorMessage }}</p>
+            }
+            <select #addressList class="form-control govuk-select ccd-dropdown addressList" id="addressList" name="address" formControlName="addressList" (change)="addressSelected()">
+              @for (option of addressOptions; track $index) { <option [ngValue]="option.value">{{ option.description }}</option> }
+            </select>
+          </div>
+        </div>
+      }
+      @if (!shouldShowDetailFields() || (!startedInternational && !addressChosen)) {
+        <a class="manual-link govuk-link" (click)="blankAddress(); $event.preventDefault()" href="#">I can't enter a UK postcode</a>
+      }
+    </div>
+  }
+  @if (shouldShowDetailFields() && internationalMode && startedInternational && !addressChosen) {
+    <div id="govuk-radios" class="govuk-radios" data-module="govuk-radios">
+      <div class="govuk-radios__item"><input class="govuk-radios__input" id="yes" value="yes" name="ukAddress" type="radio" (click)="setInternationalAddress(false)" formControlName="ukAddress"><label class="govuk-label govuk-radios__label" for="yes">Yes</label></div>
+      <div class="govuk-radios__item"><input class="govuk-radios__input" id="no" value="no" name="ukAddress" type="radio" (click)="setInternationalAddress(true)" formControlName="ukAddress"><label class="govuk-label govuk-radios__label" for="no">No</label></div>
+      <div class="govuk-radios__conditional" id="address-fields">
+        @if (isInternational !== undefined) { <xuilib-write-address-inputs [formGroup]="formGroup" [isInternational]="isInternational" [submissionAttempted]="submissionAttempted" /> }
+      </div>
+    </div>
+  }
+  @if (shouldShowDetailFields() && (addressChosen || !internationalMode)) {
+    <xuilib-write-address-inputs [formGroup]="formGroup" [isInternational]="false" [submissionAttempted]="submissionAttempted" />
+  }
+</div>

@@ -130,6 +130,18 @@
       "generic pagination retains the null payload on both public outputs",
       "user-list and standalone HMCTS pagination share one component identity",
       "both pagination entries allow a caller to distinguish navigation landmarks",
+      "postcode parser preserves RD06 address line placement and country metadata",
+      "postcode parser removes absent fields and shifts formatted lines upward",
+      "postcode formatter preserves the existing first-line priority and capitalization",
+      "postcode parser ignores null and missing source fields without leaking sentinel text",
+      "address service preserves the external postcode endpoint and formats returned models",
+      "address service returns an empty list without a request for an empty postcode",
+      "address service propagates postcode lookup failures",
+      "address service drops results without a DPA record and handles a missing result list",
+      "address models and address option labels keep the CommonLib public field contract",
+      "address option keeps the supplied default row label without inventing an address value",
+      "address component rejects a blank postcode and emits the CommonLib lookup outputs",
+      "address component retains manual and international selection events",
       "invitation form defaults missing errors and emits a submit event",
       "invitation permissions retain legacy default flags",
       "judicial search skips short terms, forwards service ID, cancels stale searches and excludes selected people",
@@ -884,6 +896,21 @@
       },
       {
         "projectName": "chromium",
+        "title": "address lookup uses the external endpoint and writes the selected public model",
+        "feature": "address"
+      },
+      {
+        "projectName": "chromium",
+        "title": "address lookup presents the empty state after an unsuccessful request",
+        "feature": "address"
+      },
+      {
+        "projectName": "chromium",
+        "title": "address entry has no automated accessibility violations",
+        "feature": "address"
+      },
+      {
+        "projectName": "chromium",
         "title": "invitation emits submit and displays parent validation",
         "feature": "invitation"
       },
@@ -1054,6 +1081,8 @@
       "package.pagination-behavior",
       "package.pagination-graph",
       "package.hmcts-pagination-graph",
+      "package.address-behavior",
+      "package.address-graph",
       "package.invitation-behavior",
       "package.invitation-graph",
       "package.search-judicials-graph",

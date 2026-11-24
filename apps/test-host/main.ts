@@ -23,6 +23,7 @@ const galleries: Array<{ matches: (path: string) => boolean; start: () => Promis
   { matches: path => path === '/user-list', start: () => import('./user-list').then(({ startUserListGallery }) => startUserListGallery()) },
   { matches: path => path === '/user-details', start: () => import('./user-details').then(({ startUserDetailsGallery }) => startUserDetailsGallery()) },
   { matches: path => path === '/pagination', start: () => import('./pagination').then(({ startPaginationGallery }) => startPaginationGallery()) },
+  { matches: path => path === '/address', start: () => import('./address').then(({ startAddressGallery }) => startAddressGallery()) },
   { matches: path => path === '/task-lookups', start: () => import('./task-lookups').then(({ startTaskLookupsGallery }) => startTaskLookupsGallery()) },
   { matches: path => path === '/selected-cases', start: () => import('./selected-cases').then(({ startSelectedCasesGallery }) => startSelectedCasesGallery()) },
   { matches: path => path === '/share-case', start: () => import('./share-case').then(({ startShareCaseGallery }) => startShareCaseGallery()) },

@@ -184,6 +184,9 @@ user-list|user list and pagination have no automated accessibility violations
 pagination|generic pagination preserves null events and exposes keyboard-operable page actions
 pagination|HMCTS paginator is independently usable and keeps separate list state
 pagination|pagination entries have no automated accessibility violations
+address|address lookup uses the external endpoint and writes the selected public model
+address|address lookup presents the empty state after an unsuccessful request
+address|address entry has no automated accessibility violations
 invitation|invitation emits submit and displays parent validation
 invitation|invitation emits entered details and selected permissions
 invitation|invitation form supports keyboard selection and passes axe

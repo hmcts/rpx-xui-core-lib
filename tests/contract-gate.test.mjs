@@ -78,6 +78,7 @@ unitNames.push('selected case stops listening to shared state when destroyed',
 unitNames.push('user details checks roles safely for absent and present users', 'user details emits the original user for suspend and reinvite actions');
 unitNames.push('user list retains the legacy 50-item page and emits the selected user', 'user list updates the current page and emits the requested page');
 unitNames.push('generic pagination retains the null payload on both public outputs', 'user-list and standalone HMCTS pagination share one component identity', 'both pagination entries allow a caller to distinguish navigation landmarks');
+unitNames.push('postcode parser preserves RD06 address line placement and country metadata', 'postcode parser removes absent fields and shifts formatted lines upward', 'postcode formatter preserves the existing first-line priority and capitalization', 'postcode parser ignores null and missing source fields without leaking sentinel text', 'address service preserves the external postcode endpoint and formats returned models', 'address service returns an empty list without a request for an empty postcode', 'address service propagates postcode lookup failures', 'address service drops results without a DPA record and handles a missing result list', 'address models and address option labels keep the CommonLib public field contract', 'address option keeps the supplied default row label without inventing an address value', 'address component rejects a blank postcode and emits the CommonLib lookup outputs', 'address component retains manual and international selection events');
 unitNames.push('invitation form defaults missing errors and emits a submit event', 'invitation permissions retain legacy default flags');
 const addedLaneNames = {
   "refDataUnit": [
@@ -345,6 +346,7 @@ addedBrowserJourneys.push('unlabelled booking-style host exposes the existing ac
 addedBrowserJourneys.push('explicit labels preserve caller context and distinct input identifiers', 'changing, clearing and removing a supplied label updates the input name', 'synthetic Welsh responses update explicit names without replacing an external label');
 addedBrowserJourneys.push('blank opt-in preserves the external name and explicit text takes precedence');
 packageIds.push('package.search-location-graph');
+packageIds.push('package.address-graph', 'package.address-behavior');
 packageIds.push('package.search-judicials-graph', 'package.search-venue-graph');
 unitNames.push(
   'judicial search skips short terms, forwards service ID, cancels stale searches and excludes selected people',
@@ -450,6 +452,7 @@ addedBrowserJourneys.push('user details shows roles and emits a suspend action',
 addedBrowserJourneys.push('users without a route can be selected with the keyboard', 'users with a route retain a navigable link and emit selection');
 addedBrowserJourneys.push('user list pages through users and emits the chosen user', 'pagination can be operated with the keyboard', 'user list and pagination have no automated accessibility violations');
 addedBrowserJourneys.push('generic pagination preserves null events and exposes keyboard-operable page actions', 'HMCTS paginator is independently usable and keeps separate list state', 'pagination entries have no automated accessibility violations');
+addedBrowserJourneys.push('address lookup uses the external endpoint and writes the selected public model', 'address lookup presents the empty state after an unsuccessful request', 'address entry has no automated accessibility violations');
 addedBrowserJourneys.push('invitation emits submit and displays parent validation', 'invitation emits entered details and selected permissions', 'invitation form supports keyboard selection and passes axe', 'invalid invitation inputs expose their errors accessibly', 'invitation retains and updates a preselected permission', 'permission error is announced by the permissions fieldset', 'permissions with an empty error never reference a missing message');
 packageIds.push('package.user-details-behavior', 'package.user-details-graph');
 packageIds.push('package.user-list-behavior', 'package.user-list-graph');

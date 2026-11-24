@@ -419,6 +419,16 @@
         "input": "ui/find-work-type",
         "glob": "LICENCE",
         "output": "ui/find-work-type"
+      },
+      {
+        "input": "address/normalization",
+        "glob": "LICENCE",
+        "output": "address/normalization"
+      },
+      {
+        "input": "ui/address",
+        "glob": "LICENCE",
+        "output": "ui/address"
       }
     ],
     "allowedNonPeerDependencies": [
