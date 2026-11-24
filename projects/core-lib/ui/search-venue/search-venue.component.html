@@ -1,0 +1,27 @@
+<div class="auto-complete-container">
+  @if (readyAfterContent) {
+    <input
+      [id]="inputId"
+      [attr.aria-label]="accessibleLabel?.trim() ? (accessibleLabel | rpxTranslate) : null"
+      [formControl]="searchControl"
+      [matAutocomplete]="autoSearchLocation"
+      class="autocomplete__input autocomplete__input--default search-box"
+      [disabled]="disabled === true"
+      (keydown)="onKeyDown()"
+      (input)="onKeyUp($event)"
+      #inputSelectedLocation>
+    <mat-autocomplete
+      #autoSearchLocation="matAutocomplete"
+      class="mat-autocomplete-panel-extend"
+      autoActiveFirstOption
+      [displayWith]="getDisplayName.bind(this)"
+      (optionSelected)="onSelectionChange($event.option.value)">
+      @for (location of displayedLocationsDuplicationFiltered; track location.epimms_id) {
+        <mat-option [value]="location">{{ getDisplayName(location) }}</mat-option>
+      }
+      @if (!displayedLocationsDuplicationFiltered.length && showAutocomplete && !searchInProgress) {
+        <mat-option disabled>{{ 'No results found' | rpxTranslate }}</mat-option>
+      }
+    </mat-autocomplete>
+  }
+</div>

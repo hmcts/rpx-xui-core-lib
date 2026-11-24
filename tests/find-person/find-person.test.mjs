@@ -152,7 +152,7 @@ test('judicial search forwards its request and response', () => {
   service.searchJudicial('alex', 'SYNTHETIC').subscribe(value => result = value);
   assert.equal(calls[0].url, 'api/prd/judicial/getJudicialUsersSearch');
   assert.deepEqual(calls[0].body, { searchString: 'alex', serviceCode: 'SYNTHETIC' });
-  const response = [{ id: 'synthetic-judge' }];
+  const response = [{ idamId: 'synthetic-judge', fullName: 'Synthetic Judge', emailId: 'judge@example.test', isJudge: 'Y', isMagistrate: 'N', isPanelMember: 'N', knownAs: '', personalCode: 'SJ1', surname: 'Judge', title: 'Judge' }];
   calls[0].response.next(response);
   assert.equal(result, response);
 });
