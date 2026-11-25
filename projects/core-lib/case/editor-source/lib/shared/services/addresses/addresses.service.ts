@@ -6,6 +6,7 @@ import { AddressModel } from '../../domain/addresses';
 import { HttpService } from '../http';
 import { AddressParser } from './address-parser';
 import { AddressType } from './address-type.enum';
+import { formatPostcodeAddress } from '@hmcts/rpx-xui-core-lib/address/normalization';
 
 @Injectable()
 export class AddressesService {
@@ -37,34 +38,17 @@ export class AddressesService {
   }
 
   private format(addressModel: AddressModel) {
-    return this.formatAddressLines(this.shiftAddressLinesUp(addressModel));
-  }
-
-  private formatAddressLines(addressModel: AddressModel) {
-    (['AddressLine1', 'AddressLine2', 'AddressLine3', 'PostTown'] as const).forEach(value => {
-      addressModel[value] = this.toCapitalCase(addressModel[value]);
+    const formatted = formatPostcodeAddress({
+      addressLine1: addressModel.AddressLine1,
+      addressLine2: addressModel.AddressLine2,
+      addressLine3: addressModel.AddressLine3,
+      postTown: addressModel.PostTown,
+      postCode: addressModel.PostCode,
     });
+    addressModel.AddressLine1 = formatted.addressLine1;
+    addressModel.AddressLine2 = formatted.addressLine2;
+    addressModel.AddressLine3 = formatted.addressLine3;
+    addressModel.PostTown = formatted.postTown;
     return addressModel;
-  }
-
-  private shiftAddressLinesUp(addressModel: AddressModel) {
-    if (addressModel.AddressLine2 === '') {
-      addressModel.AddressLine2 = addressModel.AddressLine3;
-      addressModel.AddressLine3 = '';
-    }
-    if (addressModel.AddressLine1 === '') {
-      addressModel.AddressLine1 = addressModel.AddressLine2;
-      addressModel.AddressLine2 = '';
-    }
-    return addressModel;
-  }
-
-  private toCapitalCase(sentence: string) {
-    sentence = sentence.toLowerCase();
-    sentence.split(' ').forEach((value) => {
-        sentence = sentence.replace(value, value.charAt(0).toUpperCase() + value.substr(1));
-      }
-    );
-    return sentence;
   }
 }

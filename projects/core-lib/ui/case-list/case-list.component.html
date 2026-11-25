@@ -1,0 +1,52 @@
+<table class="{{'govuk-table ' + classes}}">
+  <caption class="govuk-table__caption">{{caption | rpxTranslate}}</caption>
+  <thead class="govuk-table__head">
+    <tr class="govuk-table__row">
+      <td class="govuk-table__header" *ngIf="selectionEnabled">
+        <div class="govuk-checkboxes__item">
+          <input class="govuk-checkboxes__input" type="checkbox" (change)="selectAll()"
+                 [checked]="allOnPageSelected()" [disabled]="!canAnyBeShared()"
+                 [attr.aria-label]="'Select all cases in this list' | rpxTranslate" />
+          <!-- The accessible name is on the input; this adjacent label draws the GOV.UK checkbox. -->
+          <span class="govuk-checkboxes__label" aria-hidden="true"></span>
+        </div>
+      </td>
+      <th class="govuk-table__header" scope="col" *ngFor="let h of tableConfig.columnConfigs">{{h.header | rpxTranslate}}</th>
+    </tr>
+  </thead>
+  <tbody class="govuk-table__body">
+    <ng-container *ngFor="let c of cases | paginate: { itemsPerPage: pageSize, currentPage: currentPageNo, totalItems: totalResultsCount };  index as i">
+      <tr data-selector="table-row" class="govuk-table__row">
+        <td data-selector="table-header" class="govuk-table__header" *ngIf="selectionEnabled">
+          <div class="govuk-checkboxes__item">
+            <input class="govuk-checkboxes__input" type="checkbox" (change)="changeSelection(c)"
+                  [checked]="isSelected(c)" [disabled]="!canBeShared(c)" (keyup)="onKeyUp($event, c)"
+                  [attr.aria-label]="('Select case' | rpxTranslate) + ' ' + ($any(c)[tableConfig.idField] || i)" />
+            <!-- The accessible name is on the input; this adjacent label draws the GOV.UK checkbox. -->
+            <span class="govuk-checkboxes__label" aria-hidden="true"></span>
+          </div>
+        </td>
+        <ng-container *ngFor="let col of tableConfig.columnConfigs; first as isFirst">
+          <th data-selector="table-header" class="govuk-table__header" scope="row" *ngIf="isFirst && firstCellIsHeader">
+            <ng-container *ngIf="!col.type || col.type === 'text'">{{$any(c)[col.key] | rpxTranslate}}</ng-container>
+            <ng-container *ngIf="col.type === 'link' && $any(c).routerLink">
+              <a class="govuk-link" [routerLink]="$any(c).routerLink">{{$any(c)[col.key] | rpxTranslate}}</a>
+            </ng-container>
+          </th>
+          <td data-selector="table-cell" class="govuk-table__cell" *ngIf="!(isFirst && firstCellIsHeader)" [ngSwitch]="col?.type">
+            <ng-container *ngIf="col.type === 'link' && $any(c).routerLink">
+              <a class="govuk-link" [routerLink]="$any(c).routerLink">{{$any(c)[col.key] | rpxTranslate}}</a>
+            </ng-container>
+            <ng-container *ngSwitchCase="'money'">-{{ $any(c)[col.key] | currency:'GBP' }}</ng-container>
+            <ng-container *ngSwitchCase="'date'">{{formatDate($any(c)[col.key])}}</ng-container>
+            <ng-container *ngSwitchCase="'dateAtTime'">{{formatDateAtTime($any(c)[col.key])}}</ng-container>
+            <ng-container *ngSwitchDefault>{{$any(c)[col.key] | rpxTranslate}}</ng-container>
+          </td>
+        </ng-container>
+      </tr>
+    </ng-container>
+  </tbody>
+</table>
+<ccd-pagination *ngIf="totalResultsCount > pageSize"
+  (pageChange)="goToPage($event)"
+></ccd-pagination>

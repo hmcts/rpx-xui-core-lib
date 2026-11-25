@@ -31,7 +31,7 @@
       "express": "^5.2.1",
       "express-session": "^1.19.0",
       "helmet": "8.3.0",
-      "jest": "30.5.1",
+      "jest": "30.5.2",
       "joi": "^18.3.0",
       "jwt-decode": "^4.0.0",
       "openid-client": "^5.7.1",
@@ -65,19 +65,19 @@
     "zone.js": "0.15.1"
   },
   "resolutions": {
-    "eslint@npm:10.14.0/minimatch": "11.0.8",
-    "@eslint/config-array@npm:0.23.5/minimatch": "11.0.8",
-    "@typescript-eslint/typescript-estree@npm:8.72.2/minimatch": "11.0.8",
+    "eslint@npm:10.14.0/minimatch": "11.0.9",
+    "@eslint/config-array@npm:0.23.5/minimatch": "11.0.9",
+    "@typescript-eslint/typescript-estree@npm:8.72.2/minimatch": "11.0.9",
     "@npmcli/package-json@npm:7.0.5/glob": "14.0.6",
     "cacache@npm:20.0.4/glob": "14.0.6",
-    "ignore-walk@npm:8.0.0/minimatch": "11.0.8",
-    "@tufjs/models@npm:4.1.0/minimatch": "11.0.8",
-    "@jest/reporters@npm:30.5.1/glob": "14.0.6",
-    "jest-config@npm:30.5.1/glob": "14.0.6",
-    "jest-runtime@npm:30.5.1/glob": "14.0.6",
+    "ignore-walk@npm:8.0.0/minimatch": "11.0.9",
+    "@tufjs/models@npm:4.1.0/minimatch": "11.0.9",
+    "@jest/reporters@npm:30.5.2/glob": "14.0.6",
+    "jest-config@npm:30.5.2/glob": "14.0.6",
+    "jest-runtime@npm:30.5.2/glob": "14.0.6",
     "test-exclude@npm:7.0.2/glob": "14.0.6",
-    "test-exclude@npm:7.0.2/minimatch": "11.0.8",
-    "jest-config@npm:30.5.1/deepmerge": "npm:@shivammathur/deepmerge@4.3.2",
+    "test-exclude@npm:7.0.2/minimatch": "11.0.9",
+    "jest-config@npm:30.5.2/deepmerge": "npm:@shivammathur/deepmerge@4.3.2",
     "ngx-markdown@npm:20.1.0/katex": "0.18.2",
     "mermaid@npm:11.17.2/katex": "0.18.2",
     "exceljs@npm:4.4.0/uuid": "11.1.1"
@@ -177,8 +177,8 @@
     "lz-string": "1.5.0",
     "marked": "16.4.2",
     "moment": "2.31.0",
-    "prosemirror-commands": "1.7.1",
-    "prosemirror-history": "1.5.0",
+    "prosemirror-commands": "1.7.2",
+    "prosemirror-history": "1.5.2",
     "prosemirror-model": "1.25.13",
     "prosemirror-schema-list": "1.5.1",
     "prosemirror-state": "1.4.4",
@@ -199,6 +199,51 @@
         "input": "ui/service-messages",
         "glob": "LICENCE",
         "output": "ui/service-messages"
+      },
+      {
+        "input": "browser/user-agent",
+        "glob": "LICENCE",
+        "output": "browser/user-agent"
+      },
+      {
+        "input": "ui/ccd-pagination",
+        "glob": "LICENCE",
+        "output": "ui/ccd-pagination"
+      },
+      {
+        "input": "ui/case-list",
+        "glob": "LICENCE",
+        "output": "ui/case-list"
+      },
+      {
+        "input": "ui/filter-state",
+        "glob": "LICENCE",
+        "output": "ui/filter-state"
+      },
+      {
+        "input": "ui/find-location",
+        "glob": "LICENCE",
+        "output": "ui/find-location"
+      },
+      {
+        "input": "ui/find-service",
+        "glob": "LICENCE",
+        "output": "ui/find-service"
+      },
+      {
+        "input": "ui/search-service",
+        "glob": "LICENCE",
+        "output": "ui/search-service"
+      },
+      {
+        "input": "ui/capitalize",
+        "glob": "LICENCE",
+        "output": "ui/capitalize"
+      },
+      {
+        "input": "ui/generic-filter",
+        "glob": "LICENCE",
+        "output": "ui/generic-filter"
       },
       {
         "input": "forms/validation",
@@ -226,6 +271,16 @@
         "output": "ui/user-list"
       },
       {
+        "input": "ui/hmcts-pagination",
+        "glob": "LICENCE",
+        "output": "ui/hmcts-pagination"
+      },
+      {
+        "input": "ui/pagination",
+        "glob": "LICENCE",
+        "output": "ui/pagination"
+      },
+      {
         "input": "ui/user-details",
         "glob": "LICENCE",
         "output": "ui/user-details"
@@ -234,6 +289,11 @@
         "input": "ui/contact-details",
         "glob": "LICENCE",
         "output": "ui/contact-details"
+      },
+      {
+        "input": "ui/page-wrapper",
+        "glob": "LICENCE",
+        "output": "ui/page-wrapper"
       },
       {
         "input": "ui/loading-spinner",
@@ -299,6 +359,11 @@
         "input": "ui/feature-toggle-directive",
         "glob": "LICENCE",
         "output": "ui/feature-toggle-directive"
+      },
+      {
+        "input": "ui/feature-toggle-guard",
+        "glob": "LICENCE",
+        "output": "ui/feature-toggle-guard"
       },
       {
         "input": "ui/cookie",
@@ -371,6 +436,11 @@
         "output": "terms/display"
       },
       {
+        "input": "terms/confirmation",
+        "glob": "LICENCE",
+        "output": "terms/confirmation"
+      },
+      {
         "input": "ui/gov-input",
         "glob": "LICENCE",
         "output": "ui/gov-input"
@@ -409,6 +479,16 @@
         "input": "ui/find-work-type",
         "glob": "LICENCE",
         "output": "ui/find-work-type"
+      },
+      {
+        "input": "address/normalization",
+        "glob": "LICENCE",
+        "output": "address/normalization"
+      },
+      {
+        "input": "ui/address",
+        "glob": "LICENCE",
+        "output": "ui/address"
       }
     ],
     "allowedNonPeerDependencies": [
@@ -492,8 +572,8 @@
     "lz-string": "1.5.0",
     "marked": "16.4.2",
     "moment": "2.31.0",
-    "prosemirror-commands": "1.7.1",
-    "prosemirror-history": "1.5.0",
+    "prosemirror-commands": "1.7.2",
+    "prosemirror-history": "1.5.2",
     "prosemirror-model": "1.25.13",
     "prosemirror-schema-list": "1.5.1",
     "prosemirror-state": "1.4.4",

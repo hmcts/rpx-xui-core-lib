@@ -1,6 +1,13 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import { toolkitImports } from './consumer-imports.mjs';
+
+test('source editor compilation maps every shared Core dependency to its source entry', () => {
+  const { compilerOptions: { paths } } = JSON.parse(readFileSync(new URL('./tsconfig.json', import.meta.url), 'utf8'));
+  assert.deepEqual(paths['@hmcts/rpx-xui-core-lib/address/normalization'], ['../../projects/core-lib/address/normalization/public-api.ts']);
+  assert.deepEqual(paths['@hmcts/rpx-xui-core-lib/browser/user-agent'], ['../../projects/core-lib/browser/user-agent/public-api.ts']);
+});
 
 test('collects original named and type imports without matching comments or other packages', () => {
   const source = `// import { Fake } from '@hmcts/ccd-case-ui-toolkit';
