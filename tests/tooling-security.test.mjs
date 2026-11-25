@@ -34,24 +34,24 @@ test('only the reviewed dependency parents resolve the pinned security fixes', (
   assert.equal(manifest.devDependencies.eslint, '10.14.0');
   assert.equal(manifest.devDependencies['typescript-eslint'], '8.72.2');
   assert.deepEqual(manifest.resolutions, {
-    'eslint@npm:10.14.0/minimatch': '11.0.8',
-    '@eslint/config-array@npm:0.23.5/minimatch': '11.0.8',
-    '@typescript-eslint/typescript-estree@npm:8.72.2/minimatch': '11.0.8',
+    'eslint@npm:10.14.0/minimatch': '11.0.9',
+    '@eslint/config-array@npm:0.23.5/minimatch': '11.0.9',
+    '@typescript-eslint/typescript-estree@npm:8.72.2/minimatch': '11.0.9',
     '@npmcli/package-json@npm:7.0.5/glob': '14.0.6',
     'cacache@npm:20.0.4/glob': '14.0.6',
-    'ignore-walk@npm:8.0.0/minimatch': '11.0.8',
-    '@tufjs/models@npm:4.1.0/minimatch': '11.0.8',
+    'ignore-walk@npm:8.0.0/minimatch': '11.0.9',
+    '@tufjs/models@npm:4.1.0/minimatch': '11.0.9',
     '@jest/reporters@npm:30.5.1/glob': '14.0.6',
     'jest-config@npm:30.5.1/glob': '14.0.6',
     'jest-runtime@npm:30.5.1/glob': '14.0.6',
     'test-exclude@npm:7.0.2/glob': '14.0.6',
-    'test-exclude@npm:7.0.2/minimatch': '11.0.8',
+    'test-exclude@npm:7.0.2/minimatch': '11.0.9',
     'jest-config@npm:30.5.1/deepmerge': 'npm:@shivammathur/deepmerge@4.3.2',
     'ngx-markdown@npm:20.1.0/katex': '0.18.2',
     'mermaid@npm:11.17.2/katex': '0.18.2',
     'exceljs@npm:4.4.0/uuid': '11.1.1',
   });
-  for (const parent of [eslint, configArray, estree, ignoreWalk, tuf]) assert.equal(parent('minimatch/package.json').version, '11.0.8');
+  for (const parent of [eslint, configArray, estree, ignoreWalk, tuf]) assert.equal(parent('minimatch/package.json').version, '11.0.9');
   assert.equal(packageJson('glob/package.json').version, '14.0.6');
   const cache = createRequire(pacote.resolve('cacache'));
   assert.equal(cache('glob/package.json').version, '14.0.6');
@@ -62,7 +62,7 @@ test('only the reviewed dependency parents resolve the pinned security fixes', (
   for (const parent of ['@jest/reporters', 'jest-config', 'jest-runtime', 'test-exclude']) {
     assert.equal(createRequire(nodeWorkspace.resolve(parent))('glob/package.json').version, '14.0.6');
   }
-  assert.equal(createRequire(nodeWorkspace.resolve('test-exclude'))('minimatch/package.json').version, '11.0.8');
+  assert.equal(createRequire(nodeWorkspace.resolve('test-exclude'))('minimatch/package.json').version, '11.0.9');
   const patchedMerge = createRequire(nodeWorkspace.resolve('jest-config'))('deepmerge/package.json');
   assert.equal(patchedMerge.name, '@shivammathur/deepmerge');
   assert.equal(patchedMerge.version, '4.3.2');
