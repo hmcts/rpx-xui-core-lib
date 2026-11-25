@@ -1971,7 +1971,7 @@ __metadata:
     peggy: "npm:5.1.0"
     playwright: "npm:1.65.0"
     playwright-core: "npm:1.65.0"
-    prosemirror-commands: "npm:1.7.1"
+    prosemirror-commands: "npm:1.7.2"
     prosemirror-history: "npm:1.5.0"
     prosemirror-model: "npm:1.25.13"
     prosemirror-schema-list: "npm:1.5.1"
@@ -12121,18 +12121,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prosemirror-commands@npm:1.7.1":
-  version: 1.7.1
-  resolution: "prosemirror-commands@npm:1.7.1"
-  dependencies:
-    prosemirror-model: "npm:^1.0.0"
-    prosemirror-state: "npm:^1.0.0"
-    prosemirror-transform: "npm:^1.10.2"
-  checksum: 10c0/4884ea7a66b79b51e72bb2ef358284d70e9a071deb4cbfab3dd8ee3449e9a0e34cb391d92f487c013d3716b823fc5568ad5e409a9444b3630ae0b87617c2fca1
-  languageName: node
-  linkType: hard
-
-"prosemirror-commands@npm:^1.7.1":
+"prosemirror-commands@npm:1.7.2, prosemirror-commands@npm:^1.7.1":
   version: 1.7.2
   resolution: "prosemirror-commands@npm:1.7.2"
   dependencies:
