@@ -23,14 +23,15 @@ The Jest development dependency graph pins `glob@14.0.6` and `minimatch@11.0.8` 
 
 For agent-assisted local startup, checks and failure diagnosis, ask your repository-aware agent to read [the core local test skill](.agents/skills/core-local-test/SKILL.md). It uses the same repository commands and reports; it does not replace human review or remote CI. For example: “Use `core-local-test` to run the full local gate for this checkout, inspect the feature report and explain any failures.” The agent checks prerequisites and preserves evidence before running; it reports local results and limits rather than claiming release readiness.
 
-Use Node **24.22.2** and Yarn **4.18.1** for the core integration cohort. Yarn is checked in so setup does not require a global Yarn installation or Corepack.
+Select Node **24.22.2** from `.nvmrc`. With asdf, run `core_node_path=$(asdf where nodejs "$(cat .nvmrc)") && export PATH="$core_node_path/bin:$PATH"`. With nvm, run `nvm use`. Confirm that `node --version` prints `v24.22.2` before continuing. Run Yarn **4.18.1** through the checked-in file using that Node runtime. Use this launcher for the Yarn scripts throughout this README.
 
 ```sh
-nvm use
+node --version
+node .yarn/releases/yarn-4.18.1.cjs --version
 node .yarn/releases/yarn-4.18.1.cjs install --immutable
-yarn playwright install chromium
-yarn test:all
-yarn start
+node .yarn/releases/yarn-4.18.1.cjs playwright install chromium
+node .yarn/releases/yarn-4.18.1.cjs test:all
+node .yarn/releases/yarn-4.18.1.cjs start
 ```
 
 `test:all` resets generated reports, builds the package, runs lint and type checks, runs the report-gate regression tests, validator and native Node contracts, verifies the installed tarball, builds the gallery, runs the complete local browser suite, then compares executed outcomes with the independent inventory in `tests/contracts.json` and opens both generated Odhín report lanes in Chromium at mobile and desktop widths. The required CI `build` job runs this same fail-fast command. Missing reports, filtered-out required tests, skipped scenarios and failures cannot satisfy the contract gate. Reports are `test-results/validation.tap`, `test-results/node.tap`, `test-results/package.json`, `test-results/browser.json`, `test-results/browser-junit.xml` and `playwright-report/index.html`; browser artifacts stay below `test-results/browser/` so browser cleanup cannot remove earlier unit/package reports.
@@ -287,15 +288,17 @@ The intentional compatibility improvements are:
 
 The measured Generic Filter fixture is approximately 1.25 MB minified and 329 KB gzip, including Angular and the browser dependencies. The widget's direct FESM is about 70.5 KB. The package check records precise bundle and direct-entry sizes for the state, pipe, standalone renderers and widget in `test-results/package-evidence/filter-graphs.json`.
 
-Use Node `24.22.2` and Yarn `4.18.1`. From the repository root run:
+Select Node `24.22.2` using the asdf or nvm setup in [Develop locally](#develop-locally) and confirm that `node --version` prints `v24.22.2`. Run the checked-in Yarn release from the repository root.
 
 ```sh
-yarn build
+node --version
+node .yarn/releases/yarn-4.18.1.cjs --version
+node .yarn/releases/yarn-4.18.1.cjs build
 node --test tests/filter-state/filter-state.test.mjs tests/filter-renderers/renderers.test.mjs tests/generic-filter/generic-filter.test.mjs
-yarn lint
-yarn test:browser filter-renderers generic-filter
-yarn test:package
-yarn test:all
+node .yarn/releases/yarn-4.18.1.cjs lint
+node .yarn/releases/yarn-4.18.1.cjs test:browser filter-renderers generic-filter
+node .yarn/releases/yarn-4.18.1.cjs test:package
+node .yarn/releases/yarn-4.18.1.cjs test:all
 ```
 
 Run the browser and package gates serially in each checkout. The gallery paths are `/filter-renderers` and `/generic-filter` under `http://127.0.0.1:4307`. The full gate includes the three unit suites in `test-results/validation.tap` and reports the filter features and accessibility rows in `test-results/odhin/browser/index.html`.

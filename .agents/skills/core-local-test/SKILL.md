@@ -9,7 +9,7 @@ Use the repository containing this skill as the working directory. Read its near
 
 ## Prepare the checkout
 
-Record `git rev-parse HEAD` and `git status --short` without resetting or cleaning local changes. Check `node --version` against `.nvmrc`, and read `yarnPath` in `.yarnrc.yml`. With the current checkout the pinned commands are `node .yarn/releases/yarn-4.18.1.cjs install --immutable` and `node .yarn/releases/yarn-4.18.1.cjs playwright install chromium`; run setup only when needed and within the user’s authorised scope. Do not change the lockfile, dependency versions or Yarn release as a setup workaround. Installation or browser setup may require network access; report failures rather than inferring readiness from existing files.
+Record `git rev-parse HEAD` and `git status --short` without resetting or cleaning local changes. Select the Node runtime from `.nvmrc`. With asdf, run `core_node_path=$(asdf where nodejs "$(cat .nvmrc)") && export PATH="$core_node_path/bin:$PATH"`. With nvm, run `nvm use`. Verify that `node --version` prints `v24.22.2` before running any checks and read `yarnPath` in `.yarnrc.yml`. With the current checkout the pinned commands are `node .yarn/releases/yarn-4.18.1.cjs install --immutable` and `node .yarn/releases/yarn-4.18.1.cjs playwright install chromium`; run setup only when needed and within the user’s authorised scope. Do not change the lockfile, dependency versions or Yarn release as a setup workaround. Installation or browser setup may require network access; report failures rather than inferring readiness from existing files.
 
 Before a browser run, coordinate with other checkouts using this machine and inspect the ports in the active configs. The current strict suite uses 4307 (gallery), 4314 (translation) and 4414 (cache). On macOS `lsof -nP -iTCP:4307 -iTCP:4314 -iTCP:4414 -sTCP:LISTEN` shows current listeners; an empty result is only a point-in-time check. Do not kill an unknown listener. Run shared-port browser suites serially across checkouts and inspect the log for `EADDRINUSE` and `Port ... is already in use`. Even with `reuseExistingServer: false`, a concurrent bind can race: if a collision occurs, treat the affected test and any claimed same-run evidence as unverified even if the driver reports success. Preserve its log and repeat only after ownership and port availability are resolved.
 
@@ -21,15 +21,17 @@ Before a browser run, coordinate with other checkouts using this machine and ins
 
 ## Filter migration checks
 
-Use Node `24.22.2` and the checked-in Yarn `4.18.1`. Run these commands serially from the Core checkout.
+With the `.nvmrc` Node runtime selected, confirm that `node --version` prints `v24.22.2` and that the checked-in Yarn reports `4.18.1`. Run the checks serially from the Core checkout.
 
 ```sh
-yarn build
+node --version
+node .yarn/releases/yarn-4.18.1.cjs --version
+node .yarn/releases/yarn-4.18.1.cjs build
 node --test tests/filter-state/filter-state.test.mjs tests/filter-renderers/renderers.test.mjs tests/generic-filter/generic-filter.test.mjs
-yarn lint
-yarn test:browser filter-renderers generic-filter
-yarn test:package
-yarn test:all
+node .yarn/releases/yarn-4.18.1.cjs lint
+node .yarn/releases/yarn-4.18.1.cjs test:browser filter-renderers generic-filter
+node .yarn/releases/yarn-4.18.1.cjs test:package
+node .yarn/releases/yarn-4.18.1.cjs test:all
 ```
 
 The gallery uses fictional values at `http://127.0.0.1:4307/filter-renderers` and `http://127.0.0.1:4307/generic-filter`. The installed Angular consumer also needs port 14880. Review the packed graphs and shared/split FilterService browser results under `test-results/package-evidence/`. In the completed Odhín browser feature matrix check Filter state, Filter renderers, Capitalize pipe, Generic Filter and Generic Filter accessibility, then verify the native browser report and the supervised unit and package receipts.
