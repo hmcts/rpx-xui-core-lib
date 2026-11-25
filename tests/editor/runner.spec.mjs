@@ -136,3 +136,38 @@ test('shows a selection error when proceeding without choosing a case flag', asy
   expect(await page.evaluate(() => globalThis.readCaseFlagSelection())).toBeNull();
   expect(await page.evaluate(() => globalThis.readCaseFlagState().errorMessages)).toEqual(['Please make a selection']);
 });
+
+test('renders the full case viewer for resolved standard-access case data', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  await page.evaluate(() => globalThis.createCaseViewerHost('STANDARD', 'FULL'));
+  await expect(page.getByTestId('full-view')).toBeVisible();
+  await expect(page.getByTestId('restricted-view')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('renders the restricted case viewer for challenged access', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  await page.evaluate(() => globalThis.createCaseViewerHost('CHALLENGED', 'BASIC'));
+  await expect(page.getByTestId('restricted-view')).toBeVisible();
+  await expect(page.getByTestId('restricted-view')).toHaveAttribute('data-access-type', 'CHALLENGED');
+  await expect(page.getByTestId('full-view')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('renders case details from the notifier when resolved route data is absent', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  await page.evaluate(() => globalThis.createCaseViewerNotifierHost());
+  await expect(page.getByTestId('full-view')).toHaveCount(0);
+  await expect(page.getByTestId('restricted-view')).toHaveCount(0);
+
+  await page.evaluate(() => globalThis.emitCaseViewerDetails('STANDARD', 'FULL'));
+  await expect(page.getByTestId('full-view')).toBeVisible();
+  await expect(page.getByTestId('restricted-view')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});

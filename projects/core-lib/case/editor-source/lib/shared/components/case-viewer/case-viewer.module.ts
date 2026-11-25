@@ -18,7 +18,9 @@ import {
   OrderService
 } from '../../services';
 import { ActivityModule } from '../activity';
-import { CaseEditorModule, CaseNotifier, ConvertHrefToRouterService } from '../case-editor';
+import { CaseEditorModule } from '../case-editor/case-editor.module';
+import { CaseNotifier } from '../case-editor/services/case.notifier';
+import { ConvertHrefToRouterService } from '../case-editor/services/convert-href-to-router.service';
 import { CaseHeaderModule } from '../case-header';
 import { CaseHistoryModule } from '../case-history';
 import { EventMessageModule } from '../error-message/error-message.module';

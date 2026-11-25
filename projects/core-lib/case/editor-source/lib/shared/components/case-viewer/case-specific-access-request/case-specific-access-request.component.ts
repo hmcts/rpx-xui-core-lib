@@ -10,7 +10,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { ErrorMessage, SpecificAccessRequest } from '../../../domain';
-import { CaseNotifier, CasesService } from '../../case-editor';
+import { CaseNotifier } from '../../case-editor/services/case.notifier';
+import { CasesService } from '../../case-editor/services/cases.service';
 import {
   SpecificAccessRequestErrors,
   SpecificAccessRequestPageText

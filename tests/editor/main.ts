@@ -6,6 +6,7 @@ import { createRichTextHost, readRichTextValue } from './rich-text-host';
 import { createDatetimeToggleHost, refreshDatetimeToggleHost } from './datetime-toggle-host';
 import { createDialog } from './collection-dialog-host';
 import { createCaseFlagHost, readCaseFlagSelection, readCaseFlagState } from './case-flags-host';
+import { createCaseViewerHost, createCaseViewerNotifierHost, emitCaseViewerDetails } from './case-viewer-host';
 
 @NgModule({ providers: [provideZonelessChangeDetection()] })
 class ZonelessHostTestingModule {}
@@ -24,5 +25,8 @@ Object.assign(globalThis, {
   createDialogCloseHost: async (index: number) => { await createDialog(index); return true; },
   createCaseFlagHost: async () => { await createCaseFlagHost(); return true; },
   readCaseFlagSelection,
-  readCaseFlagState
+  readCaseFlagState,
+  createCaseViewerHost,
+  createCaseViewerNotifierHost,
+  emitCaseViewerDetails
 });

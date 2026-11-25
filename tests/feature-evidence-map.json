@@ -2566,6 +2566,33 @@
           "package.cookie-banner-graph"
         ]
       }
+    },
+    {
+      "feature": "Case viewer: route and access behavior",
+      "contracts": {
+        "editorUnit": [
+          "Case viewer migration contract uses resolved route data, sorts tabs, and keeps duplicate labels unique",
+          "Case viewer migration contract selects restricted access for challenged users until access is granted",
+          "Case viewer migration contract uses the notifier when route data is missing and releases the subscription on destroy"
+        ],
+        "editorDrivers": [
+          {
+            "projectName": "chromium",
+            "title": "renders the full case viewer for resolved standard-access case data"
+          },
+          {
+            "projectName": "chromium",
+            "title": "renders the restricted case viewer for challenged access"
+          },
+          {
+            "projectName": "chromium",
+            "title": "renders case details from the notifier when resolved route data is absent"
+          }
+        ],
+        "package": [
+          "package.editor-source-case-viewer-api-and-loading"
+        ]
+      }
     }
   ],
   "suiteGroups": [
