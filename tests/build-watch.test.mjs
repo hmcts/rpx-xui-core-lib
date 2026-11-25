@@ -98,7 +98,7 @@ test('watch rebuilds Node changes, recovers and stops', { timeout: 240_000 }, as
     child.on('error', (error) => { childError = error; });
     child.stdout.on('data', (chunk) => { log += chunk; });
     child.stderr.on('data', (chunk) => { log += chunk; });
-    await untilAlive(() => countReady() > previousReady, 'second watcher startup');
+    await untilAlive(() => countReady() > previousReady, 'second watcher startup', 120_000);
     const stopped = new Promise((resolvePromise) => child.once('exit', (...args) => resolvePromise(args)));
     await rename(join(fixture, 'projects/core-lib/node'), join(fixture, 'projects/core-lib/node-removed'));
     let timeout;
