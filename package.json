@@ -97,7 +97,7 @@
     "ngx-pagination": "6.0.3",
     "node-html-parser": "7.1.0",
     "odhin-reports-playwright": "file:.yarn/patches/odhin-reports-playwright-1.1.8-core.tgz",
-    "peggy": "5.1.0",
+    "peggy": "5.1.1",
     "playwright": "1.65.0",
     "playwright-core": "1.65.0",
     "prosemirror-commands": "1.7.1",
