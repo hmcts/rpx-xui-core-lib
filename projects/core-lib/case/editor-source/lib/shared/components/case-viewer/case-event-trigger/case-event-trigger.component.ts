@@ -5,7 +5,8 @@ import { Constants } from '../../../commons/constants';
 import { Activity, CaseEventData, CaseEventTrigger, CaseView, DisplayMode } from '../../../domain';
 import { CaseReferencePipe } from '../../../pipes';
 import { ActivityPollingService, AlertService, EventStatusService, FieldsUtils, LoadingService, SessionStorageService } from '../../../services';
-import { CaseNotifier, CasesService } from '../../case-editor';
+import { CaseNotifier } from '../../case-editor/services/case.notifier';
+import { CasesService } from '../../case-editor/services/cases.service';
 import { EventTriggerResolver } from '../services';
 
 @Component({

@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { editorRouting } from '../case-editor';
+import { editorRouting } from '../case-editor/editor.routing';
 import { CaseHistoryComponent } from '../case-history';
 import {
   EventStartComponent,

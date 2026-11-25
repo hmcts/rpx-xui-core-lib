@@ -5,6 +5,7 @@ import { sourceSnapshot } from '../../scripts/evidence-source-snapshot.mjs';
 import { browserOutcomes } from '../../scripts/check-contracts.mjs';
 import { buildSync } from 'esbuild';
 import { inspectLoadingGraph, assertPackedBytes, assertEagerDateFailure } from '../packed-loading/graph.mjs';
+import { probeLoading } from '../editor/selective-loading-lib.mjs';
 import { createHash, randomUUID } from 'node:crypto';
 import { gzipSync } from 'node:zlib';
 import { spawnSync } from 'node:child_process';
@@ -279,6 +280,22 @@ try {
   assert.equal((await lstat(installed)).isSymbolicLink(), false, 'Candidate must be installed, never a workspace link');
   assert.equal(await realpath(installed), installed);
   assert.ok((await stat(join(installed, declaration))).isFile());
+  await check('package.editor-source-case-viewer-api-and-loading', async () => {
+    const installedManifest = JSON.parse(await readFile(join(installed, 'package.json'), 'utf8'));
+    assert.deepEqual(installedManifest.exports['./case/editor-source'], {
+      types: './case/editor-source/index.d.ts',
+      default: './fesm2022/hmcts-rpx-xui-core-lib-case-editor-source.mjs'
+    });
+    const declarations = await readFile(join(installed, 'case/editor-source/index.d.ts'), 'utf8');
+    for (const symbol of ['CaseViewerModule', 'CaseViewerComponent', 'CaseViewComponent', 'CaseResolver', 'EventTriggerResolver', 'viewerRouting']) {
+      assert.match(declarations, new RegExp(`\\b${symbol}\\b`), `Packed editor-source declarations must expose ${symbol}`);
+    }
+    const measured = await probeLoading(installed, 'fesm2022/hmcts-rpx-xui-core-lib-case-editor-source.mjs', 'CaseViewerModule');
+    assert.ok(measured.bytes <= 2_700_000 && measured.gzipBytes <= 750_000,
+      `Packed viewer Core closure exceeds its measured budget: ${measured.bytes} bytes, ${measured.gzipBytes} gzip`);
+    report.package.caseViewerLoading = measured;
+    await writeFile(join(evidence, 'case-viewer-loading.json'), JSON.stringify(measured, null, 2) + '\n');
+  });
   assert.equal(JSON.parse(await readFile(join(installed, 'node/package.json'), 'utf8')).type, 'commonjs', 'Packed Node marker must survive installation');
   const compiler = join(consumer, 'node_modules/typescript/bin/tsc');
   await check('package.strict-node', () => run('strict-node', [compiler, '-p', 'tsconfig.node.json'], consumer));

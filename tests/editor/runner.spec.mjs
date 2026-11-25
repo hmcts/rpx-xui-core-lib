@@ -109,3 +109,24 @@ test('closes each editor dialog using Enter and Space', async ({ page }) => {
     }
   }
 });
+
+test('renders the full case viewer for resolved standard-access case data', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  await page.evaluate(() => globalThis.createCaseViewerHost('STANDARD', 'FULL'));
+  await expect(page.getByTestId('full-view')).toBeVisible();
+  await expect(page.getByTestId('restricted-view')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('renders the restricted case viewer for challenged access', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  await page.evaluate(() => globalThis.createCaseViewerHost('CHALLENGED', 'BASIC'));
+  await expect(page.getByTestId('restricted-view')).toBeVisible();
+  await expect(page.getByTestId('restricted-view')).toHaveAttribute('data-access-type', 'CHALLENGED');
+  await expect(page.getByTestId('full-view')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
