@@ -1,3 +1,4 @@
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import * as marked from 'marked';
 import { MarkdownComponent } from '../../projects/core-lib/case/editor-source/lib/shared/components/palette/markdown/markdown.component';
 
@@ -13,7 +14,7 @@ describe('Markdown rendering migration contract', () => {
   afterEach(() => marked.setOptions({ renderer: originalRenderer }));
 
   it('keeps relative markdown links and their labels', () => {
-    const changes = { markForCheck: jasmine.createSpy('markForCheck') };
+    const changes = { markForCheck: vi.fn() };
     const component = new MarkdownComponent(router, renderer, zone, changes as unknown as Dependencies[3]);
     component.content = '[Case details](/cases/123)';
     component.ngOnInit();

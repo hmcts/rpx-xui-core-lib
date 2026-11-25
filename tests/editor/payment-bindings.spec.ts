@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CommonModule } from '@angular/common';
 import { Component, Input, Pipe, PipeTransform } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -42,7 +43,7 @@ describe('Payment bindings migration contract', () => {
   });
   it('does not create ways-to-pay when the user has no roles', () => {
     const storage = TestBed.inject(SessionStorageService);
-    spyOn(storage, 'getItem').and.returnValue(JSON.stringify({ roles: [] }));
+    vi.spyOn(storage, 'getItem').mockReturnValue(JSON.stringify({ roles: [] }));
     const fixture = TestBed.createComponent(WaysToPayFieldComponent);
     fixture.componentInstance.caseField = { metadata: true } as unknown as typeof fixture.componentInstance.caseField;
     fixture.detectChanges();

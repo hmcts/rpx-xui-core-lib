@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { CommonModule } from '@angular/common';
 import { NO_ERRORS_SCHEMA, Pipe, PipeTransform } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -20,6 +21,7 @@ describe('Specific access review accessibility', () => {
       schemas: [NO_ERRORS_SCHEMA]
     }).compileComponents();
     const fixture = TestBed.createComponent(CaseReviewSpecificAccessRequestComponent);
+    fixture.changeDetectorRef.markForCheck();
     fixture.detectChanges();
     const root = fixture.nativeElement as HTMLElement;
     const fieldsets = root.querySelectorAll('fieldset');
@@ -28,17 +30,19 @@ describe('Specific access review accessibility', () => {
     const radioLegend = fieldsets[1].querySelector(':scope > legend');
     expect(outerLegend?.textContent?.trim()).toBe('Review specific access request');
     expect(radioLegend?.textContent?.trim()).toBe('What do you want to do with this request?');
-    expect(fieldsets[0].hasAttribute('aria-describedby')).toBeFalse();
+    expect(fieldsets[0].hasAttribute('aria-describedby')).toBe(false);
     const radios = root.querySelectorAll<HTMLInputElement>('input[type="radio"]');
     expect(radios.length).toBe(3);
     expect(Array.from(radios, radio => radio.labels?.[0]?.textContent.trim())).toEqual(['Approve request', 'Reject request', 'Request more information']);
     fixture.componentInstance.onSubmit();
+    fixture.changeDetectorRef.markForCheck();
     fixture.detectChanges();
     expect(root.querySelector('#error-message')?.textContent?.trim()).toBe('Select an option');
     expect(radios[0].getAttribute('aria-describedby')).toBe('error-message');
     radios[0].click();
+    fixture.changeDetectorRef.markForCheck();
     fixture.detectChanges();
-    expect(fixture.componentInstance.formGroup.valid).toBeTrue();
+    expect(fixture.componentInstance.formGroup.valid).toBe(true);
     expect(fixture.componentInstance.formGroup.get('radioSelected').value).toBe('Approve request');
     fixture.destroy();
   });

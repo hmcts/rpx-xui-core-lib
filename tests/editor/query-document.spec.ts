@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { QueryManagementUtils } from '../../projects/core-lib/case/editor-source/lib/shared/components/palette/query-management/utils/query-management.utils';
 import { QueryAttachmentsReadComponent } from '../../projects/core-lib/case/editor-source/lib/shared/components/palette/query-management/components/query-attachments-read/query-attachments-read.component';
 

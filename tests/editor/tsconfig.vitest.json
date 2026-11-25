@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": { "types": ["vitest/globals"] },
+  "include": ["**/*.spec.ts", "../../projects/core-lib/case/editor-source/**/*.spec.ts", "../vitest-setup.ts", "../vitest-zoneless.providers.ts"]
+}

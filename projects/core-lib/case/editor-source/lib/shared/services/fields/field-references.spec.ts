@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { FormControl } from '@angular/forms';
 import { CaseField } from '../../domain/definition/case-field.model';
 import { AbstractFormFieldComponent } from '../../components/palette/base-field/abstract-form-field.component';

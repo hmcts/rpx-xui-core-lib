@@ -1,3 +1,4 @@
+import { describe, expect, it, vi } from 'vitest';
 import { FormGroup } from '@angular/forms';
 import { WriteDocumentFieldComponent } from '../../projects/core-lib/case/editor-source/lib/shared/components/palette/document/write-document-field.component';
 
@@ -7,12 +8,12 @@ describe('Document upload migration contract', () => {
   it('rejects disallowed file types before attempting an upload', () => {
     const component = Object.create(WriteDocumentFieldComponent.prototype);
     component.formGroup = new FormGroup({});
-    component.documentManagement = { uploadFile: jasmine.createSpy('uploadFile') };
+    component.documentManagement = { uploadFile: vi.fn() };
     component.uploadedDocument = new FormGroup({});
-    component.updateDocumentForm = jasmine.createSpy('updateDocumentForm');
+    component.updateDocumentForm = vi.fn();
     component.fileChangeEvent({ target: { files: [new File(['x'], 'bad.exe')] } }, '\\.pdf$');
     expect(component.documentManagement.uploadFile).not.toHaveBeenCalled();
-    expect(component.formGroup.hasError('invalidFileFormat')).toBeTrue();
+    expect(component.formGroup.hasError('invalidFileFormat')).toBe(true);
     expect(component.fileUploadMessages).toBe(WriteDocumentFieldComponent.UPLOAD_ERROR_INVALID_FORMAT);
   });
   it('updates secure document references and clears the upload state', () => {
@@ -21,30 +22,30 @@ describe('Document upload migration contract', () => {
     component.uploadedDocument = new FormGroup({});
     component.caseField = { value: {} };
     component.documentManagement = { isDocumentSecureModeEnabled: () => true };
-    component.generateLogMessage = jasmine.createSpy('generateLogMessage');
-    component.updateDocumentForm = jasmine.createSpy('updateDocumentForm');
-    component.fileUploadStateService = { setUploadInProgress: jasmine.createSpy('setUploadInProgress') };
+    component.generateLogMessage = vi.fn();
+    component.updateDocumentForm = vi.fn();
+    component.fileUploadStateService = { setUploadInProgress: vi.fn() };
     const document = { originalDocumentName: 'file.pdf', hashToken: 'hash', _links: { self: { href: '/document' }, binary: { href: '/binary' } } };
     component.handleDocumentUploadResult({ documents: [document] });
     expect(component.updateDocumentForm).toHaveBeenCalledWith('/document', '/binary', 'file.pdf', 'hash');
     expect(component.caseField.value).toEqual({ document_url: '/document', document_binary_url: '/binary', document_filename: 'file.pdf', document_hash: 'hash' });
     expect(component.fileUploadStateService.setUploadInProgress).toHaveBeenCalledWith(false);
-    expect(component.valid).toBeTrue();
+    expect(component.valid).toBe(true);
   });
 
   it('reports an unavailable upload service and clears the upload state', () => {
     const component = Object.create(WriteDocumentFieldComponent.prototype);
-    component.fileUploadStateService = { setUploadInProgress: jasmine.createSpy('setUploadInProgress') };
+    component.fileUploadStateService = { setUploadInProgress: vi.fn() };
     component.handleDocumentUploadError({ status: 502 });
     expect(component.fileUploadMessages).toBe(WriteDocumentFieldComponent.UPLOAD_ERROR_NOT_AVAILABLE);
-    expect(component.valid).toBeFalse();
+    expect(component.valid).toBe(false);
     expect(component.fileUploadStateService.setUploadInProgress).toHaveBeenCalledWith(false);
   });
 
   it('cancels an in-flight upload and resets the file input', () => {
     const component = Object.create(WriteDocumentFieldComponent.prototype);
-    component.fileUploadSubscription = { unsubscribe: jasmine.createSpy('unsubscribe') };
-    component.fileUploadStateService = { setUploadInProgress: jasmine.createSpy('setUploadInProgress') };
+    component.fileUploadSubscription = { unsubscribe: vi.fn() };
+    component.fileUploadStateService = { setUploadInProgress: vi.fn() };
     component.fileInput = { nativeElement: { value: 'selected.pdf' } };
     component.caseField = { display_context: 'OPTIONAL' };
     component.selectedFile = new File(['x'], 'selected.pdf');

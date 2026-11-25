@@ -1,3 +1,4 @@
+import { describe, expect, it, vi } from 'vitest';
 import { CaseDetails as SharedCaseDetails, Draft as SharedDraft } from '@hmcts/rpx-xui-core-lib/case/models';
 import { CaseDetails as EditorCaseDetails, Draft as EditorDraft } from '@hmcts/rpx-xui-core-lib/case/notifier';
 import { SessionStorageService as SharedStorage } from '@hmcts/rpx-xui-core-lib/browser/session-storage';
@@ -20,7 +21,7 @@ describe('Case notifier migration contract', () => {
   it('shares existing Core case detail and draft model identities', () => {
     expect(EditorCaseDetails).toBe(SharedCaseDetails);
     expect(EditorDraft).toBe(SharedDraft);
-    expect(EditorDraft.isDraft('DRAFT123')).toBeTrue();
+    expect(EditorDraft.isDraft('DRAFT123')).toBe(true);
     expect(EditorDraft.stripDraftId('DRAFT123')).toBe('123');
   });
   it('shares the existing Core session storage injection token', () => {
@@ -29,10 +30,10 @@ describe('Case notifier migration contract', () => {
     expect(TestBed.inject(EditorStorage)).toBe(TestBed.inject(SharedStorage));
   });
   it('injects the date format translator into the moved pipe', () => {
-    const translator = { translate: jasmine.createSpy('translate').and.returnValue('YYYY') };
+    const translator = { translate: vi.fn().mockReturnValue('YYYY') };
     TestBed.configureTestingModule({ providers: [DatePipe, { provide: FormatTranslatorService, useValue: translator }] });
     expect(TestBed.inject(DatePipe).transform('2026-01-01', 'utc', 'yyyy')).toBe('2026');
-    expect(translator.translate).toHaveBeenCalledOnceWith('yyyy');
+    expect(translator.translate).toHaveBeenCalledExactlyOnceWith('yyyy');
   });
   it('exports the same injection tokens from both public entry points', () => {
     expect(EditorNotifier).toBe(IndependentNotifier);
@@ -42,22 +43,22 @@ describe('Case notifier migration contract', () => {
     expect(WizardPageField).toBeDefined();
   });
   it('uses the existing CasesService injection token and a single notifier instance', () => {
-    const loader = { getCaseViewV2: jasmine.createSpy('getCaseViewV2').and.returnValue(of({ tabs: [] })) };
+    const loader = { getCaseViewV2: vi.fn().mockReturnValue(of({ tabs: [] })) };
     TestBed.configureTestingModule({ providers: [CaseNotifier, { provide: CasesService, useValue: loader }] });
     const notifier = TestBed.inject(CaseNotifier);
     expect(TestBed.inject(CaseNotifier)).toBe(notifier);
     notifier.fetchAndRefresh('123').subscribe();
-    expect(loader.getCaseViewV2).toHaveBeenCalledOnceWith('123');
+    expect(loader.getCaseViewV2).toHaveBeenCalledExactlyOnceWith('123');
   });
   it('refreshes the cached case and emits its basic fields', async () => {
     const response = { case_id: '123', tabs: [{ fields: [{ id: 'caseNameHmctsInternal', field_type: { id: 'Text', type: 'Text' }, value: 'Example' }, { id: 'caseManagementLocation', field_type: { id: 'Complex', type: 'Complex' }, value: { baseLocation: 42 } }] }] };
-    const loader = { getCaseViewV2: jasmine.createSpy('getCaseViewV2').and.returnValue(of(response)) };
+    const loader = { getCaseViewV2: vi.fn().mockReturnValue(of(response)) };
     const notifier = new CaseNotifier(loader as unknown as ConstructorParameters<typeof CaseNotifier>[0]);
     const seen: CaseView[] = [];
     notifier.caseView.subscribe(value => seen.push(value));
     const result = await firstValueFrom(notifier.fetchAndRefresh('123'));
-    expect(loader.getCaseViewV2).toHaveBeenCalledOnceWith('123');
-    expect(result instanceof CaseView).toBeTrue();
+    expect(loader.getCaseViewV2).toHaveBeenCalledExactlyOnceWith('123');
+    expect(result instanceof CaseView).toBe(true);
     expect(result.basicFields).toEqual({ caseNameHmctsInternal: 'Example', caseManagementLocation: { baseLocation: 42 } });
     expect(notifier.cachedCaseView).toBe(result);
     expect(seen[seen.length - 1]).toBe(result);
@@ -72,7 +73,7 @@ describe('Case notifier migration contract', () => {
     notifier.cachedCaseView = previous;
     const seen: CaseView[] = [];
     notifier.caseView.subscribe(value => seen.push(value));
-    await expectAsync(firstValueFrom(notifier.fetchAndRefresh('new'))).toBeRejectedWith(error);
+    await expect(firstValueFrom(notifier.fetchAndRefresh('new'))).rejects.toBe(error);
     expect(notifier.cachedCaseView).toBe(previous);
     expect(seen.length).toBe(1);
   });
