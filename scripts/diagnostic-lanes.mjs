@@ -59,7 +59,7 @@ export function startupCollision(stdout, stderr) {
 /** @param {(command: string, args: string[], options: import('node:child_process').SpawnSyncOptionsWithStringEncoding) => import('node:child_process').SpawnSyncReturns<string>} spawn
  * @param {(stdout: string, stderr: string) => void} output */
 export function executeStep(name, kind, command, cwd, spawn = spawnSync, output = (stdout, stderr) => { if (stdout) process.stdout.write(stdout); if (stderr) process.stderr.write(stderr); }) {
-  const args = kind === 'lane' ? ['scripts/run-evidence-lane.mjs', name, command] : kind === 'node' ? command.split(' ') : ['.yarn/releases/yarn-4.18.1.cjs', command];
+  const args = kind === 'lane' ? ['scripts/run-evidence-lane.mjs', name, command] : kind === 'node' ? command.split(' ') : ['.yarn/releases/yarn-4.19.0.cjs', command];
   const result = spawn(process.execPath, args, { cwd, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, stdio: ['inherit', 'pipe', 'pipe'], env: { ...process.env, ...(name === 'browser' || name === 'cacheBrowser' ? { PW_ODHIN_LIGHTWEIGHT: 'false' } : {}) } });
   output(result.stdout ?? '', result.stderr ?? '');
   if (startupCollision(result.stdout ?? '', result.stderr ?? '')) return { ...result, status: result.status || 1, error: 'Server startup port collision: test server ownership is unverified' };

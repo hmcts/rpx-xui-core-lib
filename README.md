@@ -23,15 +23,15 @@ The Jest development dependency graph pins `glob@14.0.6` and `minimatch@11.0.8` 
 
 For agent-assisted local startup, checks and failure diagnosis, ask your repository-aware agent to read [the core local test skill](.agents/skills/core-local-test/SKILL.md). It uses the same repository commands and reports; it does not replace human review or remote CI. For example: “Use `core-local-test` to run the full local gate for this checkout, inspect the feature report and explain any failures.” The agent checks prerequisites and preserves evidence before running; it reports local results and limits rather than claiming release readiness.
 
-Select Node **24.22.2** from `.nvmrc`. With asdf, run `core_node_path=$(asdf where nodejs "$(cat .nvmrc)") && export PATH="$core_node_path/bin:$PATH"`. With nvm, run `nvm use`. Confirm that `node --version` prints `v24.22.2` before continuing. Run Yarn **4.18.1** through the checked-in file using that Node runtime. Use this launcher for the Yarn scripts throughout this README.
+Select Node **24.22.2** from `.nvmrc`. With asdf, run `core_node_path=$(asdf where nodejs "$(cat .nvmrc)") && export PATH="$core_node_path/bin:$PATH"`. With nvm, run `nvm use`. Confirm that `node --version` prints `v24.22.2` before continuing. Run Yarn **4.19.0** through the checked-in file using that Node runtime. Use this launcher for the Yarn scripts throughout this README.
 
 ```sh
 node --version
-node .yarn/releases/yarn-4.18.1.cjs --version
-node .yarn/releases/yarn-4.18.1.cjs install --immutable
-node .yarn/releases/yarn-4.18.1.cjs playwright install chromium
-node .yarn/releases/yarn-4.18.1.cjs test:all
-node .yarn/releases/yarn-4.18.1.cjs start
+node .yarn/releases/yarn-4.19.0.cjs --version
+node .yarn/releases/yarn-4.19.0.cjs install --immutable
+node .yarn/releases/yarn-4.19.0.cjs playwright install chromium
+node .yarn/releases/yarn-4.19.0.cjs test:all
+node .yarn/releases/yarn-4.19.0.cjs start
 ```
 
 `test:all` resets generated reports, builds the package, runs lint and type checks, runs the report-gate regression tests, validator and native Node contracts, verifies the installed tarball, builds the gallery, runs the complete local browser suite, then compares executed outcomes with the independent inventory in `tests/contracts.json` and opens both generated Odhín report lanes in Chromium at mobile and desktop widths. The required CI `build` job runs this same fail-fast command. Missing reports, filtered-out required tests, skipped scenarios and failures cannot satisfy the contract gate. Reports are `test-results/validation.tap`, `test-results/node.tap`, `test-results/package.json`, `test-results/browser.json`, `test-results/browser-junit.xml` and `playwright-report/index.html`; browser artifacts stay below `test-results/browser/` so browser cleanup cannot remove earlier unit/package reports.
@@ -148,7 +148,7 @@ The `ui/loading-state` service tracks overlapping operations with opaque, per-in
 
 `tests/fixtures/compatibility/prospective-package.json` is the concrete eventual dependency/peer/type proposal for all four libraries. Its ownership ledger also includes emitted imports missing from published metadata. It does not widen the current distribution or add unimplemented public entries. Exact source versions, host heads, checked-in manager hashes and locked host toolchains are frozen alongside the proposal.
 
-Run `yarn test:compatibility:contracts` for the deterministic acceptance checks. Run `yarn build` immediately before `yarn test:compatibility`; the matrix packs the existing `dist/core-lib` output and records its SHA-256, so an older build would not represent the checked-out source. It then runs clean and immutable installations under core Yarn4.18.1, MC4.17.1, MO4.9.2, AO4.10.3 and the standalone MC API's declared4.7.0. Actual host framework/tooling versions are retained; MC's existing checked-in minimum-age setting is reproduced. `test-results/compatibility/` retains the candidate, native logs, peer explanations, locks and a report. The temporary fixture paths are printed and retained for inspection. This is an installation-surface rehearsal, not a full application build or completed source migration.
+Run `yarn test:compatibility:contracts` for the deterministic acceptance checks. Run `yarn build` immediately before `yarn test:compatibility`; the matrix packs the existing `dist/core-lib` output and records its SHA-256, so an older build would not represent the checked-out source. It then runs clean and immutable installations under core Yarn4.19.0, MC4.17.1, MO4.9.2, AO4.10.3 and the standalone MC API's declared4.7.0. Actual host framework/tooling versions are retained; MC's existing checked-in minimum-age setting is reproduced. `test-results/compatibility/` retains the candidate, native logs, peer explanations, locks and a report. The temporary fixture paths are printed and retained for inspection. This is an installation-surface rehearsal, not a full application build or completed source migration.
 
 When changing a historical profile or its source contract, run `node tests/fixtures/compatibility/verify-source-contract.mjs WORKSPACE CORE_CHECKOUT YARN_4_7_BINARY` with local repositories containing the pinned Git objects and the official standalone Yarn binary. The verifier checks its pinned hash and independently derives profile values from the original manifests, locks, configuration and builder data. It does not accept matching edits to the two profile copies as source evidence. The separate `core-current-contract.json` describes the current build cohort and is checked against live source inputs before the matrix packs a candidate; update it deliberately alongside a coherent core upgrade.
 
@@ -304,13 +304,13 @@ Select Node `24.22.2` using the asdf or nvm setup in [Develop locally](#develop-
 
 ```sh
 node --version
-node .yarn/releases/yarn-4.18.1.cjs --version
-node .yarn/releases/yarn-4.18.1.cjs build
+node .yarn/releases/yarn-4.19.0.cjs --version
+node .yarn/releases/yarn-4.19.0.cjs build
 node --test tests/filter-state/filter-state.test.mjs tests/filter-renderers/renderers.test.mjs tests/generic-filter/generic-filter.test.mjs
-node .yarn/releases/yarn-4.18.1.cjs lint
-node .yarn/releases/yarn-4.18.1.cjs test:browser filter-renderers generic-filter
-node .yarn/releases/yarn-4.18.1.cjs test:package
-node .yarn/releases/yarn-4.18.1.cjs test:all
+node .yarn/releases/yarn-4.19.0.cjs lint
+node .yarn/releases/yarn-4.19.0.cjs test:browser filter-renderers generic-filter
+node .yarn/releases/yarn-4.19.0.cjs test:package
+node .yarn/releases/yarn-4.19.0.cjs test:all
 ```
 
 Run the browser and package gates serially in each checkout. The gallery paths are `/filter-renderers` and `/generic-filter` under `http://127.0.0.1:4307`. The full gate includes the three unit suites in `test-results/validation.tap` and reports the filter features and accessibility rows in `test-results/odhin/browser/index.html`.

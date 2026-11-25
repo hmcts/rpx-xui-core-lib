@@ -8,7 +8,7 @@ import yaml from 'js-yaml';
 import { constructProfiles } from '../../../scripts/check-compatibility.mjs';
 
 const sources = {
-  core: { sha: '7b94358faae4ef5556865a80d71e0314c311816e', manager: '4.18.1' },
+  core: { sha: '0d8830eef906dd21eac98680b19a3a20077bde91', manager: '4.19.0' },
   'rpx-xui-webapp': { sha: '1a986f4dc87e6ea4598e30c042bf2b3072122b75', manager: '4.17.1' },
   'rpx-xui-manage-organisations': { sha: '54fbc51bfe18eb03d8afdd988f58c73dddef8c18', manager: '4.9.2' },
   'rpx-xui-approve-org': { sha: 'cb14ae0c048ad509bd5e71a58e4ba645592b9267', manager: '4.10.3' },

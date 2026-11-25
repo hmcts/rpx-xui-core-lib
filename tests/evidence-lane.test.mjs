@@ -18,7 +18,7 @@ test('failed, interrupted or source-changing producers cannot leave a completed 
   const sha = execFileSync('/usr/bin/git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
   writeFileSync(join(root, '.gitignore'), 'test-results/\n');
   mkdirSync(join(root, '.yarn/releases'), { recursive: true });
-  writeFileSync(join(root, '.yarn/releases/yarn-4.18.1.cjs'), `const fs = require('node:fs'); fs.writeFileSync('test-results/validation.tap', 'receipt'); if (process.env.MUTATE) fs.writeFileSync('mutated-source', 'changed'); if (process.env.SIGNAL) process.kill(process.pid, 'SIGTERM'); process.exit(process.env.FAIL ? 1 : 0);`);
+  writeFileSync(join(root, '.yarn/releases/yarn-4.19.0.cjs'), `const fs = require('node:fs'); fs.writeFileSync('test-results/validation.tap', 'receipt'); if (process.env.MUTATE) fs.writeFileSync('mutated-source', 'changed'); if (process.env.SIGNAL) process.kill(process.pid, 'SIGTERM'); process.exit(process.env.FAIL ? 1 : 0);`);
   mkdirSync(join(root, 'test-results/lane-provenance'), { recursive: true });
   const run = { sourceSha: sha, runId: uuid, attempt: '1', invocationId: uuid, sourceSnapshot: sourceSnapshot(root) };
   writeFileSync(join(root, 'test-results/lane-provenance/run.json'), JSON.stringify(run));
