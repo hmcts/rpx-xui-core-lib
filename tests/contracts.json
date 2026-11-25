@@ -455,6 +455,16 @@
       },
       {
         "projectName": "chromium",
+        "title": "feature guard allows a web route and redirects it when its flag is disabled",
+        "feature": "feature-toggle-guard"
+      },
+      {
+        "projectName": "chromium",
+        "title": "registration routes follow reciprocal feature expectations without a redirect loop",
+        "feature": "feature-toggle-guard"
+      },
+      {
+        "projectName": "chromium",
         "title": "date input preserves validation and values across translations",
         "feature": "date-input"
       },
@@ -1168,9 +1178,11 @@
       "package.service-messages-graph",
       "package.service-messages-behavior",
       "package.feature-toggle-graph",
+      "package.feature-toggle-guard-graph",
       "package.feature-directive-graph",
       "package.role-state-graph",
       "package.feature-toggle-behavior",
+      "package.feature-toggle-guard-behavior",
       "package.role-state-behavior",
       "package.editor-date-graph",
       "package.session-error-graph",
@@ -1460,7 +1472,12 @@
       "directive stops a synchronous source when destroyed during rendering",
       "directive ignores assignments after destruction and a reentrant provider switch",
       "directive does not overwrite a replacement created by previous-source teardown",
-      "directive does not resubscribe when teardown reenters during destruction"
+      "directive does not resubscribe when teardown reenters during destruction",
+      "feature-toggle guard waits for every flag and supplies true as each default",
+      "feature-toggle guard redirects when any required flag is disabled",
+      "literal false inverts the all-enabled rule; other values keep the default rule",
+      "feature-toggle guard propagates provider errors",
+      "feature-toggle guard preserves missing and empty route metadata behavior"
     ]
   },
   "roleUnit": {

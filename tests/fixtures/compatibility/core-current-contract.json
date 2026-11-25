@@ -361,6 +361,11 @@
         "output": "ui/feature-toggle-directive"
       },
       {
+        "input": "ui/feature-toggle-guard",
+        "glob": "LICENCE",
+        "output": "ui/feature-toggle-guard"
+      },
+      {
         "input": "ui/cookie",
         "glob": "LICENCE",
         "output": "ui/cookie"

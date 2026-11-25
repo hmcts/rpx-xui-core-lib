@@ -38,7 +38,7 @@
     "test:locations": "node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=tap --test-reporter-destination=test-results/locations.tap tests/locations/location.test.mjs",
     "test:window": "node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=tap --test-reporter-destination=test-results/window.tap tests/window/window.test.mjs",
     "test:cookie": "node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=tap --test-reporter-destination=test-results/cookie.tap tests/cookie/cookie.test.mjs",
-    "test:feature-toggle": "node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=tap --test-reporter-destination=test-results/feature-toggle.tap tests/feature-toggle/feature-toggle.test.mjs",
+    "test:feature-toggle": "mkdir -p test-results && node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=tap --test-reporter-destination=test-results/feature-toggle.tap tests/feature-toggle/feature-toggle.test.mjs tests/feature-toggle/feature-toggle-guard.test.mjs",
     "test:roles": "node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=tap --test-reporter-destination=test-results/roles.tap tests/roles/roles.test.mjs",
     "test:diagnostic": "node scripts/diagnostic-current.mjs",
     "test:node:utils": "rm -rf test-results/node-unit test-results/node.tap && tsc -p tests/node/tsconfig.json && node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=tap --test-reporter-destination=test-results/node.tap test-results/node-unit/tests/node/*.spec.js && node --test tests/build-watch.test.mjs",

@@ -606,6 +606,34 @@
       }
     },
     {
+      "feature": "Feature toggle route guard",
+      "contracts": {
+        "featureToggleUnit": [
+          "feature-toggle guard waits for every flag and supplies true as each default",
+          "feature-toggle guard redirects when any required flag is disabled",
+          "literal false inverts the all-enabled rule; other values keep the default rule",
+          "feature-toggle guard propagates provider errors",
+          "feature-toggle guard preserves missing and empty route metadata behavior"
+        ],
+        "browser": [
+          {
+            "projectName": "chromium",
+            "title": "feature guard allows a web route and redirects it when its flag is disabled",
+            "feature": "feature-toggle-guard"
+          },
+          {
+            "projectName": "chromium",
+            "title": "registration routes follow reciprocal feature expectations without a redirect loop",
+            "feature": "feature-toggle-guard"
+          }
+        ],
+        "package": [
+          "package.feature-toggle-guard-graph",
+          "package.feature-toggle-guard-behavior"
+        ]
+      }
+    },
+    {
       "feature": "Browser cookie service",
       "contracts": {
         "cookieUnit": [
