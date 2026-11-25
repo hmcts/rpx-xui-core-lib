@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { HttpError } from '../../projects/core-lib/case/editor-source/lib/shared/domain/http/http-error.model';
 
@@ -39,10 +40,10 @@ describe('Editor HTTP error contract', () => {
 
 describe('Editor HTTP error handler contract', () => {
   let service: HttpErrorService;
-  let signIn: jasmine.Spy;
+  let signIn: Mock;
 
   beforeEach(() => {
-    signIn = jasmine.createSpy('signIn');
+    signIn = vi.fn();
     service = new HttpErrorService(
       { signIn } as unknown as ConstructorParameters<typeof HttpErrorService>[0],
       { hasSharedSpinner: () => false } as unknown as ConstructorParameters<typeof HttpErrorService>[1]

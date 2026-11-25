@@ -123,7 +123,7 @@ export function currentCoreProjection(manifest, library, ngPackage, config, lock
   const devCohort = Object.fromEntries(names.map((name) => [name, manifest.devDependencies[name]]));
   const lockedVersions = {};
   for (const [name, version] of Object.entries({ ...devCohort, ...library.dependencies })) {
-    const descriptor = `${name}@npm:${version}`;
+    const descriptor = `${name}@${String(version).startsWith('patch:') ? version : `npm:${version}`}`;
     const matches = new Set(Object.entries(lock).filter(([key]) => key.split(', ').includes(descriptor)).map(([, row]) => String(row.version)));
     assert.equal(matches.size, 1, `Missing or ambiguous current core lock selection: ${descriptor}`);
     lockedVersions[name] = [...matches][0];

@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { Subject } from 'rxjs';
 import { CallbackErrorsComponent } from '../../projects/core-lib/case/editor-source/lib/shared/components/error/callback-errors.component';
 
@@ -19,6 +20,6 @@ describe('Callback errors lifecycle migration contract', () => {
     expect(component.error).toBe(first as unknown as typeof component.error);
     expect(otherEvents.length).toBe(2);
     otherSubscription.unsubscribe();
-    expect(source.observed).toBeFalse();
+    expect(source.observed).toBe(false);
   });
 });

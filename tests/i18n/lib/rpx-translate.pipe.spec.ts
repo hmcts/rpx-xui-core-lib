@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { ChangeDetectorRef } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { RpxTranslatePipe } from '../../../projects/core-lib/i18n/lib/rpx-translate.pipe';
@@ -5,18 +6,27 @@ import { RpxTranslationService } from '../../../projects/core-lib/i18n/lib/rpx-t
 import { of } from 'rxjs';
 
 describe('RpxTranslatePipe', () => {
-  let translationServiceMock: jasmine.SpyObj<RpxTranslationService>;
+  let translationServiceMock: {
+    getTranslationWithReplacements$: Mock;
+    getTranslationWithYesOrNo$: Mock;
+    getTranslation$: Mock;
+  };
   let pipe: RpxTranslatePipe;
 
   beforeEach(() => {
-    translationServiceMock = jasmine
-      .createSpyObj('RpxTranslationService', ['getTranslationWithReplacements$', 'getTranslationWithYesOrNo$', 'getTranslation$']);
+    translationServiceMock = {
+      getTranslationWithReplacements$: vi.fn(),
+      getTranslationWithYesOrNo$: vi.fn(),
+      getTranslation$: vi.fn()
+    };
 
     TestBed.configureTestingModule({
       providers: [
         RpxTranslatePipe,
         { provide: RpxTranslationService, useValue: translationServiceMock },
-        { provide: ChangeDetectorRef, useValue: jasmine.createSpyObj('ChangeDetectorRef', ['markForCheck', 'detach', 'detectChanges', 'checkNoChanges', 'reattach']) }
+        { provide: ChangeDetectorRef, useValue: {
+          markForCheck: vi.fn(), detach: vi.fn(), detectChanges: vi.fn(), checkNoChanges: vi.fn(), reattach: vi.fn()
+        } }
       ]
     });
 
@@ -34,7 +44,7 @@ describe('RpxTranslatePipe', () => {
     });
 
     it('should return the same string when called with a string', () => {
-      translationServiceMock.getTranslation$.and.callFake((someString) => of(someString));
+      translationServiceMock.getTranslation$.mockImplementation((someString) => of(someString));
 
       const translationString = 'Hello World!';
       expect(pipe.transform(translationString)).toBe(translationString);
@@ -43,7 +53,7 @@ describe('RpxTranslatePipe', () => {
     it('should call getTranslation with the string argument when no replacements or yesOrNo are provided', () => {
       const str = 'Hello world!';
       const obs = of('Translated string');
-      translationServiceMock.getTranslation$.and.returnValue(obs);
+      translationServiceMock.getTranslation$.mockReturnValue(obs);
 
       pipe.transform(str);
 
@@ -54,7 +64,7 @@ describe('RpxTranslatePipe', () => {
       const str = 'Hello world!';
       const replacements = { name: 'John' };
       const obs = of('Translated string');
-      translationServiceMock.getTranslationWithReplacements$.and.returnValue(obs);
+      translationServiceMock.getTranslationWithReplacements$.mockReturnValue(obs);
 
       pipe.transform(str, replacements);
 
@@ -62,7 +72,7 @@ describe('RpxTranslatePipe', () => {
     });
 
     it('passes explicit literal replacements to the service', () => {
-      translationServiceMock.getTranslationWithReplacements$.and.returnValue(of('result'));
+      translationServiceMock.getTranslationWithReplacements$.mockReturnValue(of('result'));
       pipe.transform('Hello %name%', null, undefined, { name: 'Fictional Person' });
       expect(translationServiceMock.getTranslationWithReplacements$).toHaveBeenCalledWith(
         'Hello %name%', {}, { name: 'Fictional Person' }
@@ -73,7 +83,7 @@ describe('RpxTranslatePipe', () => {
       const str = 'Are you sure?';
       const yesOrNo = 'Yes';
       const obs = of('Translated string');
-      translationServiceMock.getTranslationWithYesOrNo$.and.returnValue(obs);
+      translationServiceMock.getTranslationWithYesOrNo$.mockReturnValue(obs);
 
       pipe.transform(str, null, yesOrNo);
 
@@ -84,7 +94,7 @@ describe('RpxTranslatePipe', () => {
       const str = 'Are you sure?';
       const yesOrNo = 'No';
       const obs = of('Translated string');
-      translationServiceMock.getTranslationWithYesOrNo$.and.returnValue(obs);
+      translationServiceMock.getTranslationWithYesOrNo$.mockReturnValue(obs);
 
       pipe.transform(str, null, yesOrNo);
 

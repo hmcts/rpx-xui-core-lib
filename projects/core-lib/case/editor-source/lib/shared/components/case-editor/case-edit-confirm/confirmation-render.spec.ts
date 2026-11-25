@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { Component, EventEmitter, Input, Pipe, PipeTransform } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup } from '@angular/forms';
@@ -17,7 +18,7 @@ class MarkdownStub { @Input() content: unknown; }
 describe('case confirmation rendering', () => {
   it('binds its form and submits through the rendered button', () => {
     const submitted = new EventEmitter();
-    const emit = spyOn(submitted, 'emit');
+    const emit = vi.spyOn(submitted, 'emit').mockImplementation(() => undefined);
     TestBed.configureTestingModule({
       imports: [CommonModule, ReactiveFormsModule],
       declarations: [CaseEditConfirmComponent, TranslateStub, TitleStub, ReferenceStub, MarkdownStub],
@@ -31,7 +32,7 @@ describe('case confirmation rendering', () => {
     const form = fixture.nativeElement.querySelector('form') as HTMLFormElement;
     expect(form).not.toBeNull();
     form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-    expect(emit).toHaveBeenCalledOnceWith({ caseId: '123', status: 'complete' });
+    expect(emit).toHaveBeenCalledExactlyOnceWith({ caseId: '123', status: 'complete' });
   });
 });
 export const registered = true;

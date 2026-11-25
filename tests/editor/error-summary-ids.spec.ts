@@ -1,3 +1,4 @@
+import { describe, expect, it, vi } from 'vitest';
 import { CommonModule, Location } from '@angular/common';
 import { NO_ERRORS_SCHEMA, Pipe, PipeTransform } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -31,17 +32,19 @@ describe('Editor error summary accessibility', () => {
     await TestBed.configureTestingModule({ imports: [CommonModule], declarations: [CaseEditGenericErrorsComponent] }).compileComponents();
     const fixture = TestBed.createComponent(CaseEditGenericErrorsComponent);
     fixture.componentInstance.error = {} as typeof fixture.componentInstance.error;
+    fixture.changeDetectorRef.markForCheck();
     fixture.detectChanges();
     expect(headingId(fixture.nativeElement)).toBe('edit-case-event_error-summary-heading');
     fixture.componentInstance.error = { message: 'Error' } as typeof fixture.componentInstance.error;
+    fixture.changeDetectorRef.markForCheck();
     fixture.detectChanges();
     expect(headingId(fixture.nativeElement)).toBe('edit-case-event_error-details-heading');
     fixture.destroy();
   });
 
   it('associates one heading for each generic or callback viewer error branch', async () => {
-    spyOn(CaseFullAccessViewComponent.prototype, 'ngOnInit');
-    spyOn(CaseFullAccessViewComponent.prototype, 'ngOnDestroy');
+    vi.spyOn(CaseFullAccessViewComponent.prototype, 'ngOnInit').mockImplementation(() => undefined);
+    vi.spyOn(CaseFullAccessViewComponent.prototype, 'ngOnDestroy').mockImplementation(() => undefined);
     await TestBed.configureTestingModule({ imports: [CommonModule], declarations: [CaseFullAccessViewComponent, TranslateStub, TabStub, FilterStub, CompoundStub],
       providers: [ActivatedRoute, Router, NavigationNotifierService, OrderService, ActivityPollingService, MatDialog, AlertService, DraftService,
         ErrorNotifierService, ConvertHrefToRouterService, Location, SessionStorageService, RpxTranslatePipe, LoadingService, LinkedCasesService, CaseFlagStateService]
@@ -50,11 +53,13 @@ describe('Editor error summary accessibility', () => {
     fixture.componentInstance.hasPrint = false;
     fixture.componentInstance.hasEventSelector = false;
     fixture.componentInstance.caseDetails = { case_id: '123', case_type: {} } as typeof fixture.componentInstance.caseDetails;
-    spyOn(fixture.componentInstance, 'hasTabsPresent').and.returnValue(false);
+    vi.spyOn(fixture.componentInstance, 'hasTabsPresent').mockReturnValue(false);
     fixture.componentInstance.error = {};
+    fixture.changeDetectorRef.markForCheck();
     fixture.detectChanges();
     expect(headingId(fixture.nativeElement)).toBe('edit-case-event_error-summary-heading');
     fixture.componentInstance.error = { details: {} };
+    fixture.changeDetectorRef.markForCheck();
     fixture.detectChanges();
     expect(headingId(fixture.nativeElement)).toBe('edit-case-event_error-details-heading');
     fixture.destroy();

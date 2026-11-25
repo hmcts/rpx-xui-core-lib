@@ -1,3 +1,4 @@
+import { describe, expect, it, vi } from 'vitest';
 import { Subject } from 'rxjs';
 import { AlertService } from '../../projects/core-lib/case/editor-source/lib/shared/services/alert/alert.service';
 import { CaseViewComponent } from '../../projects/core-lib/case/editor-source/lib/shared/components/case-viewer/case-view/case-view.component';
@@ -14,8 +15,8 @@ export const registered = true;
 describe('Case view tabs migration contract', () => {
   it('selects a URL fragment by label and scrolls the selected tab into view', () => {
     const component = Object.create(CaseFullAccessViewComponent.prototype);
-    const scroll = jasmine.createSpy('scroll');
-    const realign = jasmine.createSpy('realign');
+    const scroll = vi.fn();
+    const realign = vi.fn();
     component.location = { path: () => '/cases/1#Roles%20and%20Access' };
     component.zone = { onStable: of(undefined) };
     component.tabGroup = {
@@ -25,7 +26,7 @@ describe('Case view tabs migration contract', () => {
     component.organiseTabPosition();
     expect(component.selectedTabIndex).toBe(5);
     expect(component.tabGroup.selectedIndex).toBe(5);
-    expect(scroll).toHaveBeenCalledOnceWith(5);
+    expect(scroll).toHaveBeenCalledExactlyOnceWith(5);
     expect(realign).toHaveBeenCalled();
   });
 });
@@ -33,7 +34,7 @@ describe('Case view tabs migration contract', () => {
 describe('Case resolver fallback migration contract', () => {
   it('routes restricted and missing cases without emitting a case', () => {
     const resolver = Object.create(CaseResolver.prototype);
-    const navigate = jasmine.createSpy('navigate');
+    const navigate = vi.fn();
     resolver.router = { navigate };
     resolver.previousUrl = '/cases';
     const results: unknown[] = [];
@@ -45,7 +46,7 @@ describe('Case resolver fallback migration contract', () => {
   });
   it('prioritises case manager roles and falls back safely for malformed user details', () => {
     const resolver = Object.create(CaseResolver.prototype);
-    const navigate = jasmine.createSpy('navigate');
+    const navigate = vi.fn();
     let stored = '';
     resolver.router = { navigate };
     resolver.sessionStorage = { getItem: () => stored };
@@ -55,10 +56,10 @@ describe('Case resolver fallback migration contract', () => {
     stored = JSON.stringify({ roles: ['caseworker-civil', PUI_CASE_MANAGER] });
     resolver.goToDefaultPage();
     expect(navigate).toHaveBeenCalledWith(['/cases']);
-    navigate.calls.reset();
+    navigate.mockClear();
     stored = '{';
     resolver.goToDefaultPage();
-    expect(navigate).toHaveBeenCalledOnceWith(['/cases']);
+    expect(navigate).toHaveBeenCalledExactlyOnceWith(['/cases']);
   });
 });
 
@@ -75,7 +76,7 @@ describe('Event trigger migration contract', () => {
     component.ngOnChanges({ triggers: new SimpleChange(undefined, component.triggers, true) });
     expect(component.triggers).toEqual([visible] as typeof component.triggers);
     expect(component.triggerForm.get('trigger').value).toEqual(visible);
-    expect(component.triggerForm.valid).toBeTrue();
+    expect(component.triggerForm.valid).toBe(true);
   });
 });
 

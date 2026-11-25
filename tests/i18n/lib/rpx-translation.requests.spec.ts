@@ -1,7 +1,11 @@
+import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
+
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Subject, Subscription, firstValueFrom } from 'rxjs';
 import { db } from '../../../projects/core-lib/i18n/lib/db';
 import { RpxTranslationService } from '../../../projects/core-lib/i18n/lib/rpx-translation.service';
+
+afterEach(() => vi.useRealTimers());
 
 type TranslationReply = { translations: Record<string, string> };
 type TranslationRequest = { url: string; body: unknown; reply: Subject<TranslationReply> };
@@ -9,23 +13,23 @@ type TranslationRequest = { url: string; body: unknown; reply: Subject<Translati
 describe('RpxTranslationService request lifecycle', () => {
   let service: RpxTranslationService;
   let requests: Subject<TranslationRequest>;
-  let post: jasmine.Spy<(url: string, body: unknown) => Subject<TranslationReply>>;
+  let post: Mock<(url: string, body: unknown) => Subject<TranslationReply>>;
   let subscriptions: Subscription[];
 
   beforeEach(() => {
     document.cookie = 'exui-preferred-language=; Max-Age=0; SameSite=Strict;';
     requests = new Subject<TranslationRequest>();
     subscriptions = [];
-    post = jasmine.createSpy<(url: string, body: unknown) => Subject<TranslationReply>>('post').and.callFake((url, body) => {
+    post = vi.fn<(url: string, body: unknown) => Subject<TranslationReply>>().mockImplementation((url, body) => {
       const reply = new Subject<TranslationReply>();
       requests.next({ url, body: structuredClone(body), reply });
       return reply;
     });
     // These request tests model cache misses; real IndexedDB refresh/restore is covered by Playwright.
-    spyOn(db.translations, 'where').and.returnValue({
+    vi.spyOn(db.translations, 'where').mockReturnValue({
       equals: () => ({ last: () => Promise.resolve(undefined) })
     } as unknown as ReturnType<typeof db.translations.where>);
-    spyOn(db.translations, 'bulkAdd').and.stub();
+    vi.spyOn(db.translations, 'bulkAdd').mockImplementation(() => undefined as never);
     service = new RpxTranslationService({ baseUrl: '/translations', debounceTimeMs: 20, validity: { days: 1 }, testMode: false }, { post } as unknown as HttpClient);
     service.language = 'cy';
   });
