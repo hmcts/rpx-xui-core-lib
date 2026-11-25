@@ -221,7 +221,11 @@ generic-filter|Work Allocation composes scalar service, booking location, person
 generic-filter|Work Allocation checkbox service lookup omits services_all and disabling clears all selected locations
 generic-filter|invalid Apply exposes template errors and Reset rebinds edits to the active form
 generic-filter-accessibility|Staff Admin titles its combobox, filters skills, and persists venue records from option-object services
-generic-filter-accessibility|two composed service fields each have a unique input and a label that focuses only that input`.split('\n').map(row => {
+generic-filter-accessibility|two composed service fields each have a unique input and a label that focuses only that input
+cookie-banner|cookie consent banner has a translated accessible name and a working details link
+cookie-banner|cookie details route loads directly in the cookie banner gallery
+cookie-banner|accepting analytics consent stores it for a year and enables opted-in Dynatrace after consent
+cookie-banner|rejecting analytics consent persists false and does not enable Dynatrace`.split('\n').map(row => {
   const [feature, title] = row.split('|');
   return ['chromium', title, feature];
 });

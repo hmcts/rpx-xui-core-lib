@@ -12,11 +12,12 @@ const includes = async (path, text) => {
   catch (error) { if (error.code === 'ENOENT') return false; throw error; }
 };
 
-async function until(predicate, message) {
-  for (let i = 0; i < 240; i++) {
+async function until(predicate, message, timeoutMs = 60_000) {
+  const deadline = Date.now() + timeoutMs;
+  do {
     if (await predicate()) return;
     await wait(250);
-  }
+  } while (Date.now() < deadline);
   throw new Error(`Timed out waiting for ${message}`);
 }
 
@@ -46,11 +47,11 @@ test('watch rebuilds Node changes, recovers and stops', { timeout: 240_000 }, as
     child.stdout.on('data', (chunk) => { log += chunk; });
     child.stderr.on('data', (chunk) => { log += chunk; });
     const countReady = () => (log.match(/Validation diagnostic build ready/g) ?? []).length;
-    const untilAlive = (predicate, message) => until(async () => {
+    const untilAlive = (predicate, message, timeoutMs) => until(async () => {
       if (childError) throw childError;
       if (child.exitCode !== null || child.signalCode !== null) throw new Error(`Watcher exited before ${message} (code ${child.exitCode}, signal ${child.signalCode})`);
       return predicate();
-    }, message);
+    }, message, timeoutMs);
     async function settled() {
       let previous;
       do { previous = countReady(); await wait(1000); } while (countReady() !== previous);
@@ -61,7 +62,7 @@ test('watch rebuilds Node changes, recovers and stops', { timeout: 240_000 }, as
     const angularOutput = join(fixture, 'dist/core-lib/fesm2022/hmcts-rpx-xui-core-lib-i18n.mjs');
     const original = await readFile(nodeFile, 'utf8');
     const angularOriginal = await readFile(angularFile, 'utf8');
-    await untilAlive(() => countReady() >= 1, 'initial build');
+    await untilAlive(() => countReady() >= 1, 'initial build', 120_000);
     await writeFile(nodeFile, `${original}\nexport const WATCH_TEST = true;\n`);
     await untilAlive(() => includes(output, 'WATCH_TEST'), 'Node rebuild');
     const util = join(fixture, 'projects/core-lib/node/util');

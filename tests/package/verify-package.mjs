@@ -65,7 +65,7 @@ try {
   const dist = join(root, 'dist/core-lib');
   const declaration = 'forms/validation/index.d.ts';
   const filterLicenceEntries = ['ui/filter-state', 'ui/find-location', 'ui/find-service', 'ui/search-service', 'ui/capitalize', 'ui/generic-filter'];
-  const sourceLicenceEntries = [...filterLicenceEntries, 'ui/find-task-name', 'ui/find-work-type', 'ui/search-work-type', 'ui/find-person', 'ui/checkbox-list', 'ui/gov-date', 'ui/gov-select', 'ui/search-location', 'ui/search-judicials', 'ui/search-venue', 'ui/pagination', 'ui/hmcts-pagination', 'terms/display', 'terms/confirmation', 'ui/gov-input', 'case/session-error', 'case/editor-date', 'browser/window', 'browser/session-storage', 'reference/locations', 'reference/ref-data', 'terms/models', 'ui/cookie', 'ui/feature-toggle', 'ui/feature-toggle-directive', 'ui/feature-toggle-guard', 'ui/role-state', 'ui/task-data', 'case/sharing-state', 'ui/contact-details', 'ui/page-wrapper', 'ui/loading-spinner', 'ui/loading-state', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog', 'ui/banner', 'ui/form-label', 'case/models', 'case/reference', 'case/sharing', 'browser/user-agent', 'ui/ccd-pagination', 'ui/case-list', 'address/normalization', 'ui/address'];
+  const sourceLicenceEntries = [...filterLicenceEntries, 'ui/find-task-name', 'ui/find-work-type', 'ui/search-work-type', 'ui/find-person', 'ui/checkbox-list', 'ui/gov-date', 'ui/gov-select', 'ui/search-location', 'ui/search-judicials', 'ui/search-venue', 'ui/pagination', 'ui/hmcts-pagination', 'terms/display', 'terms/confirmation', 'ui/gov-input', 'case/session-error', 'case/editor-date', 'browser/window', 'browser/session-storage', 'reference/locations', 'reference/ref-data', 'terms/models', 'ui/cookie', 'ui/cookie-banner', 'ui/feature-toggle', 'ui/feature-toggle-directive', 'ui/feature-toggle-guard', 'ui/role-state', 'ui/task-data', 'case/sharing-state', 'ui/contact-details', 'ui/page-wrapper', 'ui/loading-spinner', 'ui/loading-state', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog', 'ui/banner', 'ui/form-label', 'case/models', 'case/reference', 'case/sharing', 'browser/user-agent', 'ui/ccd-pagination', 'ui/case-list', 'address/normalization', 'ui/address'];
 
   // Fail before dependency setup when the legacy TypeScript entry point is absent.
   await check('package.physical-secondary-declaration', async () => {
@@ -658,6 +658,7 @@ try {
     ['locations', 'location-graph.mjs', ['reference-locations']],
     ['ref-data', 'ref-data-graph.mjs', ['reference-ref-data']],
     ['service-messages', 'service-messages-graph.mjs', ['ui-service-messages', 'ui-feature-toggle', 'i18n']],
+    ['cookie-banner', 'cookie-banner-graph.mjs', ['ui-cookie-banner', 'ui-cookie', 'i18n']],
     ['feature-toggle', 'feature-toggle-graph.mjs', ['ui-feature-toggle']],
     ['feature-toggle-guard', 'feature-toggle-guard-graph.mjs', ['ui-feature-toggle-guard', 'ui-feature-toggle']],
     ['feature-directive', 'feature-directive-graph.mjs', ['ui-feature-toggle-directive', 'ui-feature-toggle']],
@@ -757,6 +758,8 @@ try {
 
   await cp(join(root, 'tests/service-messages/service-messages.test.mjs'), join(consumer, 'service-messages.test.mjs'));
   await check('package.service-messages-behavior', () => run('service-messages-behavior', ['--test', 'service-messages.test.mjs'], consumer));
+  await cp(join(root, 'tests/cookie-banner/cookie-banner.test.mjs'), join(consumer, 'cookie-banner.test.mjs'));
+  await check('package.cookie-banner-behavior', () => run('cookie-banner-behavior', ['--test', 'cookie-banner.test.mjs'], consumer));
   await cp(join(root, 'tests/feature-toggle/feature-toggle.test.mjs'), join(consumer, 'feature-toggle.test.mjs'));
   await check('package.feature-toggle-behavior', () => run('feature-toggle-behavior', ['--test', 'feature-toggle.test.mjs'], consumer));
   await cp(join(root, 'tests/feature-toggle/feature-toggle-guard.test.mjs'), join(consumer, 'feature-toggle-guard.test.mjs'));

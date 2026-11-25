@@ -141,6 +141,11 @@
       "output": "ui/cookie"
     },
     {
+      "input": "ui/cookie-banner",
+      "glob": "LICENCE",
+      "output": "ui/cookie-banner"
+    },
+    {
       "input": "terms/models",
       "glob": "LICENCE",
       "output": "terms/models"
