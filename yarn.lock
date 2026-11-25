@@ -1977,7 +1977,7 @@ __metadata:
     prosemirror-schema-list: "npm:1.5.1"
     prosemirror-state: "npm:1.4.4"
     reflect-metadata: "npm:0.1.14"
-    rpx-xui-translation: "npm:1.2.18"
+    rpx-xui-translation: "npm:1.2.19"
     rxjs: "npm:7.8.2"
     semver: "npm:7.8.6"
     tslib: "npm:2.9.1"
@@ -12835,18 +12835,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rpx-xui-translation@npm:1.2.18":
-  version: 1.2.18
-  resolution: "rpx-xui-translation@npm:1.2.18"
+"rpx-xui-translation@npm:1.2.19":
+  version: 1.2.19
+  resolution: "rpx-xui-translation@npm:1.2.19"
   dependencies:
     dexie: "npm:^4.4.4"
     luxon: "npm:^2.5.2"
     tslib: "npm:^2.0.0"
   peerDependencies:
-    "@angular/common": ^20.3.27
-    "@angular/core": ^20.3.27
+    "@angular/common": ^20.3.35
+    "@angular/core": ^20.3.35
     rxjs: ^7.8.0
-  checksum: 10c0/999caabc09a332c9e7920cfec49a0c5a613a2e971dbe7243b9255ff35a06c12475aa597cf165cd433c6ce069c900fa809c9dc5e448a9768eb5c5c518dfc113f6
+  checksum: 10c0/562cae79e1007364168cc3f028a26e44679c2983830539ab40e5248fbbf8be261491a23a806ce98d8aa20be97be89b92f1aec24f3bade74457bab32ef07c4870
   languageName: node
   linkType: hard
 
