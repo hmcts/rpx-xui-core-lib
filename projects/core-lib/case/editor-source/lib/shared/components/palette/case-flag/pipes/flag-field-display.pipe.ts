@@ -24,7 +24,7 @@ export class FlagFieldDisplayPipe extends AsyncPipe implements PipeTransform {
   // Preserve the Toolkit overload for callers supplying an explicit type argument.
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public transform<T>(obj: null|undefined): null;
-  public transform<T>(obj: Observable<T>|Subscribable<T>|Promise<T>|null|undefined): T|null;
+  public transform<T>(obj: Observable<T>|Subscribable<T>|PromiseLike<T>|null|undefined): T|null;
   public transform<T = FlagType | FlagDetail>(value: T, fieldName: string): string|null;
   public transform<T = FlagType | FlagDetail>(value: T, fieldName: string = ''): string|null {
     if (typeof value === 'object' && value.hasOwnProperty(fieldName)) {
