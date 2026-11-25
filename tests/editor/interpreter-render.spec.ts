@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { BehaviorSubject } from 'rxjs';
@@ -16,12 +17,15 @@ describe('Interpreter language rendering contract', () => {
     await TestBed.configureTestingModule({ declarations: [InterpreterHost, LanguageInterpreterDisplayPipe], providers: [{ provide: RpxTranslationService, useValue: { language$ } }] }).compileComponents();
     TestBed.overrideTemplate(InterpreterHost, '<span>{{ language | languageInterpreterDisplay }}</span>');
     const fixture = TestBed.createComponent(InterpreterHost);
+    fixture.changeDetectorRef.markForCheck();
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent.trim()).toBe('First');
     fixture.componentInstance.language = { key: 'two', value: 'Second', value_cy: 'Dau' };
+    fixture.changeDetectorRef.markForCheck();
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent.trim()).toBe('Second');
     language$.next('cy');
+    fixture.changeDetectorRef.markForCheck();
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent.trim()).toBe('Dau');
   });

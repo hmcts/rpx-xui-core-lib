@@ -46,7 +46,7 @@
   },
   "devCohort": {
     "@angular/animations": "20.3.35",
-    "@angular/build": "20.3.43",
+    "@angular/build": "patch:@angular/build@npm%3A20.3.43#~/.yarn/patches/@angular-build-npm-20.3.43-9fb027e883.patch",
     "@angular/cdk": "20.2.14",
     "@angular/cli": "20.3.43",
     "@angular/common": "20.3.35",

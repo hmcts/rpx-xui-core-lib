@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { FormatTranslatorService } from '../../projects/core-lib/case/editor-source/lib/shared/services/case-fields/format-translator.service';
 
 export const registered = true;

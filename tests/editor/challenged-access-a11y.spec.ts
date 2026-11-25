@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { CommonModule } from '@angular/common';
 import { NO_ERRORS_SCHEMA, Pipe, PipeTransform } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -21,8 +22,10 @@ describe('Challenged access accessibility', () => {
       schemas: [NO_ERRORS_SCHEMA]
     }).compileComponents();
     const fixture = TestBed.createComponent(CaseChallengedAccessRequestComponent);
+    fixture.changeDetectorRef.markForCheck();
     fixture.detectChanges();
     fixture.componentInstance.formGroup.get('radioSelected').setValue(fixture.componentInstance.accessReasons[3].reason);
+    fixture.changeDetectorRef.markForCheck();
     fixture.detectChanges();
     const input = fixture.nativeElement.querySelector('#other-reason') as HTMLTextAreaElement;
     expect(input).not.toBeNull();
@@ -31,6 +34,7 @@ describe('Challenged access accessibility', () => {
     fixture.componentInstance.submitted = true;
     fixture.componentInstance.errorMessage = { title: 'Error', description: 'Enter a reason', fieldId: 'other-reason' };
     fixture.componentInstance.formGroup.get('otherReason').setErrors({ required: true });
+    fixture.changeDetectorRef.markForCheck();
     fixture.detectChanges();
     expect(input.getAttribute('aria-describedby')).toContain('other-reason-error-message');
     fixture.destroy();

@@ -1,3 +1,4 @@
+import { describe, expect, it, vi } from 'vitest';
 import { CommonModule } from '@angular/common';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -12,7 +13,7 @@ export const registered = true;
 
 describe('Linked cases display migration contract', () => {
   it('renders unique retry links for failures in both directions', async () => {
-    const navigate = jasmine.createSpy('navigate').and.resolveTo(true);
+    const navigate = vi.fn().mockResolvedValue(true);
     const linkedCases = { caseJurisdictionID: 'jurisdiction', caseDetails: { case_type: 'type', case_id: '123' } };
     await TestBed.configureTestingModule({
       imports: [CommonModule],
@@ -27,13 +28,15 @@ describe('Linked cases display migration contract', () => {
       schemas: [NO_ERRORS_SCHEMA]
     }).compileComponents();
     const fixture = TestBed.createComponent(ReadLinkedCasesFieldComponent);
-    spyOn(fixture.componentInstance, 'ngAfterViewInit');
+    vi.spyOn(fixture.componentInstance, 'ngAfterViewInit').mockImplementation(() => undefined);
+    fixture.changeDetectorRef.markForCheck();
     fixture.detectChanges();
     fixture.componentInstance.getFailureLinkedToNotification(true);
     fixture.componentInstance.getFailureLinkedFromNotification(true);
     for (const multipleFailures of [false, true]) {
       fixture.componentInstance.isServerJurisdictionError = multipleFailures;
       fixture.componentInstance.isServerReasonCodeError = multipleFailures;
+      fixture.changeDetectorRef.markForCheck();
       fixture.detectChanges();
       const root = fixture.nativeElement as HTMLElement;
       const links = Array.from(root.querySelectorAll<HTMLAnchorElement>('a.govuk-link'));
@@ -52,9 +55,9 @@ describe('Linked cases display migration contract', () => {
   it('keeps incoming and outgoing lookup failures separate', () => {
     const component = new ReadLinkedCasesFieldComponent({} as unknown as ConstructorParameters<typeof ReadLinkedCasesFieldComponent>[0], {} as unknown as ConstructorParameters<typeof ReadLinkedCasesFieldComponent>[1], {} as unknown as ConstructorParameters<typeof ReadLinkedCasesFieldComponent>[2], {} as unknown as ConstructorParameters<typeof ReadLinkedCasesFieldComponent>[3], {} as unknown as ConstructorParameters<typeof ReadLinkedCasesFieldComponent>[4]);
     component.getFailureLinkedToNotification(true);
-    expect(component.isServerLinkedToError).toBeTrue();
-    expect(component.isServerLinkedFromError).toBeFalse();
+    expect(component.isServerLinkedToError).toBe(true);
+    expect(component.isServerLinkedFromError).toBe(false);
     component.getFailureLinkedFromNotification(true);
-    expect(component.isServerLinkedFromError).toBeTrue();
+    expect(component.isServerLinkedFromError).toBe(true);
   });
 });

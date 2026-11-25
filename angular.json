@@ -52,23 +52,19 @@
           "options": {
             "browser": "tests/i18n/main.ts",
             "index": "tests/i18n/index.html",
-            "tsConfig": "tests/i18n/tsconfig.json",
+            "tsConfig": "tests/i18n/tsconfig.host.json",
             "outputPath": "dist/i18n-tests",
             "styles": [],
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing"
-            ],
-            "assets": [
-              {
-                "glob": "{jasmine.js,jasmine-html.js,boot0.js}",
-                "input": "node_modules/jasmine-core/lib/jasmine-core",
-                "output": "/"
-              }
-            ],
+            "polyfills": [],
+            "assets": [],
             "optimization": false,
             "sourceMap": true,
             "outputHashing": "none"
+          },
+          "configurations": {
+            "zoneless": {
+              "polyfills": []
+            }
           }
         },
         "serve": {
@@ -78,6 +74,19 @@
             "host": "127.0.0.1",
             "port": 4314,
             "prebundle": false
+          }
+        },
+        "vitest": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "buildTarget": "translation-tests:build:zoneless",
+            "tsConfig": "tests/i18n/tsconfig.vitest.json",
+            "runner": "vitest",
+            "browsers": ["ChromiumHeadless"],
+            "include": ["**/*.spec.ts"],
+            "providersFile": "tests/vitest-zoneless.providers.ts",
+            "setupFiles": ["tests/vitest-setup.ts"],
+            "reporters": ["default", "./tests/reporters/vitest-evidence-reporter.mjs"]
           }
         }
       }
@@ -92,21 +101,12 @@
           "options": {
             "browser": "tests/editor/main.ts",
             "index": "tests/editor/index.html",
-            "tsConfig": "tests/editor/tsconfig.json",
+            "tsConfig": "tests/editor/tsconfig.host.json",
             "outputPath": "dist/editor-tests",
+            "aot": false,
             "styles": [],
-            "polyfills": [
-              "reflect-metadata",
-              "zone.js",
-              "zone.js/testing"
-            ],
-            "assets": [
-              {
-                "glob": "{jasmine.js,jasmine-html.js,boot0.js}",
-                "input": "node_modules/jasmine-core/lib/jasmine-core",
-                "output": "/"
-              }
-            ],
+            "polyfills": ["reflect-metadata"],
+            "assets": [],
             "optimization": false,
             "sourceMap": true,
             "outputHashing": "none",
@@ -116,12 +116,30 @@
                 "node_modules"
               ]
             }
+          },
+          "configurations": {
+            "zoneless": {
+              "polyfills": ["reflect-metadata"]
+            }
           }
         },
         "serve": {
           "builder": "@angular/build:dev-server",
           "options": {
             "buildTarget": "editor-tests:build"
+          }
+        },
+        "vitest": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "buildTarget": "editor-tests:build:zoneless",
+            "tsConfig": "tests/editor/tsconfig.vitest.json",
+            "runner": "vitest",
+            "browsers": ["ChromiumHeadless"],
+            "include": ["**/*.spec.ts", "../../projects/core-lib/case/editor-source/**/*.spec.ts"],
+            "providersFile": "tests/vitest-zoneless.providers.ts",
+            "setupFiles": ["tests/vitest-setup.ts"],
+            "reporters": ["default", "./tests/reporters/vitest-evidence-reporter.mjs"]
           }
         }
       }

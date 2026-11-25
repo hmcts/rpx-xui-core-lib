@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { CaseReferenceModule, CaseReferencePipe as CoreReferencePipe } from '@hmcts/rpx-xui-core-lib/case/reference';
@@ -16,9 +17,11 @@ describe('Case reference shared identity', () => {
   it('renders both formatted references and drafts with both modules imported', async () => {
     await TestBed.configureTestingModule({ imports: [ReferenceHost] }).compileComponents();
     const fixture = TestBed.createComponent(ReferenceHost);
+    fixture.changeDetectorRef.markForCheck();
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('1234-5678-9012-3456');
     fixture.componentInstance.reference = 'DRAFT123';
+    fixture.changeDetectorRef.markForCheck();
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('DRAFT');
   });

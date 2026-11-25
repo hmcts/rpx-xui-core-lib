@@ -14,11 +14,18 @@ test('isolates the packed package and removes its source aliases', async () => {
     await mkdir(join(root, 'projects/core-lib'), { recursive: true });
     await writeFile(join(root, 'projects/core-lib/package.json'), JSON.stringify({ name: '@hmcts/rpx-xui-core-lib', exports: { './node': './node.js' } }));
     for (const file of ['angular.json', 'package.json', 'tsconfig.json']) await writeFile(join(root, file), '{}');
+    await mkdir(join(root, 'tests/reporters'), { recursive: true });
+    for (const file of ['tests/vitest-setup.ts', 'tests/vitest-zoneless.providers.ts', 'tests/reporters/vitest-evidence-reporter.mjs']) {
+      await writeFile(join(root, file), '// packed browser support\n');
+    }
     const paths = { '@hmcts/rpx-xui-core-lib/case/notifier': ['source'], '@hmcts/rpx-xui-core-lib/case/editor-source': ['source'], '@hmcts/rpx-xui-core-lib/i18n': ['i18n'], '@hmcts/rpx-xui-core-lib/browser/session-storage': ['source'], '@hmcts/rpx-xui-core-lib/case/models': ['source'], '@hmcts/rpx-xui-core-lib/case/reference': ['source'], '@hmcts/rpx-xui-core-lib/case/editor-date': ['source'], '@hmcts/rpx-xui-core-lib/address/normalization': ['source'], '@hmcts/rpx-xui-core-lib/browser/user-agent': ['source'] };
     await writeFile(join(root, 'tests/editor/tsconfig.json'), JSON.stringify({ compilerOptions: { paths } }));
     workspace = await preparePackedWorkspace(root);
     const config = JSON.parse(await readFile(join(workspace, 'tests/editor/tsconfig.json'), 'utf8'));
     assert.deepEqual(config.compilerOptions.paths, {});
+    for (const file of ['tests/vitest-setup.ts', 'tests/vitest-zoneless.providers.ts', 'tests/reporters/vitest-evidence-reporter.mjs']) {
+      assert.equal(await readFile(join(workspace, file), 'utf8'), '// packed browser support\n');
+    }
     assert.deepEqual(JSON.parse(await readFile(join(root, 'tests/editor/tsconfig.json'), 'utf8')).compilerOptions.paths, paths);
     assert.equal(JSON.parse(await readFile(join(root, 'projects/core-lib/package.json'), 'utf8')).name, '@hmcts/rpx-xui-core-lib');
     assert.equal(await readlink(join(workspace, 'node_modules/@hmcts/media-viewer')), join(root, 'node_modules/@hmcts/media-viewer'));

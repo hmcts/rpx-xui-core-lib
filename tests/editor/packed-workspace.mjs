@@ -5,7 +5,8 @@ import { join } from 'node:path';
 export async function preparePackedWorkspace(root) {
   const workspace = await mkdtemp(join(tmpdir(), 'core-editor-packed-'));
   try {
-  for (const entry of ['angular.json', 'package.json', 'tsconfig.json', 'projects', 'tests/editor']) {
+  for (const entry of ['angular.json', 'package.json', 'tsconfig.json', 'projects', 'tests/editor',
+    'tests/vitest-setup.ts', 'tests/vitest-zoneless.providers.ts', 'tests/reporters/vitest-evidence-reporter.mjs']) {
     await cp(join(root, entry), join(workspace, entry), { recursive: true });
   }
   const sourcePackagePath = join(workspace, 'projects/core-lib/package.json');

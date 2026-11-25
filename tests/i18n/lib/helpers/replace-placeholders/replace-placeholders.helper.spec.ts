@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { replacePlaceholders, splitPhraseIntoComponents, splitWithLiterals } from '../../../../../projects/core-lib/i18n/lib/helpers/replace-placeholders/replace-placeholders.helper';
 
 describe('replacePlaceholders', () => {

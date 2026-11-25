@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { WriteOrganisationFieldComponent } from '../../projects/core-lib/case/editor-source/lib/shared/components/palette/organisation/write-organisation-field.component';
 
 export const registered = true;

@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { DocumentManagementService } from '../../projects/core-lib/case/editor-source/lib/shared/services/document-management/document-management.service';
 import { DocumentTreeNode } from '../../projects/core-lib/case/editor-source/lib/shared/domain/case-file-view/document-tree-node/document-tree-node.model';
 import { DocumentTreeNodeType } from '../../projects/core-lib/case/editor-source/lib/shared/domain/case-file-view/document-tree-node/document-tree-node-type.model';
@@ -34,10 +35,10 @@ describe('Document tree migration contract', () => {
 describe('Document type migration contract', () => {
   it('recognises HTML only by the allowed MIME type or missing-MIME extension fallback', () => {
     const service = Object.create(DocumentManagementService.prototype) as DocumentManagementService;
-    expect(service.isHtmlDocument({ content_type: ' Text/HTML; charset=utf-8', document_filename: 'file.pdf' })).toBeTrue();
-    expect(service.isHtmlDocument({ document_filename: 'file.HTML' })).toBeTrue();
-    expect(service.isHtmlDocument({ content_type: 'application/pdf', document_filename: 'file.html' })).toBeFalse();
-    expect(service.isHtmlDocument({ content_type: 'application/xhtml+xml', document_filename: 'file.html' })).toBeFalse();
-    expect(service.isHtmlDocument({ document_filename: 'file.pdf' })).toBeFalse();
+    expect(service.isHtmlDocument({ content_type: ' Text/HTML; charset=utf-8', document_filename: 'file.pdf' })).toBe(true);
+    expect(service.isHtmlDocument({ document_filename: 'file.HTML' })).toBe(true);
+    expect(service.isHtmlDocument({ content_type: 'application/pdf', document_filename: 'file.html' })).toBe(false);
+    expect(service.isHtmlDocument({ content_type: 'application/xhtml+xml', document_filename: 'file.html' })).toBe(false);
+    expect(service.isHtmlDocument({ document_filename: 'file.pdf' })).toBe(false);
   });
 });

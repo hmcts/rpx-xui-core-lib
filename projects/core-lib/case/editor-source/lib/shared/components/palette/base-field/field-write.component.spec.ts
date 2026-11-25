@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, it } from 'vitest';
 import { Component, DebugElement, SimpleChange } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -7,7 +8,6 @@ import { FormValidatorsService } from '../../../services';
 import { PaletteService } from '../palette.service';
 import { PALETTE_REGISTRY } from '../palette-token';
 import { FieldWriteComponent } from './field-write.component';
-import createSpyObj = jasmine.createSpyObj;
 
 const CLASS = 'person-first-name-cls';
 
@@ -36,22 +36,20 @@ describe('FieldWriteComponent', () => {
   let component: FieldWriteComponent;
   let de: DebugElement;
 
-  let paletteService: jasmine.SpyObj<PaletteService>;
-  let formValidatorService: jasmine.SpyObj<FormValidatorsService>;
+  let paletteService: { getFieldComponentClass: ReturnType<typeof vi.fn> };
+  let formValidatorService: { addValidators: ReturnType<typeof vi.fn> };
 
   let formGroup: FormGroup;
   const caseFields: CaseField[] = [CASE_FIELD];
 
   beforeEach(async () => {
-    formValidatorService = createSpyObj<FormValidatorsService>('formValidatorService', ['addValidators']);
-    paletteService = createSpyObj<PaletteService>('paletteService', [
-      'getFieldComponentClass'
-    ]);
-    paletteService.getFieldComponentClass.and.returnValue(FieldTestComponent);
+    formValidatorService = { addValidators: vi.fn() };
+    paletteService = { getFieldComponentClass: vi.fn() };
+    paletteService.getFieldComponentClass.mockReturnValue(FieldTestComponent);
 
     formGroup = new FormGroup({});
 
-    TestBed
+    await TestBed
       .configureTestingModule({
         imports: [
           ReactiveFormsModule

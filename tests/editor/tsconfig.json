@@ -4,7 +4,7 @@
     "strict": false,
     "noImplicitAny": true,
     "types": [
-      "jasmine"
+      "vitest/globals"
     ],
     "paths": {
       "@hmcts/rpx-xui-core-lib/i18n": [

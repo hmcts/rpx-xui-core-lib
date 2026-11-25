@@ -16,6 +16,19 @@ const fixture = (name) => JSON.parse(readFileSync(new URL(`./fixtures/compatibil
 const manifest = fixture('prospective-package.json');
 const ledger = fixture('dependency-ledger.json');
 
+test('current core projection resolves a Yarn patched package without changing its locked version', () => {
+  const patch = 'patch:@angular/build@npm%3A20.3.43#~/.yarn/patches/build.patch';
+  const projection = compatibility.currentCoreProjection(
+    { devDependencies: { '@angular/build': patch } },
+    { dependencies: {}, peerDependencies: {} },
+    {}, {},
+    { [`@angular/build@${patch}`]: { version: '20.3.43' } },
+    {}
+  );
+  assert.equal(projection.devCohort['@angular/build'], patch);
+  assert.equal(projection.lockedVersions['@angular/build'], '20.3.43');
+});
+
 test('source identity cannot execute a Git replacement from PATH', (t) => {
   const directory = mkdtempSync(join(tmpdir(), 'core-untrusted-git-'));
   t.after(() => rmSync(directory, { recursive: true, force: true }));

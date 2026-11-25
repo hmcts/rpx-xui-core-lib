@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const contracts = JSON.parse(readFileSync(new URL('../tests/contracts.json', import.meta.url), 'utf8'));
-const expectedJasmineVersion = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).devDependencies['jasmine-core'];
+const expectedVitestVersion = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).devDependencies.vitest;
 const counterpartProfile = JSON.parse(readFileSync(new URL('../tests/fixtures/compatibility/translation-counterpart.json', import.meta.url), 'utf8'));
 
 function unitOutcomes(text) {
@@ -61,63 +61,29 @@ export function browserOutcomes(report) {
   return outcomes;
 }
 
-function invalidJasmineReport() {
-  throw new Error('Malformed or unsuccessful native Jasmine report');
-}
-
-function validateJasmineEnvelope(report) {
-  if (!report || report.schemaVersion !== 1 || report.complete !== true ||
-    report.jasmineVersion !== expectedJasmineVersion || !Array.isArray(report.browserErrors) || report.browserErrors.length ||
-    (report.driverError !== undefined && report.driverError !== null && report.driverError !== '') ||
-    !Array.isArray(report.events) || report.events.length < 3) invalidJasmineReport();
-  const events = report.events;
-  if (events[0]?.type !== 'jasmineStarted' || events.at(-1)?.type !== 'jasmineDone') invalidJasmineReport();
-  const defined = events[0].result?.totalSpecsDefined;
-  if (!Number.isSafeInteger(defined) || defined < 1) invalidJasmineReport();
-  return defined;
-}
-
-function validateJasmineEvent(event, index, eventCount) {
-  const result = event?.result;
-  if (!result || typeof result !== 'object' || Array.isArray(result)) invalidJasmineReport();
-  if (event.type === 'jasmineStarted') {
-    if (index !== 0) invalidJasmineReport();
-    return;
-  }
-  if (!Array.isArray(result.failedExpectations) || result.failedExpectations.length ||
-    !Array.isArray(result.deprecationWarnings) || result.deprecationWarnings.length) invalidJasmineReport();
-  if (event.type === 'jasmineDone') {
-    if (index !== eventCount - 1 || result.overallStatus !== 'passed' || result.incompleteReason) invalidJasmineReport();
-  } else if (event.type !== 'specDone' && event.type !== 'suiteDone') invalidJasmineReport();
-}
-
-function recordJasmineResult(event, state) {
-  const result = event.result;
-  if (typeof result.id !== 'string' || !result.id || typeof result.fullName !== 'string' ||
-    !result.fullName.trim() || result.status !== 'passed') invalidJasmineReport();
-  const ids = event.type === 'specDone' ? state.specs : state.suites;
-  if (ids.has(result.id)) invalidJasmineReport();
-  ids.add(result.id);
-  if (event.type === 'specDone') {
-    if (state.names.has(result.fullName)) invalidJasmineReport();
-    state.names.add(result.fullName);
-    state.outcomes.push({ id: result.fullName, passed: true });
-  }
-}
-
-function jasmineOutcomes(text) {
+export function vitestOutcomes(text) {
   const report = JSON.parse(text);
-  const defined = validateJasmineEnvelope(report);
-  const events = report.events;
-  const state = { specs: new Set(), names: new Set(), suites: new Set(), outcomes: [] };
-  for (let index = 0; index < events.length; index += 1) {
-    const event = events[index];
-    validateJasmineEvent(event, index, events.length);
-    if (event.type === 'jasmineStarted' || event.type === 'jasmineDone') continue;
-    recordJasmineResult(event, state);
+  const expectedConsoleErrors = [
+    /^Translation cache (?:read|write|delete) failed$/,
+    /^\[DatabaseClosedError: Database has been closed\](?:\n|$)/,
+    /^\{\n[\s\S]*"name": "SyntaxError"[\s\S]*"message": "safeJsonParse failed to parse JSON\."[\s\S]*\}$/
+  ];
+  if (report?.schemaVersion !== 1 || report.runner !== 'vitest' || report.vitestVersion !== expectedVitestVersion || report.complete !== true ||
+    !Array.isArray(report.errors) || report.errors.length || !Array.isArray(report.consoleErrors) ||
+    report.consoleErrors.some(entry => typeof entry?.content !== 'string' || typeof entry.taskId !== 'string' ||
+      !expectedConsoleErrors.some(pattern => pattern.test(entry.content))) ||
+    !Array.isArray(report.tests) || !report.tests.length) {
+    throw new Error('Malformed or unsuccessful native Vitest report');
   }
-  if (!state.suites.size || state.specs.size !== defined) invalidJasmineReport();
-  return state.outcomes;
+  const names = new Set();
+  return report.tests.map((entry) => {
+    if (!entry || typeof entry.fullName !== 'string' || !entry.fullName.trim() ||
+      entry.status !== 'pass' || names.has(entry.fullName)) {
+      throw new Error('Malformed or unsuccessful native Vitest result');
+    }
+    names.add(entry.fullName);
+    return { id: entry.fullName, passed: true };
+  });
 }
 
 function verifyTranslationCounterpart(pkg, reportRoot) {
@@ -152,7 +118,7 @@ function packageOutcomes(report, reportRoot, expectedIdentity) {
 export function checkContracts(reportRoot = root, expectedIdentity) {
   if (!expectedIdentity || ['sourceSha', 'runId', 'attempt'].some((key) => typeof expectedIdentity[key] !== 'string' || !expectedIdentity[key])) throw new Error('Expected run identity is required');
   verifyBoundEvidence(reportRoot, expectedIdentity);
-  const parsers = { refDataUnit: unitOutcomes, locationUnit: unitOutcomes, windowUnit: unitOutcomes, cookieUnit: unitOutcomes, featureToggleUnit: unitOutcomes, roleUnit: unitOutcomes, i18nUnit: jasmineOutcomes, editorUnit: jasmineOutcomes, editorDrivers: (text) => browserOutcomes(JSON.parse(text)), nodeUnit: unitOutcomes, nodeServerUnit: jestOutcomes, unit: unitOutcomes, browser: (text) => browserOutcomes(JSON.parse(text)), cacheBrowser: (text) => browserOutcomes(JSON.parse(text)), package: (text) => packageOutcomes(JSON.parse(text), reportRoot, expectedIdentity) };
+  const parsers = { refDataUnit: unitOutcomes, locationUnit: unitOutcomes, windowUnit: unitOutcomes, cookieUnit: unitOutcomes, featureToggleUnit: unitOutcomes, roleUnit: unitOutcomes, i18nUnit: vitestOutcomes, editorUnit: vitestOutcomes, editorDrivers: (text) => browserOutcomes(JSON.parse(text)), nodeUnit: unitOutcomes, nodeServerUnit: jestOutcomes, unit: unitOutcomes, browser: (text) => browserOutcomes(JSON.parse(text)), cacheBrowser: (text) => browserOutcomes(JSON.parse(text)), package: (text) => packageOutcomes(JSON.parse(text), reportRoot, expectedIdentity) };
   let count = 0;
   for (const [kind, inventory] of Object.entries(contracts)) {
     const outcomes = parsers[kind](readFileSync(resolve(reportRoot, inventory.report), 'utf8'));

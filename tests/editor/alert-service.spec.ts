@@ -1,3 +1,4 @@
+import { describe, expect, it, vi } from 'vitest';
 import { ErrorNotifierService } from '../../projects/core-lib/case/editor-source/lib/shared/services/error/error-notifier.service';
 import { NavigationNotifierService } from '../../projects/core-lib/case/editor-source/lib/shared/services/navigation/navigation-notifier.service';
 import { ActivatedRouteSnapshot, convertToParamMap, NavigationStart } from '@angular/router';
@@ -10,19 +11,19 @@ export const registered = true;
 
 describe('Editor alert migration contract', () => {
   it('shows the event-trigger failure message and preserves its rejection', async () => {
-    const router = { events: new Subject<NavigationStart>(), url: '/cases/case-details/TEST/Type/123', navigate: jasmine.createSpy('navigate') };
+    const router = { events: new Subject<NavigationStart>(), url: '/cases/case-details/TEST/Type/123', navigate: vi.fn() };
     const translations = { getTranslation$: (phrase: string) => of((phrase || '').trim()) };
     const alerts = new AlertService(router as unknown as ConstructorParameters<typeof AlertService>[0], translations as unknown as ConstructorParameters<typeof AlertService>[1]);
     const messages: string[] = [];
     const subscription = alerts.errors.subscribe(alert => { if (alert) messages.push(alert.message); });
     const failure = { status: 503, message: 'Unable to start the synthetic event' };
-    const announceError = jasmine.createSpy('announceError');
+    const announceError = vi.fn();
     type Dependencies = ConstructorParameters<typeof EventTriggerResolver>;
     const resolver = new EventTriggerResolver(
       { getEventTrigger: () => throwError(() => failure) } as unknown as Dependencies[0],
       alerts,
       { get: () => of({}) } as unknown as Dependencies[2],
-      { announceProfile: jasmine.createSpy('announceProfile') } as unknown as Dependencies[3],
+      { announceProfile: vi.fn() } as unknown as Dependencies[3],
       router as unknown as Dependencies[4],
       {} as Dependencies[5],
       { announceError } as unknown as Dependencies[6],
@@ -35,10 +36,10 @@ describe('Editor alert migration contract', () => {
       queryParamMap: convertToParamMap({}), queryParams: {}, firstChild: null
     } as unknown as ActivatedRouteSnapshot;
     try {
-      await expectAsync(resolver.resolve(route)).toBeRejectedWith(failure);
+      await expect(resolver.resolve(route)).rejects.toBe(failure);
       expect(messages).toEqual([failure.message]);
       expect(alerts.preservedError).toBe(failure.message);
-      expect(announceError).toHaveBeenCalledOnceWith(failure);
+      expect(announceError).toHaveBeenCalledExactlyOnceWith(failure);
       expect(router.navigate).not.toHaveBeenCalled();
     } finally {
       subscription.unsubscribe();
@@ -128,12 +129,12 @@ describe('Editor alert migration contract', () => {
   });
   it('uses the replacement translation stream for errors and stops it on clear', () => {
     const translations = new Subject<string>();
-    const translate = jasmine.createSpy('translate').and.returnValue(translations);
+    const translate = vi.fn().mockReturnValue(translations);
     const service = new AlertService({ events: new Subject(), url: '/case' } as unknown as ConstructorParameters<typeof AlertService>[0], { getTranslationWithReplacements$: translate } as unknown as ConstructorParameters<typeof AlertService>[1]);
     const messages: string[] = [];
     const subscription = service.errors.subscribe(alert => { if (alert) messages.push(alert.message); });
     service.error({ phrase: 'Cannot open {case}', replacements: { case: '123' } });
-    expect(translate).toHaveBeenCalledOnceWith('Cannot open {case}', { case: '123' });
+    expect(translate).toHaveBeenCalledExactlyOnceWith('Cannot open {case}', { case: '123' });
     translations.next('Cannot open 123');
     service.clear();
     translations.next('late');
