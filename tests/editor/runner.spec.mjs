@@ -54,6 +54,47 @@ test('edits rich text and serialises a numbered list', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+test('indents and outdents a numbered-list item with the keyboard', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => globalThis.createRichTextHost());
+  const editor = page.getByRole('textbox', { name: 'Notes' });
+  await editor.click();
+  await page.getByRole('button', { name: 'Numbered List', exact: true }).click();
+  await page.keyboard.type('Parent item');
+  await page.keyboard.press('Enter');
+  await page.keyboard.type('Nested item');
+  await page.keyboard.press('Tab');
+
+  await expect(editor.locator('ol > li > ol > li')).toContainText('Nested item');
+  await expect.poll(() => page.evaluate(() => globalThis.readRichTextValue())).toContain('<ol type="a">');
+
+  await page.keyboard.press('Shift+Tab');
+  await expect(editor.locator('ol > li').nth(1)).toContainText('Nested item');
+  await expect(editor.locator('ol > li > ol')).toHaveCount(0);
+});
+
+test('sanitises pasted rich text before storing it in the form', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  await page.evaluate(() => globalThis.createRichTextHost());
+  const editor = page.getByRole('textbox', { name: 'Notes' });
+  await editor.click();
+  await page.evaluate(() => {
+    const target = document.querySelector('[contenteditable="true"]');
+    const clipboardData = new DataTransfer();
+    clipboardData.setData('text/html', '<p onclick="window.__pasteExecuted=true">Safe text</p><script>window.__pasteExecuted=true</script><img src="x" onerror="window.__pasteExecuted=true"><a href="javascript:window.__pasteExecuted=true">unsafe link</a>');
+    target.dispatchEvent(new ClipboardEvent('paste', { bubbles: true, cancelable: true, clipboardData }));
+  });
+
+  await expect(editor).toContainText('Safe text');
+  await expect.poll(() => page.evaluate(() => globalThis.readRichTextValue())).toContain('Safe text');
+  const storedValue = await page.evaluate(() => globalThis.readRichTextValue());
+  expect(storedValue).not.toMatch(/<script|<img|onclick|javascript:/i);
+  expect(await page.evaluate(() => globalThis.__pasteExecuted || false)).toBe(false);
+  expect(errors).toEqual([]);
+});
+
 test('closes each editor dialog using Enter and Space', async ({ page }) => {
   for (let index = 0; index < 4; index++) {
     for (const key of ['Enter', 'Space']) {
