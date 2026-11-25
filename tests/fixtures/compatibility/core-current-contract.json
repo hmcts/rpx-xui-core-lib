@@ -1,6 +1,6 @@
 {
   "scope": "Current checked-in core library and root development cohort; separate from the synthetic prospective host and historical consumer source snapshots.",
-  "packageManager": "yarn@4.18.1",
+  "packageManager": "yarn@4.19.0",
   "engine": {
     "node": ">=24.22.2 <25"
   },
@@ -530,7 +530,7 @@
   },
   "yarnConfig": {
     "nodeLinker": "node-modules",
-    "yarnPath": ".yarn/releases/yarn-4.18.1.cjs",
+    "yarnPath": ".yarn/releases/yarn-4.19.0.cjs",
     "npmPreapprovedPackages": [
       "minimatch@11.0.8",
       "glob@14.0.6"

@@ -18,7 +18,7 @@ for (const produced of producedLanes) {
   rmSync(resolve('test-results/lane-provenance', `${produced}.json`), { force: true });
   rmSync(resolve(inventory[produced].report), { force: true });
 }
-const result = spawnSync(process.execPath, ['.yarn/releases/yarn-4.18.1.cjs', command], { stdio: 'inherit' });
+const result = spawnSync(process.execPath, ['.yarn/releases/yarn-4.19.0.cjs', command], { stdio: 'inherit' });
 if (result.error) throw result.error;
 if (result.status !== 0) process.exit(result.status ?? 1);
 if (sourceSnapshot(process.cwd()) !== run.sourceSnapshot) throw new Error('Source changed during evidence lane');

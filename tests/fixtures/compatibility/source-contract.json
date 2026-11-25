@@ -3,10 +3,10 @@
   "profiles": {
     "core": {
       "id": "core",
-      "gitHead": "7b94358faae4ef5556865a80d71e0314c311816e",
-      "manager": "4.18.1",
-      "manager_sha256": "a28ad591febb769f939c11f82f89bacad0b0fac0c884d3b78fa2aaaee970907e",
-      "manifest_packageManager": "yarn@4.18.1",
+      "gitHead": "0d8830eef906dd21eac98680b19a3a20077bde91",
+      "manager": "4.19.0",
+      "manager_sha256": "070ffef2a2b6877cd871864c16e29e8dd64a1a69cb493aaf4836c9d53c143163",
+      "manifest_packageManager": "yarn@4.19.0",
       "engine": {
         "node": ">=24.22.2 <25"
       },
@@ -17,7 +17,8 @@
       "install_settings": {
         "nodeLinker": "node-modules",
         "npmPreapprovedPackages": [
-          "minimatch@11.0.8"
+          "minimatch@11.0.8",
+          "glob@14.0.6"
         ],
         "nmHoistingLimits": "workspaces"
       },
@@ -531,13 +532,13 @@
   "sources": {
     "core": {
       "repository": "hmcts/rpx-xui-core-lib",
-      "gitHead": "7b94358faae4ef5556865a80d71e0314c311816e",
+      "gitHead": "0d8830eef906dd21eac98680b19a3a20077bde91",
       "files": {
-        "package.json": "26df7e498f59c725ef034025360fe47bd6755c8ee77d4298bf05575854fd3ac9",
-        "yarn.lock": "c68594a21e0bda40d21816e2b75b89bcf53cf28000147b9e116a3586b7a93903",
-        ".yarnrc.yml": "5abc963c04b1668ab4e9502a7cf07732907455ebc078352adf9f6704e8d94323",
-        "projects/core-lib/ng-package.json": "a45fe86f9f0a5cabe53977531be3b10e84576e0644a3e6eaee2c9347608deb66",
-        ".yarn/releases/yarn-4.18.1.cjs": "a28ad591febb769f939c11f82f89bacad0b0fac0c884d3b78fa2aaaee970907e"
+        "package.json": "5a50642afb8e8aecc09e601d6ab9509b1528ec261f687c67073d8c32fd70219d",
+        "yarn.lock": "933b8d83fd77fd7a0ee56f64eb022a8ad78f60ec68c6c614493f0e3017669ea1",
+        ".yarnrc.yml": "562c29492ad20e4ebe403be8785a007296ac693f8f6770ffff5ecf8440e57ac7",
+        "projects/core-lib/ng-package.json": "f83ac5d166dbd60a07077164cc95e0d295accceb5e61911c8e1d2a03db343554",
+        ".yarn/releases/yarn-4.19.0.cjs": "070ffef2a2b6877cd871864c16e29e8dd64a1a69cb493aaf4836c9d53c143163"
       }
     },
     "rpx-xui-webapp": {
