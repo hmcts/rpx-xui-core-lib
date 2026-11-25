@@ -2,9 +2,10 @@ import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AbstractAppConfig } from '../../../app.config';
-import { CaseTab, CaseView } from '../../domain';
-import { CaseNotifier } from '../case-editor';
-import { OrderService } from '../../services';
+import { CaseTab } from '../../domain/case-view/case-tab.model';
+import { CaseView } from '../../domain/case-view/case-view.model';
+import { CaseNotifier } from '../case-editor/services/case.notifier';
+import { OrderService } from '../../services/order/order.service';
 
 @Component({
   selector: 'ccd-case-viewer',

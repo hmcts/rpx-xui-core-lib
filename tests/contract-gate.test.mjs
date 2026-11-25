@@ -526,7 +526,7 @@ addedBrowserJourneys.push(
   'terms confirmation keeps its translation, review link and confirm event contract',
   'terms confirmation translates content and passes an accessibility scan',
 );
-packageIds.push('package.terms-confirmation-graph');
+packageIds.push('package.terms-confirmation-graph', 'package.editor-source-case-viewer-api-and-loading');
 const filterFeatureContracts = [
   { feature: "Filter state", contracts: {
     unit: [

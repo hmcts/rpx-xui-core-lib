@@ -3,12 +3,13 @@ import { ActivatedRouteSnapshot, NavigationEnd, Resolve, Router } from '@angular
 import { plainToClassFromExist } from 'class-transformer';
 import { of, throwError } from 'rxjs';
 import { catchError, filter, map } from 'rxjs/operators';
-import { CaseView, Draft } from '../../../domain';
+import { CaseView } from '../../../domain/case-view/case-view.model';
+import { Draft } from '../../../domain/draft.model';
 import { DraftService, NavigationOrigin, SessionStorageService } from '../../../services';
 import { NavigationNotifierService } from '../../../services/navigation/navigation-notifier.service';
 import { PUI_CASE_MANAGER, USER_DETAILS } from '../../../utils';
 import { safeJsonParse } from '../../../json-utils';
-import { CaseNotifier } from '../../case-editor';
+import { CaseNotifier } from '../../case-editor/services/case.notifier';
 
 @Injectable()
 export class CaseResolver implements Resolve<CaseView> {
