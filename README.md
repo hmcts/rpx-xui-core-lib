@@ -23,14 +23,15 @@ The Jest development dependency graph pins `glob@14.0.6` and `minimatch@11.0.8` 
 
 For agent-assisted local startup, checks and failure diagnosis, ask your repository-aware agent to read [the core local test skill](.agents/skills/core-local-test/SKILL.md). It uses the same repository commands and reports; it does not replace human review or remote CI. For example: “Use `core-local-test` to run the full local gate for this checkout, inspect the feature report and explain any failures.” The agent checks prerequisites and preserves evidence before running; it reports local results and limits rather than claiming release readiness.
 
-Use Node **24.22.2** and Yarn **4.18.1** for the core integration cohort. Yarn is checked in so setup does not require a global Yarn installation or Corepack.
+Select Node **24.22.2** from `.nvmrc`. With asdf, run `core_node_path=$(asdf where nodejs "$(cat .nvmrc)") && export PATH="$core_node_path/bin:$PATH"`. With nvm, run `nvm use`. Confirm that `node --version` prints `v24.22.2` before continuing. Run Yarn **4.18.1** through the checked-in file using that Node runtime. Use this launcher for the Yarn scripts throughout this README.
 
 ```sh
-nvm use
+node --version
+node .yarn/releases/yarn-4.18.1.cjs --version
 node .yarn/releases/yarn-4.18.1.cjs install --immutable
-yarn playwright install chromium
-yarn test:all
-yarn start
+node .yarn/releases/yarn-4.18.1.cjs playwright install chromium
+node .yarn/releases/yarn-4.18.1.cjs test:all
+node .yarn/releases/yarn-4.18.1.cjs start
 ```
 
 `test:all` resets generated reports, builds the package, runs lint and type checks, runs the report-gate regression tests, validator and native Node contracts, verifies the installed tarball, builds the gallery, runs the complete local browser suite, then compares executed outcomes with the independent inventory in `tests/contracts.json` and opens both generated Odhín report lanes in Chromium at mobile and desktop widths. The required CI `build` job runs this same fail-fast command. Missing reports, filtered-out required tests, skipped scenarios and failures cannot satisfy the contract gate. Reports are `test-results/validation.tap`, `test-results/node.tap`, `test-results/package.json`, `test-results/browser.json`, `test-results/browser-junit.xml` and `playwright-report/index.html`; browser artifacts stay below `test-results/browser/` so browser cleanup cannot remove earlier unit/package reports.
@@ -61,7 +62,7 @@ Missing, partial or mismatched identity, lane receipts, report bytes or candidat
 
 ## Package layout and initial build cohort
 
-Official ng-packagr emits a structural metadata-only primary entry point plus the implemented `forms/validation`, `i18n`, `ui/contact-details`, `ui/loading-spinner`, `ui/loading-state`, `ui/due-date`, `ui/accessibility`, `ui/session-dialog`, `ui/banner`, `ui/form-label`, `case/models`, `case/reference` and `case/sharing` secondary entries. The root primary exists because Angular Package Format requires it; its source exports no runtime capability and imports no secondary implementation. It must never become an aggregate root module. Native packaging emits physical `forms/validation/index.d.ts` declarations for legacy consumers and an independent validation FESM. No primary-to-secondary export rewriting or old `/validation` alias is used.
+Official ng-packagr emits a structural metadata-only primary entry point plus the implemented `forms/validation`, `i18n`, `browser/user-agent`, `ui/contact-details`, `ui/loading-spinner`, `ui/loading-state`, `ui/due-date`, `ui/accessibility`, `ui/session-dialog`, `ui/banner`, `ui/form-label`, `ui/ccd-pagination`, `ui/case-list`, `case/models`, `case/reference` and `case/sharing` secondary entries. The root primary exists because Angular Package Format requires it; its source exports no runtime capability and imports no secondary implementation. It must never become an aggregate root module. Native packaging emits physical `forms/validation/index.d.ts` declarations for legacy consumers and an independent validation FESM. No primary-to-secondary export rewriting or old `/validation` alias is used.
 
 The APF build contract is Angular/compiler-cli **20.3.35**, ng-packagr **20.3.2**, TypeScript **5.9.3**, and Node **24.22.2**, with the gallery using Angular CLI/build **20.3.42** and framework **20.3.35**. The packed validation entry is also built with Angular **20.3.31** and RxJS **7.8.2**, matching the current application cohort used by the package check. These exercised versions do not promise broad version support; further supported cohorts need their own installed fixtures. The gallery keeps strict TypeScript/template checks. The library build retains `strict: false`, `noImplicitAny: true`, `skipLibCheck: false` for the remaining translation migration. Lint separately checks validation source under full strictness using `projects/core-lib/forms/tsconfig.strict.json`; Node source, consumer fixtures and gallery templates are also strict. Translation class-initialisation diagnostics remain an explicit migration item.
 
@@ -69,6 +70,10 @@ The validator is derived from [rpx-xui-common-lib published revision f2328874383
 
 
 The focused UI entries preserve the common library contact-details, loading-spinner, due-date, session-dialog, banner and form-label selectors, models and translation labels. The session-dialog adds a translated accessible name and uses native modal focus isolation, restores the previous connected focus target on teardown, and retains explicit stay-signed-in or sign-out actions when Escape is pressed. The spinner exposes changing text through a status region and respects reduced motion. The gallery routes `/contact`, `/spinner`, `/due-date`, `/session-dialog` and `/primitives` exercise component states and translations. Their original 2019 Crown Copyright licences are included in both the built and installed package.
+
+`ui/case-list` exposes the Toolkit 7.4.27 `CaseListModule`, `CaseListComponent`, `TableConfig`, `TableColumnConfig` and `DateTimeFormatUtils` as a selective entry. Its dependency on `ui/ccd-pagination` preserves the numbered `ccd-pagination` page events; `ui/pagination` and `ui/hmcts-pagination` have different contracts and are not substituted. `browser/user-agent` contains the same `BrowserService` class used by the list and editor search-result/text-area paths. The editor imports those shared entries, so it does not keep duplicate component, paginator or service classes. Packed graph checks prove a case-list-only import does not load `case/editor-source` or the Node/server, Media Viewer or payment entries.
+
+The migration preserves Toolkit table, selection and pagination inputs and outputs. It intentionally corrects inherited edges with focused tests: browser predicates are called rather than treated as truthy method references; an empty list is not marked fully selected; an absent `cases` input is normalized to an empty array; selection checkboxes receive explicit accessible names and no longer use colliding empty-label ID references. The accessible name translates only the fixed `Select case` phrase and appends the case identifier locally; this avoids adding the ID through that accessibility label. Legacy text and link cell values continue through `rpxTranslate`, so a consumer that displays an identifier in a text or link column may still include it in translation requests. Changing that existing cell behavior requires a separate consumer compatibility decision. Select-all still applies to the full `cases` input, including entries on other pages. These local synthetic journeys do not establish consumer adoption or assistive-technology acceptance. The original Toolkit source commit is `007d1175b81933bba9685fe26078035e4d55bc23`; the gallery route is `/case-list`.
 
 `case/models` owns the shared Draft and CaseDetails classes; `case/reference` imports that same Draft class and preserves the toolkit case-reference pipe's formatting, draft detection and link handling. The `/case-reference` gallery and installed-package checks cover these contracts. Both case entries retain the original toolkit 2017 HMCTS licence. These slices do not establish application adoption or the complete case renderer.
 
@@ -195,11 +200,27 @@ The local packed-consumer checks exercise both sharing entry points and their fo
 
 ### CommonLib secondary entries
 
-Use selective imports under `@hmcts/rpx-xui-core-lib/` for `browser/window`, `browser/session-storage`, `reference/locations`, `reference/ref-data`, `terms/models`, `ui/cookie`, `ui/feature-toggle`, `ui/feature-toggle-directive`, `ui/role-state`, `ui/task-data`, and `case/sharing-state`. Terms models are types; importing them as types contributes no runtime library code. Task data uses session storage, and the feature directive uses the feature service.
+Use selective imports under `@hmcts/rpx-xui-core-lib/` for `browser/window`, `browser/session-storage`, `reference/locations`, `reference/ref-data`, `terms/models`, `terms/confirmation`, `ui/cookie`, `ui/feature-toggle`, `ui/feature-toggle-directive`, `ui/feature-toggle-guard`, `ui/role-state`, `ui/task-data`, `ui/pagination`, `ui/hmcts-pagination`, `ui/address`, `address/normalization`, and `case/sharing-state`. Terms models are types; importing them as types contributes no runtime library code. Task data uses session storage, and the feature directive uses the feature service. The route guard is a separate entry that depends on the feature service and Angular Router.
 
-Run `yarn build`, `yarn lint`, and `yarn test:all` locally for the supervised complete evidence gate. For a focused investigation, use `yarn test:locations`, `yarn test:ref-data`, `yarn test:window`, `yarn test:cookie`, `yarn test:feature-toggle`, or `yarn test:roles` after building. Focused runs do not replace the full evidence gate.
+Run `yarn build`, `yarn lint`, and `yarn test:all` locally for the supervised complete evidence gate. For a focused investigation, use `yarn test:locations`, `yarn test:ref-data`, `yarn test:window`, `yarn test:cookie`, `yarn test:feature-toggle`, or `yarn test:roles` after building. The feature-toggle lane covers the service, directive and route guard; focused runs do not replace the full evidence gate.
 
-These entries introduce new Angular injection tokens even where the service behaviour mirrors CommonLib. Consumers must explicitly coordinate providers and scopes during cutover; synthetic alias tests do not establish application-wide singleton identity. Avoid declaring both versions of the feature-toggle directive in the same Angular scope because they use the same selector. Validate each consumer's routing, providers and actual user journeys before replacing its existing imports.
+These entries introduce new Angular injection tokens even where the service behaviour mirrors CommonLib. The Core feature-toggle service is still a contract stub; during migration, keep the existing CommonLib implementation as the single instance and alias the Core `FeatureToggleService` token to it with `useExisting`. Consumers must explicitly coordinate provider scopes; synthetic alias tests do not establish application-wide singleton identity. Avoid declaring both versions of the feature-toggle directive in the same Angular scope because they use the same selector. Validate each consumer's routing, providers and actual user journeys before replacing its existing imports.
+
+The route guard preserves the current CommonLib contract: all `needsFeaturesEnabled` flags use a `true` fallback and must be enabled by default; only literal `expectFeatureEnabled: false` inverts that aggregate; a mismatch returns `featureDisabledRedirect`. Route data must provide a `needsFeaturesEnabled` array. As in CommonLib, a missing array throws and an empty array completes without a decision, which Angular Router treats as a navigation error. Consumer applications should keep their existing feature service as the single instance through an explicit `useExisting` provider alias while both libraries are in use.
+
+### Pagination controls
+
+The generic CommonLib `xuilib-pagination` control is available from `@hmcts/rpx-xui-core-lib/ui/pagination`. It preserves the `moreItems` and `firstRecord` inputs, `previousPage` and `nextPage` outputs, and the legacy `null` event payload. Its active actions remain links and its inactive actions remain non-interactive text, preserving the existing consumer selectors and behavior. Both controls now name the navigation landmark with a translated `aria-label` instead of a separate visually hidden label element. Its translated navigation name defaults to `Pagination navigation`; set `navigationLabel` when several pagination landmarks appear on the same page. The additive `paginationId` input defaults to the legacy `pagination-label`; consumers rendering more than one instance should supply distinct values.
+
+`@hmcts/rpx-xui-core-lib/ui/hmcts-pagination` exposes the HMCTS numbered paginator used by `ui/user-list` and organisation lists. Its translated `navigationLabel` also defaults to `Pagination navigation` and can distinguish multiple paginators. Active page actions remain anchors because current CommonLib consumer tests select those anchors; Core prevents the `#` target from changing the route or page position. This avoids importing Angular Router into the selective pagination entry while preserving the consumer selector. The old fixed HMCTS `id="pagination-label"` is removed because it repeats when a page renders multiple paginators; inspected consumer apps do not select that ID. The user-list module continues to export that same component through its existing entry, so importing `ui/user-list` and importing `ui/hmcts-pagination` do not create duplicate component identities. Each entry has its own package graph; the generic control does not pull the numbered paginator, and either pagination entry excludes the case editor and Node implementation. Local Chromium tests cover keyboard operation, independent list state, the unchanged null event payload and automated accessibility checks. Real application styling, translated content and screen-reader acceptance remain consumer gates.
+
+### Address lookup
+
+The CommonLib address picker is available from `@hmcts/rpx-xui-core-lib/ui/address`. It preserves the `xuilib-write-address-field` and `xuilib-write-address-inputs` selectors, the camelCase `AddressModel`, address option labels, message constants, and the lookup outputs used by callers. The address selector receives focus when lookup results render, matching CommonLib's `focusElement` behavior. As in CommonLib, the consuming application provides `AddressService`; its lookup continues to call `/external/addresses?postcode=...`, returns an empty list for an empty postcode, maps the DPA result and labels selected addresses as `United Kingdom`.
+
+The picker corrects one source styling defect: the inherited negative bottom margin pulled the manual-entry link over the Find address button in the local browser journey. Core uses normal spacing so both controls remain separately visible and operable. Consumer styling should still be checked during adoption.
+
+`@hmcts/rpx-xui-core-lib/address/normalization` contains the shared pure postcode line parser and formatter. The address UI maps those fields into the CommonLib model; the editor maps them into the Toolkit PascalCase model and keeps its Welsh country-name rule. The small normalization entry has no Angular dependency. The address graph contains only the address UI, Angular forms/http peers and normalization entry; it does not load the full case editor, router, Node server, Media Viewer or payment component. Local unit contracts cover RD06 and ordinary DPA layout, line shifting/title casing, missing fields, service URL and response mapping, empty input, error propagation and model shape. The browser gallery checks the synthetic lookup/selection and request-failure empty state with Axe. Applications still own the real endpoint/proxy, caller validation and provider wiring; consumer styling, translations, application adoption and screen-reader acceptance remain to be verified.
 
 ### Hearing lookups
 
@@ -243,6 +264,10 @@ The display uses the Core translation service. The currently published legacy an
 
 The entry directly imports `@angular/platform-browser`. Angular framework, Material/CDK and RxJS peers are optional at the package level so consumers of the Node entry do not need to install the browser stack. A consumer importing a UI entry must provide those peers; the packed-package gate verifies a Node-only installation without them and builds the validation entry with Angular 20.3.31, Material/CDK 20.2.14 and RxJS 7.8.2. This is evidence for that tested cohort only, not broad version support or a real application cutover. The compatibility matrix also compares candidate peer diagnostics against each host's no-Core baseline so pre-existing warnings are not attributed to Core.
 
+### Terms confirmation
+
+`@hmcts/rpx-xui-core-lib/terms/confirmation` exports `TermsConfirmationModule` and the CommonLib `xuilib-tc-confirm` component (`buttonText` input and `confirm` output). The TypeScript source revision is CommonLib commit `4b63706d8c0e056720db07da0a650825d287fae0`; the template revision is `42a6c438d0218795f018c8670d485371470fa1f1`. The separate entry imports Core i18n and Angular Router; its packed graph check confirms that it does not pull in the terms-display entry or other Core feature entries. The translated link remains `/terms-and-conditions` and opens a new tab with `rel="noopener noreferrer"`. The confirm button keeps its source HTML default (`submit`); consumers embedding it in a form should account for that behavior. Chromium coverage checks the rendering, link attributes, confirm event, Welsh translation and scoped Axe results. These are isolated library checks, not proof of Web App adoption or production translation behavior.
+
 ### GOV.UK input
 
 `@hmcts/rpx-xui-core-lib/ui/gov-input` provides the CommonLib input, label and inline error components, their configuration types and the described-by helper. Source and licence are based on CommonLib commit `af4e0acd2334c99d09fe653aff5450ae4f76a6ae`. The input uses the Core translation service and Angular reactive forms; import its module in the consuming scope.
@@ -251,7 +276,40 @@ This entry fixes three inherited behaviors: non-heading labels now translate, mu
 
 Legacy and Core components retain the same selectors and must not be declared in the same Angular compilation scope. Core and the currently published legacy translation services are separate injection tokens; real application provider configuration, CSS, translation content and cutover need consumer-specific verification. The local gallery and package checks use synthetic data and do not establish production accessibility or application adoption.
 
-Filter-state migration is deferred until the consumer's owner reference, identity lifecycle, cross-owner storage and legacy migration contracts are agreed and tested. The existing CommonLib filter remains the consumer authority in the meantime.
+### Generic Filter and saved filter state
+
+Import the state service and models from `@hmcts/rpx-xui-core-lib/ui/filter-state`. Import `GenericFilterModule` from `@hmcts/rpx-xui-core-lib/ui/generic-filter` for the existing `xuilib-generic-filter` selector. The browser state entry stays independent of the widget and renderers. The widget statically imports the renderers it uses. Standalone consumers can import `ui/find-location`, `ui/find-service`, `ui/search-service` or the `ui/capitalize` pipe independently.
+
+The component, service, models, pipe and MIT licences are based on CommonLib revision `880125eec3a561ba5e4938a4fed8a6077688fb0e`. The synthetic Work Allocation and Staff Admin configurations use the relevant shapes from Web App revision `02c16611cb863100701af639ddb446b88e0097f1`. The installed consumer test mounts the real widget, applies a filter, and observes the change on the service injected directly from the state entry. The split-provider comparison writes the browser setting while leaving the direct service stream unchanged.
+
+Core uses the API-provided `userDetails.filterOwnerHash` to check ownership. A matching owned local setting takes precedence over a stale session setting. Core removes unmatched or legacy local entries and restores any valid session fallback. A local write without an owner hash goes to session storage. Core strips the legacy raw `idamId` when saving.
+
+The intentional compatibility improvements are:
+
+- Disabling FindLocation clears every selected location. The former forward-index removal could leave a location selected. The native disabled state follows `disableInputField` even when the separate reset trigger is unchanged.
+- Removing the FindService Select All tag emits one service change event after clearing the selections. Staff Admin then refreshes the service warning and the skill choices.
+- Reset listens to the form it builds, so editing the active form clears the Apply state and a detached form cannot change it. Reset restores configured checkbox, location and service selections in the live form, so an immediate Apply persists the restored values. The upstream work-type reset still empties its array.
+- Staff Admin names the service combobox from its visible heading. Composed service fields have IDs scoped to their filter and field, so each heading label focuses its own input. Standalone SearchService and FindService retain their default input, label and Add IDs.
+- Skill group labels are now ordered with English locale-aware comparison, making mixed-case ordering predictable across runtimes. A saved filter field with no `value` now safely falls back to an empty string instead of throwing during initialization.
+
+The measured Generic Filter fixture is approximately 1.25 MB minified and 329 KB gzip, including Angular and the browser dependencies. The widget's direct FESM is about 70.5 KB. The package check records precise bundle and direct-entry sizes for the state, pipe, standalone renderers and widget in `test-results/package-evidence/filter-graphs.json`.
+
+Select Node `24.22.2` using the asdf or nvm setup in [Develop locally](#develop-locally) and confirm that `node --version` prints `v24.22.2`. Run the checked-in Yarn release from the repository root.
+
+```sh
+node --version
+node .yarn/releases/yarn-4.18.1.cjs --version
+node .yarn/releases/yarn-4.18.1.cjs build
+node --test tests/filter-state/filter-state.test.mjs tests/filter-renderers/renderers.test.mjs tests/generic-filter/generic-filter.test.mjs
+node .yarn/releases/yarn-4.18.1.cjs lint
+node .yarn/releases/yarn-4.18.1.cjs test:browser filter-renderers generic-filter
+node .yarn/releases/yarn-4.18.1.cjs test:package
+node .yarn/releases/yarn-4.18.1.cjs test:all
+```
+
+Run the browser and package gates serially in each checkout. The gallery paths are `/filter-renderers` and `/generic-filter` under `http://127.0.0.1:4307`. The full gate includes the three unit suites in `test-results/validation.tap` and reports the filter features and accessibility rows in `test-results/odhin/browser/index.html`.
+
+The local checks provide Core-only evidence. Before application cutover, each app owner needs to validate the real configuration and endpoints, owner-hash delivery, storage isolation, a single shared FilterService token across all widgets and direct consumers, and rendered accessibility. The packed candidate and synthetic galleries leave the current application integrations in CommonLib.
 
 
 The `ui/find-person` entry contains the CommonLib component and service with request-local filtering for built-in mapping methods and immediate stale-search cancellation. Legacy direct-selection calls without a control-value event can leave an older search active; instances sharing a default or identical idValue still have duplicate input, hint and error IDs, and the accessible name falls back to English when a translation is unavailable or blank; while pending, the name includes the English translation-in-progress marker; the real Welsh phrase and screen-reader behaviour remain unverified. Multiple instances sharing one parent FormGroup still share a control and can issue duplicate lookups; replacing the parent group after initialization is unverified. The service also retains the prior user ID if details are absent, and overrides that read mutable public fields are not request-isolated. These limitations are recorded as known gaps in the local report. Hint and error DOM IDs now include the supplied idValue; consumers with hard-coded references must be checked during cutover. The component retains the legacy selector and the service is a new public entry; real consumer identity, provider configuration and accessibility must be verified before adoption.
@@ -291,6 +349,8 @@ The in-progress `ui/user-details` migration preserves the user and action contra
 The in-progress `ui/user-list` migration keeps the 50-item paging and output contracts. User names without a route use buttons so they can be reached and activated by keyboard; users with a route retain links. Consumers targeting user-name anchors for action-only users must update their selectors. Pagination actions use buttons instead of the legacy anchor elements so they can receive keyboard focus and activate with Enter; consumers with selectors targeting pagination anchors must update them. Real consumer styling, translated content and screen-reader review remain outstanding.
 
 The in-progress invitation migration corrects the permission error ID so the fieldset's accessible description includes the message. Consumer review and real assistive-technology testing remain outstanding.
+
+The `@hmcts/rpx-xui-core-lib/ui/page-wrapper` entry preserves CommonLib's `exui-page-wrapper` selector, `backLink`, `title` and `fnTitle` inputs, translated GOV.UK back link and headings, and projected page content. It imports Core translation and Angular Router through its own module; unrelated Core entries stay outside the package graph. The source component is based on CommonLib revision `4b63706d8c0e056720db07da0a650825d287fae0`. Web App uses this wrapper across its case and search pages. The local gallery checks translation changes, content projection, optional shell content, route navigation and an Axe scan. This proves the isolated Core candidate, not the Web App cutover or production Welsh content.
 
 ### Case editor migration candidate: interpreter language display
 

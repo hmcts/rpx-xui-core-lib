@@ -1,0 +1,276 @@
+<form [formGroup]="form" (ngSubmit)="applyFilter(form)">
+  @for (field of config.fields; track field) {
+    <div class="contain-classes">
+      @if (field.lineBreakBefore) {
+        <hr class="govuk-section-break govuk-section-break--visible elevated-break">
+      }
+      @switch (field.type) {
+        @case ('group-title') {
+          <div [class]="field.titleClasses ? field.titleClasses: 'govuk-label govuk-label--m govuk-!-margin-bottom-4'">
+            {{ field.name | capitalize }}
+          </div>
+        }
+        @default {
+          <div class="govuk-form-group xui-generic-filter"
+            [hidden]="hidden(field, form)"
+            [id]="field.name"
+            [ngClass]="{'form-group-error': submitted && (form.get(field.name).errors?.required || form.get(field.name).errors?.minlength || form.get(field.name).errors?.maxLength)}">
+            @if (field.title) {
+              <div class="xui-generic-filter__field-title">
+                <h3 [id]="field.name + '-label'" [class]="field.titleClasses ? field.titleClasses : 'govuk-heading-s'" style="margin-bottom: 0!important">
+                  @if (field.type === 'find-service') {
+                    <label [for]="serviceInputId(field)">{{ field.title | capitalize }}</label>
+                  } @else {
+                    {{ field.title | capitalize }}
+                  }
+                </h3>
+                @if (field?.titleHint) {
+                  <div class="govuk-!-margin-left-2">
+                    {{ field.titleHint }}
+                  </div>
+                }
+              </div>
+            }
+            @if (field.subTitle) {
+              <p class="govuk-body">{{field.subTitle}}</p>
+            }
+            @if (field.hintText) {
+              <div
+                [id]="field.hintText + '-hint'" class="govuk-hint">
+                {{ field.hintText | rpxTranslate }}
+              </div>
+            }
+            @if (field.displayMinSelectedError && submitted && (form.get(field.name).errors?.required || form.get(field.name).errors?.minlength)) {
+              <span [id]="field.name + '-error'" class="govuk-error-message">
+                <span class="govuk-visually-hidden">{{ 'Error:' | rpxTranslate}}</span> {{field.minSelectedError | rpxTranslate }}
+              </span>
+            }
+            @if (field.displayMaxSelectedError && submitted && form.get(field.name).errors?.maxLength) {
+              <span [id]="field.name + '-error'" class="govuk-error-message">
+                <span class="govuk-visually-hidden">{{ 'Error:' | rpxTranslate}}</span> {{field.maxSelectedError | rpxTranslate }}
+              </span>
+            }
+            @if (field.emailError && submitted && form.get(field.name).errors?.email) {
+              <span [id]="field.name + '-error'" class="govuk-error-message"
+                >
+                <span class="govuk-visually-hidden">{{ 'Error:' | rpxTranslate }}</span> {{field.emailError | rpxTranslate }}
+              </span>
+            }
+            <div class="govuk-body"  [class.govuk-body--maxWidth480px]="field.maxWidth480px">
+              @switch (field.type) {
+                @case ('select') {
+                  <select class="govuk-select" (change)="fieldChanged(field, form)" [attr.disabled]="disabled(field, form)" [name]="'select_' + field.name" [id]="'select_' + field.name" [attr.aria-labelledby]="field.name + '-label'" [formControlName]="field.name">
+                    <option disabled selected hidden value="">{{field.disabledText}}</option>
+                    @if (field.defaultOption) {
+                      <option [attr.selected]="true" [value]="field.defaultOption.key">{{field.defaultOption.label}}</option>
+                    }
+                    @for (item of field.options; track item) {
+                      <option class="govuk-radios__item" [value]="item.key">{{item.label}}</option>
+                    }
+                  </select>
+                }
+                @case ('group-select') {
+                  <select class="govuk-select" (change)="fieldChanged(field, form)" [attr.disabled]="disabled(field, form)" [name]="'select_' + field.name" [id]="'select_' + field.name" [attr.aria-labelledby]="field.name + '-label'" [formControlName]="field.name">
+                    <option disabled selected hidden value="">{{field.disabledText}}</option>
+                    @if (field.defaultOption) {
+                      <option selected [value]="field.defaultOption.key">{{field.defaultOption.label}}</option>
+                    }
+                    @for (grp of filteredSkillsByServices; track grp) {
+                      <optgroup label="{{grp.group | titlecase}}">
+                        @for (item of grp.options; track item) {
+                          <option [value]="item.key">{{item.label}}</option>
+                        }
+                      </optgroup>
+                    }
+                  </select>
+                }
+                @case ('checkbox') {
+                  <div class="govuk-checkboxes govuk-checkboxes--small" role="group" [attr.aria-labelledby]="field.name + '-label'" [formGroupName]="field.name" [attr.field]="field.name" [id]="'checkbox_' + field.name">
+                    @for (item of field.options; track item; let i = $index) {
+                      <div class="govuk-checkboxes__item">
+                        <input type="checkbox" class="govuk-checkboxes__input"
+                          [attr.disabled]="disabled(field, form)"
+                          [formControlName]="i"
+                          (change)="toggleSelectAll($event, form, item, field)"
+                          [value]="item.key" [id]="'checkbox_' + field.name + item.key"
+                          [name]="'checkbox_' + field.name + item.key"
+                          />
+                        <label
+                          [for]="'checkbox_' + field.name + item.key"
+                          class="govuk-label govuk-checkboxes__label"
+                          [ngClass]="{'govuk-!-font-weight-bold': item.selectAll}"
+                        >{{item.label}}</label>
+                      </div>
+                    }
+                  </div>
+                }
+                @case ('nested-checkbox') {
+                  <div class="govuk-checkboxes govuk-checkboxes--small" role="group" [attr.aria-labelledby]="field.name + '-label'" [formGroupName]="field.name" [attr.field]="field.name" [id]="'checkbox_' + field.name">
+                    @for (item of filteredSkillsByServicesCheckbox; track item; let i = $index) {
+                      <div class="govuk-checkboxes__item">
+                        <input type="checkbox" class="govuk-checkboxes__input"
+                          [attr.disabled]="disabled(field, form)"
+                          [formControlName]="i"
+                          (change)="toggleSelectAll($event, form, item, field)"
+                          [value]="item.key" [id]="'checkbox_' + field.name + item.key"
+                          [name]="'checkbox_' + field.name + item.key"
+                          />
+                        <label
+                          [for]="'checkbox_' + field.name + item.key"
+                          class="govuk-label govuk-checkboxes__label"
+                          [ngClass]="{'govuk-!-font-weight-bold': item.selectAll}"
+                        >{{item.label | rpxTranslate}}</label>
+                      </div>
+                    }
+                  </div>
+                }
+                @case ('checkbox-large') {
+                  <div class="govuk-checkboxes" role="group" [attr.aria-labelledby]="field.name + '-label'" [formGroupName]="field.name" [attr.field]="field.name" [id]="'checkbox_' + field.name">
+                    @for (item of field.options; track item; let i = $index) {
+                      <div class="govuk-checkboxes__item">
+                        <input type="checkbox" class="govuk-checkboxes__input"
+                          [attr.disabled]="disabled(field, form)"
+                          [formControlName]="i"
+                          (change)="toggleSelectAll($event, form, item, field)"
+                          [value]="item.key" [id]="'checkbox_' + field.name + item.key"
+                          [name]="'checkbox_' + field.name + item.key"
+                          />
+                        <label
+                          [for]="'checkbox_' + field.name + item.key"
+                          class="govuk-label govuk-checkboxes__label"
+                          [ngClass]="{'govuk-!-font-weight-bold': item.selectAll}"
+                        >{{item.label | rpxTranslate}}</label>
+                      </div>
+                    }
+                  </div>
+                }
+                @case ('radio') {
+                  <div class="govuk-radios" role="group" [attr.aria-labelledby]="field.name + '-label'">
+                    @for (item of field.options; track item) {
+                      <div class="govuk-radios__item">
+                        <input type="radio"
+                          [formControlName]="field.name"
+                          [id]="'radio_' + item.key"
+                          [attr.disabled]="disabled(field, form)"
+                          [checked]="item.key === form.get(field.name).value"
+                          class="govuk-radios__input"
+                          [value]="item.key"
+                          (change)="fieldChanged(field, form)"
+                          />
+                        <label [for]="'radio_' + item.key" class="govuk-label govuk-radios__label">{{item.label | rpxTranslate}}</label>
+                      </div>
+                    }
+                  </div>
+                }
+                @case ('find-person') {
+                  <xuilib-find-person subTitle="" (personSelected)="updatePersonControls($event, field)"
+                    (personFieldChanged)="inputChanged(field)"
+                    [submitted]="submitted"
+                    [disabled]="disabled(field, form)"
+                    [domain]="form.get(field.domainField)?.value"
+                    [findPersonGroup]="form"
+                    [selectedPerson]="form.get(field.name)?.value?.email"
+                    [userIncluded]="false"
+                    [placeholderContent]="field.placeholderContent ? field.placeholderContent : ''"
+                    [services]="form.get(field.servicesField)?.value"
+                  ></xuilib-find-person>
+                }
+                @case ('find-location') {
+                  <xuilib-find-location (locationFieldChanged)="inputChanged(field)"
+                    [form]="form"
+                    [fields]="config.fields"
+                    [locationTitle]="field.locationTitle || 'Search for a location by name'"
+                    [enableAddLocationButton]="field.enableAddButton"
+                    [disabled]="disabled(field, form)"
+                    [disableInputField]="field.disable"
+                    [submitted]="submitted"
+                    [field]="field"
+                    [services]="form.get(field.findLocationField)?.value"
+                    [formSubmissionEvent$]="formSubmissionEvent$"
+                  ></xuilib-find-location>
+                }
+                @case ('find-task-name') {
+                  <xuilib-find-task-name subTitle="" (taskNameSelected)="updateTaskNameControls($event, field)"
+                    (taskNameFieldChanged)="inputChanged(field)"
+                    [submitted]="submitted"
+                    [disabled]="disabled(field, form)"
+                    [domain]="form.get(field.domainField)?.value"
+                    [findTaskNameGroup]="form"
+                    [selectedTaskName]="form.get(field.name)?.value?.task_type_name"
+                    [placeholderContent]="field.placeholderContent ? field.placeholderContent : ''"
+                    [services]="form.get(field.servicesField)?.value"
+                  ></xuilib-find-task-name>
+                }
+                @case ('find-service') {
+                  @if (isServiceSelected) {
+                    <span class="govuk-error-message">{{serviceErrorMsg | rpxTranslate}}</span>
+                  }
+                  <xuilib-find-service (serviceFieldChanged)="inputServiceChanged(field)"
+                    [inputId]="serviceInputId(field)"
+                    [field]="field"
+                    [form]="form"
+                    [formSubmissionEvent$]="formSubmissionEvent$"
+                    [disabled]="disabled(field, form)">
+                  </xuilib-find-service>
+                }
+                @case ('find-work-type') {
+                  <xuilib-find-work-type (workTypeFieldChanged)="inputChanged(field)"
+                    [form]="form"
+                    [fields]="config.fields"
+                    [workTypeTitle]="field.workTypeTitle || 'Search for a work type by name'"
+                    [enableAddWorkTypeButton]="field.enableAddButton"
+                    [disabled]="disabled(field, form)"
+                    [disableInputField]="field.disable"
+                    [submitted]="submitted"
+                    [field]="field"
+                    [services]="form.get(field.findWorkTypeField)?.value"
+                    [formSubmissionEvent$]="formSubmissionEvent$"
+                  ></xuilib-find-work-type>
+                }
+                @case ('text-input') {
+                  <input class="govuk-input" type="text"
+                    [formControlName]="field.name"
+                    [id]="field.name"
+                    [attr.aria-labelledby]="field.name + '-label'"
+                    [attr.disabled]="disabled(field, form)"
+                    (change)="fieldChanged(field, form)"
+                    [attr.maxlength]="field.maxlength ? field.maxlength : null"
+                    [readonly]="field.readonly"
+                    />
+                }
+                @case ('email-input') {
+                  <input class="govuk-input" type="email"
+                    [formControlName]="field.name"
+                    [id]="field.name"
+                    [attr.aria-labelledby]="field.name + '-label'"
+                    [attr.disabled]="disabled(field, form)"
+                    (change)="fieldChanged(field, form)"
+                    [readonly]="field.readonly"
+                    />
+                }
+              }
+            </div>
+          </div>
+        }
+      }
+    </div>
+  }
+  <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible"/>
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+      <button
+        class="govuk-button govuk-!-margin-right-1 govuk-!-margin-bottom-0"
+        type="submit"
+        id="applyFilter"
+        [disabled]="config.enableDisabledButton && form.invalid"
+      >{{(config.applyButtonText || 'Apply') | rpxTranslate}}</button>
+      @if (config.showCancelFilterButton) {
+        <button
+          class="govuk-button govuk-button--secondary govuk-!-margin-bottom-0"
+          type="button"
+          id="cancelFilter"
+        (click)="cancelFilter()">{{ (config.cancelButtonText || 'Cancel') | rpxTranslate}}</button>
+      }
+    </div>
+  </div>
+</form>

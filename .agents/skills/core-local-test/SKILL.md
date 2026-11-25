@@ -9,7 +9,7 @@ Use the repository containing this skill as the working directory. Read its near
 
 ## Prepare the checkout
 
-Record `git rev-parse HEAD` and `git status --short` without resetting or cleaning local changes. Check `node --version` against `.nvmrc`, and read `yarnPath` in `.yarnrc.yml`. With the current checkout the pinned commands are `node .yarn/releases/yarn-4.18.1.cjs install --immutable` and `node .yarn/releases/yarn-4.18.1.cjs playwright install chromium`; run setup only when needed and within the user’s authorised scope. Do not change the lockfile, dependency versions or Yarn release as a setup workaround. Installation or browser setup may require network access; report failures rather than inferring readiness from existing files.
+Record `git rev-parse HEAD` and `git status --short` without resetting or cleaning local changes. Select the Node runtime from `.nvmrc`. With asdf, run `core_node_path=$(asdf where nodejs "$(cat .nvmrc)") && export PATH="$core_node_path/bin:$PATH"`. With nvm, run `nvm use`. Verify that `node --version` prints `v24.22.2` before running any checks and read `yarnPath` in `.yarnrc.yml`. With the current checkout the pinned commands are `node .yarn/releases/yarn-4.18.1.cjs install --immutable` and `node .yarn/releases/yarn-4.18.1.cjs playwright install chromium`; run setup only when needed and within the user’s authorised scope. Do not change the lockfile, dependency versions or Yarn release as a setup workaround. Installation or browser setup may require network access; report failures rather than inferring readiness from existing files.
 
 Before a browser run, coordinate with other checkouts using this machine and inspect the ports in the active configs. The current strict suite uses 4307 (gallery), 4314 (translation) and 4414 (cache). On macOS `lsof -nP -iTCP:4307 -iTCP:4314 -iTCP:4414 -sTCP:LISTEN` shows current listeners; an empty result is only a point-in-time check. Do not kill an unknown listener. Run shared-port browser suites serially across checkouts and inspect the log for `EADDRINUSE` and `Port ... is already in use`. Even with `reuseExistingServer: false`, a concurrent bind can race: if a collision occurs, treat the affected test and any claimed same-run evidence as unverified even if the driver reports success. Preserve its log and repeat only after ownership and port availability are resolved.
 
@@ -18,6 +18,25 @@ Before a browser run, coordinate with other checkouts using this machine and ins
 - **Start the gallery:** verify the Node version in `.nvmrc`, the checked-in Yarn release selected by `.yarnrc.yml` and that dependencies are installed. From the repo, use `node .yarn/releases/yarn-4.18.1.cjs start` (substitute the selected checked-in release if it has changed). The watcher builds before serving `http://127.0.0.1:4307`. Before reporting ready, verify that the current watcher build completed successfully and no newer compile error is present, then check the intended view in a real browser: for the current validation gallery, its heading and interactive form must be usable. An HTTP response, error page, blank shell or stale output after a failed rebuild alone is not readiness. Report the URL, checkout/commit and whether the worktree is dirty; a dirty build is not an exact commit artifact. Keep the process alive only when the user asked to start it.
 - **Run checks:** choose the smallest relevant documented commands for a focused request. For a full local gate, run the repo's current `test:all` using its checked-in Yarn; it builds, lints, tests, checks the packed artifact and compares native reports with the required contract inventory. `test:cache-upgrade` needs the package artifact produced by `test:package`. Do not substitute test discovery, retries, filtered tests or `test:compatibility:contracts` for the full gate. The separate `test:compatibility` rehearsal currently reports a blocked full consumer graph; run it when compatibility is requested and report its nonzero result rather than treating it as the ordinary passing suite.
 - **Diagnose a failure:** retain the first failure and inspect native terminal logs and available Playwright HTML, JUnit, JSON and trace artifacts before proposing a cause. When broader local evidence is needed after a failed strict gate, `node .yarn/releases/yarn-4.18.1.cjs test:diagnostic` runs independent checks and records failed or blocked prerequisites in `test-results/diagnostic-status.json`; it preserves prior reports in a printed backup. It does not replace `test:all` or establish readiness. The diagnostic and strict full gate share an exclusive lock; focused and `test:all:sequence` commands do not. After an abrupt kill inspect the lock owner and processes before removing a stale lock. Identify the earliest causal error and classify product, test, setup or environment failure only when evidence supports it. Reproduce narrowly when useful; do not weaken assertions or hide failures. Explain the smallest supported next step. Make source fixes only when separately requested or already in scope.
+
+## Filter migration checks
+
+With the `.nvmrc` Node runtime selected, confirm that `node --version` prints `v24.22.2` and that the checked-in Yarn reports `4.18.1`. Run the checks serially from the Core checkout.
+
+```sh
+node --version
+node .yarn/releases/yarn-4.18.1.cjs --version
+node .yarn/releases/yarn-4.18.1.cjs build
+node --test tests/filter-state/filter-state.test.mjs tests/filter-renderers/renderers.test.mjs tests/generic-filter/generic-filter.test.mjs
+node .yarn/releases/yarn-4.18.1.cjs lint
+node .yarn/releases/yarn-4.18.1.cjs test:browser filter-renderers generic-filter
+node .yarn/releases/yarn-4.18.1.cjs test:package
+node .yarn/releases/yarn-4.18.1.cjs test:all
+```
+
+The gallery uses fictional values at `http://127.0.0.1:4307/filter-renderers` and `http://127.0.0.1:4307/generic-filter`. The installed Angular consumer also needs port 14880. Review the packed graphs and shared/split FilterService browser results under `test-results/package-evidence/`. In the completed Odhín browser feature matrix check Filter state, Filter renderers, Capitalize pipe, Generic Filter and Generic Filter accessibility, then verify the native browser report and the supervised unit and package receipts.
+
+The [README](../../../README.md#generic-filter-and-saved-filter-state) records the pinned CommonLib and Web App revisions, verified compatibility changes, bundle sizes and the consumer adoption checks. Report local Core evidence and the separate gate for each consuming application.
 
 ## Protect local state
 

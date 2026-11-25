@@ -76,7 +76,18 @@ unitNames.push('selected case stops listening to shared state when destroyed',
   'user lookup refreshes the current query when users arrive');
 unitNames.push('user details checks roles safely for absent and present users', 'user details emits the original user for suspend and reinvite actions');
 unitNames.push('user list retains the legacy 50-item page and emits the selected user', 'user list updates the current page and emits the requested page');
+unitNames.push('generic pagination retains the null payload on both public outputs', 'user-list and standalone HMCTS pagination share one component identity', 'both pagination entries allow a caller to distinguish navigation landmarks');
+unitNames.push('postcode parser preserves RD06 address line placement and country metadata', 'postcode parser removes absent fields and shifts formatted lines upward', 'postcode formatter preserves the existing first-line priority and capitalization', 'postcode parser ignores null and missing source fields without leaking sentinel text', 'address service preserves the external postcode endpoint and formats returned models', 'address service returns an empty list without a request for an empty postcode', 'address service propagates postcode lookup failures', 'address service drops results without a DPA record and handles a missing result list', 'address models and address option labels keep the CommonLib public field contract', 'address option keeps the supplied default row label without inventing an address value', 'address component rejects a blank postcode and emits the CommonLib lookup outputs', 'address component retains manual and international selection events');
 unitNames.push('invitation form defaults missing errors and emits a submit event', 'invitation permissions retain legacy default flags');
+unitNames.push(
+  'case list retains its public table configuration and date formatting contract',
+  'case selection changes once for the supported legacy Space key event',
+  'case list does not synthesize a Space-key selection in browsers using native checkbox change',
+  'an empty case list is not reported as fully selected',
+  'an undefined cases input is normalized before selection and rendering',
+  'case list emits the requested current page',
+  'browser service classifies legacy browser user-agent strings',
+);
 const addedLaneNames = {
   "refDataUnit": [
     "reference data HTTP endpoints and encoded service-code parameter match the source",
@@ -121,7 +132,12 @@ const addedLaneNames = {
     "directive stops a synchronous source when destroyed during rendering",
     "directive ignores assignments after destruction and a reentrant provider switch",
     "directive does not overwrite a replacement created by previous-source teardown",
-    "directive does not resubscribe when teardown reenters during destruction"
+    "directive does not resubscribe when teardown reenters during destruction",
+    "feature-toggle guard waits for every flag and supplies true as each default",
+    "feature-toggle guard redirects when any required flag is disabled",
+    "literal false inverts the all-enabled rule; other values keep the default rule",
+    "feature-toggle guard propagates provider errors",
+    "feature-toggle guard preserves missing and empty route metadata behavior"
   ],
   "roleUnit": [
     "role state suppresses its initial null and emits each assigned array without copying",
@@ -281,7 +297,9 @@ const addedBrowserJourneys = [
   "session storage isolates independent tabs and supports remove-after-read",
   "feature directive shows at most one view and removes it when disabled",
   "feature directive switches subscriptions and clears stale content while waiting",
-  "feature directive unsubscribes on removal and subscribes again on remount"
+  "feature directive unsubscribes on removal and subscribes again on remount",
+  "feature guard allows a web route and redirects it when its flag is disabled",
+  "registration routes follow reciprocal feature expectations without a redirect loop"
 ];
 const cacheJourneys = [
   "baseline: legacy to core preserves valid cached translation",
@@ -327,7 +345,7 @@ packageIds.push("package.session-storage-behavior", "package.session-storage-gra
 
 packageIds.push("package.service-messages-graph", "package.service-messages-behavior");
 
-packageIds.push("package.feature-toggle-graph", "package.feature-directive-graph", "package.role-state-graph", "package.feature-toggle-behavior", "package.role-state-behavior");
+packageIds.push("package.feature-toggle-graph", "package.feature-toggle-guard-graph", "package.feature-directive-graph", "package.role-state-graph", "package.feature-toggle-behavior", "package.feature-toggle-guard-behavior", "package.role-state-behavior");
 
 packageIds.push('package.editor-date-graph');
 addedBrowserJourneys.push('date input preserves validation and values across translations', 'date input has accessible keyboard reachable date fields');
@@ -343,6 +361,7 @@ addedBrowserJourneys.push('unlabelled booking-style host exposes the existing ac
 addedBrowserJourneys.push('explicit labels preserve caller context and distinct input identifiers', 'changing, clearing and removing a supplied label updates the input name', 'synthetic Welsh responses update explicit names without replacing an external label');
 addedBrowserJourneys.push('blank opt-in preserves the external name and explicit text takes precedence');
 packageIds.push('package.search-location-graph');
+packageIds.push('package.address-graph', 'package.address-behavior');
 packageIds.push('package.search-judicials-graph', 'package.search-venue-graph');
 unitNames.push(
   'judicial search skips short terms, forwards service ID, cancels stale searches and excludes selected people',
@@ -447,10 +466,135 @@ addedBrowserJourneys.push('selected case removal can be cancelled and reflected 
 addedBrowserJourneys.push('user details shows roles and emits a suspend action', 'pending user hides permissions and emits a reinvite action', 'user details actions work from the keyboard and pass an axe scan');
 addedBrowserJourneys.push('users without a route can be selected with the keyboard', 'users with a route retain a navigable link and emit selection');
 addedBrowserJourneys.push('user list pages through users and emits the chosen user', 'pagination can be operated with the keyboard', 'user list and pagination have no automated accessibility violations');
+addedBrowserJourneys.push('generic pagination preserves null events and exposes keyboard-operable page actions', 'HMCTS paginator is independently usable and keeps separate list state', 'pagination entries have no automated accessibility violations');
+addedBrowserJourneys.push('address lookup uses the external endpoint and writes the selected public model', 'address lookup presents the empty state after an unsuccessful request', 'address entry has no automated accessibility violations');
 addedBrowserJourneys.push('invitation emits submit and displays parent validation', 'invitation emits entered details and selected permissions', 'invitation form supports keyboard selection and passes axe', 'invalid invitation inputs expose their errors accessibly', 'invitation retains and updates a preselected permission', 'permission error is announced by the permissions fieldset', 'permissions with an empty error never reference a missing message');
+addedBrowserJourneys.push(
+  'case list renders configured columns and selects a case once with the keyboard',
+  'case list emits the page selection and displays the requested page',
+  'case list exposes accessible selection names and has no duplicate checkbox IDs',
+  'case identifiers stay local when translating accessible selection labels',
+  'case selection and select-all remain independent between list instances',
+);
+addedBrowserJourneys.push('page wrapper renders its translated shell and projected content', 'page wrapper omits unset shell elements and passes a scoped accessibility scan');
 packageIds.push('package.user-details-behavior', 'package.user-details-graph');
 packageIds.push('package.user-list-behavior', 'package.user-list-graph');
+packageIds.push('package.pagination-behavior', 'package.pagination-graph', 'package.hmcts-pagination-graph');
 packageIds.push('package.invitation-behavior', 'package.invitation-graph');
+packageIds.push('package.case-list-behavior', 'package.user-agent-behavior', 'package.case-list-graph', 'package.ccd-pagination-graph', 'package.user-agent-graph');
+packageIds.push('package.page-wrapper-graph');
+unitNames.push('confirmation button emits the confirm event');
+addedBrowserJourneys.push(
+  'terms confirmation keeps its translation, review link and confirm event contract',
+  'terms confirmation translates content and passes an accessibility scan',
+);
+packageIds.push('package.terms-confirmation-graph');
+const filterFeatureContracts = [
+  { feature: "Filter state", contracts: {
+    unit: [
+      "local persistence replaces stale ownership and strips the raw ID from a copy",
+      "a fresh service restores matching local ownership across tabs",
+      "a matching local setting takes precedence over stale session data",
+      "a mismatched local owner is removed and the session setting survives",
+      "cached local settings become unavailable when the owner changes",
+      "a second user can save their own filter after rejecting the first owner",
+      "local restore removes settings with a legacy raw ID or no ownership metadata",
+      "an owned local selection is removed if no current owner is available",
+      "local writes fall back to session without a supplied owner hash",
+      "session writes remove colliding local data and survive only during that session",
+      "streams replay restored state, publish changes per ID and emit null on clear",
+      "malformed JSON still throws and leaves stored data untouched",
+      "getUserId retains ID-first and UID-fallback behavior",
+      "initial-setting and error notification state retain their public defaults",
+      "the browser package graph contains filter state and its low-level runtime dependencies",
+    ],
+    package: [
+      "package.filter-state-graph",
+      "package.filter-field-types",
+    ],
+  } },
+  { feature: "Filter renderers", contracts: {
+    unit: [
+      "disabling a location search clears all three selections and resets its search term once",
+      "location lookup preserves the fallback, scalar values and ordered checkbox service keys",
+      "location selection commits via Add, removes by ID without a search event and resets on submission",
+      "single location selection commits immediately, survives submission and clears on typing",
+      "removing Select All clears the service form and emits exactly once after the form and tags update",
+      "service defaults, replacement of All and removal use the configured option objects",
+      "service submission clears a draft term, keeps an immediate single selection and unsubscribes on destroy",
+      "search service filters by unselected key and case-insensitive label and emits the configured option",
+    ],
+    browser: [
+      "SearchService binds native disabled, two-way terms, visibility, selected keys and option objects",
+      "FindService exposes the service label, native disabling, Add and the Select All display tag",
+      "single service selection commits immediately and keeps its text on submission",
+      "Work Allocation lookup uses scalar and positional codes with booking context, then clears every location",
+      "Staff Admin lookup uses service option objects and displays venue names, then resets on submission",
+      "single location selection keeps its committed text on submission",
+    ],
+    package: [
+      "package.find-location-graph",
+      "package.find-service-graph",
+      "package.search-service-graph",
+    ],
+  } },
+  { feature: "Capitalize pipe", contracts: {
+    unit: [
+      "Capitalize lowers the input and capitalizes only the first character",
+    ],
+    package: [
+      "package.capitalize-graph",
+    ],
+  } },
+  { feature: "Generic Filter", contracts: {
+    unit: [
+      "all 14 field types restore their form shapes and project their saved records",
+      "configured defaults yield to explicit settings and the stored setting takes precedence",
+      "a saved field with a missing value falls back to an empty string",
+      "Apply emits the upstream public errors and callback order, then persists a valid projection",
+      "Reset, Apply and edit observe the active form, detach the old form, then unsubscribe on destroy",
+      "Reset restores checkbox, location and service arrays from the configured defaults before reapplying",
+      "Reset still empties the work-type form array even when a work-type default is configured",
+      "copyFields may return a replacement FormGroup used for Apply and edits",
+      "conditional fields toggle required validators, location reset and radio activation",
+      "nested skill checkbox selection maps back to keys and keeps the selected groups",
+      "skill groups sort by English alphabetic order regardless of letter case",
+      "known person and task values update only declared controls and the task clear sentinel empties task fields",
+    ],
+    browser: [
+      "Work Allocation composes scalar service, booking location, person, task and work-type fields",
+      "Work Allocation checkbox service lookup omits services_all and disabling clears all selected locations",
+      "invalid Apply exposes template errors and Reset rebinds edits to the active form",
+    ],
+    package: [
+      "package.generic-filter-graph",
+      "package.filter-service-identity",
+      "package.filter-service-identity-fault",
+    ],
+  } },
+  { feature: "Generic Filter accessibility", contracts: {
+    browser: [
+      "Staff Admin titles its combobox, filters skills, and persists venue records from option-object services",
+      "two composed service fields each have a unique input and a label that focuses only that input",
+    ],
+  } },
+];
+for (const { contracts } of filterFeatureContracts) {
+  unitNames.push(...(contracts.unit ?? []));
+  addedBrowserJourneys.push(...(contracts.browser ?? []));
+  packageIds.push(...(contracts.package ?? []));
+}
+
+test('registers each new filter feature against the independently required contracts', () => {
+  const map = JSON.parse(readFileSync(new URL('./feature-evidence-map.json', import.meta.url), 'utf8'));
+  for (const { feature, contracts } of filterFeatureContracts) {
+    const expected = contracts.browser
+      ? { ...contracts, browser: contracts.browser.map(title => ({ projectName: 'chromium', title })) }
+      : contracts;
+    assert.deepEqual(map.features.find(row => row.feature === feature)?.contracts, expected, feature);
+  }
+});
+
 const expectedContracts = addedBrowserJourneys.length + Object.values(addedLaneNames).reduce((sum, names) => sum + names.length, 0) + unitNames.length + nodeNames.length + i18nNames.length + i18nJourneys.length + dueDateJourneys.length + accessibilityJourneys.length + sessionDialogJourneys.length + primitiveJourneys.length + cacheJourneys.length + validationJourneys.length + packageIds.length + 1 + contractInventory.nodeServerUnit.required.length + contractInventory.editorUnit.required.length + contractInventory.editorDrivers.required.length;
 
 function nativeTap(names) {

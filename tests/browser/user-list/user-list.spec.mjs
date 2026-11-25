@@ -24,7 +24,7 @@ test('user list pages through users and emits the chosen user', async ({ page })
   await page.goto('/user-list');
   await expect(page.locator('tbody tr')).toHaveCount(50);
   await expect(page.getByText('Synthetic User 55', { exact: true })).toHaveCount(0);
-  await page.getByRole('button', { name: 'Next page' }).click();
+  await page.getByRole('link', { name: 'Next page' }).click();
   await expect(page.getByTestId('page')).toHaveText('2');
   await expect(page.locator('tbody tr')).toHaveCount(5);
   await page.getByText('Synthetic User 55', { exact: true }).click();
@@ -35,7 +35,7 @@ test('pagination can be operated with the keyboard', async ({ page }) => {
   await page.goto('/user-list');
   const pagination = page.getByRole('navigation', { name: 'Pagination navigation' });
   await expect(pagination.locator('[aria-current="page"]')).toHaveText('1');
-  const next = page.getByRole('button', { name: 'Next page' });
+  const next = page.getByRole('link', { name: 'Next page' });
   await next.focus();
   await page.keyboard.press('Enter');
   await expect(pagination.locator('[aria-current="page"]')).toHaveText('2');
