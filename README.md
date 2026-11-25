@@ -368,6 +368,8 @@ The local case-editor candidate recalculates a replacement form control after in
 
 The local case-editor candidate also avoids failing when a newly added case flag has no matching persisted detail. The flag remains selectable and has no persisted original status. The legacy path could throw before displaying it; this change remains unmerged and requires full case-flag journey and consumer acceptance.
 
+Local Chromium contracts now exercise the migrated case-flag management component for that state and for continuing without a selection. The tests use a synthetic Angular host and verify the selected flag state and validation message; they do not cover case-flag persistence, the complete wizard journey, or application provider wiring.
+
 The local editor candidate uses the datetime-picker package's own toggle with its picker. This replaces the legacy Material toggle because the current picker is not compatible with that toggle's Angular type contract. Package compilation accepts the binding, and local Chromium checks cover opening it by keyboard and selecting a date; real consumer verification remains required before adoption.
 
 The local editor candidate retains the toolkit's existing payment input values using narrowly scoped Angular template casts because the payment package declares different types. In particular, changing `SERVICEREQUEST` from boolean `false` to the string `'false'` changes a truthiness-based branch in the dependency. These casts do not establish payment compatibility: the declared consumer dependency version, real payment flow, and host integration remain acceptance gates.

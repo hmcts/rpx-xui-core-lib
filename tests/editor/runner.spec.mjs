@@ -109,3 +109,30 @@ test('closes each editor dialog using Enter and Space', async ({ page }) => {
     }
   }
 });
+
+test('keeps a new case flag selectable when no persisted detail exists', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  await page.evaluate(() => globalThis.createCaseFlagHost());
+
+  const option = page.getByRole('radio', { name: 'Fictional party - New safety concern' });
+  await expect(option).toBeVisible();
+  await option.check();
+  await expect(option).toBeChecked();
+  expect(await page.evaluate(() => globalThis.readCaseFlagSelection())).toEqual({ id: 'new-flag', originalStatus: null });
+
+  await page.getByRole('button', { name: 'Continue' }).click();
+  expect(await page.evaluate(() => globalThis.readCaseFlagState())).toEqual({ selectedFlagId: 'new-flag', originalStatus: null, errorMessages: [] });
+  expect(errors).toEqual([]);
+});
+
+test('shows a selection error when proceeding without choosing a case flag', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => globalThis.createCaseFlagHost());
+
+  await page.getByRole('button', { name: 'Continue' }).click();
+  await expect(page.locator('#manage-case-flag-not-selected-error-message')).toContainText('Please make a selection');
+  expect(await page.evaluate(() => globalThis.readCaseFlagSelection())).toBeNull();
+  expect(await page.evaluate(() => globalThis.readCaseFlagState().errorMessages)).toEqual(['Please make a selection']);
+});

@@ -1704,6 +1704,14 @@
       {
         "projectName": "chromium",
         "title": "closes each editor dialog using Enter and Space"
+      },
+      {
+        "projectName": "chromium",
+        "title": "keeps a new case flag selectable when no persisted detail exists"
+      },
+      {
+        "projectName": "chromium",
+        "title": "shows a selection error when proceeding without choosing a case flag"
       }
     ]
   },

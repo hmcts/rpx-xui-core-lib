@@ -1786,6 +1786,16 @@
     {
       "feature": "Case editor: flags and language",
       "contracts": {
+        "editorDrivers": [
+          {
+            "projectName": "chromium",
+            "title": "keeps a new case flag selectable when no persisted detail exists"
+          },
+          {
+            "projectName": "chromium",
+            "title": "shows a selection error when proceeding without choosing a case flag"
+          }
+        ],
         "editorUnit": [
           "FieldsUtils extractFlagsDataFromCaseField() function test should extract flags data from a root-level Flags case field",
           "FieldsUtils extractFlagsDataFromCaseField() function test should not fail if the root-level Flags case field is the special \"caseFlags\" field and its value is an empty object",
