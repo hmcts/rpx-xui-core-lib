@@ -332,7 +332,7 @@ for (const scenario of ['advisory', 'deprecation']) {
     assert.notEqual(security['continue-on-error'], true);
     await mkdir(join(root, '.yarn/releases'), { recursive: true });
     const entry = { value: 'synthetic-package', children: { ID: scenario === 'advisory' ? 123 : 'synthetic-package (deprecation)', Issue: 'Synthetic audit receipt' } };
-    await writeFile(join(root, '.yarn/releases/yarn-4.18.1.cjs'), `
+    await writeFile(join(root, '.yarn/releases/yarn-4.19.0.cjs'), `
       const assert = require('node:assert/strict');
       const args = process.argv.slice(2);
       for (const flag of ['--all', '--recursive', '--json']) assert.ok(args.includes(flag));
@@ -362,7 +362,7 @@ test('maintenance audit evidence write failures remain fatal', async t => {
   const maintenance = workflow.jobs['dependency-audit'].steps.find(step => step.name === 'Record dependency maintenance warnings');
   await mkdir(join(root, '.yarn/releases'), { recursive: true });
   await mkdir(join(root, 'test-results/dependency-maintenance.exit-code'), { recursive: true });
-  await writeFile(join(root, '.yarn/releases/yarn-4.18.1.cjs'), "console.log('{}'); process.exit(1);\n");
+  await writeFile(join(root, '.yarn/releases/yarn-4.19.0.cjs'), "console.log('{}'); process.exit(1);\n");
   const result = spawnSync('/bin/bash', ['-e', '-c', maintenance.run], { cwd: root, encoding: 'utf8' });
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /is a directory/i);
@@ -375,7 +375,7 @@ test('maintenance audit output-open failures remain fatal', async t => {
   const maintenance = workflow.jobs['dependency-audit'].steps.find(step => step.name === 'Record dependency maintenance warnings');
   await mkdir(join(root, '.yarn/releases'), { recursive: true });
   await mkdir(join(root, 'test-results/dependency-maintenance.jsonl'), { recursive: true });
-  await writeFile(join(root, '.yarn/releases/yarn-4.18.1.cjs'), "console.log('{}'); process.exit(1);\n");
+  await writeFile(join(root, '.yarn/releases/yarn-4.19.0.cjs'), "console.log('{}'); process.exit(1);\n");
   const result = spawnSync('/bin/bash', ['-e', '-c', maintenance.run], { cwd: root, encoding: 'utf8' });
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /is a directory/i);

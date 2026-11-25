@@ -17,7 +17,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const output = join(root, 'test-results');
 const evidence = join(output, 'package-evidence');
 const report = { schemaVersion: 1, package: {}, tests: [] };
-const yarn = join(root, '.yarn/releases/yarn-4.18.1.cjs');
+const yarn = join(root, '.yarn/releases/yarn-4.19.0.cjs');
 let current = 'package.setup';
 let scratch;
 let nodeOnlyConsumer;
@@ -119,7 +119,7 @@ try {
     sha256: createHash('sha256').update(await readFile(candidate)).digest('hex'),
     ...currentIdentity(root),
     node: process.versions.node,
-    yarn: '4.18.1',
+    yarn: '4.19.0',
     angular: '20.3.35',
     typescript: '5.9.3',
   };
@@ -137,7 +137,7 @@ try {
       version: '0.0.0',
       private: true,
       type: 'module',
-      packageManager: 'yarn@4.18.1',
+      packageManager: 'yarn@4.19.0',
       dependencies: { '@hmcts/rpx-xui-core-lib': 'file:./candidate.tgz' },
     }, null, 2)}\n`);
     await run('node-only-lock', [yarn, 'install', '--mode=update-lockfile'], nodeConsumer);
@@ -199,7 +199,7 @@ try {
       version: '0.0.0',
       private: true,
       type: 'module',
-      packageManager: 'yarn@4.18.1',
+      packageManager: 'yarn@4.19.0',
       dependencies: {
         '@hmcts/rpx-xui-core-lib': 'file:./candidate.tgz',
         '@angular/animations': '20.3.31',
@@ -352,7 +352,7 @@ try {
       await cp(candidate, join(cohort, 'candidate.tgz'));
       const providers = ['@types/express', '@types/express-session', '@types/node', '@types/passport', '@types/passport-oauth2', 'express'];
       const dependencies = Object.fromEntries(providers.map(name => [name, manifest.dependencies[name]]));
-      await writeFile(join(cohort, 'package.json'), JSON.stringify({ name: label.replaceAll('_', '-'), private: true, type: 'module', packageManager: 'yarn@4.18.1',
+      await writeFile(join(cohort, 'package.json'), JSON.stringify({ name: label.replaceAll('_', '-'), private: true, type: 'module', packageManager: 'yarn@4.19.0',
         dependencies: { ...dependencies, '@hmcts/rpx-xui-core-lib': 'file:./candidate.tgz', helmet: version } }) + '\n');
       await writeFile(join(cohort, '.yarnrc.yml'), 'nodeLinker: node-modules\n');
       await run(`${label}-lock`, [yarn, 'install', '--mode=update-lockfile'], cohort);

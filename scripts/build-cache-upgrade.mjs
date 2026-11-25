@@ -56,7 +56,7 @@ function lstatExists(/** @type {string} */ path) { try { lstatSync(path); return
 const sources = {};
 let installedCoreFesm;
 let installedLockSha256;
-const yarn = join(root, '.yarn/releases/yarn-4.18.1.cjs');
+const yarn = join(root, '.yarn/releases/yarn-4.19.0.cjs');
 for (const name of ['legacy', 'core', 'core-baseline']) {
   const host = join(output, name);
   const sourceHost = name === 'core-baseline' ? 'core' : name;
@@ -140,7 +140,7 @@ writeFileSync(join(output, 'receipt.json'), JSON.stringify({
   coreTarSha256: sha256(tarball),
   coreFesmSha256: sha256(installedCoreFesm),
   installedCoreRealpath: realpathSync(installedCoreFesm),
-  manager: 'yarn@4.18.1', installedLockSha256, immutableInstallNetwork: 'inherited',
+  manager: 'yarn@4.19.0', installedLockSha256, immutableInstallNetwork: 'inherited',
   coreMapSha256: sha256(join(output, 'core/dist/browser/main.js.map')),
   legacyMapSha256: sha256(join(output, 'legacy/dist/browser/main.js.map')),
   baselineCoreFesmSha256: sha256(join(baselineCorePackage, 'fesm2022/hmcts-rpx-xui-core-lib-i18n.mjs')),

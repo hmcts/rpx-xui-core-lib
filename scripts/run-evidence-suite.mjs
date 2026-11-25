@@ -13,7 +13,7 @@ rmSync('test-results', { recursive: true, force: true });
 mkdirSync('test-results/lane-provenance', { recursive: true });
 const identity = { ...currentIdentity(process.cwd()), sourceSnapshot: sourceSnapshot(process.cwd()) };
 writeFileSync('test-results/lane-provenance/run.json', JSON.stringify(identity) + '\n');
-const result = spawnSync(process.execPath, ['.yarn/releases/yarn-4.18.1.cjs', 'test:all:sequence'], { stdio: 'inherit', env: process.env });
+const result = spawnSync(process.execPath, ['.yarn/releases/yarn-4.19.0.cjs', 'test:all:sequence'], { stdio: 'inherit', env: process.env });
 if (result.error) throw result.error;
 if (result.status === 0) {
   writeFeatureMatrix(process.cwd(), currentIdentity(process.cwd()), true);

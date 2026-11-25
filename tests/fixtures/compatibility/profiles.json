@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "scope": "Frozen real host managers/toolchains and installation-relevant requirements; not full application build/adoption",
-  "core_manager": "4.18.1",
+  "core_manager": "4.19.0",
   "standalone_mc_api_manager": "4.7.0",
   "profiles": [
     {
@@ -510,10 +510,10 @@
   },
   "core": {
     "id": "core",
-    "gitHead": "7b94358faae4ef5556865a80d71e0314c311816e",
-    "manager": "4.18.1",
-    "manager_sha256": "a28ad591febb769f939c11f82f89bacad0b0fac0c884d3b78fa2aaaee970907e",
-    "manifest_packageManager": "yarn@4.18.1",
+    "gitHead": "0d8830eef906dd21eac98680b19a3a20077bde91",
+    "manager": "4.19.0",
+    "manager_sha256": "070ffef2a2b6877cd871864c16e29e8dd64a1a69cb493aaf4836c9d53c143163",
+    "manifest_packageManager": "yarn@4.19.0",
     "engine": {
       "node": ">=24.22.2 <25"
     },
@@ -524,7 +524,8 @@
     "install_settings": {
       "nodeLinker": "node-modules",
       "npmPreapprovedPackages": [
-        "minimatch@11.0.8"
+        "minimatch@11.0.8",
+        "glob@14.0.6"
       ],
       "nmHoistingLimits": "workspaces"
     },
