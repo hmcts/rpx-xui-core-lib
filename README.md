@@ -352,6 +352,10 @@ The in-progress invitation migration corrects the permission error ID so the fie
 
 The `@hmcts/rpx-xui-core-lib/ui/page-wrapper` entry preserves CommonLib's `exui-page-wrapper` selector, `backLink`, `title` and `fnTitle` inputs, translated GOV.UK back link and headings, and projected page content. It imports Core translation and Angular Router through its own module; unrelated Core entries stay outside the package graph. The source component is based on CommonLib revision `4b63706d8c0e056720db07da0a650825d287fae0`. Web App uses this wrapper across its case and search pages. The local gallery checks translation changes, content projection, optional shell content, route navigation and an Axe scan. This proves the isolated Core candidate, not the Web App cutover or production Welsh content.
 
+### Rich-text editor migration coverage
+
+The rich-text editor now has real Chromium journeys for text entry and ordered-list serialization, keyboard indentation and outdentation of nested list items, and sanitizing pasted HTML before it reaches the form value. The checks assert both rendered editor state and the stored form payload. They strengthen the local Core candidate only: Word/Docmosis document variants, full source-library parity, application integration, and assistive-technology review remain open.
+
 ### Case editor migration candidate: interpreter language display
 
 The local case-editor candidate changes legacy interpreter-language display when an existing pipe instance receives a different language object: Core displays the new language instead of returning an empty value. This is an intentional compatibility deviation under review, not a released or adopted feature. The case-editor package build and real application acceptance are still outstanding.

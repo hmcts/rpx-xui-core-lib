@@ -1673,6 +1673,14 @@
       },
       {
         "projectName": "chromium",
+        "title": "indents and outdents a numbered-list item with the keyboard"
+      },
+      {
+        "projectName": "chromium",
+        "title": "sanitises pasted rich text before storing it in the form"
+      },
+      {
+        "projectName": "chromium",
         "title": "closes each editor dialog using Enter and Space"
       }
     ]
