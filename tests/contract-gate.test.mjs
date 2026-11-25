@@ -12,6 +12,30 @@ import { sourceSnapshot } from '../scripts/evidence-source-snapshot.mjs';
 
 const contractInventory = JSON.parse(readFileSync(new URL('./contracts.json', import.meta.url), 'utf8'));
 
+function assertPlaywrightVersionAlignment(packageJson, workflow) {
+  const versions = ['@playwright/test', 'playwright', 'playwright-core'].map(name => packageJson.devDependencies[name]);
+  assert.ok(versions.every(version => version === versions[0]), 'Playwright packages must use one version');
+  const image = workflow.match(/image:\s*mcr\.microsoft\.com\/playwright:v([0-9.]+)-noble@sha256:([a-f0-9]{64})/);
+  assert.ok(image, 'CI must pin the Playwright browser image by version and digest');
+  assert.equal(image[1], versions[0], 'CI browser image and Playwright packages must use the same version');
+}
+
+test('Playwright package versions match the pinned CI browser image', () => {
+  const packageJson = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
+  const workflow = readFileSync(new URL('../.github/workflows/ci.yml', import.meta.url), 'utf8');
+  assertPlaywrightVersionAlignment(packageJson, workflow);
+});
+
+test('rejects split dependency and Docker-image bumps from separate Renovate updates', () => {
+  const packageJson = { devDependencies: { '@playwright/test': '1.65.1', playwright: '1.65.1', 'playwright-core': '1.65.1' } };
+  const oldImage = 'image: mcr.microsoft.com/playwright:v1.65.0-noble@sha256:' + 'a'.repeat(64);
+  assert.throws(() => assertPlaywrightVersionAlignment(packageJson, oldImage), /same version/);
+
+  const mixedPackages = { devDependencies: { ...packageJson.devDependencies, playwright: '1.65.0' } };
+  const newImage = 'image: mcr.microsoft.com/playwright:v1.65.1-noble@sha256:' + 'b'.repeat(64);
+  assert.throws(() => assertPlaywrightVersionAlignment(mixedPackages, newImage), /one version/);
+});
+
 test('requires explicit editor browser drivers in the aggregate inventory', () => {
   assert.equal(contractInventory.editorDrivers?.report, 'test-results/editor/driver.json');
   assert.ok(contractInventory.editorDrivers.required.some(item => item.projectName === 'chromium' && item.title === 'closes each editor dialog using Enter and Space'));
