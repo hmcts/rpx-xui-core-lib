@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { BrowserService } from '../../../services/browser/browser.service';
+import { BrowserService } from '@hmcts/rpx-xui-core-lib/browser/user-agent';
 import { AbstractFieldWriteComponent } from '../base-field/abstract-field-write.component';
 
 @Component({
