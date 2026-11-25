@@ -2182,6 +2182,45 @@
           "package.search-venue-graph"
         ]
       }
+    },
+    {
+      "feature": "Cookie consent banner",
+      "contracts": {
+        "cookieBannerUnit": [
+          "cookie banner shows the consent prompt and reports rejection when no consent exists",
+          "cookie banner hides the prompt and reports accepted consent from the stored value",
+          "accepting consent stores true for one year, reports acceptance and reloads the page",
+          "rejecting consent stores false, reports rejection and reloads the page",
+          "stored acceptance does not enable Dynatrace unless the host opts in",
+          "cookie banner remains safe without a browser window during server rendering"
+        ],
+        "browser": [
+          {
+            "projectName": "chromium",
+            "title": "cookie consent banner has a translated accessible name and a working details link",
+            "feature": "cookie-banner"
+          },
+          {
+            "projectName": "chromium",
+            "title": "cookie details route loads directly in the cookie banner gallery",
+            "feature": "cookie-banner"
+          },
+          {
+            "projectName": "chromium",
+            "title": "accepting analytics consent stores it for a year and enables opted-in Dynatrace after consent",
+            "feature": "cookie-banner"
+          },
+          {
+            "projectName": "chromium",
+            "title": "rejecting analytics consent persists false and does not enable Dynatrace",
+            "feature": "cookie-banner"
+          }
+        ],
+        "package": [
+          "package.cookie-banner-behavior",
+          "package.cookie-banner-graph"
+        ]
+      }
     }
   ],
   "suiteGroups": [

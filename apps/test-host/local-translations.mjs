@@ -14,6 +14,13 @@ const welsh = new Map([
   ['Phone:', 'Ffôn:'],
   ['TODAY', 'HEDDIW'],
   ['This task is due to be completed today', 'Mae’r dasg hon i fod i gael ei chwblhau heddiw'],
+  ['Cookies on', 'Cwcis ar'],
+  ['Case service', 'Gwasanaeth achosion'],
+  ['Accept analytics cookies', 'Derbyn cwcis dadansoddeg'],
+  ['Reject analytics cookies', 'Gwrthod cwcis dadansoddeg'],
+  ['View cookies', 'Gweld cwcis'],
+  ['We use some essential cookies to make this service work.', 'Rydym yn defnyddio cwcis hanfodol i wneud i’r gwasanaeth hwn weithio.'],
+  ["We'd also like to use analytics cookies so we can understand how you use the service and make improvements.", 'Hoffem hefyd ddefnyddio cwcis dadansoddeg i ddeall sut rydych yn defnyddio’r gwasanaeth a gwneud gwelliannau.'],
 ]);
 
 export default {

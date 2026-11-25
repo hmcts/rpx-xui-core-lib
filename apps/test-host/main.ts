@@ -55,6 +55,8 @@ const application = window.location.pathname === '/service-messages'
   ? import('./window').then(({ startWindowGallery }) => startWindowGallery())
   : window.location.pathname.startsWith('/session-storage')
   ? import('./session-storage').then(({ startSessionStorageGallery }) => startSessionStorageGallery())
+  : window.location.pathname === '/cookie-banner' || window.location.pathname === '/cookies'
+  ? import('./cookie-banner').then(({ startCookieBannerGallery }) => startCookieBannerGallery())
   : window.location.pathname.startsWith('/cookie')
   ? import('./cookie').then(({ startCookieGallery }) => startCookieGallery())
   : window.location.pathname === '/feature-toggle'

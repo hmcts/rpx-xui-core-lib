@@ -193,7 +193,11 @@ hearing-lookups|venue lookup supports keyboard selection and unique labelled ins
 hearing-lookups|an exact judicial name auto-selects while retaining its visible input label
 hearing-lookups|an exact venue name auto-selects while retaining its visible input label
 hearing-lookups|duplicate exact judicial names stay visible without auto-selecting either person
-hearing-lookups|duplicate exact venue names stay visible without auto-selecting either venue`.split('\n').map(row => {
+hearing-lookups|duplicate exact venue names stay visible without auto-selecting either venue
+cookie-banner|cookie consent banner has a translated accessible name and a working details link
+cookie-banner|cookie details route loads directly in the cookie banner gallery
+cookie-banner|accepting analytics consent stores it for a year and enables opted-in Dynatrace after consent
+cookie-banner|rejecting analytics consent persists false and does not enable Dynatrace`.split('\n').map(row => {
   const [feature, title] = row.split('|');
   return ['chromium', title, feature];
 });
