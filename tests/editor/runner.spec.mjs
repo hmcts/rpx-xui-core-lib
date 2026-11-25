@@ -159,7 +159,7 @@ test('renders the full case viewer for resolved standard-access case data', asyn
   await page.goto('/');
   await page.evaluate(() => globalThis.createCaseViewerHost('STANDARD', 'FULL'));
   await expect(page.locator('ccd-case-full-access-view')).toBeVisible();
-  await expect(page.getByTestId('restricted-view')).toHaveCount(0);
+  await expect(page.locator('ccd-case-basic-access-view')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
 
@@ -190,7 +190,7 @@ test('renders the restricted case viewer for challenged access', async ({ page }
   await expect(requestAccess).toBeEnabled();
   expect(await page.evaluate(() => globalThis.readCaseViewerRequestUrl())).toBe('challenged-access-request');
   await expect(page.getByRole('link', { name: 'Cancel' })).toHaveAttribute('href', '#');
-  await expect(page.getByTestId('full-view')).toHaveCount(0);
+  await expect(page.locator('ccd-case-full-access-view')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
 
@@ -199,11 +199,11 @@ test('renders case details from the notifier when resolved route data is absent'
   page.on('pageerror', error => errors.push(error.message));
   await page.goto('/');
   await page.evaluate(() => globalThis.createCaseViewerNotifierHost());
-  await expect(page.getByTestId('full-view')).toHaveCount(0);
-  await expect(page.getByTestId('restricted-view')).toHaveCount(0);
+  await expect(page.locator('ccd-case-full-access-view')).toHaveCount(0);
+  await expect(page.locator('ccd-case-basic-access-view')).toHaveCount(0);
 
   await page.evaluate(() => globalThis.emitCaseViewerDetails('STANDARD', 'FULL'));
   await expect(page.locator('ccd-case-full-access-view')).toBeVisible();
-  await expect(page.getByTestId('restricted-view')).toHaveCount(0);
+  await expect(page.locator('ccd-case-basic-access-view')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
