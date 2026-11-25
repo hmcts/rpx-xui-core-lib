@@ -102,6 +102,8 @@ terms-display|terms display renders sanitized HTML and excludes unsafe attribute
 terms-display|terms display treats plain text as text and handles unsupported MIME types
 terms-display|terms display uses the shared translation service for language changes
 terms-display|translated HTML is rendered through Angular sanitization
+terms-confirmation|terms confirmation keeps its translation, review link and confirm event contract
+terms-confirmation|terms confirmation translates content and passes an accessibility scan
 gov-input|GOV.UK input connects its label and hint and updates the reactive form
 gov-input|GOV.UK input associates an error and restores hint-only state
 gov-input|non-heading label follows Welsh language

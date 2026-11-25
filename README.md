@@ -201,7 +201,7 @@ The local packed-consumer checks exercise both sharing entry points and their fo
 
 ### CommonLib secondary entries
 
-Use selective imports under `@hmcts/rpx-xui-core-lib/` for `browser/window`, `browser/session-storage`, `reference/locations`, `reference/ref-data`, `terms/models`, `ui/cookie`, `ui/feature-toggle`, `ui/feature-toggle-directive`, `ui/role-state`, `ui/task-data`, `ui/pagination`, `ui/hmcts-pagination`, `ui/address`, `address/normalization`, and `case/sharing-state`. Terms models are types; importing them as types contributes no runtime library code. Task data uses session storage, and the feature directive uses the feature service.
+Use selective imports under `@hmcts/rpx-xui-core-lib/` for `browser/window`, `browser/session-storage`, `reference/locations`, `reference/ref-data`, `terms/models`, `terms/confirmation`, `ui/cookie`, `ui/feature-toggle`, `ui/feature-toggle-directive`, `ui/role-state`, `ui/task-data`, `ui/pagination`, `ui/hmcts-pagination`, `ui/address`, `address/normalization`, and `case/sharing-state`. Terms models are types; importing them as types contributes no runtime library code. Task data uses session storage, and the feature directive uses the feature service.
 
 Run `yarn build`, `yarn lint`, and `yarn test:all` locally for the supervised complete evidence gate. For a focused investigation, use `yarn test:locations`, `yarn test:ref-data`, `yarn test:window`, `yarn test:cookie`, `yarn test:feature-toggle`, or `yarn test:roles` after building. Focused runs do not replace the full evidence gate.
 
@@ -262,6 +262,10 @@ The search component accepts `inputId` (default `inputLocationSearch`) and optio
 The display uses the Core translation service. The currently published legacy and Core translation services are distinct injection tokens; switching providers requires an application-specific lifecycle and configuration review. Do not put the legacy CommonLib terms component and the Core display in the same Angular compilation scope: their matching selectors cause Angular's multiple-component error. A synthetic mixed-package control demonstrates this boundary, not application adoption.
 
 The entry directly imports `@angular/platform-browser`. Angular framework, Material/CDK and RxJS peers are optional at the package level so consumers of the Node entry do not need to install the browser stack. A consumer importing a UI entry must provide those peers; the packed-package gate verifies a Node-only installation without them and builds the validation entry with Angular 20.3.31, Material/CDK 20.2.14 and RxJS 7.8.2. This is evidence for that tested cohort only, not broad version support or a real application cutover. The compatibility matrix also compares candidate peer diagnostics against each host's no-Core baseline so pre-existing warnings are not attributed to Core.
+
+### Terms confirmation
+
+`@hmcts/rpx-xui-core-lib/terms/confirmation` exports `TermsConfirmationModule` and the CommonLib `xuilib-tc-confirm` component (`buttonText` input and `confirm` output). The TypeScript source revision is CommonLib commit `4b63706d8c0e056720db07da0a650825d287fae0`; the template revision is `42a6c438d0218795f018c8670d485371470fa1f1`. The separate entry imports Core i18n and Angular Router; its packed graph check confirms that it does not pull in the terms-display entry or other Core feature entries. The translated link remains `/terms-and-conditions` and opens a new tab with `rel="noopener noreferrer"`. The confirm button keeps its source HTML default (`submit`); consumers embedding it in a form should account for that behavior. Chromium coverage checks the rendering, link attributes, confirm event, Welsh translation and scoped Axe results. These are isolated library checks, not proof of Web App adoption or production translation behavior.
 
 ### GOV.UK input
 

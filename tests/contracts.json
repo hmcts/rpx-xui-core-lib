@@ -206,7 +206,8 @@
       "conditional fields toggle required validators, location reset and radio activation",
       "nested skill checkbox selection maps back to keys and keeps the selected groups",
       "skill groups sort by English alphabetic order regardless of letter case",
-      "known person and task values update only declared controls and the task clear sentinel empties task fields"
+      "known person and task values update only declared controls and the task clear sentinel empties task fields",
+      "confirmation button emits the confirm event"
     ]
   },
   "browser": {
@@ -526,6 +527,16 @@
         "projectName": "chromium",
         "title": "translated HTML is rendered through Angular sanitization",
         "feature": "terms-display"
+      },
+      {
+        "projectName": "chromium",
+        "title": "terms confirmation keeps its translation, review link and confirm event contract",
+        "feature": "terms-confirmation"
+      },
+      {
+        "projectName": "chromium",
+        "title": "terms confirmation translates content and passes an accessibility scan",
+        "feature": "terms-confirmation"
       },
       {
         "projectName": "chromium",
@@ -1167,6 +1178,7 @@
       "package.loading-eager-fault",
       "package.search-location-graph",
       "package.terms-display-graph",
+      "package.terms-confirmation-graph",
       "package.gov-input-graph",
       "package.gov-input-behavior",
       "package.gov-date-graph",

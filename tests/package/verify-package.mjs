@@ -65,7 +65,7 @@ try {
   const dist = join(root, 'dist/core-lib');
   const declaration = 'forms/validation/index.d.ts';
   const filterLicenceEntries = ['ui/filter-state', 'ui/find-location', 'ui/find-service', 'ui/search-service', 'ui/capitalize', 'ui/generic-filter'];
-  const sourceLicenceEntries = [...filterLicenceEntries, 'ui/find-task-name', 'ui/find-work-type', 'ui/search-work-type', 'ui/find-person', 'ui/checkbox-list', 'ui/gov-date', 'ui/gov-select', 'ui/search-location', 'ui/search-judicials', 'ui/search-venue', 'ui/pagination', 'ui/hmcts-pagination', 'terms/display', 'ui/gov-input', 'case/session-error', 'case/editor-date', 'browser/window', 'browser/session-storage', 'reference/locations', 'reference/ref-data', 'terms/models', 'ui/cookie', 'ui/feature-toggle', 'ui/feature-toggle-directive', 'ui/role-state', 'ui/task-data', 'case/sharing-state', 'ui/contact-details', 'ui/page-wrapper', 'ui/loading-spinner', 'ui/loading-state', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog', 'ui/banner', 'ui/form-label', 'case/models', 'case/reference', 'case/sharing', 'browser/user-agent', 'ui/ccd-pagination', 'ui/case-list', 'address/normalization', 'ui/address'];
+  const sourceLicenceEntries = [...filterLicenceEntries, 'ui/find-task-name', 'ui/find-work-type', 'ui/search-work-type', 'ui/find-person', 'ui/checkbox-list', 'ui/gov-date', 'ui/gov-select', 'ui/search-location', 'ui/search-judicials', 'ui/search-venue', 'ui/pagination', 'ui/hmcts-pagination', 'terms/display', 'terms/confirmation', 'ui/gov-input', 'case/session-error', 'case/editor-date', 'browser/window', 'browser/session-storage', 'reference/locations', 'reference/ref-data', 'terms/models', 'ui/cookie', 'ui/feature-toggle', 'ui/feature-toggle-directive', 'ui/role-state', 'ui/task-data', 'case/sharing-state', 'ui/contact-details', 'ui/page-wrapper', 'ui/loading-spinner', 'ui/loading-state', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog', 'ui/banner', 'ui/form-label', 'case/models', 'case/reference', 'case/sharing', 'browser/user-agent', 'ui/ccd-pagination', 'ui/case-list', 'address/normalization', 'ui/address'];
 
   // Fail before dependency setup when the legacy TypeScript entry point is absent.
   await check('package.physical-secondary-declaration', async () => {
@@ -774,6 +774,19 @@ try {
     const source = await readFile(join(consumer, 'terms-display-graph.mjs'), 'utf8');
     verify(graph(source));
     assert.throws(() => verify(graph(source + "\nimport { windowToken } from '@hmcts/rpx-xui-core-lib/browser/window'; console.log(windowToken);")));
+  });
+
+  await check('package.terms-confirmation-graph', async () => {
+    const graph = contents => buildSync({ stdin: { contents, resolveDir: consumer }, absWorkingDir: consumer, bundle: true, platform: 'browser', format: 'esm', metafile: true, write: false, logLevel: 'silent' });
+    const verify = result => {
+      const used = Object.values(result.metafile.outputs).flatMap(output => Object.entries(output.inputs).filter(([, value]) => value.bytesInOutput > 0).map(([input]) => input.replaceAll('\\', '/')));
+      const core = used.filter(input => input.includes('/@hmcts/rpx-xui-core-lib/'));
+      assert.deepEqual(core.map(input => input.split('/').at(-1)).sort((a, b) => a.localeCompare(b)), ['hmcts-rpx-xui-core-lib-i18n.mjs', 'hmcts-rpx-xui-core-lib-terms-confirmation.mjs']);
+      assert.ok(!used.some(input => /(?:^|\/)node(?:\/|$)|^node:/.test(input)));
+    };
+    const source = await readFile(join(consumer, 'terms-confirmation-graph.mjs'), 'utf8');
+    verify(graph(source));
+    assert.throws(() => verify(graph(source + "\nimport { TermsAndConditionsComponent } from '@hmcts/rpx-xui-core-lib/terms/display'; console.log(TermsAndConditionsComponent);")));
   });
 
   await check('package.editor-date-graph', async () => {

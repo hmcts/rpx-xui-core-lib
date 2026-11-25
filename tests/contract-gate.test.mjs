@@ -477,6 +477,12 @@ packageIds.push('package.pagination-behavior', 'package.pagination-graph', 'pack
 packageIds.push('package.invitation-behavior', 'package.invitation-graph');
 packageIds.push('package.case-list-behavior', 'package.user-agent-behavior', 'package.case-list-graph', 'package.ccd-pagination-graph', 'package.user-agent-graph');
 packageIds.push('package.page-wrapper-graph');
+unitNames.push('confirmation button emits the confirm event');
+addedBrowserJourneys.push(
+  'terms confirmation keeps its translation, review link and confirm event contract',
+  'terms confirmation translates content and passes an accessibility scan',
+);
+packageIds.push('package.terms-confirmation-graph');
 const filterFeatureContracts = [
   { feature: "Filter state", contracts: {
     unit: [

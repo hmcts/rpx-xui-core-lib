@@ -18,6 +18,12 @@ const welsh = new Map([
   ['Back', 'Yn ôl'],
   ['Case list', 'Rhestr achosion'],
   ['Case management', 'Rheoli achosion'],
+  ['Using this service', 'Defnyddio’r gwasanaeth hwn'],
+  ['Terms and conditions', 'Telerau ac amodau'],
+  ['terms and conditions', 'telerau ac amodau'],
+  ["We've recently updated the", 'Rydym wedi diweddaru’r'],
+  ['You must review and accept them.', 'Rhaid i chi eu hadolygu a’u derbyn.'],
+  ['Confirm', 'Cadarnhau'],
 ]);
 
 export default {

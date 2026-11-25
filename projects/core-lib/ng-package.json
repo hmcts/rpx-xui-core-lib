@@ -201,6 +201,11 @@
       "output": "terms/display"
     },
     {
+      "input": "terms/confirmation",
+      "glob": "LICENCE",
+      "output": "terms/confirmation"
+    },
+    {
       "input": "ui/gov-input",
       "glob": "LICENCE",
       "output": "ui/gov-input"

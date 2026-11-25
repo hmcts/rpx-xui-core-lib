@@ -926,6 +926,29 @@
       }
     },
     {
+      "feature": "Terms confirmation",
+      "contracts": {
+        "unit": [
+          "confirmation button emits the confirm event"
+        ],
+        "browser": [
+          {
+            "projectName": "chromium",
+            "title": "terms confirmation keeps its translation, review link and confirm event contract",
+            "feature": "terms-confirmation"
+          },
+          {
+            "projectName": "chromium",
+            "title": "terms confirmation translates content and passes an accessibility scan",
+            "feature": "terms-confirmation"
+          }
+        ],
+        "package": [
+          "package.terms-confirmation-graph"
+        ]
+      }
+    },
+    {
       "feature": "GOV.UK input",
       "contracts": {
         "browser": [
