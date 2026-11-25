@@ -1,0 +1,20 @@
+<nav class="hmcts-pagination" [attr.id]="paginationId" [attr.aria-label]="navigationLabel | rpxTranslate">
+  <ul class="hmcts-pagination__list">
+    <li class="hmcts-pagination__item hmcts-pagination__item--prev">
+      @if (firstRecord > 1) {
+        <a class="hmcts-pagination__link" href="#" (click)="onPrevious(); $event.preventDefault()">
+          {{ 'Previous page' | rpxTranslate }}
+        </a>
+      } @else {
+        <span class="hmcts-pagination__link">{{ 'Previous page' | rpxTranslate }}</span>
+      }
+    </li>
+    <li class="hmcts-pagination__item hmcts-pagination__item--next">
+      @if (moreItems) {
+        <a class="hmcts-pagination__link" href="#" (click)="onNext(); $event.preventDefault()">{{ 'Next page' | rpxTranslate }}</a>
+      } @else {
+        <span class="hmcts-pagination__link">{{ 'Next page' | rpxTranslate }}</span>
+      }
+    </li>
+  </ul>
+</nav>

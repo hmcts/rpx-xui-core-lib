@@ -87,6 +87,8 @@ session-storage|session storage isolates independent tabs and supports remove-af
 feature-toggle-directive|feature directive shows at most one view and removes it when disabled
 feature-toggle-directive|feature directive switches subscriptions and clears stale content while waiting
 feature-toggle-directive|feature directive unsubscribes on removal and subscribes again on remount
+feature-toggle-guard|feature guard allows a web route and redirects it when its flag is disabled
+feature-toggle-guard|registration routes follow reciprocal feature expectations without a redirect loop
 date-input|date input preserves validation and values across translations
 date-input|date input has accessible keyboard reachable date fields
 session-error|session error page shows default content and supports custom messages
@@ -102,6 +104,8 @@ terms-display|terms display renders sanitized HTML and excludes unsafe attribute
 terms-display|terms display treats plain text as text and handles unsupported MIME types
 terms-display|terms display uses the shared translation service for language changes
 terms-display|translated HTML is rendered through Angular sanitization
+terms-confirmation|terms confirmation keeps its translation, review link and confirm event contract
+terms-confirmation|terms confirmation translates content and passes an accessibility scan
 gov-input|GOV.UK input connects its label and hint and updates the reactive form
 gov-input|GOV.UK input associates an error and restores hint-only state
 gov-input|non-heading label follows Welsh language
@@ -181,6 +185,12 @@ user-list|users with a route retain a navigable link and emit selection
 user-list|user list pages through users and emits the chosen user
 user-list|pagination can be operated with the keyboard
 user-list|user list and pagination have no automated accessibility violations
+pagination|generic pagination preserves null events and exposes keyboard-operable page actions
+pagination|HMCTS paginator is independently usable and keeps separate list state
+pagination|pagination entries have no automated accessibility violations
+address|address lookup uses the external endpoint and writes the selected public model
+address|address lookup presents the empty state after an unsuccessful request
+address|address entry has no automated accessibility violations
 invitation|invitation emits submit and displays parent validation
 invitation|invitation emits entered details and selected permissions
 invitation|invitation form supports keyboard selection and passes axe
@@ -188,12 +198,30 @@ invitation|invalid invitation inputs expose their errors accessibly
 invitation|invitation retains and updates a preselected permission
 invitation|permission error is announced by the permissions fieldset
 invitation|permissions with an empty error never reference a missing message
+page-wrapper|page wrapper renders its translated shell and projected content
+page-wrapper|page wrapper omits unset shell elements and passes a scoped accessibility scan
 hearing-lookups|judicial lookup supports keyboard selection and an accessible name
 hearing-lookups|venue lookup supports keyboard selection and unique labelled instances
 hearing-lookups|an exact judicial name auto-selects while retaining its visible input label
 hearing-lookups|an exact venue name auto-selects while retaining its visible input label
 hearing-lookups|duplicate exact judicial names stay visible without auto-selecting either person
 hearing-lookups|duplicate exact venue names stay visible without auto-selecting either venue
+case-list|case list renders configured columns and selects a case once with the keyboard
+case-list|case list emits the page selection and displays the requested page
+case-list|case list exposes accessible selection names and has no duplicate checkbox IDs
+case-list|case identifiers stay local when translating accessible selection labels
+case-list|case selection and select-all remain independent between list instances
+filter-renderers|SearchService binds native disabled, two-way terms, visibility, selected keys and option objects
+filter-renderers|FindService exposes the service label, native disabling, Add and the Select All display tag
+filter-renderers|single service selection commits immediately and keeps its text on submission
+filter-renderers|Work Allocation lookup uses scalar and positional codes with booking context, then clears every location
+filter-renderers|Staff Admin lookup uses service option objects and displays venue names, then resets on submission
+filter-renderers|single location selection keeps its committed text on submission
+generic-filter|Work Allocation composes scalar service, booking location, person, task and work-type fields
+generic-filter|Work Allocation checkbox service lookup omits services_all and disabling clears all selected locations
+generic-filter|invalid Apply exposes template errors and Reset rebinds edits to the active form
+generic-filter-accessibility|Staff Admin titles its combobox, filters skills, and persists venue records from option-object services
+generic-filter-accessibility|two composed service fields each have a unique input and a label that focuses only that input
 cookie-banner|cookie consent banner has a translated accessible name and a working details link
 cookie-banner|cookie details route loads directly in the cookie banner gallery
 cookie-banner|accepting analytics consent stores it for a year and enables opted-in Dynatrace after consent

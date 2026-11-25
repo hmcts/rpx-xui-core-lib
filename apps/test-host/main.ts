@@ -17,65 +17,47 @@ class ValidationGallery {
   submitted = false;
 }
 
-const application = window.location.pathname === '/service-messages'
-  ? import('./service-messages').then(({ startServiceMessagesGallery }) => startServiceMessagesGallery())
-  : window.location.pathname === '/invitation'
-  ? import('./invitation').then(({ startInvitationGallery }) => startInvitationGallery())
-  : window.location.pathname === '/user-list'
-  ? import('./user-list').then(({ startUserListGallery }) => startUserListGallery())
-  : window.location.pathname === '/user-details'
-  ? import('./user-details').then(({ startUserDetailsGallery }) => startUserDetailsGallery())
-  : window.location.pathname === '/task-lookups'
-  ? import('./task-lookups').then(({ startTaskLookupsGallery }) => startTaskLookupsGallery())
-  : window.location.pathname === '/selected-cases'
-  ? import('./selected-cases').then(({ startSelectedCasesGallery }) => startSelectedCasesGallery())
-  : window.location.pathname === '/share-case'
-  ? import('./share-case').then(({ startShareCaseGallery }) => startShareCaseGallery())
-  : window.location.pathname === '/reuse-person'
-  ? import('./reuse-person').then(({ startReusePersonHost }) => startReusePersonHost())
-  : window.location.pathname === '/find-person'
-  ? import('./find-person').then(({ startFindPersonGallery }) => startFindPersonGallery())
-  : window.location.pathname === '/checkbox-list'
-  ? import('./checkbox-list').then(({ startCheckboxListGallery }) => startCheckboxListGallery())
-  : window.location.pathname === '/gov-date'
-  ? import('./gov-date').then(({ startGovDateGallery }) => startGovDateGallery())
-  : window.location.pathname === '/gov-input'
-  ? import('./gov-input').then(({ startGovInputGallery }) => startGovInputGallery())
-  : window.location.pathname === '/terms-display'
-  ? import('./terms-display').then(({ startTermsDisplayGallery }) => startTermsDisplayGallery())
-  : window.location.pathname === '/search-location'
-  ? import('./search-location').then(({ startSearchLocationGallery }) => startSearchLocationGallery())
-  : window.location.pathname === '/hearing-lookups'
-  ? import('./hearing-lookups').then(({ startHearingLookupsGallery }) => startHearingLookupsGallery())
-  : window.location.pathname === '/session-error'
-  ? import('./session-error').then(({ startSessionErrorGallery }) => startSessionErrorGallery())
-  : window.location.pathname === '/editor-date'
-  ? import('./editor-date').then(({ startEditorDateGallery }) => startEditorDateGallery())
-  : window.location.pathname === '/window'
-  ? import('./window').then(({ startWindowGallery }) => startWindowGallery())
-  : window.location.pathname.startsWith('/session-storage')
-  ? import('./session-storage').then(({ startSessionStorageGallery }) => startSessionStorageGallery())
-  : window.location.pathname === '/cookie-banner' || window.location.pathname === '/cookies'
-  ? import('./cookie-banner').then(({ startCookieBannerGallery }) => startCookieBannerGallery())
-  : window.location.pathname.startsWith('/cookie')
-  ? import('./cookie').then(({ startCookieGallery }) => startCookieGallery())
-  : window.location.pathname === '/feature-toggle'
-  ? import('./feature-toggle').then(({ startFeatureToggleGallery }) => startFeatureToggleGallery())
-  : window.location.pathname === '/primitives'
-  ? import('./primitives').then(({ startPrimitivesGallery }) => startPrimitivesGallery())
-  : window.location.pathname === '/session-dialog'
-  ? import('./session-dialog').then(({ startSessionDialogGallery }) => startSessionDialogGallery())
-  : window.location.pathname === '/accessibility'
-  ? import('./accessibility').then(({ startAccessibilityGallery }) => startAccessibilityGallery())
-  : window.location.pathname === '/due-date'
-  ? import('./due-date').then(({ startDueDateGallery }) => startDueDateGallery())
-  : window.location.pathname === '/case-reference'
-  ? import('./case-reference').then(({ startCaseReferenceGallery }) => startCaseReferenceGallery())
-  : window.location.pathname === '/contact'
-  ? import('./contact').then(({ startContactGallery }) => startContactGallery())
-  : window.location.pathname === '/spinner'
-  ? import('./spinner').then(({ startSpinnerGallery }) => startSpinnerGallery())
-  : window.location.pathname === '/translation'
-  ? import('./translation').then(({ startTranslationGallery }) => startTranslationGallery())
-  : bootstrapApplication(ValidationGallery);
+const galleries: Array<{ matches: (path: string) => boolean; start: () => Promise<unknown> }> = [
+  { matches: path => path === '/service-messages', start: () => import('./service-messages').then(({ startServiceMessagesGallery }) => startServiceMessagesGallery()) },
+  { matches: path => path === '/page-wrapper', start: () => import('./page-wrapper').then(({ startPageWrapperGallery }) => startPageWrapperGallery()) },
+  { matches: path => path === '/terms-confirmation', start: () => import('./terms-confirmation').then(({ startTermsConfirmationGallery }) => startTermsConfirmationGallery()) },
+  { matches: path => path === '/invitation', start: () => import('./invitation').then(({ startInvitationGallery }) => startInvitationGallery()) },
+  { matches: path => path === '/user-list', start: () => import('./user-list').then(({ startUserListGallery }) => startUserListGallery()) },
+  { matches: path => path === '/user-details', start: () => import('./user-details').then(({ startUserDetailsGallery }) => startUserDetailsGallery()) },
+  { matches: path => path === '/case-list', start: () => import('./case-list').then(({ startCaseListGallery }) => startCaseListGallery()) },
+  { matches: path => path === '/pagination', start: () => import('./pagination').then(({ startPaginationGallery }) => startPaginationGallery()) },
+  { matches: path => path === '/address', start: () => import('./address').then(({ startAddressGallery }) => startAddressGallery()) },
+  { matches: path => path === '/task-lookups', start: () => import('./task-lookups').then(({ startTaskLookupsGallery }) => startTaskLookupsGallery()) },
+  { matches: path => path === '/selected-cases', start: () => import('./selected-cases').then(({ startSelectedCasesGallery }) => startSelectedCasesGallery()) },
+  { matches: path => path === '/share-case', start: () => import('./share-case').then(({ startShareCaseGallery }) => startShareCaseGallery()) },
+  { matches: path => path === '/reuse-person', start: () => import('./reuse-person').then(({ startReusePersonHost }) => startReusePersonHost()) },
+  { matches: path => path === '/find-person', start: () => import('./find-person').then(({ startFindPersonGallery }) => startFindPersonGallery()) },
+  { matches: path => path === '/checkbox-list', start: () => import('./checkbox-list').then(({ startCheckboxListGallery }) => startCheckboxListGallery()) },
+  { matches: path => path === '/gov-date', start: () => import('./gov-date').then(({ startGovDateGallery }) => startGovDateGallery()) },
+  { matches: path => path === '/gov-input', start: () => import('./gov-input').then(({ startGovInputGallery }) => startGovInputGallery()) },
+  { matches: path => path === '/terms-display', start: () => import('./terms-display').then(({ startTermsDisplayGallery }) => startTermsDisplayGallery()) },
+  { matches: path => path === '/generic-filter', start: () => import('./generic-filter').then(({ startGenericFilterGallery }) => startGenericFilterGallery()) },
+  { matches: path => path === '/filter-renderers', start: () => import('./filter-renderers').then(({ startFilterRenderersGallery }) => startFilterRenderersGallery()) },
+  { matches: path => path === '/search-location', start: () => import('./search-location').then(({ startSearchLocationGallery }) => startSearchLocationGallery()) },
+  { matches: path => path === '/hearing-lookups', start: () => import('./hearing-lookups').then(({ startHearingLookupsGallery }) => startHearingLookupsGallery()) },
+  { matches: path => path === '/session-error', start: () => import('./session-error').then(({ startSessionErrorGallery }) => startSessionErrorGallery()) },
+  { matches: path => path === '/editor-date', start: () => import('./editor-date').then(({ startEditorDateGallery }) => startEditorDateGallery()) },
+  { matches: path => path === '/window', start: () => import('./window').then(({ startWindowGallery }) => startWindowGallery()) },
+  { matches: path => path.startsWith('/session-storage'), start: () => import('./session-storage').then(({ startSessionStorageGallery }) => startSessionStorageGallery()) },
+  { matches: path => path === '/cookie-banner' || path === '/cookies', start: () => import('./cookie-banner').then(({ startCookieBannerGallery }) => startCookieBannerGallery()) },
+  { matches: path => path.startsWith('/cookie'), start: () => import('./cookie').then(({ startCookieGallery }) => startCookieGallery()) },
+  { matches: path => path === '/feature-toggle', start: () => import('./feature-toggle').then(({ startFeatureToggleGallery }) => startFeatureToggleGallery()) },
+  { matches: path => path.startsWith('/feature-toggle-guard'), start: () => import('./feature-toggle-guard').then(({ startFeatureToggleGuardGallery }) => startFeatureToggleGuardGallery()) },
+  { matches: path => path === '/primitives', start: () => import('./primitives').then(({ startPrimitivesGallery }) => startPrimitivesGallery()) },
+  { matches: path => path === '/session-dialog', start: () => import('./session-dialog').then(({ startSessionDialogGallery }) => startSessionDialogGallery()) },
+  { matches: path => path === '/accessibility', start: () => import('./accessibility').then(({ startAccessibilityGallery }) => startAccessibilityGallery()) },
+  { matches: path => path === '/due-date', start: () => import('./due-date').then(({ startDueDateGallery }) => startDueDateGallery()) },
+  { matches: path => path === '/case-reference', start: () => import('./case-reference').then(({ startCaseReferenceGallery }) => startCaseReferenceGallery()) },
+  { matches: path => path === '/contact', start: () => import('./contact').then(({ startContactGallery }) => startContactGallery()) },
+  { matches: path => path === '/spinner', start: () => import('./spinner').then(({ startSpinnerGallery }) => startSpinnerGallery()) },
+  { matches: path => path === '/translation', start: () => import('./translation').then(({ startTranslationGallery }) => startTranslationGallery()) },
+];
+
+const gallery = galleries.find(({ matches }) => matches(window.location.pathname));
+const application = gallery ? gallery.start() : bootstrapApplication(ValidationGallery);
 application.catch((error: unknown) => console.error(error));

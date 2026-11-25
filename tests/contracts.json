@@ -127,6 +127,21 @@
       "user details emits the original user for suspend and reinvite actions",
       "user list retains the legacy 50-item page and emits the selected user",
       "user list updates the current page and emits the requested page",
+      "generic pagination retains the null payload on both public outputs",
+      "user-list and standalone HMCTS pagination share one component identity",
+      "both pagination entries allow a caller to distinguish navigation landmarks",
+      "postcode parser preserves RD06 address line placement and country metadata",
+      "postcode parser removes absent fields and shifts formatted lines upward",
+      "postcode formatter preserves the existing first-line priority and capitalization",
+      "postcode parser ignores null and missing source fields without leaking sentinel text",
+      "address service preserves the external postcode endpoint and formats returned models",
+      "address service returns an empty list without a request for an empty postcode",
+      "address service propagates postcode lookup failures",
+      "address service drops results without a DPA record and handles a missing result list",
+      "address models and address option labels keep the CommonLib public field contract",
+      "address option keeps the supplied default row label without inventing an address value",
+      "address component rejects a blank postcode and emits the CommonLib lookup outputs",
+      "address component retains manual and international selection events",
       "invitation form defaults missing errors and emits a submit event",
       "invitation permissions retain legacy default flags",
       "judicial search skips short terms, forwards service ID, cancels stale searches and excludes selected people",
@@ -148,7 +163,51 @@
       "an exact venue-name result is selected and emitted automatically",
       "an exact venue match appends its EPIMMS ID when the selected control is a FormArray",
       "duplicate exact venue names remain available for explicit selection",
-      "new raw venue input cancels before debounce and destruction prevents its pending search"
+      "new raw venue input cancels before debounce and destruction prevents its pending search",
+      "case list retains its public table configuration and date formatting contract",
+      "case selection changes once for the supported legacy Space key event",
+      "case list does not synthesize a Space-key selection in browsers using native checkbox change",
+      "an empty case list is not reported as fully selected",
+      "an undefined cases input is normalized before selection and rendering",
+      "case list emits the requested current page",
+      "browser service classifies legacy browser user-agent strings",
+      "local persistence replaces stale ownership and strips the raw ID from a copy",
+      "a fresh service restores matching local ownership across tabs",
+      "a matching local setting takes precedence over stale session data",
+      "a mismatched local owner is removed and the session setting survives",
+      "cached local settings become unavailable when the owner changes",
+      "a second user can save their own filter after rejecting the first owner",
+      "local restore removes settings with a legacy raw ID or no ownership metadata",
+      "an owned local selection is removed if no current owner is available",
+      "local writes fall back to session without a supplied owner hash",
+      "session writes remove colliding local data and survive only during that session",
+      "streams replay restored state, publish changes per ID and emit null on clear",
+      "malformed JSON still throws and leaves stored data untouched",
+      "getUserId retains ID-first and UID-fallback behavior",
+      "initial-setting and error notification state retain their public defaults",
+      "the browser package graph contains filter state and its low-level runtime dependencies",
+      "disabling a location search clears all three selections and resets its search term once",
+      "location lookup preserves the fallback, scalar values and ordered checkbox service keys",
+      "location selection commits via Add, removes by ID without a search event and resets on submission",
+      "single location selection commits immediately, survives submission and clears on typing",
+      "removing Select All clears the service form and emits exactly once after the form and tags update",
+      "service defaults, replacement of All and removal use the configured option objects",
+      "service submission clears a draft term, keeps an immediate single selection and unsubscribes on destroy",
+      "search service filters by unselected key and case-insensitive label and emits the configured option",
+      "Capitalize lowers the input and capitalizes only the first character",
+      "all 14 field types restore their form shapes and project their saved records",
+      "configured defaults yield to explicit settings and the stored setting takes precedence",
+      "a saved field with a missing value falls back to an empty string",
+      "Apply emits the upstream public errors and callback order, then persists a valid projection",
+      "Reset, Apply and edit observe the active form, detach the old form, then unsubscribe on destroy",
+      "Reset restores checkbox, location and service arrays from the configured defaults before reapplying",
+      "Reset still empties the work-type form array even when a work-type default is configured",
+      "copyFields may return a replacement FormGroup used for Apply and edits",
+      "conditional fields toggle required validators, location reset and radio activation",
+      "nested skill checkbox selection maps back to keys and keeps the selected groups",
+      "skill groups sort by English alphabetic order regardless of letter case",
+      "known person and task values update only declared controls and the task clear sentinel empties task fields",
+      "confirmation button emits the confirm event"
     ]
   },
   "browser": {
@@ -396,6 +455,16 @@
       },
       {
         "projectName": "chromium",
+        "title": "feature guard allows a web route and redirects it when its flag is disabled",
+        "feature": "feature-toggle-guard"
+      },
+      {
+        "projectName": "chromium",
+        "title": "registration routes follow reciprocal feature expectations without a redirect loop",
+        "feature": "feature-toggle-guard"
+      },
+      {
+        "projectName": "chromium",
         "title": "date input preserves validation and values across translations",
         "feature": "date-input"
       },
@@ -468,6 +537,16 @@
         "projectName": "chromium",
         "title": "translated HTML is rendered through Angular sanitization",
         "feature": "terms-display"
+      },
+      {
+        "projectName": "chromium",
+        "title": "terms confirmation keeps its translation, review link and confirm event contract",
+        "feature": "terms-confirmation"
+      },
+      {
+        "projectName": "chromium",
+        "title": "terms confirmation translates content and passes an accessibility scan",
+        "feature": "terms-confirmation"
       },
       {
         "projectName": "chromium",
@@ -866,6 +945,36 @@
       },
       {
         "projectName": "chromium",
+        "title": "generic pagination preserves null events and exposes keyboard-operable page actions",
+        "feature": "pagination"
+      },
+      {
+        "projectName": "chromium",
+        "title": "HMCTS paginator is independently usable and keeps separate list state",
+        "feature": "pagination"
+      },
+      {
+        "projectName": "chromium",
+        "title": "pagination entries have no automated accessibility violations",
+        "feature": "pagination"
+      },
+      {
+        "projectName": "chromium",
+        "title": "address lookup uses the external endpoint and writes the selected public model",
+        "feature": "address"
+      },
+      {
+        "projectName": "chromium",
+        "title": "address lookup presents the empty state after an unsuccessful request",
+        "feature": "address"
+      },
+      {
+        "projectName": "chromium",
+        "title": "address entry has no automated accessibility violations",
+        "feature": "address"
+      },
+      {
+        "projectName": "chromium",
         "title": "invitation emits submit and displays parent validation",
         "feature": "invitation"
       },
@@ -901,6 +1010,16 @@
       },
       {
         "projectName": "chromium",
+        "title": "page wrapper renders its translated shell and projected content",
+        "feature": "page-wrapper"
+      },
+      {
+        "projectName": "chromium",
+        "title": "page wrapper omits unset shell elements and passes a scoped accessibility scan",
+        "feature": "page-wrapper"
+      },
+      {
+        "projectName": "chromium",
         "title": "judicial lookup supports keyboard selection and an accessible name",
         "feature": "hearing-lookups"
       },
@@ -928,6 +1047,86 @@
         "projectName": "chromium",
         "title": "duplicate exact venue names stay visible without auto-selecting either venue",
         "feature": "hearing-lookups"
+      },
+      {
+        "projectName": "chromium",
+        "title": "case list renders configured columns and selects a case once with the keyboard",
+        "feature": "case-list"
+      },
+      {
+        "projectName": "chromium",
+        "title": "case list emits the page selection and displays the requested page",
+        "feature": "case-list"
+      },
+      {
+        "projectName": "chromium",
+        "title": "case list exposes accessible selection names and has no duplicate checkbox IDs",
+        "feature": "case-list"
+      },
+      {
+        "projectName": "chromium",
+        "title": "case identifiers stay local when translating accessible selection labels",
+        "feature": "case-list"
+      },
+      {
+        "projectName": "chromium",
+        "title": "case selection and select-all remain independent between list instances",
+        "feature": "case-list"
+      },
+      {
+        "projectName": "chromium",
+        "title": "SearchService binds native disabled, two-way terms, visibility, selected keys and option objects",
+        "feature": "filter-renderers"
+      },
+      {
+        "projectName": "chromium",
+        "title": "FindService exposes the service label, native disabling, Add and the Select All display tag",
+        "feature": "filter-renderers"
+      },
+      {
+        "projectName": "chromium",
+        "title": "single service selection commits immediately and keeps its text on submission",
+        "feature": "filter-renderers"
+      },
+      {
+        "projectName": "chromium",
+        "title": "Work Allocation lookup uses scalar and positional codes with booking context, then clears every location",
+        "feature": "filter-renderers"
+      },
+      {
+        "projectName": "chromium",
+        "title": "Staff Admin lookup uses service option objects and displays venue names, then resets on submission",
+        "feature": "filter-renderers"
+      },
+      {
+        "projectName": "chromium",
+        "title": "single location selection keeps its committed text on submission",
+        "feature": "filter-renderers"
+      },
+      {
+        "projectName": "chromium",
+        "title": "Work Allocation composes scalar service, booking location, person, task and work-type fields",
+        "feature": "generic-filter"
+      },
+      {
+        "projectName": "chromium",
+        "title": "Work Allocation checkbox service lookup omits services_all and disabling clears all selected locations",
+        "feature": "generic-filter"
+      },
+      {
+        "projectName": "chromium",
+        "title": "invalid Apply exposes template errors and Reset rebinds edits to the active form",
+        "feature": "generic-filter"
+      },
+      {
+        "projectName": "chromium",
+        "title": "Staff Admin titles its combobox, filters skills, and persists venue records from option-object services",
+        "feature": "generic-filter-accessibility"
+      },
+      {
+        "projectName": "chromium",
+        "title": "two composed service fields each have a unique input and a label that focuses only that input",
+        "feature": "generic-filter-accessibility"
       },
       {
         "projectName": "chromium",
@@ -999,9 +1198,11 @@
       "package.service-messages-graph",
       "package.service-messages-behavior",
       "package.feature-toggle-graph",
+      "package.feature-toggle-guard-graph",
       "package.feature-directive-graph",
       "package.role-state-graph",
       "package.feature-toggle-behavior",
+      "package.feature-toggle-guard-behavior",
       "package.role-state-behavior",
       "package.editor-date-graph",
       "package.session-error-graph",
@@ -1009,6 +1210,7 @@
       "package.loading-eager-fault",
       "package.search-location-graph",
       "package.terms-display-graph",
+      "package.terms-confirmation-graph",
       "package.gov-input-graph",
       "package.gov-input-behavior",
       "package.gov-date-graph",
@@ -1053,10 +1255,30 @@
       "package.user-details-graph",
       "package.user-list-behavior",
       "package.user-list-graph",
+      "package.pagination-behavior",
+      "package.pagination-graph",
+      "package.hmcts-pagination-graph",
+      "package.address-behavior",
+      "package.address-graph",
       "package.invitation-behavior",
       "package.invitation-graph",
+      "package.page-wrapper-graph",
       "package.search-judicials-graph",
       "package.search-venue-graph",
+      "package.case-list-behavior",
+      "package.user-agent-behavior",
+      "package.case-list-graph",
+      "package.ccd-pagination-graph",
+      "package.user-agent-graph",
+      "package.filter-state-graph",
+      "package.filter-field-types",
+      "package.find-location-graph",
+      "package.find-service-graph",
+      "package.search-service-graph",
+      "package.capitalize-graph",
+      "package.generic-filter-graph",
+      "package.filter-service-identity",
+      "package.filter-service-identity-fault",
       "package.cookie-banner-behavior",
       "package.cookie-banner-graph"
     ]
@@ -1132,7 +1354,7 @@
       "RpxTranslationService language changes does not replace English with a stale failed-request fallback",
       "RpxTranslationService language changes returns English for phrases matching inherited Object property names",
       "RpxTranslationService public API composition translates only static fragments and preserves repeated numeric replacements and spacing",
-      "RpxTranslationService public API composition selects Yes/No metadata and matches each input\u2019s initial letter case from one request",
+      "RpxTranslationService public API composition selects Yes/No metadata and matches each input’s initial letter case from one request",
       "RpxTranslationService public API composition restores original Yes/No inputs after a successful response without answer metadata",
       "RpxTranslationService request lifecycle batches distinct phrases and deduplicates repeated subscriptions and normalized aliases",
       "RpxTranslationService request lifecycle uses source fallback in production mode and allows a subsequent phrase to translate",
@@ -1272,7 +1494,12 @@
       "directive stops a synchronous source when destroyed during rendering",
       "directive ignores assignments after destruction and a reentrant provider switch",
       "directive does not overwrite a replacement created by previous-source teardown",
-      "directive does not resubscribe when teardown reenters during destruction"
+      "directive does not resubscribe when teardown reenters during destruction",
+      "feature-toggle guard waits for every flag and supplies true as each default",
+      "feature-toggle guard redirects when any required flag is disabled",
+      "literal false inverts the all-enabled rule; other values keep the default rule",
+      "feature-toggle guard propagates provider errors",
+      "feature-toggle guard preserves missing and empty route metadata behavior"
     ]
   },
   "roleUnit": {

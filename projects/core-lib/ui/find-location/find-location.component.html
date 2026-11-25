@@ -1,0 +1,44 @@
+<div class="location-picker-custom">
+  <div class="search-location">
+    <div>
+      @if (locationTitle) {
+        <label id="input-selected-location-label" for="inputLocationSearch">{{locationTitle}}</label>
+      }
+    </div>
+    <exui-search-location class="search-location"
+      [form]="form"
+      [field]="field"
+      [selectedLocations]="selectedLocations"
+      [delay]="300"
+      [disabled]="disabled"
+      [singleMode]="field.maxSelected === 1"
+      [bookingCheck]="field.bookingCheckType"
+      [serviceIds]="serviceIds"
+      [propertyNameFilter]="propertyNameFilter"
+      (locationTermSearchInputChanged)="onInputChanged($event)"
+      (locationSelected)="onLocationSelected($event)"
+      (searchLocationChanged)="onSearchInputChanged()"
+      [locationType]="'case-management'">
+    </exui-search-location>
+  </div>
+
+  <div>
+    @if (enableAddLocationButton) {
+      <a href="#" (click)="addLocation(); $event.preventDefault()" class="govuk-button add-location-button" data-module="govuk-button">
+        Add location
+      </a>
+    }
+  </div>
+
+  @if (field.maxSelected != 1) {
+    <ul class="hmcts-filter-tags selection-container">
+      @for (selection of selectedLocations; track selection) {
+        <li class="location-selection" >
+          <a class="hmcts-filter__tag" href="#" (click)="removeLocation(selection); $event.preventDefault()">
+            {{ selection[propertyNameFilter] }}
+          </a>
+        </li>
+      }
+    </ul>
+  }
+</div>

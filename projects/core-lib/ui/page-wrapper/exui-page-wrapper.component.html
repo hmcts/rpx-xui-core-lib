@@ -1,0 +1,18 @@
+<div class="page">
+  @if (backLink) {
+    <a [routerLink]="backLink" class="govuk-back-link">{{ 'Back' | rpxTranslate }}</a>
+  }
+  <div class="govuk-width-container">
+    <div class="govuk-grid-row">
+      @if (title) {
+        <h1 class="govuk-heading-xl">
+          @if (fnTitle) {
+            <span class="govuk-caption-xl">{{ fnTitle | rpxTranslate }}</span>
+          }
+          {{ title | rpxTranslate }}
+        </h1>
+      }
+      <ng-content></ng-content>
+    </div>
+  </div>
+</div>

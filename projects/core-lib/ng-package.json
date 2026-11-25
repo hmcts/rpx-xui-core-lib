@@ -6,6 +6,15 @@
   },
   "assets": [
     { "input": "ui/service-messages", "glob": "LICENCE", "output": "ui/service-messages" },
+    { "input": "browser/user-agent", "glob": "LICENCE", "output": "browser/user-agent" },
+    { "input": "ui/ccd-pagination", "glob": "LICENCE", "output": "ui/ccd-pagination" },
+    { "input": "ui/case-list", "glob": "LICENCE", "output": "ui/case-list" },
+    { "input": "ui/filter-state", "glob": "LICENCE", "output": "ui/filter-state" },
+    { "input": "ui/find-location", "glob": "LICENCE", "output": "ui/find-location" },
+    { "input": "ui/find-service", "glob": "LICENCE", "output": "ui/find-service" },
+    { "input": "ui/search-service", "glob": "LICENCE", "output": "ui/search-service" },
+    { "input": "ui/capitalize", "glob": "LICENCE", "output": "ui/capitalize" },
+    { "input": "ui/generic-filter", "glob": "LICENCE", "output": "ui/generic-filter" },
     {
       "input": "forms/validation",
       "glob": "LICENCE",
@@ -32,6 +41,16 @@
       "output": "ui/user-list"
     },
     {
+      "input": "ui/hmcts-pagination",
+      "glob": "LICENCE",
+      "output": "ui/hmcts-pagination"
+    },
+    {
+      "input": "ui/pagination",
+      "glob": "LICENCE",
+      "output": "ui/pagination"
+    },
+    {
       "input": "ui/user-details",
       "glob": "LICENCE",
       "output": "ui/user-details"
@@ -40,6 +59,11 @@
       "input": "ui/contact-details",
       "glob": "LICENCE",
       "output": "ui/contact-details"
+    },
+    {
+      "input": "ui/page-wrapper",
+      "glob": "LICENCE",
+      "output": "ui/page-wrapper"
     },
     {
       "input": "ui/loading-spinner",
@@ -105,6 +129,11 @@
       "input": "ui/feature-toggle-directive",
       "glob": "LICENCE",
       "output": "ui/feature-toggle-directive"
+    },
+    {
+      "input": "ui/feature-toggle-guard",
+      "glob": "LICENCE",
+      "output": "ui/feature-toggle-guard"
     },
     {
       "input": "ui/cookie",
@@ -182,6 +211,11 @@
       "output": "terms/display"
     },
     {
+      "input": "terms/confirmation",
+      "glob": "LICENCE",
+      "output": "terms/confirmation"
+    },
+    {
       "input": "ui/gov-input",
       "glob": "LICENCE",
       "output": "ui/gov-input"
@@ -220,6 +254,16 @@
       "input": "ui/find-work-type",
       "glob": "LICENCE",
       "output": "ui/find-work-type"
+    },
+    {
+      "input": "address/normalization",
+      "glob": "LICENCE",
+      "output": "address/normalization"
+    },
+    {
+      "input": "ui/address",
+      "glob": "LICENCE",
+      "output": "ui/address"
     }
   ],
   "allowedNonPeerDependencies": [
