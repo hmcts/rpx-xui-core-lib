@@ -470,11 +470,13 @@ addedBrowserJourneys.push(
   'case identifiers stay local when translating accessible selection labels',
   'case selection and select-all remain independent between list instances',
 );
+addedBrowserJourneys.push('page wrapper renders its translated shell and projected content', 'page wrapper omits unset shell elements and passes a scoped accessibility scan');
 packageIds.push('package.user-details-behavior', 'package.user-details-graph');
 packageIds.push('package.user-list-behavior', 'package.user-list-graph');
 packageIds.push('package.pagination-behavior', 'package.pagination-graph', 'package.hmcts-pagination-graph');
 packageIds.push('package.invitation-behavior', 'package.invitation-graph');
 packageIds.push('package.case-list-behavior', 'package.user-agent-behavior', 'package.case-list-graph', 'package.ccd-pagination-graph', 'package.user-agent-graph');
+packageIds.push('package.page-wrapper-graph');
 const filterFeatureContracts = [
   { feature: "Filter state", contracts: {
     unit: [

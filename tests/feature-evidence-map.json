@@ -2148,6 +2148,26 @@
       }
     },
     {
+      "feature": "Page wrapper",
+      "contracts": {
+        "browser": [
+          {
+            "projectName": "chromium",
+            "title": "page wrapper renders its translated shell and projected content",
+            "feature": "page-wrapper"
+          },
+          {
+            "projectName": "chromium",
+            "title": "page wrapper omits unset shell elements and passes a scoped accessibility scan",
+            "feature": "page-wrapper"
+          }
+        ],
+        "package": [
+          "package.page-wrapper-graph"
+        ]
+      }
+    },
+    {
       "feature": "Service messages",
       "contracts": {
         "package": [
