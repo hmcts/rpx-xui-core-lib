@@ -2509,6 +2509,45 @@
           }
         ]
       }
+    },
+    {
+      "feature": "Cookie consent banner",
+      "contracts": {
+        "cookieBannerUnit": [
+          "cookie banner shows the consent prompt and reports rejection when no consent exists",
+          "cookie banner hides the prompt and reports accepted consent from the stored value",
+          "accepting consent stores true for one year, reports acceptance and reloads the page",
+          "rejecting consent stores false, reports rejection and reloads the page",
+          "stored acceptance does not enable Dynatrace unless the host opts in",
+          "cookie banner remains safe without a browser window during server rendering"
+        ],
+        "browser": [
+          {
+            "projectName": "chromium",
+            "title": "cookie consent banner has a translated accessible name and a working details link",
+            "feature": "cookie-banner"
+          },
+          {
+            "projectName": "chromium",
+            "title": "cookie details route loads directly in the cookie banner gallery",
+            "feature": "cookie-banner"
+          },
+          {
+            "projectName": "chromium",
+            "title": "accepting analytics consent stores it for a year and enables opted-in Dynatrace after consent",
+            "feature": "cookie-banner"
+          },
+          {
+            "projectName": "chromium",
+            "title": "rejecting analytics consent persists false and does not enable Dynatrace",
+            "feature": "cookie-banner"
+          }
+        ],
+        "package": [
+          "package.cookie-banner-behavior",
+          "package.cookie-banner-graph"
+        ]
+      }
     }
   ],
   "suiteGroups": [
@@ -2576,6 +2615,7 @@
     "Case editor, stateful Node migration and other source-library capabilities remain incomplete or unverified.",
     "Filter state and Generic Filter have Core-only evidence. Each consuming application still needs to validate token identity, owner-hash delivery, storage lifecycle and its cutover.",
     "Find person retains identity without user details. Selection cancels pending and active lookups. Instances sharing a default or identical idValue still have duplicate input, hint and error IDs; the accessible name uses a translated phrase with an English fallback; pending names include an English translation-in-progress marker; real Welsh content and screen-reader acceptance are unverified. Multiple instances sharing one parent FormGroup still share a control and can issue duplicate lookups; replacing the parent group after initialization is unverified. Hint and error DOM IDs now include the supplied idValue, so external references require cutover verification. Consumer adoption requires application identity, accessibility and provider integration validation.",
-    "Task and work-type lookup default IDs can collide; task-name hint and error IDs are scoped when consumers provide distinct idValue values. Incompatible task-name cache data causes subsequent searches for that service to bypass cache without writing until picker recreation, increasing requests; recreation can encounter the same cache again. Real consumer dependency injection, Welsh error copy and assistive-technology acceptance remain unverified."
+    "Task and work-type lookup default IDs can collide; task-name hint and error IDs are scoped when consumers provide distinct idValue values. Incompatible task-name cache data causes subsequent searches for that service to bypass cache without writing until picker recreation, increasing requests; recreation can encounter the same cache again. Real consumer dependency injection, Welsh error copy and assistive-technology acceptance remain unverified.",
+    "Filter state is deferred until the owner reference, identity lifecycle, cross-owner storage and legacy migration contracts are agreed and validated with consumers."
   ]
 }

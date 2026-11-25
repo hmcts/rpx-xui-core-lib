@@ -44,6 +44,7 @@ const galleries: Array<{ matches: (path: string) => boolean; start: () => Promis
   { matches: path => path === '/editor-date', start: () => import('./editor-date').then(({ startEditorDateGallery }) => startEditorDateGallery()) },
   { matches: path => path === '/window', start: () => import('./window').then(({ startWindowGallery }) => startWindowGallery()) },
   { matches: path => path.startsWith('/session-storage'), start: () => import('./session-storage').then(({ startSessionStorageGallery }) => startSessionStorageGallery()) },
+  { matches: path => path === '/cookie-banner' || path === '/cookies', start: () => import('./cookie-banner').then(({ startCookieBannerGallery }) => startCookieBannerGallery()) },
   { matches: path => path.startsWith('/cookie'), start: () => import('./cookie').then(({ startCookieGallery }) => startCookieGallery()) },
   { matches: path => path === '/feature-toggle', start: () => import('./feature-toggle').then(({ startFeatureToggleGallery }) => startFeatureToggleGallery()) },
   { matches: path => path.startsWith('/feature-toggle-guard'), start: () => import('./feature-toggle-guard').then(({ startFeatureToggleGuardGallery }) => startFeatureToggleGuardGallery()) },
