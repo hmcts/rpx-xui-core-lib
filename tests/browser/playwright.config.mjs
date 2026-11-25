@@ -1,13 +1,13 @@
 import { fileURLToPath } from 'node:url';
-import { availableParallelism } from 'node:os';
 import { defineConfig } from '@playwright/test';
 import { reporters } from '../reporters/config.mjs';
+import { ciWorkerCount } from './worker-count.mjs';
 
 // Only isolated package-cohort configurations may select another CSP host.
 delete process.env.CORE_CSP_HOST_MODULE;
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
-const ciWorkers = Math.max(1, Math.min(6, availableParallelism() - 2));
+const ciWorkers = ciWorkerCount();
 
 export default defineConfig({
   globalSetup: '../evidence-host/setup.mjs',
