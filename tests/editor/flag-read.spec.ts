@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { ReadCaseFlagFieldComponent } from '../../projects/core-lib/case/editor-source/lib/shared/components/palette/case-flag/read-case-flag-field.component';
 
 export const registered = true;

@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { CaseField } from '../../projects/core-lib/case/editor-source/lib/shared/domain/definition/case-field.model';
 import { FormControl, Validators } from '@angular/forms';
 import { ConditionalShowFormDirective } from '../../projects/core-lib/case/editor-source/lib/shared/directives/conditional-show/conditional-show-form.directive';
@@ -13,11 +14,11 @@ describe('Conditional form migration contract', () => {
     directive.caseFields = [field];
     directive['allFieldValues'] = { other: 'no' };
     directive['evaluateCondition'](field, null, control);
-    expect(field.hidden).toBeTrue();
-    expect(control.disabled).toBeTrue();
+    expect(field.hidden).toBe(true);
+    expect(control.disabled).toBe(true);
     directive['allFieldValues'] = { other: 'yes' };
     directive['evaluateCondition'](field, null, control);
-    expect(field.hidden).toBeFalse();
-    expect(control.enabled).toBeTrue();
+    expect(field.hidden).toBe(false);
+    expect(control.enabled).toBe(true);
   });
 });

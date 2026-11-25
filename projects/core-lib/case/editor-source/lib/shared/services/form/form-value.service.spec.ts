@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, it } from 'vitest';
 import { FlagDetail, FlagsWithFormGroupPath } from '../../components/palette/case-flag/domain/case-flag.model';
 import { CaseField, FieldType } from '../../domain/definition';
 import { FieldsUtils } from '../fields';
@@ -275,7 +276,7 @@ describe('FormValueService', () => {
         value: []
       }
     ] as CaseField[];
-    spyOn(FieldsUtils, 'isFlagLauncherCaseField').and.returnValue(true);
+    vi.spyOn(FieldsUtils, 'isFlagLauncherCaseField').mockReturnValue(true);
     expect(formValueService.repopulateFormDataFromCaseFieldValues(flagsData, caseField)).not.toBeDefined();
   });
 
@@ -308,12 +309,12 @@ describe('FormValueService', () => {
     ] as CaseField[];
 
     it('should remove component launcher field', () => {
-      spyOn(FieldsUtils, 'isComponentLauncherCaseField').and.returnValue(true);
+      vi.spyOn(FieldsUtils, 'isComponentLauncherCaseField').mockReturnValue(true);
       expect(formValueService.removeCaseFieldsOfType(data, caseFields, ['ComponentLauncher'])).not.toBeDefined();
     });
 
     it('should populate linked cases details from case fields', () => {
-      spyOn(FieldsUtils, 'isComponentLauncherCaseField').and.returnValue(true);
+      vi.spyOn(FieldsUtils, 'isComponentLauncherCaseField').mockReturnValue(true);
       expect(formValueService.populateLinkedCasesDetailsFromCaseFields(data, caseFields)).not.toBeDefined();
     });
   });

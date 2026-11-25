@@ -1,3 +1,4 @@
+import { describe, expect, it, vi } from 'vitest';
 import { FormControl, FormGroup } from '@angular/forms';
 import { of } from 'rxjs';
 import { CaseEditSubmitComponent } from '../../projects/core-lib/case/editor-source/lib/shared/components/case-editor/case-edit-submit/case-edit-submit.component';
@@ -30,13 +31,13 @@ describe('Case editor submission data contract', () => {
     const failure = new Error('Synthetic review navigation failure');
     const navigation = Promise.reject(failure);
     navigation.catch(() => {});
-    const handler = { handleError: jasmine.createSpy('handleError') };
-    const editor = { navigateToPage: jasmine.createSpy('navigateToPage').and.returnValue(navigation) };
+    const handler = { handleError: vi.fn() };
+    const editor = { navigateToPage: vi.fn().mockReturnValue(navigation) };
     const component = Object.assign(Object.create(CaseEditSubmitComponent.prototype), { caseEdit: editor, errorHandler: handler });
     component.navigateToPage('review');
     await Promise.resolve();
-    expect(editor.navigateToPage).toHaveBeenCalledOnceWith('review');
-    expect(handler.handleError).toHaveBeenCalledOnceWith(failure);
+    expect(editor.navigateToPage).toHaveBeenCalledExactlyOnceWith('review');
+    expect(handler.handleError).toHaveBeenCalledExactlyOnceWith(failure);
   });
 
   it('reports failed confirmation navigation without resubmitting an accepted event', async () => {
@@ -44,17 +45,17 @@ describe('Case editor submission data contract', () => {
     const navigation = Promise.reject(failure);
     navigation.catch(() => {});
     const response = { id: 'case', after_submit_callback_response: { confirmation_header: 'Submitted' } };
-    const submit = jasmine.createSpy('submit').and.returnValue(of(response));
-    const handler = { handleError: jasmine.createSpy('handleError') };
+    const submit = vi.fn().mockReturnValue(of(response));
+    const handler = { handleError: vi.fn() };
     const editor = Object.assign(Object.create(CaseEditComponent.prototype), {
       errorHandler: handler,
-      caseNotifier: { removeCachedCase: jasmine.createSpy('removeCachedCase') },
-      sessionStorageService: { getItem: (): string | null => null, setItem: jasmine.createSpy('setItem'), removeItem: jasmine.createSpy('removeItem') },
-      loadingService: { register: () => 'token', unregister: jasmine.createSpy('unregister') },
-      abstractConfig: { logMessage: jasmine.createSpy('logMessage') },
-      router: { navigate: jasmine.createSpy('navigate').and.returnValue(navigation) },
+      caseNotifier: { removeCachedCase: vi.fn() },
+      sessionStorageService: { getItem: (): string | null => null, setItem: vi.fn(), removeItem: vi.fn() },
+      loadingService: { register: () => 'token', unregister: vi.fn() },
+      abstractConfig: { logMessage: vi.fn() },
+      router: { navigate: vi.fn().mockReturnValue(navigation) },
       route: {},
-      submitted: { emit: jasmine.createSpy('emit') },
+      submitted: { emit: vi.fn() },
       generateCaseEventData: () => ({})
     });
     editor.onEventCanBeCompleted({ eventCanBeCompleted: true, form: {}, submit });
@@ -63,7 +64,7 @@ describe('Case editor submission data contract', () => {
     expect(editor.router.navigate).toHaveBeenCalledTimes(1);
     expect(editor.submitted.emit).not.toHaveBeenCalled();
     expect(editor.caseNotifier.removeCachedCase).toHaveBeenCalledTimes(1);
-    expect(handler.handleError).toHaveBeenCalledOnceWith(failure);
+    expect(handler.handleError).toHaveBeenCalledExactlyOnceWith(failure);
   });
 
 });

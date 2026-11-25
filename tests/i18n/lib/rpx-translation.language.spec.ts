@@ -1,8 +1,11 @@
+import { afterEach, beforeEach, describe, expect, it, vi, type Mock, type MockInstance } from 'vitest';
+
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { fakeAsync, tick } from '@angular/core/testing';
 import { Subject, Subscription } from 'rxjs';
 import { db, Translation } from '../../../projects/core-lib/i18n/lib/db';
 import { RpxTranslationService } from '../../../projects/core-lib/i18n/lib/rpx-translation.service';
+
+afterEach(() => vi.useRealTimers());
 
 type TranslationReply = { translations: Record<string, string> };
 
@@ -12,21 +15,21 @@ const debounceMs = 20;
 
 describe('RpxTranslationService language changes', () => {
   let service: RpxTranslationService;
-  let post: jasmine.Spy;
+  let post: Mock;
   let reply: Subject<TranslationReply>;
-  let lookup: jasmine.Spy;
-  let writes: jasmine.Spy;
+  let lookup: Mock;
+  let writes: MockInstance<typeof db.translations.bulkAdd>;
   let subscriptions: Subscription[];
 
   beforeEach(() => {
     document.cookie = 'exui-preferred-language=; Max-Age=0; SameSite=Strict;';
     reply = new Subject<TranslationReply>();
-    post = jasmine.createSpy('post').and.returnValue(reply);
-    lookup = jasmine.createSpy('last').and.callFake(() => Promise.resolve(undefined));
-    spyOn(db.translations, 'where').and.returnValue({
+    post = vi.fn().mockReturnValue(reply);
+    lookup = vi.fn().mockImplementation(() => Promise.resolve(undefined));
+    vi.spyOn(db.translations, 'where').mockReturnValue({
       equals: () => ({ last: lookup })
     } as unknown as ReturnType<typeof db.translations.where>);
-    writes = spyOn(db.translations, 'bulkAdd').and.stub();
+    writes = vi.spyOn(db.translations, 'bulkAdd').mockImplementation(() => undefined as never);
     subscriptions = [];
     service = new RpxTranslationService(
       { baseUrl: '/translations', debounceTimeMs: debounceMs, validity: { days: 1 }, testMode: false },
@@ -52,9 +55,9 @@ describe('RpxTranslationService language changes', () => {
       resolveLookup = resolve;
     });
     const cached = Translation.create(phrase, 'cy', { translation: welsh }, '2999-01-01T00:00:00.000Z');
-    lookup.and.callFake(() => {
+    lookup.mockImplementation(() => {
       lookupStarted();
-      return lookup.calls.count() === 1 ? pendingLookup : Promise.resolve(cached);
+      return lookup.mock.calls.length === 1 ? pendingLookup : Promise.resolve(cached);
     });
     const values: string[] = [];
     let cacheReused: () => void = () => undefined;
@@ -88,27 +91,29 @@ describe('RpxTranslationService language changes', () => {
     expect(post).not.toHaveBeenCalled();
   });
 
-  it('caches a late Welsh response without overwriting English', fakeAsync(() => {
+  it('caches a late Welsh response without overwriting English', async () => {
+    vi.useFakeTimers();
     const values: string[] = [];
     subscriptions.push(service.getTranslation$(phrase).subscribe((value) => values.push(value)));
-    tick(debounceMs);
-    expect(post).toHaveBeenCalledOnceWith('/translations/cy', { phrases: [phrase] });
+    await vi.advanceTimersByTimeAsync(debounceMs);
+    expect(post).toHaveBeenCalledExactlyOnceWith('/translations/cy', { phrases: [phrase] });
     expect(values.at(-1)).toBe(`${phrase} [Translation in progress]`);
     service.language = 'en';
     const englishEmissions = values.length;
 
     reply.next({ translations: { [phrase]: welsh } });
     expect(writes).toHaveBeenCalledWith([
-      jasmine.objectContaining({ phrase, lang: 'cy', translation: { translation: welsh } })
+      expect.objectContaining({ phrase, lang: 'cy', translation: { translation: welsh } })
     ]);
     expect(values.length).toBe(englishEmissions);
     expect(values.at(-1)).toBe(phrase);
-  }));
+  });
 
-  it('does not replace English with a stale failed-request fallback', fakeAsync(() => {
+  it('does not replace English with a stale failed-request fallback', async () => {
+    vi.useFakeTimers();
     const values: string[] = [];
     subscriptions.push(service.getTranslation$(phrase).subscribe((value) => values.push(value)));
-    tick(debounceMs);
+    await vi.advanceTimersByTimeAsync(debounceMs);
     expect(post).toHaveBeenCalledTimes(1);
     expect(values.at(-1)).toBe(`${phrase} [Translation in progress]`);
     service.language = 'en';
@@ -118,9 +123,9 @@ describe('RpxTranslationService language changes', () => {
     expect(values.length).toBe(englishEmissions);
     expect(values.at(-1)).toBe(phrase);
     expect(writes).toHaveBeenCalledWith([
-      jasmine.objectContaining({ phrase, lang: 'cy', translation: { translation: phrase } })
+      expect.objectContaining({ phrase, lang: 'cy', translation: { translation: phrase } })
     ]);
-  }));
+  });
 
   it('returns English for phrases matching inherited Object property names', () => {
     service.language = 'en';
