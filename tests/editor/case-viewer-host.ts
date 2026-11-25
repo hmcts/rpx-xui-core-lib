@@ -36,8 +36,6 @@ let fixture: ReturnType<typeof TestBed.createComponent<CaseViewerComponent>>;
 let caseView: Subject<CaseView>;
 
 export async function createCaseViewerHost(accessProcess: string, accessGranted: string) {
-  TestBed.resetTestingModule();
-  caseView = new Subject<CaseView>();
   const routeCase = {
     tabs: [],
     metadataFields: [
@@ -46,11 +44,34 @@ export async function createCaseViewerHost(accessProcess: string, accessGranted:
     ]
   } as unknown as CaseView;
 
+  return createHost({ case: routeCase });
+}
+
+export async function createCaseViewerNotifierHost() {
+  return createHost({});
+}
+
+export function emitCaseViewerDetails(accessProcess: string, accessGranted: string) {
+  const caseDetails = {
+    tabs: [],
+    metadataFields: [
+      { id: '[ACCESS_PROCESS]', value: accessProcess },
+      { id: '[ACCESS_GRANTED]', value: accessGranted }
+    ]
+  } as unknown as CaseView;
+  caseView.next(caseDetails);
+  fixture.changeDetectorRef.detectChanges();
+}
+
+async function createHost(routeData: Record<string, unknown>) {
+  TestBed.resetTestingModule();
+  caseView = new Subject<CaseView>();
+
   await TestBed.configureTestingModule({
     imports: [CommonModule],
     declarations: [CaseViewerComponent, BasicAccessViewStub, FullAccessViewStub],
     providers: [
-      { provide: ActivatedRoute, useValue: { snapshot: { data: { case: routeCase } } } },
+      { provide: ActivatedRoute, useValue: { snapshot: { data: routeData } } },
       { provide: CaseNotifier, useValue: { caseView } },
       { provide: AbstractAppConfig, useValue: {} },
       { provide: OrderService, useValue: { sort: (tabs: unknown[]) => tabs } }

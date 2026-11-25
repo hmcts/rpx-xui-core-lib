@@ -2573,6 +2573,10 @@
           {
             "projectName": "chromium",
             "title": "renders the restricted case viewer for challenged access"
+          },
+          {
+            "projectName": "chromium",
+            "title": "renders case details from the notifier when resolved route data is absent"
           }
         ],
         "package": [

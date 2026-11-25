@@ -130,3 +130,17 @@ test('renders the restricted case viewer for challenged access', async ({ page }
   await expect(page.getByTestId('full-view')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+test('renders case details from the notifier when resolved route data is absent', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  await page.evaluate(() => globalThis.createCaseViewerNotifierHost());
+  await expect(page.getByTestId('full-view')).toHaveCount(0);
+  await expect(page.getByTestId('restricted-view')).toHaveCount(0);
+
+  await page.evaluate(() => globalThis.emitCaseViewerDetails('STANDARD', 'FULL'));
+  await expect(page.getByTestId('full-view')).toBeVisible();
+  await expect(page.getByTestId('restricted-view')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
