@@ -29,8 +29,8 @@ The successful probe resolved these additional packages:
 | ngx-editor | 19.0.0-beta.1 |
 | ngx-markdown | 20.1.0 |
 | ngx-pagination | 6.0.3 |
-| prosemirror-commands | 1.7.1 |
-| prosemirror-history | 1.5.0 |
+| prosemirror-commands | 1.7.2 |
+| prosemirror-history | 1.5.2 |
 | prosemirror-model | 1.25.13 |
 | prosemirror-schema-list | 1.5.1 |
 | prosemirror-state | 1.4.4 |
