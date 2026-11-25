@@ -122,7 +122,12 @@ const addedLaneNames = {
     "directive stops a synchronous source when destroyed during rendering",
     "directive ignores assignments after destruction and a reentrant provider switch",
     "directive does not overwrite a replacement created by previous-source teardown",
-    "directive does not resubscribe when teardown reenters during destruction"
+    "directive does not resubscribe when teardown reenters during destruction",
+    "feature-toggle guard waits for every flag and supplies true as each default",
+    "feature-toggle guard redirects when any required flag is disabled",
+    "literal false inverts the all-enabled rule; other values keep the default rule",
+    "feature-toggle guard propagates provider errors",
+    "feature-toggle guard preserves missing and empty route metadata behavior"
   ],
   "roleUnit": [
     "role state suppresses its initial null and emits each assigned array without copying",
@@ -282,7 +287,9 @@ const addedBrowserJourneys = [
   "session storage isolates independent tabs and supports remove-after-read",
   "feature directive shows at most one view and removes it when disabled",
   "feature directive switches subscriptions and clears stale content while waiting",
-  "feature directive unsubscribes on removal and subscribes again on remount"
+  "feature directive unsubscribes on removal and subscribes again on remount",
+  "feature guard allows a web route and redirects it when its flag is disabled",
+  "registration routes follow reciprocal feature expectations without a redirect loop"
 ];
 const cacheJourneys = [
   "baseline: legacy to core preserves valid cached translation",
@@ -328,7 +335,7 @@ packageIds.push("package.session-storage-behavior", "package.session-storage-gra
 
 packageIds.push("package.service-messages-graph", "package.service-messages-behavior");
 
-packageIds.push("package.feature-toggle-graph", "package.feature-directive-graph", "package.role-state-graph", "package.feature-toggle-behavior", "package.role-state-behavior");
+packageIds.push("package.feature-toggle-graph", "package.feature-toggle-guard-graph", "package.feature-directive-graph", "package.role-state-graph", "package.feature-toggle-behavior", "package.feature-toggle-guard-behavior", "package.role-state-behavior");
 
 packageIds.push('package.editor-date-graph');
 addedBrowserJourneys.push('date input preserves validation and values across translations', 'date input has accessible keyboard reachable date fields');

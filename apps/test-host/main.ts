@@ -59,6 +59,8 @@ const application = window.location.pathname === '/service-messages'
   ? import('./cookie').then(({ startCookieGallery }) => startCookieGallery())
   : window.location.pathname === '/feature-toggle'
   ? import('./feature-toggle').then(({ startFeatureToggleGallery }) => startFeatureToggleGallery())
+  : window.location.pathname.startsWith('/feature-toggle-guard')
+  ? import('./feature-toggle-guard').then(({ startFeatureToggleGuardGallery }) => startFeatureToggleGuardGallery())
   : window.location.pathname === '/primitives'
   ? import('./primitives').then(({ startPrimitivesGallery }) => startPrimitivesGallery())
   : window.location.pathname === '/session-dialog'

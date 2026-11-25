@@ -87,6 +87,8 @@ session-storage|session storage isolates independent tabs and supports remove-af
 feature-toggle-directive|feature directive shows at most one view and removes it when disabled
 feature-toggle-directive|feature directive switches subscriptions and clears stale content while waiting
 feature-toggle-directive|feature directive unsubscribes on removal and subscribes again on remount
+feature-toggle-guard|feature guard allows a web route and redirects it when its flag is disabled
+feature-toggle-guard|registration routes follow reciprocal feature expectations without a redirect loop
 date-input|date input preserves validation and values across translations
 date-input|date input has accessible keyboard reachable date fields
 session-error|session error page shows default content and supports custom messages

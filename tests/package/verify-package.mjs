@@ -63,7 +63,7 @@ try {
   const consumer = join(scratch, 'consumer');
   const dist = join(root, 'dist/core-lib');
   const declaration = 'forms/validation/index.d.ts';
-  const sourceLicenceEntries = ['ui/find-task-name', 'ui/find-work-type', 'ui/search-work-type', 'ui/find-person', 'ui/checkbox-list', 'ui/gov-date', 'ui/gov-select', 'ui/search-location', 'ui/search-judicials', 'ui/search-venue', 'terms/display', 'ui/gov-input', 'case/session-error', 'case/editor-date', 'browser/window', 'browser/session-storage', 'reference/locations', 'reference/ref-data', 'terms/models', 'ui/cookie', 'ui/feature-toggle', 'ui/feature-toggle-directive', 'ui/role-state', 'ui/task-data', 'case/sharing-state', 'ui/contact-details', 'ui/loading-spinner', 'ui/loading-state', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog', 'ui/banner', 'ui/form-label', 'case/models', 'case/reference', 'case/sharing'];
+  const sourceLicenceEntries = ['ui/find-task-name', 'ui/find-work-type', 'ui/search-work-type', 'ui/find-person', 'ui/checkbox-list', 'ui/gov-date', 'ui/gov-select', 'ui/search-location', 'ui/search-judicials', 'ui/search-venue', 'terms/display', 'ui/gov-input', 'case/session-error', 'case/editor-date', 'browser/window', 'browser/session-storage', 'reference/locations', 'reference/ref-data', 'terms/models', 'ui/cookie', 'ui/feature-toggle', 'ui/feature-toggle-directive', 'ui/feature-toggle-guard', 'ui/role-state', 'ui/task-data', 'case/sharing-state', 'ui/contact-details', 'ui/loading-spinner', 'ui/loading-state', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog', 'ui/banner', 'ui/form-label', 'case/models', 'case/reference', 'case/sharing'];
 
   // Fail before dependency setup when the legacy TypeScript entry point is absent.
   await check('package.physical-secondary-declaration', async () => {
@@ -619,6 +619,7 @@ try {
     ['ref-data', 'ref-data-graph.mjs', ['reference-ref-data']],
     ['service-messages', 'service-messages-graph.mjs', ['ui-service-messages', 'ui-feature-toggle', 'i18n']],
     ['feature-toggle', 'feature-toggle-graph.mjs', ['ui-feature-toggle']],
+    ['feature-toggle-guard', 'feature-toggle-guard-graph.mjs', ['ui-feature-toggle-guard', 'ui-feature-toggle']],
     ['feature-directive', 'feature-directive-graph.mjs', ['ui-feature-toggle-directive', 'ui-feature-toggle']],
     ['role-state', 'role-state-graph.mjs', ['ui-role-state']],
   ];
@@ -635,6 +636,8 @@ try {
         if (id === 'user-details' || id === 'invitation') assert.ok(!used.some(input => input.includes('/ngx-pagination/')));
         if (id === 'invitation') assert.ok(!used.some(input => input.includes('@angular/router')));
         if (id === 'gov-input') assert.ok(!used.some(input => input.includes('@angular/router')));
+        if (id === 'feature-toggle') assert.ok(!used.some(input => input.includes('@angular/router')), 'Feature service must not pull Angular Router');
+        if (id === 'feature-toggle-guard') assert.ok(used.some(input => input.includes('@angular/router')), 'Feature guard must carry its Angular Router dependency');
       };
       const source = await readFile(join(consumer, file), 'utf8');
       verify(graph(source));
@@ -646,6 +649,8 @@ try {
   await check('package.service-messages-behavior', () => run('service-messages-behavior', ['--test', 'service-messages.test.mjs'], consumer));
   await cp(join(root, 'tests/feature-toggle/feature-toggle.test.mjs'), join(consumer, 'feature-toggle.test.mjs'));
   await check('package.feature-toggle-behavior', () => run('feature-toggle-behavior', ['--test', 'feature-toggle.test.mjs'], consumer));
+  await cp(join(root, 'tests/feature-toggle/feature-toggle-guard.test.mjs'), join(consumer, 'feature-toggle-guard.test.mjs'));
+  await check('package.feature-toggle-guard-behavior', () => run('feature-toggle-guard-behavior', ['--test', 'feature-toggle-guard.test.mjs'], consumer));
   await cp(join(root, 'tests/roles/roles.test.mjs'), join(consumer, 'roles.test.mjs'));
   await check('package.role-state-behavior', () => run('role-state-behavior', ['--test', 'roles.test.mjs'], consumer));
 
