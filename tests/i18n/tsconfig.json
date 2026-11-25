@@ -4,7 +4,7 @@
     "strict": false,
     "noImplicitAny": true,
     "types": [
-      "jasmine"
+      "vitest/globals"
     ],
     "outDir": "../../test-results/i18n-compiled"
   },

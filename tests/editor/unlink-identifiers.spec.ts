@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { throwError } from 'rxjs';
 import { EventEmitter } from '@angular/core';
 import { UnLinkCasesComponent } from '../../projects/core-lib/case/editor-source/lib/shared/components/palette/linked-cases/components/unlink-cases/unlink-cases.component';
@@ -16,11 +17,11 @@ describe('Unlink case migration contract', () => {
     component.linkedCasesService = { casesToUnlink: ['456'] };
     component.errorMessages = [];
     component.onChange({ value: '123', checked: true });
-    expect(component.linkedCases[0].unlink).toBeTrue();
+    expect(component.linkedCases[0].unlink).toBe(true);
     expect(component.linkedCasesService.casesToUnlink).toEqual(['456', '123']);
     component.onChange({ value: '123', checked: false });
-    expect(component.linkedCases[0].unlink).toBeFalse();
-    expect(component.linkedCases[1].unlink).toBeTrue();
+    expect(component.linkedCases[0].unlink).toBe(false);
+    expect(component.linkedCases[1].unlink).toBe(true);
     expect(component.linkedCasesService.casesToUnlink).toEqual(['456']);
     component.onChange({ value: 'missing', checked: true });
     expect(component.linkedCasesService.casesToUnlink).toEqual(['456']);
@@ -34,7 +35,7 @@ describe('Unlink case migration contract', () => {
     const emitted: boolean[] = [];
     component.notifyAPIFailure.subscribe((value: boolean) => emitted.push(value));
     component.getAllLinkedCaseInformation();
-    expect(component.isServerError).toBeTrue();
+    expect(component.isServerError).toBe(true);
     expect(emitted).toEqual([true]);
     expect(component.linkedCases).toEqual([{ caseReference: '123' }]);
   });

@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { BehaviorSubject } from 'rxjs';
@@ -14,9 +15,11 @@ describe('Flag title rendering contract', () => {
     await TestBed.configureTestingModule({ declarations: [FlagTitleHost, UpdateFlagTitleDisplayPipe], providers: [{ provide: RpxTranslationService, useValue: { language$, language: 'en' } }] }).compileComponents();
     TestBed.overrideTemplate(FlagTitleHost, '<span>{{ flag | updateFlagTitleDisplay }}</span>');
     const fixture = TestBed.createComponent(FlagTitleHost);
+    fixture.changeDetectorRef.markForCheck();
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent.trim()).toBe('First');
     fixture.componentInstance.flag = { flagCode: 'two', name: 'Second' };
+    fixture.changeDetectorRef.markForCheck();
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent.trim()).toBe('Second');
   });

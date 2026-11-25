@@ -1074,7 +1074,7 @@
     ]
   },
   "i18nUnit": {
-    "report": "test-results/i18n/jasmine.json",
+    "report": "test-results/i18n/vitest.json",
     "required": [
       "matchCase should return the second string with the same case as the first string if the first character is uppercase",
       "matchCase should return the second string in lowercase if the first character is lowercase",
@@ -1447,7 +1447,7 @@
     "required": [
       {
         "projectName": "chromium",
-        "title": "runs the required editor component contracts"
+        "title": "loads the editor browser host without errors"
       },
       {
         "projectName": "chromium",
@@ -1468,7 +1468,7 @@
     ]
   },
   "editorUnit": {
-    "report": "test-results/editor/jasmine.json",
+    "report": "test-results/editor/vitest.json",
     "required": [
       "FieldReadComponent reports the original deferred initialization error to Angular",
       "FieldReadComponent does not initialize a field destroyed before its deferred callback",

@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { CommonModule } from '@angular/common';
 import { NO_ERRORS_SCHEMA, Pipe, PipeTransform } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -26,8 +27,10 @@ describe('Linked case reasons migration contract', () => {
       schemas: [NO_ERRORS_SCHEMA]
     }).compileComponents();
     const fixture = TestBed.createComponent(LinkCasesComponent);
+    fixture.changeDetectorRef.markForCheck();
     fixture.detectChanges();
     fixture.componentInstance.showComments = true;
+    fixture.changeDetectorRef.markForCheck();
     fixture.detectChanges();
     const root = fixture.nativeElement as HTMLElement;
     const reference = root.querySelector<HTMLInputElement>('[formControlName="caseNumber"]');

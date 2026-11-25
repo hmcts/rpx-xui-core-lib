@@ -1,5 +1,6 @@
+import { beforeEach, describe, expect, it } from 'vitest';
 import { Component, DebugElement, Input } from '@angular/core';
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 @Component({ selector: 'ccd-field-read', template: '', standalone: true })
 class FieldReadStub {
@@ -52,8 +53,8 @@ describe('ReadCollectionFieldComponent', () => {
   let component: ReadCollectionFieldComponent;
   let de: DebugElement;
 
-  beforeEach(waitForAsync(() => {
-    TestBed
+  beforeEach(async () => {
+    await TestBed
       .configureTestingModule({
         imports: [fieldReadComponentMock],
         declarations: [
@@ -71,10 +72,11 @@ describe('ReadCollectionFieldComponent', () => {
 
     de = fixture.debugElement;
     fixture.detectChanges();
-  }));
+  });
 
   it('render values as a table with one row and one cell per value', () => {
     component.caseField.value = VALUES;
+    fixture.changeDetectorRef.markForCheck();
     fixture.detectChanges();
 
     const cells = de.queryAll($CHILD_FIELDS);
@@ -98,6 +100,7 @@ describe('ReadCollectionFieldComponent', () => {
 
   it('should NOT render anything when value is undefined', () => {
     component.caseField.value = undefined;
+    fixture.changeDetectorRef.markForCheck();
     fixture.detectChanges();
 
     expect(de.children.length).toBe(0);
@@ -105,6 +108,7 @@ describe('ReadCollectionFieldComponent', () => {
 
   it('should NOT render anything when value is null', () => {
     component.caseField.value = null;
+    fixture.changeDetectorRef.markForCheck();
     fixture.detectChanges();
 
     expect(de.children.length).toBe(0);
@@ -112,6 +116,7 @@ describe('ReadCollectionFieldComponent', () => {
 
   it('should NOT render anything when value is empty array', () => {
     component.caseField.value = [];
+    fixture.changeDetectorRef.markForCheck();
     fixture.detectChanges();
 
     expect(de.children.length).toBe(0);
@@ -119,6 +124,7 @@ describe('ReadCollectionFieldComponent', () => {
 
   it('renders values with indexed child identifiers', () => {
     component.caseField.value = VALUES;
+    fixture.changeDetectorRef.markForCheck();
     fixture.detectChanges();
 
     const cells = de.queryAll($CHILD_FIELDS);
@@ -168,8 +174,8 @@ describe('ReadCollectionFieldComponent with display_context_parameter', () => {
   let component: ReadCollectionFieldComponent;
   let de: DebugElement;
 
-  beforeEach(waitForAsync(() => {
-    TestBed
+  beforeEach(async () => {
+    await TestBed
       .configureTestingModule({
         imports: [fieldReadComponentMock],
         declarations: [
@@ -187,10 +193,11 @@ describe('ReadCollectionFieldComponent with display_context_parameter', () => {
 
     de = fixture.debugElement;
     fixture.detectChanges();
-  }));
+  });
 
   it('render as a table with one row and one cell to be passed down the chain', () => {
     component.caseField.value = VALUES;
+    fixture.changeDetectorRef.markForCheck();
     fixture.detectChanges();
     const cell = de.queryAll($CHILD_FIELDS);
     expect(cell[0].name).toEqual('ccd-field-read');

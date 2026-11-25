@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { CaseTab, CaseView } from '../../domain/case-view';
 import { CaseField, FieldType } from '../../domain/definition';
 import { aCaseField } from '../../fixture/shared.test.fixture';
@@ -28,7 +29,7 @@ describe('FieldsUtils', () => {
 
     it('should use crypto.randomUUID when available', () => {
       setWindowCrypto({
-        randomUUID: jasmine.createSpy('randomUUID').and.returnValue('test-uuid')
+        randomUUID: vi.fn().mockReturnValue('test-uuid')
       } as unknown as Crypto);
 
       expect(FieldsUtils.createToken()).toBe('test-uuid');
@@ -88,7 +89,7 @@ describe('FieldsUtils', () => {
       const caseFields = FieldsUtils.getCaseFields(caseView);
 
       expect(caseFields.length).toBe(3);
-      expect(caseFields).toEqual(jasmine.arrayContaining([caseField1, caseField2, caseField3]));
+      expect(caseFields).toEqual(expect.arrayContaining([caseField1, caseField2, caseField3]));
     });
 
     it('should return array of unique case fields', () => {
@@ -97,7 +98,7 @@ describe('FieldsUtils', () => {
       const caseFields = FieldsUtils.getCaseFields(caseView);
 
       expect(caseFields.length).toBe(2);
-      expect(caseFields).toEqual(jasmine.arrayContaining([caseField1, caseField2]));
+      expect(caseFields).toEqual(expect.arrayContaining([caseField1, caseField2]));
     });
 
   });

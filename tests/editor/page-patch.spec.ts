@@ -1,3 +1,4 @@
+import { describe, expect, it, vi } from 'vitest';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { CaseEditPageComponent } from '../../projects/core-lib/case/editor-source/lib/shared/components/case-editor/case-edit-page/case-edit-page.component';
 
@@ -50,14 +51,14 @@ describe('Case edit page form patch contract', () => {
     page.validationErrors = [];
     page.caseFieldService = { isReadOnly: () => false };
     page.pageValidationService = { isHidden: () => false };
-    page.caseEditDataService = { addFormValidationError: jasmine.createSpy('addFormValidationError') };
+    page.caseEditDataService = { addFormValidationError: vi.fn() };
     page.getAutocompleteUserControlName = () => 'field';
     page.getInterpolatedFieldLabel = () => 'Field';
     page.isAutocompleteUserField = () => false;
-    spyOn(CaseEditPageComponent as unknown as { scrollToTop: () => void }, 'scrollToTop');
+    vi.spyOn(CaseEditPageComponent as unknown as { scrollToTop: () => void }, 'scrollToTop').mockImplementation(() => undefined);
     page.generateErrorMessage([{ id: 'field' }]);
     expect(page.caseEditDataService.addFormValidationError).toHaveBeenCalledWith({ id: 'parent_field', message: '%FIELDLABEL% is required', label: 'Field' });
-    expect(control.dirty).toBeTrue();
+    expect(control.dirty).toBe(true);
   });
 
 });

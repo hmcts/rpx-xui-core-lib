@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { matchCase } from '../../../../../projects/core-lib/i18n/lib/helpers/match-case/match-case.helper';
 
 describe('matchCase', () => {

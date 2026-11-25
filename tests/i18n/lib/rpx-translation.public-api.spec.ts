@@ -1,8 +1,12 @@
+import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
+
 import { HttpClient } from '@angular/common/http';
 import { Subject, Subscription, firstValueFrom } from 'rxjs';
 import { db } from '../../../projects/core-lib/i18n/lib/db';
 import { TranslatedData } from '../../../projects/core-lib/i18n/lib/models/translated-data.model';
 import { RpxTranslationService } from '../../../projects/core-lib/i18n/lib/rpx-translation.service';
+
+afterEach(() => vi.useRealTimers());
 
 type TranslationReply = { translations: Record<string, string | TranslatedData> };
 type TranslationRequest = { url: string; body: unknown; reply: Subject<TranslationReply> };
@@ -12,7 +16,7 @@ const yesOrNoInputs = ['Yes', 'yes', 'No', 'no'];
 describe('RpxTranslationService public API composition', () => {
   let service: RpxTranslationService;
   let requests: Subject<TranslationRequest>;
-  let post: jasmine.Spy<(url: string, body: unknown) => Subject<TranslationReply>>;
+  let post: Mock<(url: string, body: unknown) => Subject<TranslationReply>>;
   let subscriptions: Subscription[];
   let replies: Subject<TranslationReply>[];
 
@@ -21,17 +25,17 @@ describe('RpxTranslationService public API composition', () => {
     requests = new Subject<TranslationRequest>();
     subscriptions = [];
     replies = [];
-    post = jasmine.createSpy<(url: string, body: unknown) => Subject<TranslationReply>>('post').and.callFake((url, body) => {
+    post = vi.fn<(url: string, body: unknown) => Subject<TranslationReply>>().mockImplementation((url, body) => {
       const reply = new Subject<TranslationReply>();
       replies.push(reply);
       requests.next({ url, body: structuredClone(body), reply });
       return reply;
     });
     // Only cache misses and HTTP delivery are faked; the public composition methods and helpers stay real.
-    spyOn(db.translations, 'where').and.returnValue({
+    vi.spyOn(db.translations, 'where').mockReturnValue({
       equals: () => ({ last: () => Promise.resolve(undefined) })
     } as unknown as ReturnType<typeof db.translations.where>);
-    spyOn(db.translations, 'bulkAdd').and.stub();
+    vi.spyOn(db.translations, 'bulkAdd').mockImplementation(() => undefined as never);
     service = new RpxTranslationService(
       { baseUrl: '/translations', debounceTimeMs: 20, validity: { days: 1 }, testMode: false },
       { post } as unknown as HttpClient
@@ -74,7 +78,7 @@ describe('RpxTranslationService public API composition', () => {
     expect(request.body).toEqual({ phrases: ['Hello', 'and'] });
     request.reply.next({ translations: { Hello: 'Helo', and: 'a' } });
     expect(values.at(-1)).toBe('Helo Fictional Person a Fictional Person');
-    expect(JSON.stringify(post.calls.allArgs())).not.toContain('Fictional Person');
+    expect(JSON.stringify(post.mock.calls)).not.toContain('Fictional Person');
   });
 
   it('selects Yes/No metadata and matches each input’s initial letter case from one request', async () => {
