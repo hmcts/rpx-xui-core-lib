@@ -34,6 +34,8 @@ test('address lookup presents the empty state after an unsuccessful request', as
 
 test('address entry has no automated accessibility violations', async ({ page }) => {
   await page.goto('/address');
+  await page.getByRole('link', { name: "I can't enter a UK postcode" }).click();
+  await expect(page.getByRole('group', { name: 'Enter address details' })).toBeVisible();
   const { default: AxeBuilder } = await import('@axe-core/playwright');
   const result = await new AxeBuilder({ page }).include('main').analyze();
   expect(result.violations).toEqual([]);

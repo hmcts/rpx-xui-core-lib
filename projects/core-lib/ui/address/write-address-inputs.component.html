@@ -1,6 +1,6 @@
 <form [formGroup]="formGroup">
-  <div class="govuk-body" formGroupName="address">
-    <label class="govuk-label govuk-!-font-weight-bold">Enter address details</label>
+  <fieldset class="govuk-fieldset govuk-body" formGroupName="address">
+    <legend class="govuk-fieldset__legend govuk-fieldset__legend--s govuk-!-font-weight-bold">Enter address details</legend>
     <div class="govuk-body" [class.govuk-form-group--error]="submissionAttempted && !formGroup.get('address').get('addressLine1').valid">
       <label class="govuk-label" for="addressLine1">Building and Street</label>
       @if (submissionAttempted && !formGroup.get('address').get('addressLine1').valid) { <p class="govuk-error-message"><span class="govuk-visually-hidden">Error:</span>{{ MESSAGE_ENUM.NO_STREET_SELECTED }}</p> }
@@ -12,5 +12,5 @@
     <div class="govuk-body"><label class="govuk-label" for="county">County{{ isInternational ? '/ State/ Province' : '' }} (Optional)</label><input class="govuk-input govuk-!-width-two-thirds" id="county" name="county" type="text" formControlName="county"></div>
     @if (isInternational) { <div class="govuk-body" [class.govuk-form-group--error]="submissionAttempted && !formGroup.get('address').get('country').valid"><label class="govuk-label" for="country">Country</label>@if (submissionAttempted && !formGroup.get('address').get('country').valid) { <p class="govuk-error-message"><span class="govuk-visually-hidden">Error:</span>{{ MESSAGE_ENUM.NO_COUNTRY_SELECTED }}</p> }<input class="govuk-input govuk-!-width-two-thirds" id="country" name="country" type="text" formControlName="country"></div> }
     <div class="govuk-body" [class.govuk-form-group--error]="submissionAttempted && !isInternational && !formGroup.get('address').get('postCode').valid"><label class="govuk-label" for="postCode">Postcode{{ isInternational ? ' (Optional)' : '' }}</label>@if (submissionAttempted && !isInternational && formGroup.get('address').get('postCode').hasError('required')) { <p class="govuk-error-message"><span class="govuk-visually-hidden">Error:</span>{{ MESSAGE_ENUM.NO_POSTCODE_SELECTED }}</p> }@if (submissionAttempted && !isInternational && formGroup.get('address').get('postCode').hasError('invalidPostcode')) { <p class="govuk-error-message"><span class="govuk-visually-hidden">Error:</span>{{ MESSAGE_ENUM.INVALID_POSTCODE }}</p> }<input class="govuk-input govuk-!-width-one-third" id="postCode" name="postCode" type="text" formControlName="postCode"></div>
-  </div>
+  </fieldset>
 </form>

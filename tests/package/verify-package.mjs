@@ -718,7 +718,7 @@ try {
       assert.ok(imports.length, 'The installed FESM imports must be inspected');
       for (const specifier of imports) assert.doesNotMatch(specifier, filterForbidden, 'Forbidden packed FESM import');
       const corePrefix = '@hmcts/rpx-xui-core-lib/';
-      const coreImports = [...new Set(imports.filter(specifier => specifier.startsWith(corePrefix)).map(specifier => specifier.slice(corePrefix.length)))].sort();
+      const coreImports = [...new Set(imports.filter(specifier => specifier.startsWith(corePrefix)).map(specifier => specifier.slice(corePrefix.length)))].sort((a, b) => a.localeCompare(b, 'en'));
       assert.deepEqual(coreImports, direct, 'Unexpected direct Core imports in installed FESM');
 
       const bundle = contents => buildSync({
@@ -727,13 +727,13 @@ try {
       });
       const normalize = path => path.replaceAll('\\', '/');
       const coreIds = paths => paths.map(normalize).filter(path => path.includes('/@hmcts/rpx-xui-core-lib/'))
-        .map(path => path.match(/\/fesm2022\/hmcts-rpx-xui-core-lib-(.+)\.mjs$/)?.[1] ?? path).sort();
+        .map(path => path.match(/\/fesm2022\/hmcts-rpx-xui-core-lib-(.+)\.mjs$/)?.[1] ?? path).sort((a, b) => a.localeCompare(b, 'en'));
       const verify = result => {
         const inputs = Object.keys(result.metafile.inputs);
         const emitted = Object.values(result.metafile.outputs).flatMap(output => Object.entries(output.inputs)
           .filter(([, info]) => info.bytesInOutput > 0).map(([path]) => path));
         for (const path of inputs.map(normalize)) assert.doesNotMatch(path, filterForbidden, 'Forbidden browser input');
-        const expected = [...closure].sort();
+        const expected = [...closure].sort((a, b) => a.localeCompare(b, 'en'));
         assert.deepEqual(coreIds(inputs), expected, 'Unexpected Core source inputs in filter graph');
         assert.deepEqual(coreIds(emitted), expected, 'Unexpected emitted Core entries in filter graph');
       };

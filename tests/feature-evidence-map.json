@@ -2392,6 +2392,7 @@
         "unit": [
           "all 14 field types restore their form shapes and project their saved records",
           "configured defaults yield to explicit settings and the stored setting takes precedence",
+          "a saved field with a missing value falls back to an empty string",
           "Apply emits the upstream public errors and callback order, then persists a valid projection",
           "Reset, Apply and edit observe the active form, detach the old form, then unsubscribe on destroy",
           "Reset restores checkbox, location and service arrays from the configured defaults before reapplying",
@@ -2399,6 +2400,7 @@
           "copyFields may return a replacement FormGroup used for Apply and edits",
           "conditional fields toggle required validators, location reset and radio activation",
           "nested skill checkbox selection maps back to keys and keeps the selected groups",
+          "skill groups sort by English alphabetic order regardless of letter case",
           "known person and task values update only declared controls and the task clear sentinel empties task fields"
         ],
         "browser": [

@@ -27,6 +27,12 @@
       ],
       "@hmcts/rpx-xui-core-lib/case/editor-date": [
         "../../projects/core-lib/case/editor-date/public-api.ts"
+      ],
+      "@hmcts/rpx-xui-core-lib/address/normalization": [
+        "../../projects/core-lib/address/normalization/public-api.ts"
+      ],
+      "@hmcts/rpx-xui-core-lib/browser/user-agent": [
+        "../../projects/core-lib/browser/user-agent/public-api.ts"
       ]
     },
     "outDir": "../../test-results/i18n-compiled"

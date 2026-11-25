@@ -14,7 +14,7 @@ test('isolates the packed package and removes its source aliases', async () => {
     await mkdir(join(root, 'projects/core-lib'), { recursive: true });
     await writeFile(join(root, 'projects/core-lib/package.json'), JSON.stringify({ name: '@hmcts/rpx-xui-core-lib', exports: { './node': './node.js' } }));
     for (const file of ['angular.json', 'package.json', 'tsconfig.json']) await writeFile(join(root, file), '{}');
-    const paths = { '@hmcts/rpx-xui-core-lib/case/notifier': ['source'], '@hmcts/rpx-xui-core-lib/case/editor-source': ['source'], '@hmcts/rpx-xui-core-lib/i18n': ['i18n'], '@hmcts/rpx-xui-core-lib/browser/session-storage': ['source'], '@hmcts/rpx-xui-core-lib/case/models': ['source'], '@hmcts/rpx-xui-core-lib/case/reference': ['source'], '@hmcts/rpx-xui-core-lib/case/editor-date': ['source'] };
+    const paths = { '@hmcts/rpx-xui-core-lib/case/notifier': ['source'], '@hmcts/rpx-xui-core-lib/case/editor-source': ['source'], '@hmcts/rpx-xui-core-lib/i18n': ['i18n'], '@hmcts/rpx-xui-core-lib/browser/session-storage': ['source'], '@hmcts/rpx-xui-core-lib/case/models': ['source'], '@hmcts/rpx-xui-core-lib/case/reference': ['source'], '@hmcts/rpx-xui-core-lib/case/editor-date': ['source'], '@hmcts/rpx-xui-core-lib/address/normalization': ['source'], '@hmcts/rpx-xui-core-lib/browser/user-agent': ['source'] };
     await writeFile(join(root, 'tests/editor/tsconfig.json'), JSON.stringify({ compilerOptions: { paths } }));
     workspace = await preparePackedWorkspace(root);
     const config = JSON.parse(await readFile(join(workspace, 'tests/editor/tsconfig.json'), 'utf8'));

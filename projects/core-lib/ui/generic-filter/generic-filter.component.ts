@@ -443,7 +443,7 @@ export class GenericFilterComponent implements OnInit, OnDestroy {
           defaultValue = cancelField && cancelField.value ? cancelField.value[0] : '';
         } else if (settings && settings.fields) {
           const lastSavedValue = settings.fields.find((f) => f.name === field.name);
-          defaultValue = lastSavedValue && lastSavedValue ? lastSavedValue.value[0] : '';
+          defaultValue = lastSavedValue?.value?.[0] ?? '';
         }
         // if field is find-person build a form group;
         if (field.type === 'find-person') {
@@ -644,7 +644,7 @@ export class GenericFilterComponent implements OnInit, OnDestroy {
         } else {
           const preSelectedSkills: boolean[] = [];
 
-          this.filteredSkillsByServicesCheckbox.map((skillsByServices, index) => {
+          this.filteredSkillsByServicesCheckbox.forEach((skillsByServices, index) => {
             for (let i = 0; i < this._config.preSelectedNestedCheckbox.length; i++) {
               const skillCopyValue = this._config.preSelectedNestedCheckbox[i];
 
@@ -662,7 +662,7 @@ export class GenericFilterComponent implements OnInit, OnDestroy {
               (this.form.get('user-skills') as FormArray).push(new FormControl(h));
             });
           } else {
-            this.filteredSkillsByServicesCheckbox.map(() => {
+            this.filteredSkillsByServicesCheckbox.forEach(() => {
               (this.form.get('user-skills') as FormArray).push(new FormControl(false));
             });
           }
@@ -685,7 +685,7 @@ export class GenericFilterComponent implements OnInit, OnDestroy {
   private sortGroupOptions(groupOptions: GroupOptions[]): GroupOptions[] {
     const sortedResults: GroupOptions[] = [];
     const groups = groupOptions.map((go) => go.group);
-    groups.sort().forEach((g) => {
+    groups.sort((a, b) => a.localeCompare(b, 'en')).forEach((g) => {
       const options = groupOptions.find(go => go.group === g).options;
       const sortedOptions = options.sort((a, b) => {
         return a.label.toLowerCase() > b.label.toLowerCase() ? 1 : (b.label.toLowerCase() > a.label.toLowerCase() ? -1 : 0);

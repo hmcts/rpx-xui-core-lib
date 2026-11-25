@@ -285,6 +285,7 @@ The intentional compatibility improvements are:
 - Removing the FindService Select All tag emits one service change event after clearing the selections. Staff Admin then refreshes the service warning and the skill choices.
 - Reset listens to the form it builds, so editing the active form clears the Apply state and a detached form cannot change it. Reset restores configured checkbox, location and service selections in the live form, so an immediate Apply persists the restored values. The upstream work-type reset still empties its array.
 - Staff Admin names the service combobox from its visible heading. Composed service fields have IDs scoped to their filter and field, so each heading label focuses its own input. Standalone SearchService and FindService retain their default input, label and Add IDs.
+- Skill group labels are now ordered with English locale-aware comparison, making mixed-case ordering predictable across runtimes. A saved filter field with no `value` now safely falls back to an empty string instead of throwing during initialization.
 
 The measured Generic Filter fixture is approximately 1.25 MB minified and 329 KB gzip, including Angular and the browser dependencies. The widget's direct FESM is about 70.5 KB. The package check records precise bundle and direct-entry sizes for the state, pipe, standalone renderers and widget in `test-results/package-evidence/filter-graphs.json`.
 

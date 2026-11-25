@@ -24,7 +24,7 @@ export async function preparePackedWorkspace(root) {
   }
   const configPath = join(workspace, 'tests/editor/tsconfig.json');
   const config = JSON.parse(await readFile(configPath, 'utf8'));
-  for (const name of ['case/notifier', 'case/editor-source', 'case/models', 'case/reference', 'case/editor-date', 'browser/session-storage', 'i18n']) delete config.compilerOptions.paths[`@hmcts/rpx-xui-core-lib/${name}`];
+  for (const name of ['case/notifier', 'case/editor-source', 'case/models', 'case/reference', 'case/editor-date', 'browser/session-storage', 'i18n', 'address/normalization', 'browser/user-agent']) delete config.compilerOptions.paths[`@hmcts/rpx-xui-core-lib/${name}`];
   await writeFile(configPath, JSON.stringify(config, null, 2) + '\n');
   return workspace;
   } catch (error) {

@@ -95,6 +95,12 @@ test('configured defaults yield to explicit settings and the stored setting take
   assert.equal(fixture(fields, config, null, cached).component.form.get('name').value, 'cached');
 });
 
+test('a saved field with a missing value falls back to an empty string', () => {
+  const malformed = { id: 'filter', fields: [{ name: 'name' }] };
+  const { component } = fixture([makeField('text-input', 'name')], {}, malformed);
+  assert.equal(component.form.get('name').value, '');
+});
+
 test('Apply emits the upstream public errors and callback order, then persists a valid projection', () => {
   const order = [];
   const { component, givenErrors, calls } = fixture([
@@ -231,6 +237,15 @@ test('nested skill checkbox selection maps back to keys and keeps the selected g
   assert.deepEqual(component.form.get('user-skills').value, [true]);
   component.applyFilter(component.form);
   assert.deepEqual(calls[0][1].fields, setting({ 'user-services': ['B'], 'user-skills': ['2'] }).fields);
+});
+
+test('skill groups sort by English alphabetic order regardless of letter case', () => {
+  const { component } = fixture([]);
+  const sorted = component['sortGroupOptions']([
+    { group: 'Beta', options: [] },
+    { group: 'alpha', options: [] },
+  ]);
+  assert.deepEqual(sorted.map(group => group.group), ['alpha', 'Beta']);
 });
 
 test('known person and task values update only declared controls and the task clear sentinel empties task fields', () => {

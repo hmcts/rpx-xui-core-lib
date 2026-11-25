@@ -20,7 +20,7 @@ test('rendered filter rows show verified counts and the consumer adoption gate',
     'Filter state': { unit: 15, package: 2 },
     'Filter renderers': { unit: 8, browser: 6, package: 3 },
     'Capitalize pipe': { unit: 1, package: 1 },
-    'Generic Filter': { unit: 10, browser: 3, package: 3 },
+    'Generic Filter': { unit: 12, browser: 3, package: 3 },
     'Generic Filter accessibility': { browser: 2 },
   };
   for (const [name, counts] of Object.entries(expected)) {
