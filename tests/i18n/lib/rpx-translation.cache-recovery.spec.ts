@@ -39,8 +39,8 @@ describe('translation real cache recovery', () => {
 
   beforeEach(async () => {
     document.cookie = 'exui-preferred-language=; Max-Age=0; SameSite=Strict;';
-    await db.delete();
     await db.open();
+    await db.translations.clear();
     TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] });
     client = TestBed.inject(HttpClient);
     http = TestBed.inject(HttpTestingController);
@@ -51,7 +51,7 @@ describe('translation real cache recovery', () => {
   afterEach(async () => {
     services.forEach(service => service.ngOnDestroy());
     http.verify({ ignoreCancelled: true });
-    await db.delete();
+    await db.translations.clear();
     document.cookie = 'exui-preferred-language=; Max-Age=0; SameSite=Strict;';
   });
 

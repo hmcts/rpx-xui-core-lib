@@ -120,6 +120,14 @@ const addedLaneNames = {
     "cookie deletion preserves provided path and domain and the legacy prefix match",
     "cookie service injects the provided document and supports explicit token aliasing"
   ],
+  "cookieBannerUnit": [
+    "cookie banner shows the consent prompt and reports rejection when no consent exists",
+    "cookie banner hides the prompt and reports accepted consent from the stored value",
+    "accepting consent stores true for one year, reports acceptance and reloads the page",
+    "rejecting consent stores false, reports rejection and reloads the page",
+    "stored acceptance does not enable Dynatrace unless the host opts in",
+    "cookie banner remains safe without a browser window during server rendering"
+  ],
   "featureToggleUnit": [
     "unconfigured feature service fails explicitly for all operations",
     "both alias directions use one provided feature service across parent and unshadowed child",
@@ -301,6 +309,12 @@ const addedBrowserJourneys = [
   "feature guard allows a web route and redirects it when its flag is disabled",
   "registration routes follow reciprocal feature expectations without a redirect loop"
 ];
+addedBrowserJourneys.push(
+  'cookie consent banner has a translated accessible name and a working details link',
+  'cookie details route loads directly in the cookie banner gallery',
+  'accepting analytics consent stores it for a year and enables opted-in Dynatrace after consent',
+  'rejecting analytics consent persists false and does not enable Dynatrace',
+);
 const cacheJourneys = [
   "baseline: legacy to core preserves valid cached translation",
   "baseline: core to legacy preserves valid cached translation",
@@ -341,7 +355,7 @@ const packageIds = [
 
 ];
 
-packageIds.push("package.session-storage-behavior", "package.session-storage-graph", "package.task-data-behavior", "package.task-data-graph", "package.case-sharing-state-graph", "package.case-sharing-state-behavior", "package.cookie-behavior", "package.cookie-graph", "package.terms-type", "package.terms-graph", "package.window-behavior", "package.window-graph", "package.locations-behavior", "package.locations-graph", "package.ref-data-behavior", "package.ref-data-graph");
+packageIds.push("package.session-storage-behavior", "package.session-storage-graph", "package.task-data-behavior", "package.task-data-graph", "package.case-sharing-state-graph", "package.case-sharing-state-behavior", "package.cookie-behavior", "package.cookie-graph", "package.cookie-banner-behavior", "package.cookie-banner-graph", "package.terms-type", "package.terms-graph", "package.window-behavior", "package.window-graph", "package.locations-behavior", "package.locations-graph", "package.ref-data-behavior", "package.ref-data-graph");
 
 packageIds.push("package.service-messages-graph", "package.service-messages-behavior");
 
@@ -637,6 +651,7 @@ function reports() {
     'locations.tap': nativeTap(addedLaneNames.locationUnit),
     'window.tap': nativeTap(addedLaneNames.windowUnit),
     'cookie.tap': nativeTap(addedLaneNames.cookieUnit),
+    'cookie-banner.tap': nativeTap(addedLaneNames.cookieBannerUnit),
     'feature-toggle.tap': nativeTap(addedLaneNames.featureToggleUnit),
     'roles.tap': nativeTap(addedLaneNames.roleUnit),
     'node.tap': nativeTap(nodeNames),
