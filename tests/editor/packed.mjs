@@ -17,7 +17,7 @@ function run(command, args, options = {}) {
   if (result.error) throw result.error;
   if (result.status !== 0) throw new Error(`${command} exited ${result.status ?? result.signal}`);
 }
-run(process.execPath, ['.yarn/releases/yarn-4.18.1.cjs', 'build']);
+run(process.execPath, ['.yarn/releases/yarn-4.19.0.cjs', 'build']);
 if (sourceSnapshot(root) !== initialSnapshot) throw new Error('Source changed during the packed editor build');
 const workspace = await preparePackedWorkspace(root);
 try {

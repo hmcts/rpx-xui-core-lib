@@ -33,9 +33,9 @@ jobs:
           node-version-file: .nvmrc
           package-manager-cache: false
       - name: Install with the checked-in Yarn release
-        run: node .yarn/releases/yarn-4.18.1.cjs install --immutable
+        run: node .yarn/releases/yarn-4.19.0.cjs install --immutable
       - name: Build and verify required contracts
-        run: node .yarn/releases/yarn-4.18.1.cjs test:all
+        run: node .yarn/releases/yarn-4.19.0.cjs test:all
       - name: Retain test evidence
         id: evidence
         if: always()
@@ -82,18 +82,18 @@ jobs:
           node-version-file: .nvmrc
           package-manager-cache: false
       - name: Resolve the locked graph without dependency build scripts
-        run: node .yarn/releases/yarn-4.18.1.cjs install --immutable --mode=skip-build
+        run: node .yarn/releases/yarn-4.19.0.cjs install --immutable --mode=skip-build
       - name: Audit runtime and development vulnerabilities
         run: |
           mkdir -p test-results
-          node .yarn/releases/yarn-4.18.1.cjs npm audit --all --recursive --no-deprecations --json > test-results/dependency-audit.jsonl
+          node .yarn/releases/yarn-4.19.0.cjs npm audit --all --recursive --no-deprecations --json > test-results/dependency-audit.jsonl
       - name: Record dependency maintenance warnings
         if: always()
         run: |
           mkdir -p test-results
           exec 3> test-results/dependency-maintenance.jsonl
           audit_status=0
-          node .yarn/releases/yarn-4.18.1.cjs npm audit --all --recursive --json >&3 || audit_status=$?
+          node .yarn/releases/yarn-4.19.0.cjs npm audit --all --recursive --json >&3 || audit_status=$?
           exec 3>&-
           printf '%s\n' "$audit_status" > test-results/dependency-maintenance.exit-code
       - name: Retain dependency audit

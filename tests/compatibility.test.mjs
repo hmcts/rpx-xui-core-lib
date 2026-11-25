@@ -54,7 +54,7 @@ test('source projections retain canonical UTF-16 dependency ordering', () => {
   const projection = sourceVerification.deriveConsumerProjection(
     'rpx-xui-manage-organisations', 'source', { dependencies },
     Object.fromEntries(Object.entries(dependencies).map(([name, version]) => [`${name}@npm:${version}`, { version }])),
-    { yarnPath: '.yarn/releases/yarn-4.18.1.cjs' },
+    { yarnPath: '.yarn/releases/yarn-4.19.0.cjs' },
     { projects: { host: { architect: { build: { builder: '@angular-devkit/build-angular:application' } } } } },
     { dependencies: requested, peerDependencies: {} }, {}, Buffer.from('manager')
   );
@@ -335,10 +335,10 @@ test('matrix CLI rejects invalid decisions and profiles before any host install'
     cpSync(new URL('../scripts/check-compatibility.mjs', import.meta.url), join(dir, 'scripts/check-compatibility.mjs'));
     cpSync(new URL('./fixtures/compatibility', import.meta.url), join(dir, 'tests/fixtures/compatibility'), { recursive: true });
     writeFileSync(join(dir, 'dist/core-lib/package.json'), '{}');
-    writeFileSync(join(dir, '.yarn/releases/yarn-4.18.1.cjs'), "require('fs').writeFileSync(process.argv[process.argv.indexOf('--out') + 1], 'candidate');\n");
-    const coreHash = createHash('sha256').update(readFileSync(join(dir, '.yarn/releases/yarn-4.18.1.cjs'))).digest('hex');
+    writeFileSync(join(dir, '.yarn/releases/yarn-4.19.0.cjs'), "require('fs').writeFileSync(process.argv[process.argv.indexOf('--out') + 1], 'candidate');\n");
+    const coreHash = createHash('sha256').update(readFileSync(join(dir, '.yarn/releases/yarn-4.19.0.cjs'))).digest('hex');
     const source = fixture('source-contract.json');
-    source.sources.core.files['.yarn/releases/yarn-4.18.1.cjs'] = coreHash;
+    source.sources.core.files['.yarn/releases/yarn-4.19.0.cjs'] = coreHash;
     source.profiles.core.manager_sha256 = coreHash;
     writeFileSync(join(dir, 'tests/fixtures/compatibility/source-contract.json'), JSON.stringify(source));
     const baseProfiles = fixture('profiles.json');

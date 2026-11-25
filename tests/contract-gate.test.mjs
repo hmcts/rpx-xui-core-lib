@@ -796,7 +796,7 @@ test('editor producer binds both reports and leaves no receipts when one is miss
   mkdirSync(join(root, '.yarn/releases'), { recursive: true });
   mkdirSync(join(root, 'test-results/editor'), { recursive: true });
   mkdirSync(join(root, 'test-results/lane-provenance'), { recursive: true });
-  writeFileSync(join(root, '.yarn/releases/yarn-4.18.1.cjs'), "const fs=require('fs');fs.writeFileSync('test-results/editor/vitest.json','jasmine');if(!process.env.OMIT_DRIVER)fs.writeFileSync('test-results/editor/driver.json','driver');");
+  writeFileSync(join(root, '.yarn/releases/yarn-4.19.0.cjs'), "const fs=require('fs');fs.writeFileSync('test-results/editor/vitest.json','jasmine');if(!process.env.OMIT_DRIVER)fs.writeFileSync('test-results/editor/driver.json','driver');");
   const run = { sourceSha, runId: identity.invocationId, attempt: '1', invocationId: identity.invocationId, sourceSnapshot: sourceSnapshot(root) };
   writeFileSync(join(root, 'test-results/lane-provenance/run.json'), JSON.stringify(run));
   const env = { ...process.env, GITHUB_SHA: '', GITHUB_RUN_ID: '', GITHUB_RUN_ATTEMPT: '', CORE_EVIDENCE_RUN_ID: identity.invocationId };
