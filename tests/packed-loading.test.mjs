@@ -7,6 +7,16 @@ import { join } from 'node:path';
 import { createServer } from 'node:http';
 import { once } from 'node:events';
 import { inspectLoadingGraph, assertPackedBytes, assertEagerDateFailure } from './packed-loading/graph.mjs';
+import { resolvePackedLoadingPort } from './packed-loading/port.mjs';
+
+test('packed loading host accepts a per-run port and rejects unsafe port values', () => {
+  assert.equal(resolvePackedLoadingPort(), Number(process.env.CORE_LOADING_PORT ?? 14880));
+  assert.equal(resolvePackedLoadingPort('14880'), 14880);
+  assert.equal(resolvePackedLoadingPort('14881'), 14881);
+  for (const invalid of ['80', '65536', '14880x', '']) {
+    assert.throws(() => resolvePackedLoadingPort(invalid), /CORE_LOADING_PORT/);
+  }
+});
 
 function fixture(t) {
   const root = mkdtempSync(join(tmpdir(), 'packed-loading-'));

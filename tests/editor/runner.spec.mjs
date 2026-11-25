@@ -109,3 +109,72 @@ test('closes each editor dialog using Enter and Space', async ({ page }) => {
     }
   }
 });
+
+test('keeps a new case flag selectable when no persisted detail exists', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  await page.evaluate(() => globalThis.createCaseFlagHost());
+
+  const option = page.getByRole('radio', { name: 'Fictional party - New safety concern' });
+  await expect(option).toBeVisible();
+  await option.check();
+  await expect(option).toBeChecked();
+  expect(await page.evaluate(() => globalThis.readCaseFlagSelection())).toEqual({ id: 'new-flag', originalStatus: null });
+
+  await page.getByRole('button', { name: 'Continue' }).click();
+  expect(await page.evaluate(() => globalThis.readCaseFlagState())).toEqual({ selectedFlagId: 'new-flag', originalStatus: null, errorMessages: [] });
+  expect(errors).toEqual([]);
+});
+
+test('shows a selection error when proceeding without choosing a case flag', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => globalThis.createCaseFlagHost());
+
+  await page.getByRole('button', { name: 'Continue' }).click();
+  await expect(page.locator('#manage-case-flag-not-selected-error-message')).toContainText('Please make a selection');
+  expect(await page.evaluate(() => globalThis.readCaseFlagSelection())).toBeNull();
+  expect(await page.evaluate(() => globalThis.readCaseFlagState().errorMessages)).toEqual(['Please make a selection']);
+});
+
+test('renders the full case viewer for resolved standard-access case data', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  await page.evaluate(() => globalThis.createCaseViewerHost('STANDARD', 'FULL'));
+  await expect(page.getByTestId('full-view')).toBeVisible();
+  await expect(page.getByTestId('restricted-view')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('renders the restricted case viewer for challenged access', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  await page.evaluate(() => globalThis.createCaseViewerHost('CHALLENGED', 'BASIC'));
+  const restrictedView = page.locator('ccd-case-basic-access-view');
+  await expect(restrictedView).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Case details' })).toBeVisible();
+  await expect(page.getByText(/This case requires challenged access/)).toBeVisible();
+  const requestAccess = page.getByRole('button', { name: 'Request access' });
+  await expect(requestAccess).toBeVisible();
+  await expect(requestAccess).toBeEnabled();
+  expect(await page.evaluate(() => globalThis.readCaseViewerRequestUrl())).toBe('challenged-access-request');
+  await expect(page.getByRole('link', { name: 'Cancel' })).toHaveAttribute('href', '#');
+  await expect(page.getByTestId('full-view')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('renders case details from the notifier when resolved route data is absent', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  await page.evaluate(() => globalThis.createCaseViewerNotifierHost());
+  await expect(page.getByTestId('full-view')).toHaveCount(0);
+  await expect(page.getByTestId('restricted-view')).toHaveCount(0);
+
+  await page.evaluate(() => globalThis.emitCaseViewerDetails('STANDARD', 'FULL'));
+  await expect(page.getByTestId('full-view')).toBeVisible();
+  await expect(page.getByTestId('restricted-view')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
