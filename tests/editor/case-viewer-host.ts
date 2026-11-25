@@ -1,23 +1,34 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, Pipe, PipeTransform } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { ActivatedRoute } from '@angular/router';
-import { Subject } from 'rxjs';
+import { ActivatedRoute, RouterModule } from '@angular/router';
+import { By } from '@angular/platform-browser';
+import { of, Subject } from 'rxjs';
 import { AbstractAppConfig } from '../../projects/core-lib/case/editor-source/lib/app.config';
 import { CaseView } from '../../projects/core-lib/case/editor-source/lib/shared/domain/case-view/case-view.model';
 import { CaseViewerComponent } from '../../projects/core-lib/case/editor-source/lib/shared/components/case-viewer/case-viewer.component';
+import { CaseBasicAccessViewComponent } from '../../projects/core-lib/case/editor-source/lib/shared/components/case-viewer/case-basic-access-view/case-basic-access-view.component';
 import { CaseNotifier } from '../../projects/core-lib/case/editor-source/lib/shared/components/case-editor/services/case.notifier';
+import { CasesService } from '../../projects/core-lib/case/editor-source/lib/shared/components/case-editor/services/cases.service';
 import { OrderService } from '../../projects/core-lib/case/editor-source/lib/shared/services/order/order.service';
 
-@Component({
-  selector: 'ccd-case-basic-access-view',
-  template: '<section data-testid="restricted-view" [attr.data-access-type]="accessType">Restricted case view</section>',
-  standalone: false
-})
-class BasicAccessViewStub {
-  @Input() public accessType: string;
-  @Input() public caseDetails: CaseView;
+@Pipe({ name: 'rpxTranslate', standalone: false })
+class TranslateStub implements PipeTransform {
+  transform(value: string): string { return value; }
 }
+
+@Pipe({ name: 'ccdCaseReference', standalone: false })
+class CaseReferenceStub implements PipeTransform {
+  transform(value: string): string { return value; }
+}
+
+@Component({ selector: 'cut-alert', template: '<div><ng-content></ng-content></div>', standalone: false })
+class AlertStub {
+  @Input() public type: string;
+}
+
+@Component({ selector: 'ccd-loading-spinner', template: '', standalone: false })
+class LoadingSpinnerStub {}
 
 @Component({
   selector: 'ccd-case-full-access-view',
@@ -37,7 +48,9 @@ let caseView: Subject<CaseView>;
 
 export async function createCaseViewerHost(accessProcess: string, accessGranted: string) {
   const routeCase = {
+    case_id: 'CASE-123',
     tabs: [],
+    basicFields: { caseNameHmctsInternal: 'Fictional case' },
     metadataFields: [
       { id: '[ACCESS_PROCESS]', value: accessProcess },
       { id: '[ACCESS_GRANTED]', value: accessGranted }
@@ -63,18 +76,24 @@ export function emitCaseViewerDetails(accessProcess: string, accessGranted: stri
   fixture.changeDetectorRef.detectChanges();
 }
 
+export function readCaseViewerRequestUrl() {
+  const component = fixture.debugElement.query(By.directive(CaseBasicAccessViewComponent)).componentInstance as CaseBasicAccessViewComponent;
+  return component.getRequestUrl(component.accessType);
+}
+
 async function createHost(routeData: Record<string, unknown>) {
   TestBed.resetTestingModule();
   caseView = new Subject<CaseView>();
 
   await TestBed.configureTestingModule({
-    imports: [CommonModule],
-    declarations: [CaseViewerComponent, BasicAccessViewStub, FullAccessViewStub],
+    imports: [CommonModule, RouterModule.forRoot([])],
+    declarations: [CaseViewerComponent, CaseBasicAccessViewComponent, FullAccessViewStub, TranslateStub, CaseReferenceStub, AlertStub, LoadingSpinnerStub],
     providers: [
       { provide: ActivatedRoute, useValue: { snapshot: { data: routeData } } },
       { provide: CaseNotifier, useValue: { caseView } },
       { provide: AbstractAppConfig, useValue: {} },
-      { provide: OrderService, useValue: { sort: (tabs: unknown[]) => tabs } }
+      { provide: OrderService, useValue: { sort: (tabs: unknown[]) => tabs } },
+      { provide: CasesService, useValue: { getCourtOrHearingCentreName: () => of([]) } }
     ]
   }).compileComponents();
 

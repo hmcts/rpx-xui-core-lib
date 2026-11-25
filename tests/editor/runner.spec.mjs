@@ -152,8 +152,15 @@ test('renders the restricted case viewer for challenged access', async ({ page }
   page.on('pageerror', error => errors.push(error.message));
   await page.goto('/');
   await page.evaluate(() => globalThis.createCaseViewerHost('CHALLENGED', 'BASIC'));
-  await expect(page.getByTestId('restricted-view')).toBeVisible();
-  await expect(page.getByTestId('restricted-view')).toHaveAttribute('data-access-type', 'CHALLENGED');
+  const restrictedView = page.locator('ccd-case-basic-access-view');
+  await expect(restrictedView).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Case details' })).toBeVisible();
+  await expect(page.getByText(/This case requires challenged access/)).toBeVisible();
+  const requestAccess = page.getByRole('button', { name: 'Request access' });
+  await expect(requestAccess).toBeVisible();
+  await expect(requestAccess).toBeEnabled();
+  expect(await page.evaluate(() => globalThis.readCaseViewerRequestUrl())).toBe('challenged-access-request');
+  await expect(page.getByRole('link', { name: 'Cancel' })).toHaveAttribute('href', '#');
   await expect(page.getByTestId('full-view')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
