@@ -236,6 +236,11 @@
         "output": "ui/contact-details"
       },
       {
+        "input": "ui/page-wrapper",
+        "glob": "LICENCE",
+        "output": "ui/page-wrapper"
+      },
+      {
         "input": "ui/loading-spinner",
         "glob": "LICENCE",
         "output": "ui/loading-spinner"

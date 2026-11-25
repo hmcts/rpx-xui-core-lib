@@ -188,6 +188,8 @@ invitation|invalid invitation inputs expose their errors accessibly
 invitation|invitation retains and updates a preselected permission
 invitation|permission error is announced by the permissions fieldset
 invitation|permissions with an empty error never reference a missing message
+page-wrapper|page wrapper renders its translated shell and projected content
+page-wrapper|page wrapper omits unset shell elements and passes a scoped accessibility scan
 hearing-lookups|judicial lookup supports keyboard selection and an accessible name
 hearing-lookups|venue lookup supports keyboard selection and unique labelled instances
 hearing-lookups|an exact judicial name auto-selects while retaining its visible input label

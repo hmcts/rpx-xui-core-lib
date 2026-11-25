@@ -449,9 +449,11 @@ addedBrowserJourneys.push('user details shows roles and emits a suspend action',
 addedBrowserJourneys.push('users without a route can be selected with the keyboard', 'users with a route retain a navigable link and emit selection');
 addedBrowserJourneys.push('user list pages through users and emits the chosen user', 'pagination can be operated with the keyboard', 'user list and pagination have no automated accessibility violations');
 addedBrowserJourneys.push('invitation emits submit and displays parent validation', 'invitation emits entered details and selected permissions', 'invitation form supports keyboard selection and passes axe', 'invalid invitation inputs expose their errors accessibly', 'invitation retains and updates a preselected permission', 'permission error is announced by the permissions fieldset', 'permissions with an empty error never reference a missing message');
+addedBrowserJourneys.push('page wrapper renders its translated shell and projected content', 'page wrapper omits unset shell elements and passes a scoped accessibility scan');
 packageIds.push('package.user-details-behavior', 'package.user-details-graph');
 packageIds.push('package.user-list-behavior', 'package.user-list-graph');
 packageIds.push('package.invitation-behavior', 'package.invitation-graph');
+packageIds.push('package.page-wrapper-graph');
 const expectedContracts = addedBrowserJourneys.length + Object.values(addedLaneNames).reduce((sum, names) => sum + names.length, 0) + unitNames.length + nodeNames.length + i18nNames.length + i18nJourneys.length + dueDateJourneys.length + accessibilityJourneys.length + sessionDialogJourneys.length + primitiveJourneys.length + cacheJourneys.length + validationJourneys.length + packageIds.length + 1 + contractInventory.nodeServerUnit.required.length + contractInventory.editorUnit.required.length + contractInventory.editorDrivers.required.length;
 
 function nativeTap(names) {

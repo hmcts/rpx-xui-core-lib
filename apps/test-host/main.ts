@@ -19,6 +19,8 @@ class ValidationGallery {
 
 const application = window.location.pathname === '/service-messages'
   ? import('./service-messages').then(({ startServiceMessagesGallery }) => startServiceMessagesGallery())
+  : window.location.pathname === '/page-wrapper'
+  ? import('./page-wrapper').then(({ startPageWrapperGallery }) => startPageWrapperGallery())
   : window.location.pathname === '/invitation'
   ? import('./invitation').then(({ startInvitationGallery }) => startInvitationGallery())
   : window.location.pathname === '/user-list'
