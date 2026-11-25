@@ -1793,6 +1793,10 @@
           },
           {
             "projectName": "chromium",
+            "title": "preserves the persisted status when selecting an existing case flag"
+          },
+          {
+            "projectName": "chromium",
             "title": "shows a selection error when proceeding without choosing a case flag"
           }
         ],
@@ -2579,6 +2583,10 @@
           {
             "projectName": "chromium",
             "title": "renders the full case viewer for resolved standard-access case data"
+          },
+          {
+            "projectName": "chromium",
+            "title": "renders the migrated full-access case tab and field"
           },
           {
             "projectName": "chromium",

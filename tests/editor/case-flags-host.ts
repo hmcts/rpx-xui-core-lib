@@ -20,6 +20,22 @@ class TranslateStub implements PipeTransform {
 
 let fixture: ReturnType<typeof TestBed.createComponent<CaseFlagsHostComponent>>;
 
+function createFlagsData(persistedStatus?: string): FlagsWithFormGroupPath[] {
+  return [{
+    pathToFlagsFormGroup: 'party.flags',
+    flags: {
+      partyName: 'Fictional party',
+      details: [{ id: 'new-flag', flagCode: 'NEW', name: 'New safety concern', status: 'Requested' }]
+    },
+    caseField: {
+      id: 'party',
+      formatted_value: persistedStatus
+        ? { flags: { details: [{ id: 'new-flag', value: { status: persistedStatus } }] } }
+        : { details: [] }
+    }
+  } as unknown as FlagsWithFormGroupPath];
+}
+
 @Component({
   selector: 'test-case-flags-host',
   template: `<ccd-manage-case-flags #flags [formGroup]="formGroup" [flagsData]="flagsData"
@@ -30,18 +46,11 @@ let fixture: ReturnType<typeof TestBed.createComponent<CaseFlagsHostComponent>>;
 class CaseFlagsHostComponent {
   public readonly formGroup = new FormGroup({});
   public readonly displayContextParameter = CaseFlagDisplayContextParameter.UPDATE;
-  public readonly flagsData: FlagsWithFormGroupPath[] = [{
-    pathToFlagsFormGroup: 'party.flags',
-    flags: {
-      partyName: 'Fictional party',
-      details: [{ id: 'new-flag', flagCode: 'NEW', name: 'New safety concern', status: 'Requested' }]
-    },
-    caseField: { id: 'party', formatted_value: { details: [] } }
-  } as unknown as FlagsWithFormGroupPath];
+  public flagsData = createFlagsData();
   public emittedState?: CaseFlagState;
 }
 
-export async function createCaseFlagHost() {
+export async function createCaseFlagHost(persistedStatus?: string) {
   TestBed.resetTestingModule();
   await TestBed.configureTestingModule({
     imports: [CommonModule, ReactiveFormsModule],
@@ -49,6 +58,7 @@ export async function createCaseFlagHost() {
   }).compileComponents();
 
   fixture = TestBed.createComponent(CaseFlagsHostComponent);
+  fixture.componentInstance.flagsData = createFlagsData(persistedStatus);
   document.body.appendChild(fixture.nativeElement);
   fixture.detectChanges();
 }

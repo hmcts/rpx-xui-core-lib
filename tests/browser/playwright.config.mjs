@@ -1,4 +1,5 @@
 import { fileURLToPath } from 'node:url';
+import { availableParallelism } from 'node:os';
 import { defineConfig } from '@playwright/test';
 import { reporters } from '../reporters/config.mjs';
 
@@ -6,6 +7,7 @@ import { reporters } from '../reporters/config.mjs';
 delete process.env.CORE_CSP_HOST_MODULE;
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
+const ciWorkers = Math.max(1, Math.min(6, availableParallelism() - 2));
 
 export default defineConfig({
   globalSetup: '../evidence-host/setup.mjs',
@@ -13,6 +15,7 @@ export default defineConfig({
   testDir: '.',
   projects: [{ name: 'chromium', use: { browserName: 'chromium' } }],
   fullyParallel: true,
+  workers: process.env.CI ? ciWorkers : undefined,
   forbidOnly: Boolean(process.env.CI),
   retries: 0,
   reporter: reporters('browser'),

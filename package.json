@@ -29,7 +29,7 @@
     "test:i18n": "node --test tests/vitest-evidence.test.mjs && node scripts/run-vitest-contracts.mjs i18n && playwright test -c tests/i18n/playwright.config.mjs",
     "test:compatibility": "node scripts/check-compatibility.mjs",
     "test:compatibility:contracts": "node --test tests/compatibility.test.mjs",
-    "test:browser:support": "node --test tests/browser-cache.test.mjs tests/cache-upgrade-support.test.mjs tests/local-translations.test.mjs",
+    "test:browser:support": "node --test tests/browser-cache.test.mjs tests/cache-upgrade-support.test.mjs tests/local-translations.test.mjs tests/browser/parallelism.test.mjs",
     "test:cache-upgrade": "node --test tests/cache-upgrade-source-mismatch.test.mjs && node scripts/build-cache-upgrade.mjs && playwright test -c tests/cache-upgrade/playwright.config.mjs",
     "test:reporters": "node --test tests/reporters/*.test.cjs",
     "test:tooling-security": "node --test tests/tooling-security.test.mjs",
