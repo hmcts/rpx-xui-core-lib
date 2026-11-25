@@ -98,9 +98,31 @@ jobs:
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
       - name: Upload report site
         if: steps.artifact.outputs.available == 'true'
+        id: pages_artifact
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: odhin-site
+      - name: Wait for Pages artifact visibility
+        if: steps.artifact.outputs.available == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_ARTIFACT_ID: ${{ steps.pages_artifact.outputs.artifact_id }}
+        run: |
+          set -euo pipefail
+          [[ "$EXPECTED_ARTIFACT_ID" =~ ^[0-9]+$ ]] || { echo '::error::Pages upload did not return an artifact ID'; exit 1; }
+          for attempt in {1..20}; do
+            if artifact_id=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts" --jq ".artifacts[] | select(.id == $EXPECTED_ARTIFACT_ID and .name == \"github-pages\" and .expired == false) | .id"); then
+              if [ "$artifact_id" = "$EXPECTED_ARTIFACT_ID" ]; then
+                printf 'Pages artifact %s visible after %s lookup(s)\n' "$artifact_id" "$attempt"
+                # deploy-pages reads a separate artifact service; allow its index to catch up.
+                sleep 10
+                exit 0
+              fi
+            fi
+            if [ "$attempt" -lt 20 ]; then sleep 3; fi
+          done
+          echo "::error::github-pages artifact $EXPECTED_ARTIFACT_ID for run $GITHUB_RUN_ID not visible after 20 lookups" >&2
+          exit 1
       - name: Deploy report site
         if: steps.artifact.outputs.available == 'true'
         id: deployment
