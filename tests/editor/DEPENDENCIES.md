@@ -1,6 +1,14 @@
-# Editor candidate dependency evidence
+# Editor dependency and consumer compatibility evidence
 
-The current editor source is an unmerged migration candidate. A package build on 13 November 2026 succeeded using an isolated temporary dependency overlay, not the repository's declared dependency graph. A clean checkout cannot yet reproduce that build: the candidate introduces imports not declared in the root development manifest or published core package manifest. Do not use this diagnostic as evidence that the package is ready to release.
+## Current repository validation
+
+On 25 November 2026, the clean-checkout GitHub run for Core PR #85 installed dependencies with the checked-in lockfile using `yarn install --immutable`, then passed `yarn test:all` at head `13b972189fb67b1c9a48879fa6cae85684bda2ed`. That full gate includes the Core build and lint, editor source and packed browser checks, selective-loading checks, package checks, the browser suites, and the required evidence/report gates. This supersedes the earlier statements below that a clean checkout could not build the editor or that repository lint and the packed-editor gate were failing.
+
+This is repository-level evidence only. It does not establish compatibility with the existing dependency graphs, provider identities, payment or Media Viewer runtime, styling, translations, or accessibility in Web App, Approve Org, or Manage Organisations. Consumer adoption, release and human acceptance remain separate gates. The detailed findings below are dated investigation notes from 13 November 2026; re-check them against current consumer revisions before treating them as present-day blockers or resolved behavior.
+
+## Historical investigation (13 November 2026)
+
+The editor source was initially probed with an isolated temporary dependency overlay rather than the declared repository graph. The dependency versions, import inventories, and failures recorded below describe that investigation snapshot; they are not the current repository build or lint result.
 
 The successful probe resolved these additional packages:
 
