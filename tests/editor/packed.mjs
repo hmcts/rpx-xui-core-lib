@@ -5,6 +5,8 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { preparePackedWorkspace } from './packed-workspace.mjs';
 import { sourceSnapshot } from '../../scripts/evidence-source-snapshot.mjs';
+import { vitestOutcomes } from '../../scripts/check-contracts.mjs';
+import { renderFeatureReport } from './feature-report.mjs';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 const output = join(root, 'test-results/editor-packed');
@@ -32,6 +34,19 @@ try {
   const metadata = JSON.parse(await readFile(join(packageDirectory, 'package.json'), 'utf8'));
   if (metadata.name !== '@hmcts/rpx-xui-core-lib') throw new Error('Packed package has an unexpected name');
   console.log(`Testing packed ${metadata.name}@${metadata.version} in an isolated workspace`);
+  const receipt = join(workspace, 'test-results/editor/vitest.json');
+  await rm(receipt, { force: true });
+  run(process.execPath, ['node_modules/@angular/cli/bin/ng.js', 'run', 'editor-tests:vitest', '--watch=false'], {
+    cwd: workspace,
+    env: { ...process.env, XUI_VITEST_RECEIPT: receipt }
+  });
+  const reportText = await readFile(receipt, 'utf8');
+  const required = JSON.parse(await readFile(join(root, 'tests/editor/required-specs.json'), 'utf8'));
+  const actual = vitestOutcomes(reportText).map(item => item.id);
+  if (actual.length !== required.length || actual.some(name => !required.includes(name))) {
+    throw new Error('Packed editor Vitest contracts differ from required inventory');
+  }
+  await writeFile(join(workspace, 'test-results/editor/features.html'), renderFeatureReport(JSON.parse(reportText)));
   run(process.execPath, ['node_modules/@playwright/test/cli.js', 'test', '-c', 'tests/editor/playwright.config.mjs'], { cwd: workspace });
   if (sourceSnapshot(root) !== initialSnapshot) throw new Error('Source changed during the packed editor run');
   const sha256 = createHash('sha256').update(await readFile(join(workspace, artifact))).digest('hex');

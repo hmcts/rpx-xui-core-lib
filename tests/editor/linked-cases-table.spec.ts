@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { LinkedCasesToTableComponent } from '../../projects/core-lib/case/editor-source/lib/shared/components/palette/linked-cases/components/linked-cases-table/linked-cases-to-table.component';
 
 export const registered = true;

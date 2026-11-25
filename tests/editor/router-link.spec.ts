@@ -1,3 +1,4 @@
+import { describe, expect, it, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { Params, provideRouter, Router } from '@angular/router';
 import { ConvertHrefToRouterService } from '../../projects/core-lib/case/editor-source/lib/shared/components/case-editor/services/convert-href-to-router.service';
@@ -8,7 +9,7 @@ describe('Editor link navigation', () => {
   it('preserves the legacy no-query navigation argument', () => {
     TestBed.configureTestingModule({ providers: [provideRouter([])] });
     const router = TestBed.inject(Router);
-    const navigate = spyOn(router, 'navigate').and.returnValue(Promise.resolve(true));
+    const navigate = vi.spyOn(router, 'navigate').mockReturnValue(Promise.resolve(true));
     new ConvertHrefToRouterService(router).callAngularRouter('/cases');
     expect(navigate).toHaveBeenCalledWith(['/cases'], { queryParams: '' as unknown as Params });
     // Angular normalizes the old empty-string fallback and null to the same URL.
@@ -20,7 +21,7 @@ describe('Editor link navigation', () => {
   it('preserves parsed query parameters', () => {
     TestBed.configureTestingModule({ providers: [provideRouter([])] });
     const router = TestBed.inject(Router);
-    const navigate = spyOn(router, 'navigate').and.returnValue(Promise.resolve(true));
+    const navigate = vi.spyOn(router, 'navigate').mockReturnValue(Promise.resolve(true));
     new ConvertHrefToRouterService(router).callAngularRouter('/cases?state=open&page=2');
     expect(navigate).toHaveBeenCalledWith(['/cases'], { queryParams: { state: 'open', page: '2' } });
   });

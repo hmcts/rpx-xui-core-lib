@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { HttpParams } from '@angular/common/http';
 import { RequestOptionsBuilder } from '../../projects/core-lib/case/editor-source/lib/shared/services/request/request.options.builder';
 
@@ -11,6 +12,6 @@ describe('Search request options migration contract', () => {
     expect(params.get('page')).toBe('2');
     expect(params.get('empty')).toBeNull();
     expect(params.get('case.people.value.name')).toBe('[Alice, Bob]');
-    expect(params.has('case.ignored')).toBeFalse();
+    expect(params.has('case.ignored')).toBe(false);
   });
 });

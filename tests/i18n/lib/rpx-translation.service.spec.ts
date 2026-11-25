@@ -1,10 +1,14 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { fakeAsync, TestBed, tick } from '@angular/core/testing';
-import { BehaviorSubject } from 'rxjs';
+import { TestBed } from '@angular/core/testing';
+import { BehaviorSubject, firstValueFrom } from 'rxjs';
 import { db } from '../../../projects/core-lib/i18n/lib/db';
 import { RpxTranslationConfig } from '../../../projects/core-lib/i18n/lib/rpx-translation.config';
 import { RpxTranslationService } from '../../../projects/core-lib/i18n/lib/rpx-translation.service';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+
+afterEach(() => vi.useRealTimers());
 
 describe('RpxTranslationService', () => {
   let service: RpxTranslationService;
@@ -58,20 +62,16 @@ describe('RpxTranslationService', () => {
     expect(service.language).toEqual('en');
   });
 
-  it('should normalise repeated spacing before translating a phrase', (done) => {
-    service.getTranslation$(' notice  of charge ').subscribe((translation) => {
-      expect((service as any).normalisePhraseSpacing(translation)).toBe('notice of charge');
-      expect(translation).toBe('notice  of charge');
-      done();
-    });
+  it('should normalise repeated spacing before translating a phrase', async () => {
+    const translation = await firstValueFrom(service.getTranslation$(' notice  of charge '));
+    expect((service as any).normalisePhraseSpacing(translation)).toBe('notice of charge');
+    expect(translation).toBe('notice  of charge');
   });
 
-  it('should normalise multiple spacing runs before translating a phrase', (done) => {
-    service.getTranslation$('notice   of    charge').subscribe((translation) => {
-      expect((service as any).normalisePhraseSpacing(translation)).toBe('notice of charge');
-      expect(translation).toBe('notice   of    charge');
-      done();
-    });
+  it('should normalise multiple spacing runs before translating a phrase', async () => {
+    const translation = await firstValueFrom(service.getTranslation$('notice   of    charge'));
+    expect((service as any).normalisePhraseSpacing(translation)).toBe('notice of charge');
+    expect(translation).toBe('notice   of    charge');
   });
 
   it('should preserve markdown line breaks while normalising horizontal spacing', () => {
@@ -80,12 +80,13 @@ describe('RpxTranslationService', () => {
     expect((service as any).normalisePhraseSpacing(markdown)).toBe(markdown);
   });
 
-  it('should request the normalised phrase when loading a phrase with multiple spaces', fakeAsync(() => {
+  it('should request the normalised phrase when loading a phrase with multiple spaces', async () => {
+    vi.useFakeTimers();
     const phrase = 'notice   of    charge';
 
     (service as any).phrases[phrase] = new BehaviorSubject({ translation: phrase });
     (service as any).load(phrase, 'cy');
-    tick(500);
+    await vi.advanceTimersByTimeAsync(500);
 
     const request = httpMock.expectOne('translations/cy');
     expect(request.request.body).toEqual({ phrases: ['notice of charge'] });
@@ -95,10 +96,10 @@ describe('RpxTranslationService', () => {
         'notice of charge': 'translated notice of charge'
       }
     });
-  }));
+  });
 
   it('returns English without loading a translation', () => {
-    const load = spyOn<any>(service, 'load').and.callThrough();
+    const load = vi.spyOn(service as any, 'load');
     const values: string[] = [];
     service.getTranslation$('Hello, world!').subscribe(value => values.push(value));
     expect(values).toEqual(['Hello, world!']);
@@ -174,18 +175,12 @@ describe('RpxTranslationService', () => {
       expect(result).toBe('');
     });
 
-    it('should handle null phrase in getTranslation$', (done) => {
-      service.getTranslation$(null as any).subscribe((translation) => {
-        expect(translation).toBe('');
-        done();
-      });
+    it('should handle null phrase in getTranslation$', async () => {
+      expect(await firstValueFrom(service.getTranslation$(null as any))).toBe('');
     });
 
-    it('should handle undefined phrase in getTranslation$', (done) => {
-      service.getTranslation$(undefined as any).subscribe((translation) => {
-        expect(translation).toBe('');
-        done();
-      });
+    it('should handle undefined phrase in getTranslation$', async () => {
+      expect(await firstValueFrom(service.getTranslation$(undefined as any))).toBe('');
     });
 
     it('should safely get persisted language when cookie not set', () => {
@@ -239,32 +234,25 @@ describe('RpxTranslationService', () => {
       expect((service as any).shouldTranslate('a')).toBe(true);
     });
 
-    it('should handle getTranslationWithYesOrNo$ with null yesOrNoValue', (done) => {
+    it('should handle getTranslationWithYesOrNo$ with null yesOrNoValue', async () => {
       service.language = 'cy';
-      service.getTranslationWithYesOrNo$('Test', null as any).subscribe({
-        next: value => { expect(value).toBe(''); httpMock.expectNone('translations/cy'); done(); },
-        error: done.fail
-      });
+      expect(await firstValueFrom(service.getTranslationWithYesOrNo$('Test', null as any))).toBe('');
+      httpMock.expectNone('translations/cy');
     });
 
-    it('returns an empty string for undefined yesOrNoValue without a request', (done) => {
+    it('returns an empty string for undefined yesOrNoValue without a request', async () => {
       service.language = 'cy';
-      service.getTranslationWithYesOrNo$('Test', undefined as any).subscribe({
-        next: value => { expect(value).toBe(''); httpMock.expectNone('translations/cy'); done(); },
-        error: done.fail
-      });
+      expect(await firstValueFrom(service.getTranslationWithYesOrNo$('Test', undefined as any))).toBe('');
+      httpMock.expectNone('translations/cy');
     });
 
-    it('should handle getTranslationWithReplacements$ with empty replacements', (done) => {
+    it('should handle getTranslationWithReplacements$ with empty replacements', async () => {
       const phrase = 'Test  phrase'; // Note: phrase has two spaces
-      service.getTranslationWithReplacements$(phrase, {}).subscribe((translation) => {
-        // When there are no replacements, the phrase is processed but may have spacing adjusted
-        // The important thing is that it doesn't throw an error when replacements are empty
-        expect(translation).toBeDefined();
-        expect(translation).toContain('Test');
-        expect(translation).toContain('phrase');
-        done();
-      });
+      const translation = await firstValueFrom(service.getTranslationWithReplacements$(phrase, {}));
+      // When there are no replacements, the phrase is processed but may have spacing adjusted.
+      expect(translation).toBeDefined();
+      expect(translation).toContain('Test');
+      expect(translation).toContain('phrase');
     });
   });
 });

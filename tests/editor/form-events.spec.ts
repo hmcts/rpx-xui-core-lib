@@ -1,3 +1,4 @@
+import { describe, expect, it, vi } from 'vitest';
 import { FormArray } from '@angular/forms';
 import { WriteTextFieldComponent } from '../../projects/core-lib/case/editor-source/lib/shared/components/palette/text/write-text-field.component';
 import { WriteTextAreaFieldComponent } from '../../projects/core-lib/case/editor-source/lib/shared/components/palette/text-area/write-text-area-field.component';
@@ -9,7 +10,7 @@ export const registered = true;
 describe('Editor form events', () => {
   it('emits money as pence and preserves invalid input for validation', () => {
     const component = new MoneyGbpInputComponent();
-    const change = jasmine.createSpy('change');
+    const change = vi.fn();
     component.registerOnChange(change);
     component.onChange({ target: { value: '12.3' } } as unknown as Event);
     expect(change).toHaveBeenCalledWith('1230');
@@ -25,7 +26,7 @@ describe('Editor form events', () => {
   it('resizes the textarea for legacy browsers', () => {
     const textarea = document.createElement('textarea');
     Object.defineProperty(textarea, 'scrollHeight', { value: 45 });
-    const scrollTop = spyOnProperty(textarea, 'scrollTop', 'set').and.callThrough();
+    const scrollTop = vi.spyOn(textarea, 'scrollTop', 'set');
     const component = new WriteTextAreaFieldComponent({ isIEOrEdge: () => true } as unknown as ConstructorParameters<typeof WriteTextAreaFieldComponent>[0]);
     component.autoGrow({ target: textarea } as unknown as Event);
     expect(textarea.style.height).toBe('45px');

@@ -11,7 +11,7 @@ test('rejects an invalid port before deleting existing editor evidence', () => {
   const cwd = mkdtempSync(join(tmpdir(), 'editor-invalid-port-'));
   try {
     mkdirSync(join(cwd, 'test-results/editor'), { recursive: true });
-    const reports = ['jasmine.json', 'driver.json'].map(name => join(cwd, 'test-results/editor', name));
+    const reports = ['vitest.json', 'driver.json'].map(name => join(cwd, 'test-results/editor', name));
     for (const port of ['', '0', '65536', '4315x', '-1', '--help', '1e3', '0x10']) {
       for (const report of reports) writeFileSync(report, 'retained evidence');
       const result = spawnSync(process.execPath, [script, port], { cwd, encoding: 'utf8' });

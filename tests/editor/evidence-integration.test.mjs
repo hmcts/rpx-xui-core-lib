@@ -8,7 +8,7 @@ test('editor contracts are required and mapped into aggregate feature evidence',
   const inventory = await read('../contracts.json');
   const required = await read('./required-specs.json');
   const mapping = await read('../feature-evidence-map.json');
-  assert.deepEqual(inventory.editorUnit, { report: 'test-results/editor/jasmine.json', required });
+  assert.deepEqual(inventory.editorUnit, { report: 'test-results/editor/vitest.json', required });
   validateMapping(inventory, mapping);
   assert.ok(mapping.features.some(row => row.contracts.editorUnit?.length));
 });

@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { SearchResultViewItemComparatorFactory } from '../../projects/core-lib/case/editor-source/lib/shared/services/search-result/sorting/search-result-view-item-comparator-factory';
 
 export const registered = true;
