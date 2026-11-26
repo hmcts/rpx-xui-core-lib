@@ -7,6 +7,7 @@ import { createDatetimeToggleHost, refreshDatetimeToggleHost } from './datetime-
 import { createDialog } from './collection-dialog-host';
 import { createCaseFlagHost, readCaseFlagSelection, readCaseFlagState } from './case-flags-host';
 import { createCaseViewerFullAccessHost, createCaseViewerHost, createCaseViewerNotifierHost, emitCaseViewerDetails, readCaseViewerRequestUrl } from './case-viewer-host';
+import { createDocumentUploadHost, readDocumentUploadState } from './document-upload-host';
 
 @NgModule({ providers: [provideZonelessChangeDetection()] })
 class ZonelessHostTestingModule {}
@@ -30,5 +31,7 @@ Object.assign(globalThis, {
   createCaseViewerFullAccessHost,
   createCaseViewerNotifierHost,
   emitCaseViewerDetails,
-  readCaseViewerRequestUrl
+  readCaseViewerRequestUrl,
+  createDocumentUploadHost,
+  readDocumentUploadState
 });
