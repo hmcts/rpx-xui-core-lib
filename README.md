@@ -23,15 +23,15 @@ The Jest development dependency graph pins `glob@14.0.6` and `minimatch@11.0.8` 
 
 For agent-assisted local startup, checks and failure diagnosis, ask your repository-aware agent to read [the core local test skill](.agents/skills/core-local-test/SKILL.md). It uses the same repository commands and reports; it does not replace human review or remote CI. For example: “Use `core-local-test` to run the full local gate for this checkout, inspect the feature report and explain any failures.” The agent checks prerequisites and preserves evidence before running; it reports local results and limits rather than claiming release readiness.
 
-Select Node **24.22.2** from `.nvmrc`. With asdf, run `core_node_path=$(asdf where nodejs "$(cat .nvmrc)") && export PATH="$core_node_path/bin:$PATH"`. With nvm, run `nvm use`. Confirm that `node --version` prints `v24.22.2` before continuing. Run Yarn **4.19.0** through the checked-in file using that Node runtime. Use this launcher for the Yarn scripts throughout this README.
+Select Node **24.22.2** from `.nvmrc`. With asdf, run `core_node_path=$(asdf where nodejs "$(cat .nvmrc)") && export PATH="$core_node_path/bin:$PATH"`. With nvm, run `nvm use`. Confirm that `node --version` prints `v24.22.2` before continuing. The checked-in `scripts/core-yarn.mjs` launcher follows `yarnPath` from `.yarnrc.yml` and runs that exact release with the selected Node runtime.
 
 ```sh
 node --version
-node .yarn/releases/yarn-4.19.0.cjs --version
-node .yarn/releases/yarn-4.19.0.cjs install --immutable
-node .yarn/releases/yarn-4.19.0.cjs playwright install chromium
-node .yarn/releases/yarn-4.19.0.cjs test:all
-node .yarn/releases/yarn-4.19.0.cjs start
+node scripts/core-yarn.mjs --version
+node scripts/core-yarn.mjs install --immutable
+node scripts/core-yarn.mjs playwright install chromium
+node scripts/core-yarn.mjs test:all
+node scripts/core-yarn.mjs start
 ```
 
 `test:all` resets generated reports, builds the package, runs lint and type checks, runs the report-gate regression tests, validator and native Node contracts, verifies the installed tarball, builds the gallery, runs the complete local browser suite, then compares executed outcomes with the independent inventory in `tests/contracts.json` and opens both generated Odhín report lanes in Chromium at mobile and desktop widths. The required CI `build` job runs this same fail-fast command. The shared browser suite uses at most six workers in CI, choosing two fewer than detected CPU availability with a one-worker floor; local runs retain Playwright's host-based default. The cache-upgrade and editor browser lanes remain single-worker. Missing reports, filtered-out required tests, skipped scenarios and failures cannot satisfy the contract gate. Reports are `test-results/validation.tap`, `test-results/node.tap`, `test-results/package.json`, `test-results/browser.json`, `test-results/browser-junit.xml` and `playwright-report/index.html`; browser artifacts stay below `test-results/browser/` so browser cleanup cannot remove earlier unit/package reports.
@@ -328,13 +328,13 @@ Select Node `24.22.2` using the asdf or nvm setup in [Develop locally](#develop-
 
 ```sh
 node --version
-node .yarn/releases/yarn-4.19.0.cjs --version
-node .yarn/releases/yarn-4.19.0.cjs build
+node scripts/core-yarn.mjs --version
+node scripts/core-yarn.mjs build
 node --test tests/filter-state/filter-state.test.mjs tests/filter-renderers/renderers.test.mjs tests/generic-filter/generic-filter.test.mjs
-node .yarn/releases/yarn-4.19.0.cjs lint
-node .yarn/releases/yarn-4.19.0.cjs test:browser filter-renderers generic-filter
-node .yarn/releases/yarn-4.19.0.cjs test:package
-node .yarn/releases/yarn-4.19.0.cjs test:all
+node scripts/core-yarn.mjs lint
+node scripts/core-yarn.mjs test:browser filter-renderers generic-filter
+node scripts/core-yarn.mjs test:package
+node scripts/core-yarn.mjs test:all
 ```
 
 Run the browser and package gates serially in each checkout. The gallery paths are `/filter-renderers` and `/generic-filter` under `http://127.0.0.1:4307`. The full gate includes the three unit suites in `test-results/validation.tap` and reports the filter features and accessibility rows in `test-results/odhin/browser/index.html`.

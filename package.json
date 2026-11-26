@@ -21,7 +21,7 @@
     "test:browser": "playwright test -c tests/browser/playwright.config.mjs",
     "test:filter-state": "node --test tests/filter-state/filter-state.test.mjs",
     "test:package": "node tests/package/verify-package.mjs",
-    "test:contracts": "node --test tests/contract-gate.test.mjs tests/evidence-source-snapshot.test.mjs tests/evidence-lane.test.mjs tests/feature-evidence-matrix.test.mjs tests/feature-evidence-expanded.test.mjs tests/diagnostic-current.test.mjs tests/diagnostic-lanes.test.mjs tests/evidence-run-lock.test.mjs tests/evidence-host.test.mjs tests/packed-loading.test.mjs tests/jest-outcomes.test.mjs tests/translation-counterpart.test.mjs",
+    "test:contracts": "node --test tests/contract-gate.test.mjs tests/core-yarn.test.mjs tests/evidence-source-snapshot.test.mjs tests/evidence-lane.test.mjs tests/feature-evidence-matrix.test.mjs tests/feature-evidence-expanded.test.mjs tests/diagnostic-current.test.mjs tests/diagnostic-lanes.test.mjs tests/evidence-run-lock.test.mjs tests/evidence-host.test.mjs tests/packed-loading.test.mjs tests/jest-outcomes.test.mjs tests/translation-counterpart.test.mjs",
     "check:contracts": "node scripts/check-contracts.mjs",
     "test:all": "node scripts/run-evidence-suite.mjs",
     "test:node": "yarn test:node:utils && yarn test:node:server",
@@ -48,7 +48,7 @@
     "test:editor:packed": "node --test tests/editor/packed-workspace.test.mjs && node tests/editor/packed.mjs",
     "generate:condition-parser": "node tests/editor/generate-parser.mjs",
     "test:editor:translation-compatibility": "node --test tests/editor/translation-compatibility.test.mjs",
-    "test:runtime-services": "node --test tests/analytics/analytics.test.mjs tests/session/session.test.mjs tests/runtime-services/loading.test.mjs && node .yarn/releases/yarn-4.19.0.cjs playwright test -c tests/browser/playwright.config.mjs tests/browser/runtime-services/runtime-services.spec.mjs"
+    "test:runtime-services": "node --test tests/analytics/analytics.test.mjs tests/session/session.test.mjs tests/runtime-services/loading.test.mjs && node scripts/core-yarn.mjs playwright test -c tests/browser/playwright.config.mjs tests/browser/runtime-services/runtime-services.spec.mjs"
   },
   "devDependencies": {
     "@angular/animations": "20.3.35",
