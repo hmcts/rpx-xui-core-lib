@@ -17,6 +17,7 @@ export class PaginationComponent {
   @Input() public maxSize = 7;
   @Input() public previousLabel = 'Previous';
   @Input() public nextLabel = 'Next';
+  @Input() public navigationLabel = 'Pagination';
   @Input() public screenReaderPaginationLabel = 'Pagination';
   @Input() public screenReaderPageLabel = 'page';
   @Input() public screenReaderCurrentLabel = `You're on page`;
