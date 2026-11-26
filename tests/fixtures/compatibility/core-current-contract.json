@@ -248,6 +248,16 @@
         "output": "ui/ccd-pagination"
       },
       {
+        "input": "case/logging",
+        "glob": "LICENCE",
+        "output": "case/logging"
+      },
+      {
+        "input": "case/session-guard",
+        "glob": "LICENCE",
+        "output": "case/session-guard"
+      },
+      {
         "input": "ui/case-list",
         "glob": "LICENCE",
         "output": "ui/case-list"

@@ -19,6 +19,12 @@
       "@hmcts/rpx-xui-core-lib/browser/session-storage": [
         "../../projects/core-lib/browser/session-storage/public-api.ts"
       ],
+      "@hmcts/rpx-xui-core-lib/case/session-guard": [
+        "../../projects/core-lib/case/session-guard/public-api.ts"
+      ],
+      "@hmcts/rpx-xui-core-lib/case/logging": [
+        "../../projects/core-lib/case/logging/public-api.ts"
+      ],
       "@hmcts/rpx-xui-core-lib/case/models": [
         "../../projects/core-lib/case/models/public-api.ts"
       ],

@@ -1807,6 +1807,10 @@
           },
           {
             "projectName": "chromium",
+            "title": "preserves the persisted status when selecting an existing case flag"
+          },
+          {
+            "projectName": "chromium",
             "title": "shows a selection error when proceeding without choosing a case flag"
           }
         ],
@@ -2582,6 +2586,22 @@
       }
     },
     {
+      "feature": "Session guard and storage diagnostics",
+      "contracts": {
+        "editorUnit": [
+          "SessionStorageGuard allows navigation when user details are absent or valid JSON",
+          "SessionStorageGuard redirects malformed user details without logging the stored value",
+          "SessionStorageGuard uses the configured error route and logger for JSON null",
+          "SessionStorageGuard reuses the same guard class through its editor compatibility entry"
+        ],
+        "package": [
+          "package.session-guard-graph",
+          "package.session-guard-types",
+          "package.case-logging-identity"
+        ]
+      }
+    },
+    {
       "feature": "Case viewer: route and access behavior",
       "contracts": {
         "editorUnit": [
@@ -2593,6 +2613,10 @@
           {
             "projectName": "chromium",
             "title": "renders the full case viewer for resolved standard-access case data"
+          },
+          {
+            "projectName": "chromium",
+            "title": "renders the migrated full-access case tab and field"
           },
           {
             "projectName": "chromium",

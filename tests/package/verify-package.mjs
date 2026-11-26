@@ -79,7 +79,20 @@ try {
   const dist = join(root, 'dist/core-lib');
   const declaration = 'forms/validation/index.d.ts';
   const filterLicenceEntries = ['ui/filter-state', 'ui/find-location', 'ui/find-service', 'ui/search-service', 'ui/capitalize', 'ui/generic-filter'];
-  const sourceLicenceEntries = [...filterLicenceEntries, 'ui/find-task-name', 'ui/find-work-type', 'ui/search-work-type', 'ui/find-person', 'ui/checkbox-list', 'ui/gov-date', 'ui/gov-select', 'ui/search-location', 'ui/search-judicials', 'ui/search-venue', 'ui/pagination', 'ui/hmcts-pagination', 'terms/display', 'terms/confirmation', 'ui/gov-input', 'case/session-error', 'case/editor-date', 'browser/window', 'browser/session-storage', 'reference/locations', 'reference/ref-data', 'terms/models', 'ui/cookie', 'ui/cookie-banner', 'ui/feature-toggle', 'ui/feature-toggle-directive', 'ui/feature-toggle-guard', 'ui/role-state', 'ui/task-data', 'case/sharing-state', 'ui/contact-details', 'ui/page-wrapper', 'ui/loading-spinner', 'ui/loading-state', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog', 'ui/banner', 'ui/form-label', 'case/models', 'case/reference', 'case/sharing', 'browser/user-agent', 'ui/ccd-pagination', 'ui/case-list', 'address/normalization', 'ui/address', 'ui/google-analytics', 'ui/google-tag-manager', 'ui/manage-session', 'ui/timeout-notifications', 'ui/launch-darkly'];
+  const sourceLicenceEntries = [
+    ...filterLicenceEntries,
+    'ui/find-task-name', 'ui/find-work-type', 'ui/search-work-type', 'ui/find-person', 'ui/checkbox-list',
+    'ui/gov-date', 'ui/gov-select', 'ui/search-location', 'ui/search-judicials', 'ui/search-venue',
+    'ui/pagination', 'ui/hmcts-pagination', 'terms/display', 'terms/confirmation', 'ui/gov-input',
+    'case/session-error', 'case/session-guard', 'case/logging', 'case/editor-date',
+    'browser/window', 'browser/session-storage', 'reference/locations', 'reference/ref-data', 'terms/models',
+    'ui/cookie', 'ui/cookie-banner', 'ui/feature-toggle', 'ui/feature-toggle-directive', 'ui/feature-toggle-guard',
+    'ui/role-state', 'ui/task-data', 'case/sharing-state', 'ui/contact-details', 'ui/page-wrapper',
+    'ui/loading-spinner', 'ui/loading-state', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog',
+    'ui/banner', 'ui/form-label', 'case/models', 'case/reference', 'case/sharing', 'browser/user-agent',
+    'ui/ccd-pagination', 'ui/case-list', 'address/normalization', 'ui/address',
+    'ui/google-analytics', 'ui/google-tag-manager', 'ui/manage-session', 'ui/timeout-notifications', 'ui/launch-darkly'
+  ];
 
   // Fail before dependency setup when the legacy TypeScript entry point is absent.
   await check('package.physical-secondary-declaration', async () => {
@@ -459,7 +472,7 @@ try {
     try { await rm(mapFile); assert.throws(() => inspectLoadingGraph(directory), /ENOENT/); } finally { await writeFile(mapFile, mapBytes); }
     await cp(join(consumer, 'loading-dist'), join(evidence, 'loading-dist'), { recursive: true });
     await writeFile(join(evidence, 'loading-graph.json'), JSON.stringify({ ...graph, ...currentIdentity(root), sourceSnapshot: sourceSnapshot(root), candidateSha256: report.package.sha256 }) + '\n');
-    for (const entry of ['forms-validation', 'case-editor-date', 'case-session-error']) {
+    for (const entry of ['forms-validation', 'case-editor-date', 'case-session-error', 'case-logging', 'case-session-guard']) {
       const name = 'fesm2022/hmcts-rpx-xui-core-lib-' + entry + '.mjs';
       const extracted = spawnSync('/usr/bin/tar', ['-xOf', candidate, 'package/' + name]);
       assert.equal(extracted.status, 0, 'Packed entry must be extractable');
@@ -476,6 +489,16 @@ try {
     env.CORE_SESSION_CHUNK = graph.session;
     try {
       await run('loading-browser', [join(root, 'node_modules/@playwright/test/cli.js'), 'test', '-c', join(root, 'tests/packed-loading/playwright.config.mjs'), 'loading.spec.mjs'], root);
+      const outcomes = browserOutcomes(JSON.parse(await readFile(env.CORE_LOADING_REPORT, 'utf8')));
+      const expected = [
+        'installed package keeps date and session pages lazy and usable',
+        'installed lookup uses the consuming application HTTP provider and renders results',
+        'installed session guard allows a protected route when user details are absent',
+        'installed session guard allows a protected route when user details are valid JSON',
+        'installed session guard redirects malformed user details to the lazy error page without exposing the stored value'
+      ];
+      assert.equal(outcomes.length, expected.length, 'Every installed loading and session-guard browser case must execute once');
+      for (const title of expected) assert.equal(outcomes.filter(test => test.id === JSON.stringify(['chromium', title]) && test.passed).length, 1, 'Installed browser cases cannot be missing, skipped, retried or duplicated');
     } finally {
       for (const key of ['CORE_LOADING_HOST', 'CORE_LOADING_ID', 'CORE_LOADING_PORT', 'CORE_LOADING_REPORT', 'CORE_LOADING_OUTPUT', 'CORE_DATE_CHUNK', 'CORE_SESSION_CHUNK']) delete env[key];
     }
@@ -892,6 +915,43 @@ try {
     const source = await readFile(join(consumer, 'session-error-graph.mjs'), 'utf8');
     verify(graph(source));
     assert.throws(() => verify(graph(source + "\nimport { windowToken } from '@hmcts/rpx-xui-core-lib/browser/window'; console.log(windowToken);")), /only its own Core entry/);
+  });
+
+  await check('package.case-logging-identity', async () => {
+    const installedManifest = JSON.parse(await readFile(join(installed, 'package.json'), 'utf8'));
+    const entries = ['case/logging', 'case/session-guard'];
+    const declarations = await Promise.all(entries.map(entry => stat(join(installed, entry, 'index.d.ts'))));
+    for (const [index, entry] of entries.entries()) {
+      assert.ok(installedManifest.exports[`./${entry}`], `Packed package must export ./${entry}`);
+      assert.ok(declarations[index].isFile(), `Packed ./${entry} declarations must exist`);
+    }
+    await run('case-logging-identity', ['case-logging-identity.mjs'], consumer);
+  });
+
+  await check('package.session-guard-types', () => run('session-guard-types', [compiler, '--strict', '--skipLibCheck', 'false', '--esModuleInterop', '--target', 'ES2022', '--module', 'ES2022', '--moduleResolution', 'node', '--noEmit', 'session-guard-types.ts'], consumer));
+
+  await check('package.session-guard-graph', async () => {
+    const graph = contents => buildSync({ stdin: { contents, resolveDir: consumer }, absWorkingDir: consumer, bundle: true, platform: 'browser', format: 'esm', metafile: true, write: false, logLevel: 'silent' });
+    const verify = result => {
+      const used = Object.values(result.metafile.outputs).flatMap(output => Object.entries(output.inputs).filter(([, value]) => value.bytesInOutput > 0).map(([input]) => input.replaceAll('\\', '/')));
+      const core = used.filter(input => input.includes('/@hmcts/rpx-xui-core-lib/'));
+      const expectedEntries = ['case-session-guard', 'case-logging', 'browser-session-storage'];
+      const coreEntries = core.map(input => /fesm2022\/hmcts-rpx-xui-core-lib-([^/]+)\.mjs$/.exec(input)?.[1]).filter(Boolean);
+      assert.equal(coreEntries.length, expectedEntries.length, 'Session guard graph must contain exactly three Core entries');
+      assert.equal(new Set(coreEntries).size, expectedEntries.length, 'Session guard graph must not contain duplicate Core entries');
+      for (const entry of expectedEntries) {
+        assert.ok(coreEntries.includes(entry), `Session guard graph must use ${entry}`);
+        assert.ok(core.some(input => input.endsWith(`/fesm2022/hmcts-rpx-xui-core-lib-${entry}.mjs`)), `Session guard graph must include ${entry}`);
+      }
+      assert.ok(!used.some(input => /hmcts-rpx-xui-core-lib-(?:case-editor-source|case-notifier|node)|@hmcts\/(?:media-viewer|ccpay-web-component)|(?:^|\/)node(?:\/|$)|^node:/.test(input)), 'Session guard must exclude the editor, notifier, Node, Media Viewer and payment entries');
+    };
+    const source = await readFile(join(consumer, 'session-guard-graph.mjs'), 'utf8');
+    verify(graph(source));
+    assert.throws(() => verify(graph(source + "\nimport { SessionErrorPageComponent } from '@hmcts/rpx-xui-core-lib/case/session-error'; console.log(SessionErrorPageComponent);")), /exactly three Core entries/);
+    const identitySource = await readFile(join(consumer, 'case-logging-graph.mjs'), 'utf8');
+    const identityGraph = graph(identitySource);
+    const identityInputs = Object.values(identityGraph.metafile.outputs).flatMap(output => Object.entries(output.inputs).filter(([, value]) => value.bytesInOutput > 0).map(([input]) => input.replaceAll('\\', '/')));
+    assert.ok(identityInputs.some(input => input.endsWith('/fesm2022/hmcts-rpx-xui-core-lib-case-logging.mjs')));
   });
 
   await check('package.sharing-graph', async () => {
