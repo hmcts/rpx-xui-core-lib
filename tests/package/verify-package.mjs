@@ -854,9 +854,11 @@ try {
 
   await check('package.case-logging-identity', async () => {
     const installedManifest = JSON.parse(await readFile(join(installed, 'package.json'), 'utf8'));
-    for (const entry of ['case/logging', 'case/session-guard']) {
+    const entries = ['case/logging', 'case/session-guard'];
+    const declarations = await Promise.all(entries.map(entry => stat(join(installed, entry, 'index.d.ts'))));
+    for (const [index, entry] of entries.entries()) {
       assert.ok(installedManifest.exports[`./${entry}`], `Packed package must export ./${entry}`);
-      assert.ok((await stat(join(installed, entry, 'index.d.ts'))).isFile(), `Packed ./${entry} declarations must exist`);
+      assert.ok(declarations[index].isFile(), `Packed ./${entry} declarations must exist`);
     }
     await run('case-logging-identity', ['case-logging-identity.mjs'], consumer);
   });
@@ -869,16 +871,18 @@ try {
       const used = Object.values(result.metafile.outputs).flatMap(output => Object.entries(output.inputs).filter(([, value]) => value.bytesInOutput > 0).map(([input]) => input.replaceAll('\\', '/')));
       const core = used.filter(input => input.includes('/@hmcts/rpx-xui-core-lib/'));
       const expectedEntries = ['case-session-guard', 'case-logging', 'browser-session-storage'];
-      const coreEntries = core.map(input => input.match(/fesm2022\/hmcts-rpx-xui-core-lib-([^/]+)\.mjs$/)?.[1]).filter(Boolean);
-      assert.deepEqual(coreEntries.sort(), [...expectedEntries].sort(), 'Session guard graph must use only its guard, logger and storage entries');
+      const coreEntries = core.map(input => /fesm2022\/hmcts-rpx-xui-core-lib-([^/]+)\.mjs$/.exec(input)?.[1]).filter(Boolean);
+      assert.equal(coreEntries.length, expectedEntries.length, 'Session guard graph must contain exactly three Core entries');
+      assert.equal(new Set(coreEntries).size, expectedEntries.length, 'Session guard graph must not contain duplicate Core entries');
       for (const entry of expectedEntries) {
+        assert.ok(coreEntries.includes(entry), `Session guard graph must use ${entry}`);
         assert.ok(core.some(input => input.endsWith(`/fesm2022/hmcts-rpx-xui-core-lib-${entry}.mjs`)), `Session guard graph must include ${entry}`);
       }
       assert.ok(!used.some(input => /hmcts-rpx-xui-core-lib-(?:case-editor-source|case-notifier|node)|@hmcts\/(?:media-viewer|ccpay-web-component)|(?:^|\/)node(?:\/|$)|^node:/.test(input)), 'Session guard must exclude the editor, notifier, Node, Media Viewer and payment entries');
     };
     const source = await readFile(join(consumer, 'session-guard-graph.mjs'), 'utf8');
     verify(graph(source));
-    assert.throws(() => verify(graph(source + "\nimport { SessionErrorPageComponent } from '@hmcts/rpx-xui-core-lib/case/session-error'; console.log(SessionErrorPageComponent);")), /must use only/);
+    assert.throws(() => verify(graph(source + "\nimport { SessionErrorPageComponent } from '@hmcts/rpx-xui-core-lib/case/session-error'; console.log(SessionErrorPageComponent);")), /exactly three Core entries/);
     const identitySource = await readFile(join(consumer, 'case-logging-graph.mjs'), 'utf8');
     const identityGraph = graph(identitySource);
     const identityInputs = Object.values(identityGraph.metafile.outputs).flatMap(output => Object.entries(output.inputs).filter(([, value]) => value.bytesInOutput > 0).map(([input]) => input.replaceAll('\\', '/')));
