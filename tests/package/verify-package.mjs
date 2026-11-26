@@ -238,6 +238,17 @@ try {
     await run('server-without-helmet', ['--input-type=commonjs', '-e', "const assert=require('node:assert/strict');const {xuiNode,getLogger}=require('@hmcts/rpx-xui-core-lib/node/server');assert.ok(xuiNode);assert.equal(typeof getLogger,'function');assert.ok(!Object.keys(require.cache).some(path=>path.includes('/node_modules/helmet/')));"], nodeOnlyConsumer);
   });
 
+  await check('package.express-5_3_0-peer', async () => {
+    const serverManifest = JSON.parse(await readFile(join(nodeOnlyConsumer, 'package.json'), 'utf8'));
+    serverManifest.dependencies.express = '5.3.0';
+    await writeFile(join(nodeOnlyConsumer, 'package.json'), JSON.stringify(serverManifest) + '\n');
+    await run('node-express-5_3_0-lock', [yarn, 'install', '--mode=update-lockfile'], nodeOnlyConsumer);
+    const serverLock = await readFile(join(nodeOnlyConsumer, 'yarn.lock'), 'utf8');
+    await run('node-express-5_3_0-install', [yarn, 'install', '--immutable'], nodeOnlyConsumer);
+    assert.equal(await readFile(join(nodeOnlyConsumer, 'yarn.lock'), 'utf8'), serverLock);
+    await run('node-express-5_3_0-import', ['--input-type=commonjs', '-e', "const assert=require('node:assert/strict');const {xuiNode,getLogger}=require('@hmcts/rpx-xui-core-lib/node/server');assert.ok(xuiNode);assert.equal(typeof getLogger,'function');assert.equal(require('express/package.json').version,'5.3.0');"], nodeOnlyConsumer);
+  });
+
   await check('package.angular-20_3_31-cohort-build', async () => {
     const uiConsumer = join(scratch, 'angular-20.3.31-consumer');
     await mkdir(uiConsumer, { recursive: true });
