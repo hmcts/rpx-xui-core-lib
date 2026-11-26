@@ -207,3 +207,57 @@ test('renders case details from the notifier when resolved route data is absent'
   await expect(page.locator('ccd-case-basic-access-view')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+test('rejects an unsupported document in the browser without uploading it', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => globalThis.createDocumentUploadHost());
+
+  const fileInput = page.locator('input[type="file"]');
+  await expect(page.getByRole('button', { name: 'Supporting document' })).toBeVisible();
+  await fileInput.setInputFiles({
+    name: 'notice.exe',
+    mimeType: 'application/octet-stream',
+    buffer: Buffer.from('not a PDF')
+  });
+
+  await expect(page.getByRole('alert')).toHaveText('Document format is not supported');
+  const state = await page.evaluate(() => globalThis.readDocumentUploadState());
+  expect(state.uploadCount).toBe(0);
+  expect(state.uploadInProgress).toBe(false);
+  expect(state.formErrors).toEqual({ invalidFileFormat: true });
+  expect(state.documentValue).toMatchObject({ document_url: null, document_binary_url: null, document_filename: null });
+});
+
+test('uploads an accepted document and writes its links into the case field', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => globalThis.createDocumentUploadHost());
+
+  const fileInput = page.locator('input[type="file"]');
+  await expect(page.getByRole('button', { name: 'Supporting document' })).toBeVisible();
+  await fileInput.setInputFiles({
+    name: 'notice.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.from('%PDF-1.4 local test document')
+  });
+
+  const state = await page.evaluate(() => globalThis.readDocumentUploadState());
+  expect(state.uploadCount).toBe(1);
+  expect(state.uploadInProgress).toBe(false);
+  expect(state.documentValue).toEqual({
+    document_url: '/documents/1',
+    document_binary_url: '/documents/1/binary',
+    document_filename: 'notice.pdf'
+  });
+  expect(state.caseFieldValue).toMatchObject({
+    document_url: '/documents/1',
+    document_binary_url: '/documents/1/binary',
+    document_filename: 'notice.pdf'
+  });
+  expect(state.uploadPayload).toMatchObject({
+    fileName: 'notice.pdf',
+    classification: 'PUBLIC',
+    caseTypeId: 'civil',
+    jurisdictionId: 'family'
+  });
+  await expect(page.getByRole('alert')).toBeHidden();
+});
