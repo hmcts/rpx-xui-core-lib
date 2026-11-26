@@ -62,7 +62,12 @@
     "ng-packagr": "20.3.2",
     "rxjs": "7.8.2",
     "typescript": "5.9.3",
-    "zone.js": "0.15.1"
+    "zone.js": "0.15.1",
+    "prosemirror-commands": "1.7.2",
+    "prosemirror-history": "1.5.2",
+    "prosemirror-model": "1.25.13",
+    "prosemirror-schema-list": "1.6.1",
+    "prosemirror-state": "1.4.4"
   },
   "resolutions": {
     "eslint@npm:10.15.0/minimatch": "11.0.9",
@@ -103,7 +108,12 @@
     "@ngxmc/datetime-picker": "20.1.0",
     "ngx-editor": "19.0.0-beta.1",
     "ngx-markdown": "20.1.0",
-    "ngx-pagination": "6.0.3"
+    "ngx-pagination": "6.0.3",
+    "prosemirror-commands": "^1.7.1",
+    "prosemirror-history": "^1.5.0",
+    "prosemirror-model": "^1.25.0",
+    "prosemirror-schema-list": "^1.5.1",
+    "prosemirror-state": "^1.4.3"
   },
   "libraryPeerDependenciesMeta": {
     "@angular/common": {
@@ -165,6 +175,21 @@
     },
     "ngx-pagination": {
       "optional": true
+    },
+    "prosemirror-commands": {
+      "optional": true
+    },
+    "prosemirror-history": {
+      "optional": true
+    },
+    "prosemirror-model": {
+      "optional": true
+    },
+    "prosemirror-schema-list": {
+      "optional": true
+    },
+    "prosemirror-state": {
+      "optional": true
     }
   },
   "libraryDependencies": {
@@ -189,11 +214,6 @@
     "lz-string": "1.5.0",
     "marked": "16.4.2",
     "moment": "2.31.0",
-    "prosemirror-commands": "1.7.2",
-    "prosemirror-history": "1.5.2",
-    "prosemirror-model": "1.25.13",
-    "prosemirror-schema-list": "1.6.1",
-    "prosemirror-state": "1.4.4",
     "reflect-metadata": "0.1.14",
     "underscore": "1.13.8",
     "uuid": "11.1.1"
@@ -580,11 +600,6 @@
       "lz-string",
       "marked",
       "moment",
-      "prosemirror-commands",
-      "prosemirror-history",
-      "prosemirror-model",
-      "prosemirror-schema-list",
-      "prosemirror-state",
       "reflect-metadata",
       "underscore",
       "uuid"

@@ -35,11 +35,6 @@
     "passport": "0.7.0",
     "passport-oauth2": "1.8.0",
     "peggy": "5.1.0",
-    "prosemirror-commands": "1.7.2",
-    "prosemirror-history": "1.5.2",
-    "prosemirror-model": "1.25.13",
-    "prosemirror-schema-list": "1.6.1",
-    "prosemirror-state": "1.4.4",
     "redis": "6.1.0",
     "reflect-metadata": "0.1.14",
     "session-file-store": "1.5.0",
@@ -82,7 +77,12 @@
     "ngx-pagination": "6.0.3",
     "rxjs": "^7.8.0",
     "rxjs-compat": "6.6.7",
-    "zone.js": "0.15.1"
+    "zone.js": "0.15.1",
+    "prosemirror-commands": "^1.7.1",
+    "prosemirror-history": "^1.5.0",
+    "prosemirror-model": "^1.25.0",
+    "prosemirror-schema-list": "^1.5.1",
+    "prosemirror-state": "^1.4.3"
   },
   "peerDependenciesMeta": {
     "@angular/cdk": {
@@ -110,6 +110,21 @@
       "optional": true
     },
     "@angular/router": {
+      "optional": true
+    },
+    "prosemirror-commands": {
+      "optional": true
+    },
+    "prosemirror-history": {
+      "optional": true
+    },
+    "prosemirror-model": {
+      "optional": true
+    },
+    "prosemirror-schema-list": {
+      "optional": true
+    },
+    "prosemirror-state": {
       "optional": true
     }
   }

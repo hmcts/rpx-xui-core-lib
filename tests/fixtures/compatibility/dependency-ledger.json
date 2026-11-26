@@ -1770,6 +1770,11 @@
           "package": "@hmcts/ccd-case-ui-toolkit",
           "kind": "peerDependencies",
           "range": "1.7.1"
+        },
+        {
+          "package": "@hmcts/rpx-xui-core-lib",
+          "kind": "peerDependencies",
+          "range": "^1.7.1"
         }
       ],
       "emitted_by": [
@@ -1781,9 +1786,11 @@
           "declaration_files": []
         }
       ],
-      "classification": "dependency",
-      "selection": "1.7.2",
-      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+      "classification": "peerDependency",
+      "selection": "^1.7.1",
+      "decision": "optional peer shared with the host ngx-editor graph to preserve ProseMirror package identity; the Core root lock selects the local test version",
+      "optional": true,
+      "optionalReason": "Share command constructors with ngx-editor and the host editor graph."
     },
     {
       "name": "prosemirror-history",
@@ -1792,6 +1799,11 @@
           "package": "@hmcts/ccd-case-ui-toolkit",
           "kind": "peerDependencies",
           "range": "1.5.0"
+        },
+        {
+          "package": "@hmcts/rpx-xui-core-lib",
+          "kind": "peerDependencies",
+          "range": "^1.5.0"
         }
       ],
       "emitted_by": [
@@ -1803,9 +1815,11 @@
           "declaration_files": []
         }
       ],
-      "classification": "dependency",
-      "selection": "1.5.2",
-      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+      "classification": "peerDependency",
+      "selection": "^1.5.0",
+      "decision": "optional peer shared with the host ngx-editor graph to preserve ProseMirror package identity; the Core root lock selects the local test version",
+      "optional": true,
+      "optionalReason": "Share history plugins with ngx-editor and the host editor graph."
     },
     {
       "name": "prosemirror-model",
@@ -1814,6 +1828,11 @@
           "package": "@hmcts/ccd-case-ui-toolkit",
           "kind": "peerDependencies",
           "range": "1.25.11"
+        },
+        {
+          "package": "@hmcts/rpx-xui-core-lib",
+          "kind": "peerDependencies",
+          "range": "^1.25.0"
         }
       ],
       "emitted_by": [
@@ -1825,9 +1844,11 @@
           "declaration_files": []
         }
       ],
-      "classification": "dependency",
-      "selection": "1.25.13",
-      "decision": "candidate uses 1.25.13 to align the local editor graph; packed consumer identity remains unproven"
+      "classification": "peerDependency",
+      "selection": "^1.25.0",
+      "decision": "optional peer shared with the host ngx-editor graph to preserve ProseMirror package identity; the Core root lock selects the local test version",
+      "optional": true,
+      "optionalReason": "Share model classes with ngx-editor to preserve Node, Fragment and Schema identity."
     },
     {
       "name": "prosemirror-schema-list",
@@ -1836,6 +1857,11 @@
           "package": "@hmcts/ccd-case-ui-toolkit",
           "kind": "peerDependencies",
           "range": "1.5.1"
+        },
+        {
+          "package": "@hmcts/rpx-xui-core-lib",
+          "kind": "peerDependencies",
+          "range": "^1.5.1"
         }
       ],
       "emitted_by": [
@@ -1847,13 +1873,21 @@
           "declaration_files": []
         }
       ],
-      "classification": "dependency",
-      "selection": "1.6.1",
-      "decision": "Core selects 1.6.1 for the editor implementation; ngx-editor's declared ^1.5.1 range includes it. Toolkit's current exact 1.5.1 selection remains a known version difference verified by editor identity and browser tests"
+      "classification": "peerDependency",
+      "selection": "^1.5.1",
+      "decision": "optional peer shared with the host ngx-editor graph to preserve ProseMirror package identity; the Core root lock selects the local test version",
+      "optional": true,
+      "optionalReason": "Share list commands with the host editor graph."
     },
     {
       "name": "prosemirror-state",
-      "declared_by": [],
+      "declared_by": [
+        {
+          "package": "@hmcts/rpx-xui-core-lib",
+          "kind": "peerDependencies",
+          "range": "^1.4.3"
+        }
+      ],
       "emitted_by": [
         {
           "package": "@hmcts/ccd-case-ui-toolkit",
@@ -1863,9 +1897,11 @@
           "declaration_files": []
         }
       ],
-      "classification": "dependency",
-      "selection": "1.4.4",
-      "decision": "required owned implementation or public declaration type provider; preserve stated runtime behavior pending explicit adaptations"
+      "classification": "peerDependency",
+      "selection": "^1.4.3",
+      "decision": "optional peer shared with the host ngx-editor graph to preserve ProseMirror package identity; the Core root lock selects the local test version",
+      "optional": true,
+      "optionalReason": "Share Plugin and Selection classes with ngx-editor."
     },
     {
       "name": "redis",
