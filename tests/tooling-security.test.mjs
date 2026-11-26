@@ -31,11 +31,11 @@ async function fixture(/** @type {import('node:test').TestContext} */ t) {
 
 test('only the reviewed dependency parents resolve the pinned security fixes', () => {
   const manifest = require('../package.json');
-  assert.equal(manifest.devDependencies.eslint, '10.14.0');
+  assert.equal(manifest.devDependencies.eslint, '10.15.0');
   assert.equal(manifest.devDependencies['typescript-eslint'], '8.72.2');
   assert.deepEqual(manifest.resolutions, {
-    'eslint@npm:10.14.0/minimatch': '11.0.9',
-    '@eslint/config-array@npm:0.23.5/minimatch': '11.0.9',
+    'eslint@npm:10.15.0/minimatch': '11.0.9',
+    '@eslint/config-array@npm:0.23.6/minimatch': '11.0.9',
     '@typescript-eslint/typescript-estree@npm:8.72.2/minimatch': '11.0.9',
     '@npmcli/package-json@npm:7.0.5/glob': '14.0.6',
     'cacache@npm:20.0.4/glob': '14.0.6',
@@ -47,8 +47,8 @@ test('only the reviewed dependency parents resolve the pinned security fixes', (
     'test-exclude@npm:7.0.2/glob': '14.0.6',
     'test-exclude@npm:7.0.2/minimatch': '11.0.9',
     'jest-config@npm:30.5.2/deepmerge': 'npm:@shivammathur/deepmerge@4.3.2',
-    'ngx-markdown@npm:20.1.0/katex': '0.18.2',
-    'mermaid@npm:11.17.2/katex': '0.18.2',
+    'ngx-markdown@npm:20.1.0/katex': '0.19.1',
+    'mermaid@npm:11.17.2/katex': '0.19.1',
     'exceljs@npm:4.4.0/uuid': '11.1.1',
   });
   for (const parent of [eslint, configArray, estree, ignoreWalk, tuf]) assert.equal(parent('minimatch/package.json').version, '11.0.9');
@@ -279,7 +279,7 @@ test('reviewed markdown parents retain KaTeX rendering and auto-render APIs', as
   const mermaid = createRequire(markdown.resolve('mermaid/package.json'));
   for (const parent of [markdown, mermaid]) {
     const katex = parent('katex');
-    assert.equal(parent('katex/package.json').version, '0.18.2');
+    assert.equal(parent('katex/package.json').version, '0.19.1');
     assert.match(katex.renderToString('x^2 + 1', { displayMode: false, throwOnError: true, trust: false }), /class="katex"/);
     assert.match(katex.renderToString('\\frac{1}{2}', { displayMode: true, throwOnError: true, trust: false }), /katex-display/);
     assert.throws(() => katex.renderToString('\\frac{', { throwOnError: true, trust: false }), /parse error/i);

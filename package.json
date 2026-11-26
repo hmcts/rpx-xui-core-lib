@@ -86,7 +86,7 @@
     "dexie": "4.4.7",
     "dexie-baseline": "npm:dexie@4.4.4",
     "esbuild": "0.28.2",
-    "eslint": "10.14.0",
+    "eslint": "10.15.0",
     "govuk-frontend": "6.6.0",
     "js-yaml": "4.3.2",
     "launchdarkly-js-client-sdk": "3.9.6",
@@ -123,8 +123,8 @@
     "zone.js": "0.15.1"
   },
   "resolutions": {
-    "eslint@npm:10.14.0/minimatch": "11.0.9",
-    "@eslint/config-array@npm:0.23.5/minimatch": "11.0.9",
+    "eslint@npm:10.15.0/minimatch": "11.0.9",
+    "@eslint/config-array@npm:0.23.6/minimatch": "11.0.9",
     "@typescript-eslint/typescript-estree@npm:8.72.2/minimatch": "11.0.9",
     "@npmcli/package-json@npm:7.0.5/glob": "14.0.6",
     "cacache@npm:20.0.4/glob": "14.0.6",
@@ -136,8 +136,8 @@
     "test-exclude@npm:7.0.2/glob": "14.0.6",
     "test-exclude@npm:7.0.2/minimatch": "11.0.9",
     "jest-config@npm:30.5.2/deepmerge": "npm:@shivammathur/deepmerge@4.3.2",
-    "ngx-markdown@npm:20.1.0/katex": "0.18.2",
-    "mermaid@npm:11.17.2/katex": "0.18.2",
+    "ngx-markdown@npm:20.1.0/katex": "0.19.1",
+    "mermaid@npm:11.17.2/katex": "0.19.1",
     "exceljs@npm:4.4.0/uuid": "11.1.1"
   },
   "workspaces": [
