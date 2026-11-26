@@ -483,6 +483,7 @@ unitNames.push(...["task-name preserves null event and selected task object cont
 unitNames.push(...["task-name uses the cached result for an unaffected service after incompatible data", "task-name setting the same service preserves an active lookup", "uncached task-name request uses the same endpoint and leaves storage untouched"]);
 
 packageIds.push('package.node-only-peer-install', 'package.angular-20_3_31-cohort-build', 'package.strict-node-node-types', 'package.strict-node-server-types', 'package.strict-node-auth-types', 'package.strict-node-session-types');
+packageIds.push('package.express-5_3_0-peer');
 addedBrowserJourneys.push(
   'CSP enforcement runs nonce scripts and styles while blocking unapproved inline code',
   'CSP report-only emits its header and allows the identical unapproved script to execute',

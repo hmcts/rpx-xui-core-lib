@@ -1198,6 +1198,7 @@
           "package.missing-marker-fault",
           "package.restored-node-runtime",
           "package.node-only-peer-install",
+          "package.express-5_3_0-peer",
           "package.strict-node-node-types",
           "package.strict-node-server-types",
           "package.strict-node-auth-types",

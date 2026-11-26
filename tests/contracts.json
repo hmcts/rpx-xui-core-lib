@@ -1310,6 +1310,7 @@
       "package.strict-node-auth-types",
       "package.strict-node-session-types",
       "package.node-security-optional-peer",
+      "package.express-5_3_0-peer",
       "package.strict-node-security-types",
       "package.node-security-consumer-contracts",
       "package.node-security-nonce-fault",
