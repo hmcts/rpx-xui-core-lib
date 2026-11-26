@@ -130,6 +130,11 @@
       "output": "ui/role-state"
     },
     {
+      "input": "ui/role-guard",
+      "glob": "LICENCE",
+      "output": "ui/role-guard"
+    },
+    {
       "input": "ui/feature-toggle",
       "glob": "LICENCE",
       "output": "ui/feature-toggle"

@@ -94,6 +94,8 @@ feature-toggle-directive|feature directive switches subscriptions and clears sta
 feature-toggle-directive|feature directive unsubscribes on removal and subscribes again on remount
 feature-toggle-guard|feature guard allows a web route and redirects it when its flag is disabled
 feature-toggle-guard|registration routes follow reciprocal feature expectations without a redirect loop
+role-guard|role guard waits for initialized roles and redirects routes without a match
+role-guard|role guard ALL mode requires every configured role
 date-input|date input preserves validation and values across translations
 date-input|date input has accessible keyboard reachable date fields
 session-error|session error page shows default content and supports custom messages

@@ -87,7 +87,7 @@ try {
     'case/session-error', 'case/session-guard', 'case/logging', 'case/editor-date',
     'browser/window', 'browser/session-storage', 'reference/locations', 'reference/ref-data', 'terms/models',
     'ui/cookie', 'ui/cookie-banner', 'ui/feature-toggle', 'ui/feature-toggle-directive', 'ui/feature-toggle-guard',
-    'ui/role-state', 'ui/task-data', 'case/sharing-state', 'ui/contact-details', 'ui/page-wrapper',
+    'ui/role-state', 'ui/role-guard', 'ui/task-data', 'case/sharing-state', 'ui/contact-details', 'ui/page-wrapper',
     'ui/loading-spinner', 'ui/loading-state', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog',
     'ui/banner', 'ui/form-label', 'case/models', 'case/reference', 'case/sharing', 'browser/user-agent',
     'ui/ccd-pagination', 'ui/case-list', 'address/normalization', 'ui/address',
@@ -757,6 +757,7 @@ try {
     ['feature-toggle-guard', 'feature-toggle-guard-graph.mjs', ['ui-feature-toggle-guard', 'ui-feature-toggle']],
     ['feature-directive', 'feature-directive-graph.mjs', ['ui-feature-toggle-directive', 'ui-feature-toggle']],
     ['role-state', 'role-state-graph.mjs', ['ui-role-state']],
+    ['role-guard', 'role-guard-graph.mjs', ['ui-role-guard', 'ui-role-state']],
   ];
   for (const [id, file, entries] of selectiveEntries) {
     await check('package.' + id + '-graph', async () => {
@@ -780,6 +781,10 @@ try {
         if (id === 'address') assert.ok(!used.some(input => /(?:hmcts-rpx-xui-core-lib-(?:case-editor-source|ui-search-location|ui-find-person)|@angular\/router|@hmcts\/(?:media-viewer|ccpay-web-component)|(?:^|\/)node(?:\/|$)|^node:)/.test(input)), 'Address UI must not pull the editor, routing, heavy peers or Node code');
         if (id === 'feature-toggle') assert.ok(!used.some(input => input.includes('@angular/router')), 'Feature service must not pull Angular Router');
         if (id === 'feature-toggle-guard') assert.ok(used.some(input => input.includes('@angular/router')), 'Feature guard must carry its Angular Router dependency');
+        if (id === 'role-guard') {
+          assert.ok(used.some(input => input.includes('@angular/router')), 'Role guard must carry its Angular Router dependency');
+          assert.ok(!used.some(input => /@hmcts\/(?:media-viewer|ccpay-web-component)|hmcts-rpx-xui-core-lib-(?:case-editor-source|node)/.test(input)), 'Role guard must not pull case editing, Media Viewer, payment or Node code');
+        }
       };
       const source = await readFile(join(consumer, file), 'utf8');
       verify(graph(source));
@@ -862,6 +867,9 @@ try {
   await check('package.feature-toggle-behavior', () => run('feature-toggle-behavior', ['--test', 'feature-toggle.test.mjs'], consumer));
   await cp(join(root, 'tests/feature-toggle/feature-toggle-guard.test.mjs'), join(consumer, 'feature-toggle-guard.test.mjs'));
   await check('package.feature-toggle-guard-behavior', () => run('feature-toggle-guard-behavior', ['--test', 'feature-toggle-guard.test.mjs'], consumer));
+
+  await cp(join(root, 'tests/roles/role-guard.test.mjs'), join(consumer, 'role-guard.test.mjs'));
+  await check('package.role-guard-behavior', () => run('role-guard-behavior', ['--test', 'role-guard.test.mjs'], consumer));
   await cp(join(root, 'tests/roles/roles.test.mjs'), join(consumer, 'roles.test.mjs'));
   await check('package.role-state-behavior', () => run('role-state-behavior', ['--test', 'roles.test.mjs'], consumer));
 

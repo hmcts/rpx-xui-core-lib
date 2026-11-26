@@ -490,6 +490,16 @@
       },
       {
         "projectName": "chromium",
+        "title": "role guard waits for initialized roles and redirects routes without a match",
+        "feature": "role-guard"
+      },
+      {
+        "projectName": "chromium",
+        "title": "role guard ALL mode requires every configured role",
+        "feature": "role-guard"
+      },
+      {
+        "projectName": "chromium",
         "title": "date input preserves validation and values across translations",
         "feature": "date-input"
       },
@@ -1232,6 +1242,8 @@
       "package.feature-toggle-behavior",
       "package.feature-toggle-guard-behavior",
       "package.role-state-behavior",
+      "package.role-guard-graph",
+      "package.role-guard-behavior",
       "package.editor-date-graph",
       "package.session-error-graph",
       "package.loading-angular-build",
@@ -1542,7 +1554,10 @@
       "both bridge directions reuse the chosen state in root and unshadowed child injectors",
       "a child role provider intentionally shadows root state and must be accounted for during cutover",
       "role matching preserves source ALL, ANY and default regex behavior",
-      "role matching preserves invalid regex and short-circuit behavior"
+      "role matching preserves invalid regex and short-circuit behavior",
+      "role guard waits for role state before allowing a matching route",
+      "role guard preserves ALL and default ANY matching and redirects denied routes",
+      "role guard reuses the RoleMatching enum exported by role-state"
     ]
   },
   "nodeServerUnit": {

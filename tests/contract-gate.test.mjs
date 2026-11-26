@@ -176,7 +176,10 @@ const addedLaneNames = {
     "both bridge directions reuse the chosen state in root and unshadowed child injectors",
     "a child role provider intentionally shadows root state and must be accounted for during cutover",
     "role matching preserves source ALL, ANY and default regex behavior",
-    "role matching preserves invalid regex and short-circuit behavior"
+    "role matching preserves invalid regex and short-circuit behavior",
+    "role guard waits for role state before allowing a matching route",
+    "role guard preserves ALL and default ANY matching and redirects denied routes",
+    "role guard reuses the RoleMatching enum exported by role-state"
   ]
 };
 unitNames.push("date input reports mandatory and partial values through the legacy validator", "date input write and callback preserve the legacy padded value", "date input retains legacy touched callback and destruction behavior");
@@ -331,7 +334,9 @@ const addedBrowserJourneys = [
   "feature directive switches subscriptions and clears stale content while waiting",
   "feature directive unsubscribes on removal and subscribes again on remount",
   "feature guard allows a web route and redirects it when its flag is disabled",
-  "registration routes follow reciprocal feature expectations without a redirect loop"
+  "registration routes follow reciprocal feature expectations without a redirect loop",
+  "role guard waits for initialized roles and redirects routes without a match",
+  "role guard ALL mode requires every configured role"
 ];
 addedBrowserJourneys.push(
   'cookie consent banner has a translated accessible name and a working details link',
@@ -383,7 +388,7 @@ packageIds.push("package.session-storage-behavior", "package.session-storage-gra
 
 packageIds.push("package.service-messages-graph", "package.service-messages-behavior");
 
-packageIds.push("package.feature-toggle-graph", "package.feature-toggle-guard-graph", "package.feature-directive-graph", "package.role-state-graph", "package.feature-toggle-behavior", "package.feature-toggle-guard-behavior", "package.role-state-behavior");
+packageIds.push("package.feature-toggle-graph", "package.feature-toggle-guard-graph", "package.feature-directive-graph", "package.role-state-graph", "package.role-guard-graph", "package.feature-toggle-behavior", "package.feature-toggle-guard-behavior", "package.role-state-behavior", "package.role-guard-behavior");
 
 packageIds.push('package.editor-date-graph');
 addedBrowserJourneys.push('date input preserves validation and values across translations', 'date input has accessible keyboard reachable date fields');

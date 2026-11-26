@@ -571,6 +571,32 @@
       }
     },
     {
+      "feature": "Role route guard",
+      "contracts": {
+        "roleUnit": [
+          "role guard waits for role state before allowing a matching route",
+          "role guard preserves ALL and default ANY matching and redirects denied routes",
+          "role guard reuses the RoleMatching enum exported by role-state"
+        ],
+        "package": [
+          "package.role-guard-graph",
+          "package.role-guard-behavior"
+        ],
+        "browser": [
+          {
+            "projectName": "chromium",
+            "title": "role guard waits for initialized roles and redirects routes without a match",
+            "feature": "role-guard"
+          },
+          {
+            "projectName": "chromium",
+            "title": "role guard ALL mode requires every configured role",
+            "feature": "role-guard"
+          }
+        ]
+      }
+    },
+    {
       "feature": "Feature toggle token and dependency injection (unit contracts)",
       "contracts": {
         "featureToggleUnit": [
