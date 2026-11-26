@@ -261,3 +261,39 @@ test('uploads an accepted document and writes its links into the case field', as
   });
   await expect(page.getByRole('alert')).toBeHidden();
 });
+
+test('linked-case browser reports an outgoing lookup failure without failing the incoming table', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => globalThis.createLinkedCasesHost('to'));
+
+  const state = await page.evaluate(() => globalThis.readLinkedCasesState());
+  expect(state.toFailure).toBe(true);
+  expect(state.fromFailure).toBe(false);
+  expect(state.retryLinks).toEqual(['Reload the Linked cases tab']);
+  expect(state.fromRows).toContain('None');
+});
+
+test('linked-case browser reports an incoming lookup failure without failing the outgoing table', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => globalThis.createLinkedCasesHost('from'));
+
+  const state = await page.evaluate(() => globalThis.readLinkedCasesState());
+  expect(state.toFailure).toBe(false);
+  expect(state.fromFailure).toBe(true);
+  expect(state.retryLinks).toEqual(['Reload the Linked cases tab']);
+  expect(state.toRows).toContain('Linked case');
+});
+
+test('linked-case browser shows the combined failure and retries the linked-cases route', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => globalThis.createLinkedCasesHost('both'));
+
+  const state = await page.evaluate(() => globalThis.readLinkedCasesState());
+  expect(state.combinedFailures).toBe(2);
+  expect(state.retryLinks).toEqual(['Reload the Linked cases tab', 'Reload the Linked cases tab']);
+
+  await page.getByRole('link', { name: 'Reload the Linked cases tab' }).first().click();
+  expect(await page.evaluate(() => globalThis.readLinkedCasesState())).toMatchObject({
+    navigation: [[['cases', 'case-details', 'family', 'civil', 'CASE-123'], { fragment: 'Linked cases' }]]
+  });
+});

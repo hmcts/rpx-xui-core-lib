@@ -300,6 +300,7 @@
   "Case link validation migration contract accepts formatted sixteen-digit references and rejects invalid values",
   "Linked-case validators migration contract requires a selected option and a correctly shaped reference",
   "Linked cases navigation migration contract forwards validation errors without advancing the journey",
+  "Linked cases navigation migration contract returns to the linked-cases tab using the case type identifier",
   "palette registry provider selects the existing linked-case read and write components and falls back for unknown launchers",
   "Editor link navigation preserves the legacy no-query navigation argument",
   "Editor link navigation preserves parsed query parameters",

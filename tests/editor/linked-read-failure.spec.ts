@@ -14,7 +14,7 @@ export const registered = true;
 describe('Linked cases display migration contract', () => {
   it('renders unique retry links for failures in both directions', async () => {
     const navigate = vi.fn().mockResolvedValue(true);
-    const linkedCases = { caseJurisdictionID: 'jurisdiction', caseDetails: { case_type: 'type', case_id: '123' } };
+    const linkedCases = { caseDetails: { case_type: { id: 'type', jurisdiction: { id: 'jurisdiction' } }, case_id: '123' } };
     await TestBed.configureTestingModule({
       imports: [CommonModule],
       declarations: [ReadLinkedCasesFieldComponent],
