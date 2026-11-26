@@ -6,12 +6,32 @@ import { NgxPaginationModule } from 'ngx-pagination';
 import { RpxTranslationModule } from '@hmcts/rpx-xui-core-lib/i18n';
 import { HmctsPaginationModule } from '@hmcts/rpx-xui-core-lib/ui/hmcts-pagination';
 import { PaginationModule } from '@hmcts/rpx-xui-core-lib/ui/pagination';
+import { PaginationModule as CcdPaginationModule } from '@hmcts/rpx-xui-core-lib/ui/ccd-pagination';
 
 @Component({
   selector: 'core-test-host',
-  imports: [CommonModule, NgxPaginationModule, HmctsPaginationModule, PaginationModule],
+  imports: [CommonModule, NgxPaginationModule, HmctsPaginationModule, PaginationModule, CcdPaginationModule],
   template: `<main>
     <h1>Pagination entries</h1>
+    <section aria-label="CCD list paging">
+      <p *ngFor="let item of ccdItems | paginate: { itemsPerPage: 10, currentPage: ccdPage, id: 'ccd-list' }">{{ item }}</p>
+      <ccd-pagination id="ccd-list" [previousLabel]="'Back'" [nextLabel]="'Forward'"
+        [navigationLabel]="'CCD case list pagination'"
+        [screenReaderPaginationLabel]="'CCD pages'" [responsive]="true" [maxSize]="5"
+        (pageChange)="ccdPage = $event" (pageBoundsCorrection)="correctCcdPage($event)" />
+      <output data-testid="ccd-page">{{ ccdPage }}</output>
+      <output data-testid="ccd-bounds-page">{{ ccdBoundsPage }}</output>
+      <button type="button" (click)="showOneCcdPage()">Show one page</button>
+    </section>
+    <section aria-label="CCD single-page auto-hide">
+      <p *ngFor="let item of singleItem | paginate: { itemsPerPage: 10, currentPage: 1, id: 'ccd-single-hidden' }">{{ item }}</p>
+      <ccd-pagination id="ccd-single-hidden" [autoHide]="true" [navigationLabel]="'CCD hidden-page pagination'" />
+    </section>
+    <section aria-label="CCD single-page visible">
+      <p *ngFor="let item of singleItem | paginate: { itemsPerPage: 10, currentPage: 1, id: 'ccd-single-visible' }">{{ item }}</p>
+      <ccd-pagination id="ccd-single-visible" [autoHide]="false" [directionLinks]="false" [responsive]="true"
+        [navigationLabel]="'CCD visible-page pagination'" />
+    </section>
     <section aria-label="Search result paging">
       <xuilib-pagination [paginationId]="'search-pagination'" [navigationLabel]="'Search results pagination'" [moreItems]="moreItems" [firstRecord]="firstRecord"
         (previousPage)="record('previous', $event)" (nextPage)="record('next', $event)" />
@@ -36,7 +56,10 @@ import { PaginationModule } from '@hmcts/rpx-xui-core-lib/ui/pagination';
 })
 class PaginationGallery {
   readonly items = Array.from({ length: 25 }, (_, index) => `Synthetic item ${index + 1}`);
+  ccdItems = Array.from({ length: 25 }, (_, index) => `CCD item ${index + 1}`);
   readonly singleItem = ['Single synthetic item'];
+  ccdPage = 1;
+  ccdBoundsPage = 0;
   firstRecord = 1;
   moreItems = true;
   firstPage = 1;
@@ -47,6 +70,15 @@ class PaginationGallery {
     this.lastEvent = `${action}:${payload === null ? 'null' : 'unexpected'}`;
     this.firstRecord = action === 'next' ? this.firstRecord + 10 : Math.max(1, this.firstRecord - 10);
     this.moreItems = this.firstRecord + 9 < this.items.length;
+  }
+
+  showOneCcdPage(): void {
+    this.ccdItems = this.ccdItems.slice(0, 5);
+  }
+
+  correctCcdPage(page: number): void {
+    this.ccdBoundsPage = page;
+    this.ccdPage = page;
   }
 }
 

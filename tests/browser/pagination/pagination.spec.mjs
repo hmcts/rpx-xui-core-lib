@@ -1,5 +1,57 @@
 import { test, expect } from '@playwright/test';
 
+test('CCD pagination shows the Toolkit labels and moves pages with the keyboard', async ({ page }) => {
+  await page.goto('/pagination');
+  const paging = page.getByRole('region', { name: 'CCD list paging' });
+  const navigation = paging.getByRole('navigation');
+
+  await expect(navigation).toHaveAccessibleName('CCD case list pagination');
+  await expect(navigation.getByRole('list')).toHaveAttribute('aria-label', 'CCD pages');
+  const pageTwo = navigation.locator('[aria-label="Page2"]');
+  await expect(pageTwo).toHaveAttribute('tabindex', '0');
+  await pageTwo.focus();
+  await page.keyboard.press('Enter');
+
+  await expect(page.getByTestId('ccd-page')).toHaveText('2');
+  await expect(navigation.getByText('Back', { exact: false })).toBeVisible();
+  await expect(navigation.getByText('Forward', { exact: false })).toBeVisible();
+  await expect(paging.getByText('CCD item 11', { exact: true })).toBeVisible();
+});
+
+test('CCD pagination corrects the current page when the result set shrinks', async ({ page }) => {
+  await page.goto('/pagination');
+  const paging = page.getByRole('region', { name: 'CCD list paging' });
+  const navigation = paging.getByRole('navigation');
+
+  await navigation.locator('[aria-label="Page3"]').click();
+  await expect(page.getByTestId('ccd-page')).toHaveText('3');
+  await paging.getByRole('button', { name: 'Show one page' }).click();
+
+  await expect(page.getByTestId('ccd-bounds-page')).toHaveText('1');
+  await expect(page.getByTestId('ccd-page')).toHaveText('1');
+});
+
+test('CCD pagination only hides one-page controls when autoHide is enabled', async ({ page }) => {
+  await page.goto('/pagination');
+
+  const hidden = page.getByRole('region', { name: 'CCD single-page auto-hide' }).getByRole('navigation');
+  const visible = page.getByRole('region', { name: 'CCD single-page visible' }).getByRole('navigation');
+
+  await expect(hidden.getByRole('list')).toHaveCount(0);
+  await expect(visible.getByRole('list')).toBeVisible();
+  await expect(visible.getByRole('list')).toHaveClass(/responsive/);
+  await expect(visible.getByRole('listitem', { name: /previous/i })).toHaveCount(0);
+  await expect(visible.getByRole('listitem', { name: /next/i })).toHaveCount(0);
+});
+
+test('CCD pagination has no automated accessibility violations', async ({ page }) => {
+  await page.goto('/pagination');
+  const { default: AxeBuilder } = await import('@axe-core/playwright');
+  const result = await new AxeBuilder({ page }).include('[aria-label="CCD list paging"]').analyze();
+
+  expect(result.violations).toEqual([]);
+});
+
 test('generic pagination preserves null events and exposes keyboard-operable page actions', async ({ page }) => {
   await page.goto('/pagination');
   const navigation = page.getByRole('navigation', { name: 'Search results pagination' });

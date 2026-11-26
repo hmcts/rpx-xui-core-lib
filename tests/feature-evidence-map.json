@@ -2179,11 +2179,33 @@
       "feature": "Pagination controls",
       "contracts": {
         "unit": [
+          "CCD pagination preserves its Toolkit input defaults",
+          "CCD pagination coerces false string inputs to false",
           "generic pagination retains the null payload on both public outputs",
           "user-list and standalone HMCTS pagination share one component identity",
           "both pagination entries allow a caller to distinguish navigation landmarks"
         ],
         "browser": [
+          {
+            "projectName": "chromium",
+            "title": "CCD pagination shows the Toolkit labels and moves pages with the keyboard",
+            "feature": "pagination"
+          },
+          {
+            "projectName": "chromium",
+            "title": "CCD pagination corrects the current page when the result set shrinks",
+            "feature": "pagination"
+          },
+          {
+            "projectName": "chromium",
+            "title": "CCD pagination only hides one-page controls when autoHide is enabled",
+            "feature": "pagination"
+          },
+          {
+            "projectName": "chromium",
+            "title": "CCD pagination has no automated accessibility violations",
+            "feature": "pagination"
+          },
           {
             "projectName": "chromium",
             "title": "generic pagination preserves null events and exposes keyboard-operable page actions",

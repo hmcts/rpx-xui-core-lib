@@ -127,6 +127,8 @@
       "user details emits the original user for suspend and reinvite actions",
       "user list retains the legacy 50-item page and emits the selected user",
       "user list updates the current page and emits the requested page",
+      "CCD pagination preserves its Toolkit input defaults",
+      "CCD pagination coerces false string inputs to false",
       "generic pagination retains the null payload on both public outputs",
       "user-list and standalone HMCTS pagination share one component identity",
       "both pagination entries allow a caller to distinguish navigation landmarks",
@@ -977,6 +979,26 @@
         "projectName": "chromium",
         "title": "user list and pagination have no automated accessibility violations",
         "feature": "user-list"
+      },
+      {
+        "projectName": "chromium",
+        "title": "CCD pagination shows the Toolkit labels and moves pages with the keyboard",
+        "feature": "pagination"
+      },
+      {
+        "projectName": "chromium",
+        "title": "CCD pagination corrects the current page when the result set shrinks",
+        "feature": "pagination"
+      },
+      {
+        "projectName": "chromium",
+        "title": "CCD pagination only hides one-page controls when autoHide is enabled",
+        "feature": "pagination"
+      },
+      {
+        "projectName": "chromium",
+        "title": "CCD pagination has no automated accessibility violations",
+        "feature": "pagination"
       },
       {
         "projectName": "chromium",
