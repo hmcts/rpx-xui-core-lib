@@ -14,7 +14,7 @@
   "packageManager": "yarn@4.19.0",
   "scripts": {
     "lint": "node scripts/lint.mjs",
-    "test": "mkdir -p test-results && node scripts/check-repository.mjs && node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=tap --test-reporter-destination=test-results/validation.tap tests/validation.test.mjs tests/find-person/find-person.test.mjs tests/find-person-component/contracts.test.mjs tests/find-person-component/stale.test.mjs tests/find-person-component/reuse.test.mjs tests/task-lookups/stale.test.mjs tests/case-sharing/state.test.mjs tests/session-storage/session-storage.test.mjs tests/task-data/task-data.test.mjs tests/editor-date/editor-date.test.mjs tests/search-location/search-location.test.mjs tests/gov-date/lifecycle.test.mjs tests/checkbox-list/selection.test.mjs tests/service-messages/service-messages.test.mjs tests/case-sharing/selected-case.test.mjs tests/case-sharing/share-case.test.mjs tests/organisation/user-details.test.mjs tests/organisation/user-list.test.mjs tests/organisation/invitation.test.mjs tests/hearing-lookups/search-judicials.test.mjs tests/hearing-lookups/search-venue.test.mjs tests/pagination/pagination.test.mjs tests/address/normalization.test.mjs tests/address/address.test.mjs tests/browser/user-agent.test.mjs tests/case-list/case-list.test.mjs tests/filter-state/filter-state.test.mjs tests/filter-renderers/renderers.test.mjs tests/generic-filter/generic-filter.test.mjs tests/terms/terms-confirmation.test.mjs",
+    "test": "mkdir -p test-results && node scripts/check-repository.mjs && node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=tap --test-reporter-destination=test-results/validation.tap tests/validation.test.mjs tests/find-person/find-person.test.mjs tests/find-person-component/contracts.test.mjs tests/find-person-component/stale.test.mjs tests/find-person-component/reuse.test.mjs tests/task-lookups/stale.test.mjs tests/case-sharing/state.test.mjs tests/session-storage/session-storage.test.mjs tests/task-data/task-data.test.mjs tests/editor-date/editor-date.test.mjs tests/search-location/search-location.test.mjs tests/gov-date/lifecycle.test.mjs tests/checkbox-list/selection.test.mjs tests/service-messages/service-messages.test.mjs tests/case-sharing/selected-case.test.mjs tests/case-sharing/share-case.test.mjs tests/organisation/user-details.test.mjs tests/organisation/user-list.test.mjs tests/organisation/invitation.test.mjs tests/hearing-lookups/search-judicials.test.mjs tests/hearing-lookups/search-venue.test.mjs tests/pagination/pagination.test.mjs tests/address/normalization.test.mjs tests/address/address.test.mjs tests/browser/user-agent.test.mjs tests/case-list/case-list.test.mjs tests/filter-state/filter-state.test.mjs tests/filter-renderers/renderers.test.mjs tests/generic-filter/generic-filter.test.mjs tests/terms/terms-confirmation.test.mjs tests/analytics/analytics.test.mjs tests/session/session.test.mjs tests/runtime-services/loading.test.mjs",
     "build": "node scripts/build.mjs",
     "build:host": "ng build test-host",
     "start": "node scripts/dev.mjs",
@@ -47,7 +47,8 @@
     "test:editor:loading": "node --test tests/editor/selective-loading.test.mjs tests/editor/notifier-isolation.test.mjs && node tests/editor/selective-loading.mjs",
     "test:editor:packed": "node --test tests/editor/packed-workspace.test.mjs && node tests/editor/packed.mjs",
     "generate:condition-parser": "node tests/editor/generate-parser.mjs",
-    "test:editor:translation-compatibility": "node --test tests/editor/translation-compatibility.test.mjs"
+    "test:editor:translation-compatibility": "node --test tests/editor/translation-compatibility.test.mjs",
+    "test:runtime-services": "node --test tests/analytics/analytics.test.mjs tests/session/session.test.mjs tests/runtime-services/loading.test.mjs && node .yarn/releases/yarn-4.19.0.cjs playwright test -c tests/browser/playwright.config.mjs tests/browser/runtime-services/runtime-services.spec.mjs"
   },
   "devDependencies": {
     "@angular/animations": "20.3.35",
@@ -67,6 +68,8 @@
     "@edium/fsm": "3.0.2",
     "@hmcts/ccpay-web-component": "6.5.28",
     "@hmcts/media-viewer": "4.2.49",
+    "@ng-idle/core": "16.0.0",
+    "@ng-idle/keepalive": "16.0.0",
     "@ngrx/effects": "20.1.0",
     "@ngrx/store": "20.1.0",
     "@ngrx/store-devtools": "20.1.0",

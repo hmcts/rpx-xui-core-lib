@@ -15,6 +15,8 @@
     "express": "5.2.1",
     "helmet": "^8.1.0",
     "@angular/router": "^20.3.27",
+    "@ng-idle/core": "16.0.0",
+    "@ng-idle/keepalive": "16.0.0",
     "@angular/material-moment-adapter": "20.2.14",
     "@hmcts/ccpay-web-component": "6.5.28",
     "@hmcts/media-viewer": "4.2.49",
@@ -52,6 +54,12 @@
       "optional": true
     },
     "@angular/router": {
+      "optional": true
+    },
+    "@ng-idle/core": {
+      "optional": true
+    },
+    "@ng-idle/keepalive": {
       "optional": true
     },
     "@angular/material-moment-adapter": {

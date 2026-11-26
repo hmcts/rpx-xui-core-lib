@@ -1937,6 +1937,8 @@ __metadata:
     "@edium/fsm": "npm:3.0.2"
     "@hmcts/ccpay-web-component": "npm:6.5.28"
     "@hmcts/media-viewer": "npm:4.2.49"
+    "@ng-idle/core": "npm:16.0.0"
+    "@ng-idle/keepalive": "npm:16.0.0"
     "@ngrx/effects": "npm:20.1.0"
     "@ngrx/store": "npm:20.1.0"
     "@ngrx/store-devtools": "npm:20.1.0"
@@ -3196,6 +3198,31 @@ __metadata:
     "@emnapi/core": ^1.7.1 || 2.0.0-beta.2
     "@emnapi/runtime": ^1.7.1 || 2.0.0-beta.2
   checksum: 10c0/8fd47200ba18df97149dceb194d405cf1110c785f00c774746b8e6413c892c1cc3c3af41ebc6efee33b235e9f67b18ccc8c0fc35dfcd9c2f0567e5e782dac47e
+  languageName: node
+  linkType: hard
+
+"@ng-idle/core@npm:16.0.0":
+  version: 16.0.0
+  resolution: "@ng-idle/core@npm:16.0.0"
+  dependencies:
+    tslib: "npm:^2.6.0"
+  peerDependencies:
+    "@angular/common": ">=17.3.10"
+    "@angular/core": ">=17.3.10"
+  checksum: 10c0/e8d8474bda552c3c041c671ea41117cead6644e1837eb93691b1b4896264d067db9a5fe6ff21317ea861890724c962683c4407bae8b7733378e2b74a8087d6c7
+  languageName: node
+  linkType: hard
+
+"@ng-idle/keepalive@npm:16.0.0":
+  version: 16.0.0
+  resolution: "@ng-idle/keepalive@npm:16.0.0"
+  dependencies:
+    tslib: "npm:^2.6.0"
+  peerDependencies:
+    "@angular/common": ">=17.3.10"
+    "@angular/core": ">=17.3.10"
+    "@ng-idle/core": ^16.0.0
+  checksum: 10c0/6e727ad20888df4a0cc818e17e4f9a1483b9679fb36ab313574115d0a0458af598a90b6cd97806089cc39c92453ac603903e23d1106a5a256ddcb9af225255df
   languageName: node
   linkType: hard
 
@@ -13715,7 +13742,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:2.9.1, tslib@npm:^2.0.0, tslib@npm:^2.1.0, tslib@npm:^2.3.0, tslib@npm:^2.4.0":
+"tslib@npm:2.9.1, tslib@npm:^2.0.0, tslib@npm:^2.1.0, tslib@npm:^2.3.0, tslib@npm:^2.4.0, tslib@npm:^2.6.0":
   version: 2.9.1
   resolution: "tslib@npm:2.9.1"
   checksum: 10c0/8ff46e7a4d19fa62c23483c89cf5ccc3906e742ef6e6d60bd3826b686143b300b4f6f04161cc1cf31a6b11fe70e1058ae4d4e4a108b5c68326d469684736a83c

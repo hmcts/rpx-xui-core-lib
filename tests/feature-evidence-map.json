@@ -863,7 +863,8 @@
       "contracts": {
         "package": [
           "package.loading-angular-build",
-          "package.loading-eager-fault"
+          "package.loading-eager-fault",
+          "package.runtime-services-selective-entries"
         ]
       }
     },

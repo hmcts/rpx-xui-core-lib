@@ -432,7 +432,7 @@ addedBrowserJourneys.push(
   'duplicate exact venue names stay visible without auto-selecting either venue',
 );
 
-packageIds.push('package.loading-angular-build', 'package.loading-eager-fault');
+packageIds.push('package.loading-angular-build', 'package.loading-eager-fault', 'package.runtime-services-selective-entries');
 
 
 packageIds.push("package.gov-input-graph", "package.gov-input-behavior");

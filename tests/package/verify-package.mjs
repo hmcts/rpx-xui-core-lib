@@ -7,6 +7,7 @@ import { buildSync } from 'esbuild';
 import { inspectLoadingGraph, assertPackedBytes, assertEagerDateFailure } from '../packed-loading/graph.mjs';
 import { probeLoading } from '../editor/selective-loading-lib.mjs';
 import { createHash, randomUUID } from 'node:crypto';
+import { createServer } from 'node:net';
 import { gzipSync } from 'node:zlib';
 import { spawnSync } from 'node:child_process';
 import { cp, lstat, mkdir, mkdtemp, readFile, readdir, realpath, rename, rm, stat, symlink, writeFile } from 'node:fs/promises';
@@ -56,6 +57,18 @@ async function check(id, action) {
   return result;
 }
 
+async function availableLocalPort() {
+  const server = createServer();
+  await new Promise((resolve, reject) => {
+    server.once('error', reject);
+    server.listen({ port: 0, host: '127.0.0.1' }, () => resolve(undefined));
+  });
+  const address = server.address();
+  assert.ok(address && typeof address !== 'string', 'OS must allocate a local test port');
+  await new Promise((resolve, reject) => server.close(error => error ? reject(error) : resolve()));
+  return String(address.port);
+}
+
 try {
   assert.equal(process.versions.node, '24.22.2', 'Run with the pinned Node 24.22.2');
   scratch = await realpath(await mkdtemp(join(tmpdir(), 'core-lib-package-')));
@@ -66,7 +79,7 @@ try {
   const dist = join(root, 'dist/core-lib');
   const declaration = 'forms/validation/index.d.ts';
   const filterLicenceEntries = ['ui/filter-state', 'ui/find-location', 'ui/find-service', 'ui/search-service', 'ui/capitalize', 'ui/generic-filter'];
-  const sourceLicenceEntries = [...filterLicenceEntries, 'ui/find-task-name', 'ui/find-work-type', 'ui/search-work-type', 'ui/find-person', 'ui/checkbox-list', 'ui/gov-date', 'ui/gov-select', 'ui/search-location', 'ui/search-judicials', 'ui/search-venue', 'ui/pagination', 'ui/hmcts-pagination', 'terms/display', 'terms/confirmation', 'ui/gov-input', 'case/session-error', 'case/editor-date', 'browser/window', 'browser/session-storage', 'reference/locations', 'reference/ref-data', 'terms/models', 'ui/cookie', 'ui/cookie-banner', 'ui/feature-toggle', 'ui/feature-toggle-directive', 'ui/feature-toggle-guard', 'ui/role-state', 'ui/task-data', 'case/sharing-state', 'ui/contact-details', 'ui/page-wrapper', 'ui/loading-spinner', 'ui/loading-state', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog', 'ui/banner', 'ui/form-label', 'case/models', 'case/reference', 'case/sharing', 'browser/user-agent', 'ui/ccd-pagination', 'ui/case-list', 'address/normalization', 'ui/address'];
+  const sourceLicenceEntries = [...filterLicenceEntries, 'ui/find-task-name', 'ui/find-work-type', 'ui/search-work-type', 'ui/find-person', 'ui/checkbox-list', 'ui/gov-date', 'ui/gov-select', 'ui/search-location', 'ui/search-judicials', 'ui/search-venue', 'ui/pagination', 'ui/hmcts-pagination', 'terms/display', 'terms/confirmation', 'ui/gov-input', 'case/session-error', 'case/editor-date', 'browser/window', 'browser/session-storage', 'reference/locations', 'reference/ref-data', 'terms/models', 'ui/cookie', 'ui/cookie-banner', 'ui/feature-toggle', 'ui/feature-toggle-directive', 'ui/feature-toggle-guard', 'ui/role-state', 'ui/task-data', 'case/sharing-state', 'ui/contact-details', 'ui/page-wrapper', 'ui/loading-spinner', 'ui/loading-state', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog', 'ui/banner', 'ui/form-label', 'case/models', 'case/reference', 'case/sharing', 'browser/user-agent', 'ui/ccd-pagination', 'ui/case-list', 'address/normalization', 'ui/address', 'ui/google-analytics', 'ui/google-tag-manager', 'ui/manage-session', 'ui/timeout-notifications'];
 
   // Fail before dependency setup when the legacy TypeScript entry point is absent.
   await check('package.physical-secondary-declaration', async () => {
@@ -109,6 +122,27 @@ try {
     for (const file of ['i18n/index.d.ts', 'i18n/LICENCE', 'fesm2022/hmcts-rpx-xui-core-lib-i18n.mjs']) assert.ok((await stat(join(dist, file))).isFile());
     const implementation = await readFile(join(dist, 'fesm2022/hmcts-rpx-xui-core-lib-i18n.mjs'), 'utf8');
     assert.doesNotMatch(implementation, /from ['"]rpx-xui-translation['"]/, 'Canonical implementation must not depend on legacy runtime');
+  });
+  await check('package.runtime-services-selective-entries', async () => {
+    const manifest = JSON.parse(await readFile(join(dist, 'package.json'), 'utf8'));
+    for (const [entry, symbol, bundle, idle] of [
+      ['google-analytics', 'GoogleAnalyticsService', 'google-analytics', false],
+      ['google-tag-manager', 'GoogleTagManagerService', 'google-tag-manager', false],
+      ['manage-session', 'ManageSessionServices', 'manage-session', true],
+      ['timeout-notifications', 'TimeoutNotificationsService', 'timeout-notifications', true],
+    ]) {
+      const key = `./ui/${entry}`;
+      assert.ok(manifest.exports[key]?.types && manifest.exports[key]?.default, `Missing public selective entry ${key}`);
+      const loading = await probeLoading(dist, `fesm2022/hmcts-rpx-xui-core-lib-ui-${bundle}.mjs`, symbol);
+      assert.equal(loading.mediaViewer, false, `${key} must not load Media Viewer`);
+      assert.equal(loading.payment, false, `${key} must not load payment components`);
+      assert.ok(loading.externalImports.includes('@angular/core'), `${key} must keep Angular external`);
+      assert.equal(loading.externalImports.includes('rxjs'), idle, `${key} must include RxJS only when required by its public implementation`);
+      assert.equal(loading.externalImports.includes('@angular/router'), !idle, `${key} must include Router only for route tracking`);
+      assert.equal(loading.externalImports.some(name => name.startsWith('@ng-idle/')), idle, `${key} must request only the idle peers it uses`);
+    }
+    assert.deepEqual(manifest.peerDependenciesMeta['@ng-idle/core'], { optional: true });
+    assert.deepEqual(manifest.peerDependenciesMeta['@ng-idle/keepalive'], { optional: true });
   });
   await cp(dist, staged, { recursive: true });
   await writeFile(join(staged, 'yarn.lock'), '');
@@ -421,6 +455,7 @@ try {
     }
     env.CORE_LOADING_HOST = directory;
     env.CORE_LOADING_ID = randomUUID();
+    env.CORE_LOADING_PORT = await availableLocalPort();
     env.CORE_LOADING_REPORT = join(evidence, 'loading-browser.json');
     env.CORE_LOADING_OUTPUT = join(evidence, 'loading-browser');
     env.CORE_DATE_CHUNK = graph.date;
@@ -428,13 +463,14 @@ try {
     try {
       await run('loading-browser', [join(root, 'node_modules/@playwright/test/cli.js'), 'test', '-c', join(root, 'tests/packed-loading/playwright.config.mjs'), 'loading.spec.mjs'], root);
     } finally {
-      for (const key of ['CORE_LOADING_HOST', 'CORE_LOADING_ID', 'CORE_LOADING_REPORT', 'CORE_LOADING_OUTPUT', 'CORE_DATE_CHUNK', 'CORE_SESSION_CHUNK']) delete env[key];
+      for (const key of ['CORE_LOADING_HOST', 'CORE_LOADING_ID', 'CORE_LOADING_PORT', 'CORE_LOADING_REPORT', 'CORE_LOADING_OUTPUT', 'CORE_DATE_CHUNK', 'CORE_SESSION_CHUNK']) delete env[key];
     }
   });
 
   await check('package.translation-counterpart-browser', async () => {
     env.CORE_LOADING_HOST = join(consumer, 'loading-dist/browser');
     env.CORE_LOADING_ID = randomUUID();
+    env.CORE_LOADING_PORT = await availableLocalPort();
     env.CORE_LOADING_REPORT = join(evidence, 'translation-counterpart-browser.json');
     env.CORE_LOADING_OUTPUT = join(evidence, 'translation-counterpart-browser');
     try {
@@ -447,7 +483,7 @@ try {
       assert.equal(outcomes.length, expected.length, 'Every counterpart browser case must execute');
       for (const title of expected) assert.equal(outcomes.filter(test => test.id === JSON.stringify(['chromium', title]) && test.passed).length, 1, 'Counterpart browser cases cannot be missing, skipped, retried or duplicated');
     } finally {
-      for (const key of ['CORE_LOADING_HOST', 'CORE_LOADING_ID', 'CORE_LOADING_REPORT', 'CORE_LOADING_OUTPUT']) delete env[key];
+      for (const key of ['CORE_LOADING_HOST', 'CORE_LOADING_ID', 'CORE_LOADING_PORT', 'CORE_LOADING_REPORT', 'CORE_LOADING_OUTPUT']) delete env[key];
     }
   });
 
@@ -456,6 +492,7 @@ try {
     await check('package.' + name, async () => {
       env.CORE_LOADING_HOST = join(consumer, 'loading-dist/browser');
       env.CORE_LOADING_ID = randomUUID();
+      env.CORE_LOADING_PORT = await availableLocalPort();
       env.CORE_LOADING_REPORT = join(evidence, name + '-browser.json');
       env.CORE_LOADING_OUTPUT = join(evidence, name + '-browser');
       env.CORE_FILTER_SPLIT = split ? '1' : '0';
@@ -468,7 +505,7 @@ try {
         assert.equal(outcomes[0].passed, !split);
         if (split) assert.match(diagnostic, /Generic Filter Apply must notify the directly injected FilterService stream[\s\S]*Received: null/);
       } finally {
-        for (const key of ['CORE_LOADING_HOST', 'CORE_LOADING_ID', 'CORE_LOADING_REPORT', 'CORE_LOADING_OUTPUT', 'CORE_FILTER_SPLIT']) delete env[key];
+        for (const key of ['CORE_LOADING_HOST', 'CORE_LOADING_ID', 'CORE_LOADING_PORT', 'CORE_LOADING_REPORT', 'CORE_LOADING_OUTPUT', 'CORE_FILTER_SPLIT']) delete env[key];
       }
     });
   }
@@ -497,6 +534,7 @@ try {
       };
       env.CORE_LOADING_HOST = directory;
       env.CORE_LOADING_ID = randomUUID();
+      env.CORE_LOADING_PORT = await availableLocalPort();
       env.CORE_LOADING_REPORT = join(evidence, 'loading-eager-browser.json');
       env.CORE_LOADING_OUTPUT = join(evidence, 'loading-eager-browser');
       env.CORE_DATE_CHUNK = await findChunk('/hmcts-rpx-xui-core-lib-case-editor-date.mjs');
@@ -505,7 +543,7 @@ try {
         await run('loading-eager-browser', [join(root, 'node_modules/@playwright/test/cli.js'), 'test', '-c', join(root, 'tests/packed-loading/playwright.config.mjs'), 'loading.spec.mjs'], root, 1);
         assertEagerDateFailure(JSON.parse(await readFile(env.CORE_LOADING_REPORT, 'utf8')));
       } finally {
-        for (const key of ['CORE_LOADING_HOST', 'CORE_LOADING_ID', 'CORE_LOADING_REPORT', 'CORE_LOADING_OUTPUT', 'CORE_DATE_CHUNK', 'CORE_SESSION_CHUNK']) delete env[key];
+        for (const key of ['CORE_LOADING_HOST', 'CORE_LOADING_ID', 'CORE_LOADING_PORT', 'CORE_LOADING_REPORT', 'CORE_LOADING_OUTPUT', 'CORE_DATE_CHUNK', 'CORE_SESSION_CHUNK']) delete env[key];
       }
       assert.equal(detected, true, 'Eager date import must fail the graph check');
       await writeFile(join(evidence, 'loading-eager-fault.json'), JSON.stringify({ detected, reason: 'Date entry must not be in the initial static graph', candidateSha256: report.package.sha256 }) + '\n');

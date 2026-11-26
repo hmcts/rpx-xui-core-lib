@@ -6,6 +6,10 @@
   },
   "assets": [
     { "input": "ui/service-messages", "glob": "LICENCE", "output": "ui/service-messages" },
+    { "input": "ui/google-analytics", "glob": "LICENCE", "output": "ui/google-analytics" },
+    { "input": "ui/google-tag-manager", "glob": "LICENCE", "output": "ui/google-tag-manager" },
+    { "input": "ui/manage-session", "glob": "LICENCE", "output": "ui/manage-session" },
+    { "input": "ui/timeout-notifications", "glob": "LICENCE", "output": "ui/timeout-notifications" },
     { "input": "browser/user-agent", "glob": "LICENCE", "output": "browser/user-agent" },
     { "input": "ui/ccd-pagination", "glob": "LICENCE", "output": "ui/ccd-pagination" },
     { "input": "ui/case-list", "glob": "LICENCE", "output": "ui/case-list" },
