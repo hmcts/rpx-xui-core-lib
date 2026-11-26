@@ -34,8 +34,8 @@ export class LaunchDarklyService implements FeatureToggleService, OnDestroy {
     this.clientId = undefined;
   }
 
-  public initialize(user: FeatureUser = { anonymous: true }, clientId: string): void {
-    const context: LDContext = { kind: 'user', ...user };
+  public initialize(user: FeatureUser | undefined, clientId: string): void {
+    const context: LDContext = { kind: 'user', ...(user ?? { anonymous: true }) };
     const generation = ++this.generation;
     this.ready.next(false);
 

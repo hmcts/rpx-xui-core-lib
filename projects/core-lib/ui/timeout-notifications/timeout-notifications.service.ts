@@ -40,17 +40,19 @@ export class TimeoutNotificationsService {
       new WindowInterruptSource(documentInterrupts)
     ]);
 
-    this.subs.push(this.idle.onTimeout.subscribe(() => {
-      this.eventEmitter.next({ eventType: 'sign-out' });
-    }));
-    this.subs.push(this.idle.onTimeoutWarning.pipe(
-      map(seconds => seconds > 60 ? `${Math.ceil(seconds / 60)} minutes` : `${seconds} seconds`),
-      distinctUntilChanged()
-    ).subscribe(readableCountdown => {
-      this.eventEmitter.next({ eventType: 'countdown', readableCountdown });
-    }));
-    this.subs.push(this.idle.onIdleStart.subscribe(() => console.log('You\'ve gone idle!')));
-    this.subs.push(this.idle.onIdleEnd.subscribe(() => console.log('You\'re no longer idle!')));
+    this.subs.push(
+      this.idle.onTimeout.subscribe(() => {
+        this.eventEmitter.next({ eventType: 'sign-out' });
+      }),
+      this.idle.onTimeoutWarning.pipe(
+        map(seconds => seconds > 60 ? `${Math.ceil(seconds / 60)} minutes` : `${seconds} seconds`),
+        distinctUntilChanged()
+      ).subscribe(readableCountdown => {
+        this.eventEmitter.next({ eventType: 'countdown', readableCountdown });
+      }),
+      this.idle.onIdleStart.subscribe(() => console.log('You\'ve gone idle!')),
+      this.idle.onIdleEnd.subscribe(() => console.log('You\'re no longer idle!')),
+    );
 
     this.keepalive.interval(config.keepAliveInSeconds || 600);
     this.subs.push(this.keepalive.onPing.subscribe(() => {

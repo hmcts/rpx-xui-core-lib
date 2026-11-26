@@ -51,6 +51,16 @@ describe('LaunchDarklyService', () => {
     expect(createClient).toHaveBeenCalledWith('client-id', { kind: 'user', anonymous: true }, { useReport: true });
   });
 
+  it('uses the anonymous context when the caller passes no user', () => {
+    const sdk = client();
+    const createClient = factoryFor(sdk);
+    const service = new LaunchDarklyService(createClient);
+
+    service.initialize(undefined, 'client-id');
+
+    expect(createClient).toHaveBeenCalledWith('client-id', { kind: 'user', anonymous: true }, { useReport: true });
+  });
+
   it('uses the current context, emits defaults then live values, and observes flag changes', async () => {
     const sdk = client();
     sdk.set('enabled', true);

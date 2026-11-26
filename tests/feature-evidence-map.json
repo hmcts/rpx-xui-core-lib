@@ -580,6 +580,7 @@
         ],
         "editorUnit": [
           "LaunchDarklyService resolves the SDK factory from the Angular injection token",
+          "LaunchDarklyService uses the anonymous context when the caller passes no user",
           "LaunchDarklyService uses the current context, emits defaults then live values, and observes flag changes",
           "LaunchDarklyService re-identifies one SDK client and ignores completion from an older identity request",
           "LaunchDarklyService getValueOnce completes after its first ready value",

@@ -14,16 +14,22 @@ class BrowserIdleProbe {
   readonly onTimeout = new Subject<void>();
   readonly onTimeoutWarning = new Subject<number>();
   readonly onIdleStart = new Subject<void>();
-  setIdleName(name?: string): void { void name; }
-  setTimeout(seconds: number): void { void seconds; }
-  setInterrupts(sources: unknown[]): void { void sources; }
-  setIdle(seconds: number): void { void seconds; }
-  watch(): void {}
+  idleName?: string;
+  timeoutSeconds = 0;
+  interruptSources: unknown[] = [];
+  idleSeconds = 0;
+  watchCount = 0;
+  setIdleName(name?: string): void { this.idleName = name; }
+  setTimeout(seconds: number): void { this.timeoutSeconds = seconds; }
+  setInterrupts(sources: unknown[]): void { this.interruptSources = sources; }
+  setIdle(seconds: number): void { this.idleSeconds = seconds; }
+  watch(): void { this.watchCount += 1; }
 }
 
 class BrowserKeepaliveProbe {
   readonly onPing = new Subject<void>();
-  interval(seconds: number): void { void seconds; }
+  intervalSeconds = 0;
+  interval(seconds: number): void { this.intervalSeconds = seconds; }
 }
 
 @Component({ template: '<p>Case route loaded</p>' })
