@@ -1589,6 +1589,16 @@
           "Editor link navigation preserves the legacy no-query navigation argument",
           "Editor link navigation preserves parsed query parameters",
           "Query attachment migration contract passes collection entries unchanged to the read field"
+        ],
+        "editorDrivers": [
+          {
+            "projectName": "chromium",
+            "title": "rejects an unsupported document in the browser without uploading it"
+          },
+          {
+            "projectName": "chromium",
+            "title": "uploads an accepted document and writes its links into the case field"
+          }
         ]
       }
     },
