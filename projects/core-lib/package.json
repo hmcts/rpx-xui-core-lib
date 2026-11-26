@@ -22,7 +22,7 @@
     "@hmcts/ccpay-web-component": "6.5.28",
     "@hmcts/media-viewer": "4.2.49",
     "@ngxmc/datetime-picker": "20.1.0",
-    "ngx-editor": "19.0.0-beta.1",
+    "ngx-editor": "19.1.1",
     "ngx-markdown": "20.1.0",
     "ngx-pagination": "6.0.3"
   },
