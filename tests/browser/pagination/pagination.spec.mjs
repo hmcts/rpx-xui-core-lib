@@ -36,12 +36,16 @@ test('CCD pagination only hides one-page controls when autoHide is enabled', asy
 
   const hidden = page.getByRole('region', { name: 'CCD single-page auto-hide' }).getByRole('navigation');
   const visible = page.getByRole('region', { name: 'CCD single-page visible' }).getByRole('navigation');
+  const defaults = page.getByRole('region', { name: 'CCD default labels' }).getByRole('navigation');
 
   await expect(hidden.getByRole('list')).toHaveCount(0);
   await expect(visible.getByRole('list')).toBeVisible();
   await expect(visible.getByRole('list')).toHaveClass(/responsive/);
   await expect(visible.getByRole('listitem', { name: /previous/i })).toHaveCount(0);
   await expect(visible.getByRole('listitem', { name: /next/i })).toHaveCount(0);
+  await expect(defaults.getByText('Next', { exact: false })).toBeVisible();
+  await defaults.locator('[aria-label="Page2"]').click();
+  await expect(defaults.getByText('Previous', { exact: false })).toBeVisible();
 });
 
 test('CCD pagination has no automated accessibility violations', async ({ page }) => {

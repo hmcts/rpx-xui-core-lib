@@ -29,8 +29,13 @@ import { PaginationModule as CcdPaginationModule } from '@hmcts/rpx-xui-core-lib
     </section>
     <section aria-label="CCD single-page visible">
       <p *ngFor="let item of singleItem | paginate: { itemsPerPage: 10, currentPage: 1, id: 'ccd-single-visible' }">{{ item }}</p>
-      <ccd-pagination id="ccd-single-visible" [autoHide]="false" [directionLinks]="false" [responsive]="true"
+      <ccd-pagination id="ccd-single-visible" [autoHide]="false" [responsive]="true"
         [navigationLabel]="'CCD visible-page pagination'" />
+    </section>
+    <section aria-label="CCD default labels">
+      <p *ngFor="let item of items | paginate: { itemsPerPage: 10, currentPage: ccdDefaultPage, id: 'ccd-default-labels' }">{{ item }}</p>
+      <ccd-pagination id="ccd-default-labels" [navigationLabel]="'CCD default labels'"
+        [screenReaderPaginationLabel]="'CCD default pages'" (pageChange)="ccdDefaultPage = $event" />
     </section>
     <section aria-label="Search result paging">
       <xuilib-pagination [paginationId]="'search-pagination'" [navigationLabel]="'Search results pagination'" [moreItems]="moreItems" [firstRecord]="firstRecord"
@@ -60,6 +65,7 @@ class PaginationGallery {
   readonly singleItem = ['Single synthetic item'];
   ccdPage = 1;
   ccdBoundsPage = 0;
+  ccdDefaultPage = 1;
   firstRecord = 1;
   moreItems = true;
   firstPage = 1;
