@@ -213,6 +213,16 @@
         "output": "ui/service-messages"
       },
       {
+        "input": "ui/hmcts-error-summary",
+        "glob": "LICENCE",
+        "output": "ui/hmcts-error-summary"
+      },
+      {
+        "input": "ui/hmcts-sub-navigation",
+        "glob": "LICENCE",
+        "output": "ui/hmcts-sub-navigation"
+      },
+      {
         "input": "ui/google-analytics",
         "glob": "LICENCE",
         "output": "ui/google-analytics"

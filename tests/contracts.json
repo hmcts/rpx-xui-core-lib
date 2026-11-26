@@ -215,6 +215,31 @@
     "required": [
       {
         "projectName": "chromium",
+        "title": "sub-navigation exposes its label, active page, item links and roundel",
+        "feature": "hmcts-shell"
+      },
+      {
+        "projectName": "chromium",
+        "title": "error summary focuses the summary, links to a present field and reports missing targets as text",
+        "feature": "hmcts-shell"
+      },
+      {
+        "projectName": "chromium",
+        "title": "clearing errors hides the summary and removes only the error title prefix",
+        "feature": "hmcts-shell"
+      },
+      {
+        "projectName": "chromium",
+        "title": "warning state does not expose an error summary or change the page title",
+        "feature": "hmcts-shell"
+      },
+      {
+        "projectName": "chromium",
+        "title": "HMCTS shell controls have no automated accessibility violations",
+        "feature": "hmcts-shell"
+      },
+      {
+        "projectName": "chromium",
         "title": "a corrupt dismissal cookie does not hide service messages",
         "feature": "service-messages"
       },
@@ -1214,6 +1239,8 @@
       "package.runtime-services-selective-entries",
       "package.launch-darkly-selective-entry",
       "package.search-location-graph",
+      "package.hmcts-error-summary-graph",
+      "package.hmcts-sub-navigation-graph",
       "package.terms-display-graph",
       "package.terms-confirmation-graph",
       "package.gov-input-graph",

@@ -401,6 +401,7 @@ addedBrowserJourneys.push('blank opt-in preserves the external name and explicit
 packageIds.push('package.search-location-graph');
 packageIds.push('package.address-graph', 'package.address-behavior');
 packageIds.push('package.search-judicials-graph', 'package.search-venue-graph');
+packageIds.push('package.hmcts-error-summary-graph', 'package.hmcts-sub-navigation-graph');
 unitNames.push(
   'judicial search skips short terms, forwards service ID, cancels stale searches and excludes selected people',
   'judicial selection keeps the source object and emits the exact source events',
@@ -521,6 +522,13 @@ packageIds.push('package.pagination-behavior', 'package.pagination-graph', 'pack
 packageIds.push('package.invitation-behavior', 'package.invitation-graph');
 packageIds.push('package.case-list-behavior', 'package.user-agent-behavior', 'package.case-list-graph', 'package.ccd-pagination-graph', 'package.user-agent-graph');
 packageIds.push('package.page-wrapper-graph');
+addedBrowserJourneys.push(
+  'sub-navigation exposes its label, active page, item links and roundel',
+  'error summary focuses the summary, links to a present field and reports missing targets as text',
+  'clearing errors hides the summary and removes only the error title prefix',
+  'warning state does not expose an error summary or change the page title',
+  'HMCTS shell controls have no automated accessibility violations',
+);
 unitNames.push('confirmation button emits the confirm event');
 addedBrowserJourneys.push(
   'terms confirmation keeps its translation, review link and confirm event contract',

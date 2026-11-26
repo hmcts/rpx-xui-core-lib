@@ -743,6 +743,8 @@ try {
     ['search-location', 'search-location-graph.mjs', ['ui-search-location', 'reference-locations', 'reference-ref-data', 'browser-session-storage', 'i18n']],
     ['search-judicials', 'search-judicials-graph.mjs', ['ui-search-judicials', 'ui-find-person', 'browser-session-storage', 'i18n']],
     ['search-venue', 'search-venue-graph.mjs', ['ui-search-venue', 'reference-locations', 'i18n']],
+    ['hmcts-error-summary', 'hmcts-error-summary-graph.mjs', ['ui-hmcts-error-summary', 'i18n']],
+    ['hmcts-sub-navigation', 'hmcts-sub-navigation-graph.mjs', ['ui-hmcts-sub-navigation', 'i18n']],
     ['gov-input', 'gov-input-graph.mjs', ['ui-gov-input', 'i18n']],
     ['checkbox-list', 'checkbox-list-graph.mjs', ['ui-checkbox-list', 'i18n']],
     ['gov-date', 'gov-date-graph.mjs', ['ui-gov-date', 'ui-gov-input', 'i18n']],
@@ -766,6 +768,10 @@ try {
         for (const entry of entries) assert.ok(core.some(input => input.endsWith('/fesm2022/hmcts-rpx-xui-core-lib-' + entry + '.mjs')));
         assert.ok(!used.some(input => /(?:^|\/)node(?:\/|$)|^node:/.test(input)));
         if (['selected-case', 'share-case', 'user-details', 'user-list', 'invitation'].includes(id)) assert.ok(!used.some(input => /@hmcts\/(media-viewer|ccpay-web-component)/.test(input)));
+        if (id === 'hmcts-error-summary' || id === 'hmcts-sub-navigation') {
+          assert.ok(used.some(input => input.includes('@angular/router')), 'HMCTS navigation controls must retain their RouterLink contract');
+          assert.ok(!used.some(input => /@hmcts\/(?:media-viewer|ccpay-web-component)|hmcts-rpx-xui-core-lib-(?:case-editor-source|case-notifier)/.test(input)), 'HMCTS shell entries must not pull editor, Media Viewer or payment code');
+        }
         if (id === 'user-details' || id === 'invitation') assert.ok(!used.some(input => input.includes('/ngx-pagination/')));
         if (id === 'pagination') assert.ok(!used.some(input => /(?:\/ngx-pagination\/|@angular\/router|hmcts-rpx-xui-core-lib-ui-hmcts-pagination)/.test(input)), 'Generic pagination must not pull the numbered paginator or routing');
         if (id === 'hmcts-pagination') assert.ok(!used.some(input => /(?:hmcts-rpx-xui-core-lib-ui-user-list|hmcts-rpx-xui-core-lib-ui-pagination|@angular\/router|@hmcts\/(?:media-viewer|ccpay-web-component))/.test(input)), 'HMCTS pagination must not pull user-list, generic pagination, routing or heavy peers');
