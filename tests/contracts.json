@@ -1823,6 +1823,14 @@
       {
         "projectName": "chromium",
         "title": "renders case details from the notifier when resolved route data is absent"
+      },
+      {
+        "projectName": "chromium",
+        "title": "rejects an unsupported document in the browser without uploading it"
+      },
+      {
+        "projectName": "chromium",
+        "title": "uploads an accepted document and writes its links into the case field"
       }
     ]
   },
