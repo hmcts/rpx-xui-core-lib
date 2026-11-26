@@ -54,17 +54,20 @@ export class LaunchDarklyService implements FeatureToggleService, OnDestroy {
       return;
     }
 
+    this.identityActive = false;
+    this.identityInFlight = false;
+    this.resetFeatureValues();
     if (this.client) this.closeClient(this.client);
 
     const client = this.createClient(clientId, context, { useReport: true });
     this.client = client;
     this.clientId = clientId;
-    this.identityActive = true;
     this.identityInFlight = false;
     this.listenForFeatureChanges(client);
 
     client.on('ready', () => {
       if (this.client !== client || this.identityInFlight) return;
+      this.identityActive = true;
       this.refreshFeatureValues(client);
       this.ready.next(true);
     });

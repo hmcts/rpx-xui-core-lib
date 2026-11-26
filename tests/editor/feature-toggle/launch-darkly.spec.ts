@@ -133,19 +133,35 @@ describe('LaunchDarklyService', () => {
   it('closes the old client when the client ID changes and ignores its late events', async () => {
     const first = client();
     const second = client();
+    first.set('enabled', true);
+    second.set('enabled', true);
     const createClient = factoryFor(first, second);
     const service = new LaunchDarklyService(createClient);
     const values: boolean[] = [];
     service.isEnabled('enabled').subscribe((value: boolean) => values.push(value));
     service.initialize({ anonymous: true }, 'first-client');
+    const staleReadyListener = first.on.mock.calls.find(([event]) => event === 'ready')?.[1];
+    const staleErrorListener = first.on.mock.calls.find(([event]) => event === 'error')?.[1];
     first.emit('ready');
     await Promise.resolve();
+    expect(values.at(-1)).toBe(true);
+
     service.initialize({ anonymous: true }, 'second-client');
+    expect(values.at(-1)).toBe(false);
     expect(first.close).toHaveBeenCalledOnce();
-    first.emit('error', new Error('old client failure'));
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const hadStaleListeners = staleReadyListener !== undefined && staleErrorListener !== undefined;
+    staleReadyListener?.();
+    staleErrorListener?.(new Error('old client failure'));
+    const valueAfterStaleCallbacks = values.at(-1);
+    const staleErrorCount = consoleError.mock.calls.length;
+    consoleError.mockRestore();
+    expect(hadStaleListeners).toBe(true);
+    expect(valueAfterStaleCallbacks).toBe(false);
+    expect(staleErrorCount).toBe(0);
     second.emit('ready');
     await Promise.resolve();
-    expect(values.at(-1)).toBe(false);
+    expect(values.at(-1)).toBe(true);
     expect(createClient).toHaveBeenCalledTimes(2);
   });
 
