@@ -100,6 +100,7 @@ unitNames.push('selected case stops listening to shared state when destroyed',
   'user lookup refreshes the current query when users arrive');
 unitNames.push('user details checks roles safely for absent and present users', 'user details emits the original user for suspend and reinvite actions');
 unitNames.push('user list retains the legacy 50-item page and emits the selected user', 'user list updates the current page and emits the requested page');
+unitNames.push('CCD pagination preserves its Toolkit input defaults', 'CCD pagination coerces false string inputs to false');
 unitNames.push('generic pagination retains the null payload on both public outputs', 'user-list and standalone HMCTS pagination share one component identity', 'both pagination entries allow a caller to distinguish navigation landmarks');
 unitNames.push('postcode parser preserves RD06 address line placement and country metadata', 'postcode parser removes absent fields and shifts formatted lines upward', 'postcode formatter preserves the existing first-line priority and capitalization', 'postcode parser ignores null and missing source fields without leaking sentinel text', 'address service preserves the external postcode endpoint and formats returned models', 'address service returns an empty list without a request for an empty postcode', 'address service propagates postcode lookup failures', 'address service drops results without a DPA record and handles a missing result list', 'address models and address option labels keep the CommonLib public field contract', 'address option keeps the supplied default row label without inventing an address value', 'address component rejects a blank postcode and emits the CommonLib lookup outputs', 'address component retains manual and international selection events');
 unitNames.push('invitation form defaults missing errors and emits a submit event', 'invitation permissions retain legacy default flags');
@@ -176,7 +177,10 @@ const addedLaneNames = {
     "both bridge directions reuse the chosen state in root and unshadowed child injectors",
     "a child role provider intentionally shadows root state and must be accounted for during cutover",
     "role matching preserves source ALL, ANY and default regex behavior",
-    "role matching preserves invalid regex and short-circuit behavior"
+    "role matching preserves invalid regex and short-circuit behavior",
+    "role guard waits for role state before allowing a matching route",
+    "role guard preserves ALL and default ANY matching and redirects denied routes",
+    "role guard reuses the RoleMatching enum exported by role-state"
   ]
 };
 unitNames.push("date input reports mandatory and partial values through the legacy validator", "date input write and callback preserve the legacy padded value", "date input retains legacy touched callback and destruction behavior");
@@ -331,7 +335,9 @@ const addedBrowserJourneys = [
   "feature directive switches subscriptions and clears stale content while waiting",
   "feature directive unsubscribes on removal and subscribes again on remount",
   "feature guard allows a web route and redirects it when its flag is disabled",
-  "registration routes follow reciprocal feature expectations without a redirect loop"
+  "registration routes follow reciprocal feature expectations without a redirect loop",
+  "role guard waits for initialized roles and redirects routes without a match",
+  "role guard ALL mode requires every configured role"
 ];
 addedBrowserJourneys.push(
   'cookie consent banner has a translated accessible name and a working details link',
@@ -383,7 +389,7 @@ packageIds.push("package.session-storage-behavior", "package.session-storage-gra
 
 packageIds.push("package.service-messages-graph", "package.service-messages-behavior");
 
-packageIds.push("package.feature-toggle-graph", "package.feature-toggle-guard-graph", "package.feature-directive-graph", "package.role-state-graph", "package.feature-toggle-behavior", "package.feature-toggle-guard-behavior", "package.role-state-behavior");
+packageIds.push("package.feature-toggle-graph", "package.feature-toggle-guard-graph", "package.feature-directive-graph", "package.role-state-graph", "package.role-guard-graph", "package.feature-toggle-behavior", "package.feature-toggle-guard-behavior", "package.role-state-behavior", "package.role-guard-behavior");
 
 packageIds.push('package.editor-date-graph');
 addedBrowserJourneys.push('date input preserves validation and values across translations', 'date input has accessible keyboard reachable date fields');
@@ -401,6 +407,7 @@ addedBrowserJourneys.push('blank opt-in preserves the external name and explicit
 packageIds.push('package.search-location-graph');
 packageIds.push('package.address-graph', 'package.address-behavior');
 packageIds.push('package.search-judicials-graph', 'package.search-venue-graph');
+packageIds.push('package.hmcts-error-summary-graph', 'package.hmcts-sub-navigation-graph');
 unitNames.push(
   'judicial search skips short terms, forwards service ID, cancels stale searches and excludes selected people',
   'judicial selection keeps the source object and emits the exact source events',
@@ -432,7 +439,7 @@ addedBrowserJourneys.push(
   'duplicate exact venue names stay visible without auto-selecting either venue',
 );
 
-packageIds.push('package.loading-angular-build', 'package.loading-eager-fault');
+packageIds.push('package.loading-angular-build', 'package.loading-eager-fault', 'package.runtime-services-selective-entries', 'package.launch-darkly-selective-entry');
 
 
 packageIds.push("package.gov-input-graph", "package.gov-input-behavior");
@@ -501,12 +508,13 @@ addedBrowserJourneys.push('selected case removal can be cancelled and reflected 
   'sharing cannot add a person before an autocomplete selection', 'selected cases keep user identifiers unique across multiple cases', 'sharing preserves a caller supplied user lookup label', 'sharing refreshes a typed search when users finish loading',
   'sharing gallery starts without Angular routing errors', 'selected cases gallery starts without Angular routing errors',
   'simultaneous sharing forms retain separate cases', 'simultaneous sharing forms retain their own accessible labels', 'prefixed sharing forms have unique IDs and show their own errors', 'sharing error links work with valid ID prefixes containing punctuation', 'sharing forms distinguish the same case in each accordion');
-addedBrowserJourneys.push('user details shows roles and emits a suspend action', 'pending user hides permissions and emits a reinvite action', 'user details actions work from the keyboard and pass an axe scan');
+addedBrowserJourneys.push('user details shows roles and emits a suspend action', 'user details renders every configured permission and warning', 'user details shows edit and help links independently', 'pending user hides permissions and emits a reinvite action', 'user details actions work from the keyboard and pass an axe scan');
 addedBrowserJourneys.push('users without a route can be selected with the keyboard', 'users with a route retain a navigable link and emit selection');
 addedBrowserJourneys.push('user list pages through users and emits the chosen user', 'pagination can be operated with the keyboard', 'user list and pagination have no automated accessibility violations');
+addedBrowserJourneys.push('CCD pagination shows the Toolkit labels and moves pages with the keyboard', 'CCD pagination corrects the current page when the result set shrinks', 'CCD pagination only hides one-page controls when autoHide is enabled', 'CCD pagination has no automated accessibility violations');
 addedBrowserJourneys.push('generic pagination preserves null events and exposes keyboard-operable page actions', 'HMCTS paginator is independently usable and keeps separate list state', 'pagination entries have no automated accessibility violations');
 addedBrowserJourneys.push('address lookup uses the external endpoint and writes the selected public model', 'address lookup presents the empty state after an unsuccessful request', 'address entry has no automated accessibility violations');
-addedBrowserJourneys.push('invitation emits submit and displays parent validation', 'invitation emits entered details and selected permissions', 'invitation form supports keyboard selection and passes axe', 'invalid invitation inputs expose their errors accessibly', 'invitation retains and updates a preselected permission', 'permission error is announced by the permissions fieldset', 'permissions with an empty error never reference a missing message');
+addedBrowserJourneys.push('invitation emits submit and displays parent validation', 'invitation emits entered details and selected permissions', 'invitation form supports keyboard selection and passes axe', 'invalid invitation inputs expose their errors accessibly', 'invitation retains and updates a preselected permission', 'invitation maps case manager to the pui-case-manager role alone', 'invitation maps organisation manager to the pui-organisation-manager role alone', 'permission error is announced by the permissions fieldset', 'permissions with an empty error never reference a missing message');
 addedBrowserJourneys.push(
   'case list renders configured columns and selects a case once with the keyboard',
   'case list emits the page selection and displays the requested page',
@@ -521,12 +529,20 @@ packageIds.push('package.pagination-behavior', 'package.pagination-graph', 'pack
 packageIds.push('package.invitation-behavior', 'package.invitation-graph');
 packageIds.push('package.case-list-behavior', 'package.user-agent-behavior', 'package.case-list-graph', 'package.ccd-pagination-graph', 'package.user-agent-graph');
 packageIds.push('package.page-wrapper-graph');
+addedBrowserJourneys.push(
+  'sub-navigation exposes its label, active page, item links and roundel',
+  'error summary focuses the summary, links to a present field and reports missing targets as text',
+  'clearing errors hides the summary and removes only the error title prefix',
+  'warning state does not expose an error summary or change the page title',
+  'HMCTS shell controls have no automated accessibility violations',
+);
 unitNames.push('confirmation button emits the confirm event');
 addedBrowserJourneys.push(
   'terms confirmation keeps its translation, review link and confirm event contract',
   'terms confirmation translates content and passes an accessibility scan',
 );
 packageIds.push('package.terms-confirmation-graph', 'package.editor-source-case-viewer-api-and-loading');
+packageIds.push('package.case-logging-identity', 'package.session-guard-types', 'package.session-guard-graph');
 const filterFeatureContracts = [
   { feature: "Filter state", contracts: {
     unit: [

@@ -1,4 +1,13 @@
 [
+  "LaunchDarklyService resolves the SDK factory from the Angular injection token",
+  "LaunchDarklyService uses the anonymous context when the caller passes no user",
+  "LaunchDarklyService uses the current context, emits defaults then live values, and observes flag changes",
+  "LaunchDarklyService re-identifies one SDK client and ignores completion from an older identity request",
+  "LaunchDarklyService getValueOnce completes after its first ready value",
+  "LaunchDarklyService closes the old client when the client ID changes and ignores its late events",
+  "LaunchDarklyService returns the safe default when re-identification fails instead of exposing old-context flags",
+  "LaunchDarklyService fails closed when the SDK errors during identity change, even if identify later resolves",
+  "LaunchDarklyService closes its client and ignores pending identify work when destroyed",
   "FieldReadComponent reports the original deferred initialization error to Angular",
   "FieldReadComponent does not initialize a field destroyed before its deferred callback",
   "FieldReadComponent normalizes a plain fixed-list field before passing it to the child",
@@ -364,5 +373,9 @@
   "Jurisdiction selection migration contract retains current selection separately from non-replaying announcements",
   "Case viewer migration contract uses resolved route data, sorts tabs, and keeps duplicate labels unique",
   "Case viewer migration contract selects restricted access for challenged users until access is granted",
-  "Case viewer migration contract uses the notifier when route data is missing and releases the subscription on destroy"
+  "Case viewer migration contract uses the notifier when route data is missing and releases the subscription on destroy",
+  "SessionStorageGuard allows navigation when user details are absent or valid JSON",
+  "SessionStorageGuard redirects malformed user details without logging the stored value",
+  "SessionStorageGuard uses the configured error route and logger for JSON null",
+  "SessionStorageGuard reuses the same guard class through its editor compatibility entry"
 ]

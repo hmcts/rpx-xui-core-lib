@@ -47,3 +47,43 @@ test('installed lookup uses the consuming application HTTP provider and renders 
   assert.deepEqual(requestBody, { searchTerm: 'appeal' });
   await expect(page.getByTestId('selected-work-type')).toHaveText('Appeal');
 });
+
+test('installed session guard allows a protected route when user details are absent', async ({ page }) => {
+  const scripts = [];
+  page.on('request', request => { const pathname = new URL(request.url()).pathname; if (pathname.endsWith('.js')) scripts.push(pathname); });
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Open protected route' }).click();
+  await expect(page.getByRole('heading', { name: 'Protected route' })).toBeVisible();
+  expect(scripts).not.toContain('/' + process.env.CORE_SESSION_CHUNK);
+});
+
+test('installed session guard allows a protected route when user details are valid JSON', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => sessionStorage.setItem('userDetails', '{"id":"synthetic-user"}'));
+  await page.getByRole('button', { name: 'Open protected route' }).click();
+  await expect(page.getByRole('heading', { name: 'Protected route' })).toBeVisible();
+});
+
+test('installed session guard redirects malformed user details to the lazy error page without exposing the stored value', async ({ page }) => {
+  const sentinel = 'SENTINEL-PRIVATE-USER-DETAILS-9384';
+  const scripts = [];
+  const consoleErrorPayloads = [];
+  page.on('request', request => { const pathname = new URL(request.url()).pathname; if (pathname.endsWith('.js')) scripts.push(pathname); });
+  page.on('console', message => {
+    if (message.type() === 'error') {
+      consoleErrorPayloads.push(Promise.all(message.args().map(argument => argument.jsonValue())));
+    }
+  });
+  await page.goto('/');
+  await page.waitForLoadState('networkidle');
+  const sessionErrorFile = '/' + process.env.CORE_SESSION_CHUNK;
+  expect(scripts).not.toContain(sessionErrorFile);
+  await page.evaluate(value => sessionStorage.setItem('userDetails', value), sentinel);
+  await page.getByRole('button', { name: 'Open protected route' }).click();
+  await expect(page.getByRole('heading', { name: 'There is a problem with your session' })).toBeVisible();
+  await expect(page).toHaveURL(/\/session-error$/);
+  expect(scripts).toContain(sessionErrorFile);
+  const diagnostics = JSON.stringify(await Promise.all(consoleErrorPayloads));
+  expect(diagnostics).toContain('safeJsonParse failed to parse JSON.');
+  expect(diagnostics).not.toContain(sentinel);
+});

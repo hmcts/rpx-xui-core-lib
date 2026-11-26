@@ -19,7 +19,7 @@ export * from './lib/shared/services/loading/loading.service';
 export * from './lib/shared/services/order/order.service';
 export * from './lib/shared/services/utils/retry/retry.service';
 export * from './lib/shared/services/session/session-storage.service';
-export * from './lib/shared/services/logging/structured-logger.service';
+export * from '@hmcts/rpx-xui-core-lib/case/logging';
 export * from './lib/shared/components/palette/linked-cases/domain/linked-cases.model';
 export * from './lib/shared/components/case-editor/case-access-utils/index';
 export * from './lib/shared/components/case-editor/domain/wizard-page.model';

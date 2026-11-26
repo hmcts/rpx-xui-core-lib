@@ -16,7 +16,7 @@
     },
     "devDependencies": {
       "@dr.pogodin/csurf": "^1.17.1",
-      "@golevelup/ts-jest": "^0.6.2",
+      "@golevelup/ts-jest": "^0.7.0",
       "@types/cookie": "^0.6.0",
       "@types/debug": "^4.1.5",
       "@types/express": "5.0.6",
@@ -65,8 +65,8 @@
     "zone.js": "0.15.1"
   },
   "resolutions": {
-    "eslint@npm:10.14.0/minimatch": "11.0.9",
-    "@eslint/config-array@npm:0.23.5/minimatch": "11.0.9",
+    "eslint@npm:10.15.0/minimatch": "11.0.9",
+    "@eslint/config-array@npm:0.23.6/minimatch": "11.0.9",
     "@typescript-eslint/typescript-estree@npm:8.72.2/minimatch": "11.0.9",
     "@npmcli/package-json@npm:7.0.5/glob": "14.0.6",
     "cacache@npm:20.0.4/glob": "14.0.6",
@@ -78,8 +78,8 @@
     "test-exclude@npm:7.0.2/glob": "14.0.6",
     "test-exclude@npm:7.0.2/minimatch": "11.0.9",
     "jest-config@npm:30.5.2/deepmerge": "npm:@shivammathur/deepmerge@4.3.2",
-    "ngx-markdown@npm:20.1.0/katex": "0.18.2",
-    "mermaid@npm:11.17.2/katex": "0.18.2",
+    "ngx-markdown@npm:20.1.0/katex": "0.19.1",
+    "mermaid@npm:11.17.2/katex": "0.19.1",
     "exceljs@npm:4.4.0/uuid": "11.1.1"
   },
   "overrides": {},
@@ -94,6 +94,9 @@
     "express": "5.2.1",
     "helmet": "^8.1.0",
     "@angular/router": "^20.3.27",
+    "@ng-idle/core": "16.0.0",
+    "@ng-idle/keepalive": "16.0.0",
+    "launchdarkly-js-client-sdk": "^3.8.1",
     "@angular/material-moment-adapter": "20.2.14",
     "@hmcts/ccpay-web-component": "6.5.28",
     "@hmcts/media-viewer": "4.2.49",
@@ -131,6 +134,15 @@
       "optional": true
     },
     "@angular/router": {
+      "optional": true
+    },
+    "@ng-idle/core": {
+      "optional": true
+    },
+    "@ng-idle/keepalive": {
+      "optional": true
+    },
+    "launchdarkly-js-client-sdk": {
       "optional": true
     },
     "@angular/material-moment-adapter": {
@@ -201,6 +213,41 @@
         "output": "ui/service-messages"
       },
       {
+        "input": "ui/hmcts-error-summary",
+        "glob": "LICENCE",
+        "output": "ui/hmcts-error-summary"
+      },
+      {
+        "input": "ui/hmcts-sub-navigation",
+        "glob": "LICENCE",
+        "output": "ui/hmcts-sub-navigation"
+      },
+      {
+        "input": "ui/google-analytics",
+        "glob": "LICENCE",
+        "output": "ui/google-analytics"
+      },
+      {
+        "input": "ui/google-tag-manager",
+        "glob": "LICENCE",
+        "output": "ui/google-tag-manager"
+      },
+      {
+        "input": "ui/manage-session",
+        "glob": "LICENCE",
+        "output": "ui/manage-session"
+      },
+      {
+        "input": "ui/timeout-notifications",
+        "glob": "LICENCE",
+        "output": "ui/timeout-notifications"
+      },
+      {
+        "input": "ui/launch-darkly",
+        "glob": "LICENCE",
+        "output": "ui/launch-darkly"
+      },
+      {
         "input": "browser/user-agent",
         "glob": "LICENCE",
         "output": "browser/user-agent"
@@ -209,6 +256,16 @@
         "input": "ui/ccd-pagination",
         "glob": "LICENCE",
         "output": "ui/ccd-pagination"
+      },
+      {
+        "input": "case/logging",
+        "glob": "LICENCE",
+        "output": "case/logging"
+      },
+      {
+        "input": "case/session-guard",
+        "glob": "LICENCE",
+        "output": "case/session-guard"
       },
       {
         "input": "ui/case-list",
@@ -349,6 +406,11 @@
         "input": "ui/role-state",
         "glob": "LICENCE",
         "output": "ui/role-state"
+      },
+      {
+        "input": "ui/role-guard",
+        "glob": "LICENCE",
+        "output": "ui/role-guard"
       },
       {
         "input": "ui/feature-toggle",

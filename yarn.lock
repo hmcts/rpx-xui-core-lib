@@ -1712,14 +1712,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eslint/config-array@npm:^0.23.5":
-  version: 0.23.5
-  resolution: "@eslint/config-array@npm:0.23.5"
+"@eslint/config-array@npm:^0.23.6":
+  version: 0.23.6
+  resolution: "@eslint/config-array@npm:0.23.6"
   dependencies:
     "@eslint/object-schema": "npm:^3.0.5"
     debug: "npm:^4.3.1"
-    minimatch: "npm:^10.2.4"
-  checksum: 10c0/b24833c4c76e78ee075d306cd3f095db46b2db0f90cc13a6ee6e4275f9889731c05bf5403ab5fefb79c756e07ac9184ed0e04570341382f9eccbccc80e6d1a0c
+    minimatch: "npm:^11.0.5"
+  checksum: 10c0/adf798a55b4f58e1db954347633ca2c07c51d413590f274f77d1d94d3413de3d321e3558e313f616a822cb76d90e9c378ec6dd2f49b3e51a2070e61f4405f2ae
   languageName: node
   linkType: hard
 
@@ -1820,10 +1820,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@golevelup/ts-jest@npm:^0.6.2":
-  version: 0.6.2
-  resolution: "@golevelup/ts-jest@npm:0.6.2"
-  checksum: 10c0/91fd477a1bd44913178929a9aecf8f5540208cf78a939b74f52c6804069ba1098b6e134d415b02226fb4be0f621ec16a1bcf1904821f254c009accce8c70ef27
+"@golevelup/ts-jest@npm:^0.7.0":
+  version: 0.7.0
+  resolution: "@golevelup/ts-jest@npm:0.7.0"
+  checksum: 10c0/98f8663bca40c42c02cd875259b4a37671f5e931a20c44c64f86f2a9cb98431a0b3e96b14a6b2b07ce6f8407cd40015c127714d95fa6acda7e99f22de1a22199
   languageName: node
   linkType: hard
 
@@ -1937,6 +1937,8 @@ __metadata:
     "@edium/fsm": "npm:3.0.2"
     "@hmcts/ccpay-web-component": "npm:6.5.28"
     "@hmcts/media-viewer": "npm:4.2.49"
+    "@ng-idle/core": "npm:16.0.0"
+    "@ng-idle/keepalive": "npm:16.0.0"
     "@ngrx/effects": "npm:20.1.0"
     "@ngrx/store": "npm:20.1.0"
     "@ngrx/store-devtools": "npm:20.1.0"
@@ -1953,9 +1955,10 @@ __metadata:
     dexie: "npm:4.4.7"
     dexie-baseline: "npm:dexie@4.4.4"
     esbuild: "npm:0.28.2"
-    eslint: "npm:10.14.0"
+    eslint: "npm:10.15.0"
     govuk-frontend: "npm:6.6.0"
     js-yaml: "npm:4.3.2"
+    launchdarkly-js-client-sdk: "npm:3.9.6"
     lodash: "npm:4.18.1"
     luxon: "npm:2.5.2"
     lz-string: "npm:1.5.0"
@@ -1995,7 +1998,7 @@ __metadata:
   resolution: "@hmcts/rpx-xui-core-node-workspace@workspace:projects/core-lib/node"
   dependencies:
     "@dr.pogodin/csurf": "npm:^1.17.1"
-    "@golevelup/ts-jest": "npm:^0.6.2"
+    "@golevelup/ts-jest": "npm:^0.7.0"
     "@types/cookie": "npm:^0.6.0"
     "@types/debug": "npm:^4.1.5"
     "@types/express": "npm:5.0.6"
@@ -3196,6 +3199,31 @@ __metadata:
     "@emnapi/core": ^1.7.1 || 2.0.0-beta.2
     "@emnapi/runtime": ^1.7.1 || 2.0.0-beta.2
   checksum: 10c0/8fd47200ba18df97149dceb194d405cf1110c785f00c774746b8e6413c892c1cc3c3af41ebc6efee33b235e9f67b18ccc8c0fc35dfcd9c2f0567e5e782dac47e
+  languageName: node
+  linkType: hard
+
+"@ng-idle/core@npm:16.0.0":
+  version: 16.0.0
+  resolution: "@ng-idle/core@npm:16.0.0"
+  dependencies:
+    tslib: "npm:^2.6.0"
+  peerDependencies:
+    "@angular/common": ">=17.3.10"
+    "@angular/core": ">=17.3.10"
+  checksum: 10c0/e8d8474bda552c3c041c671ea41117cead6644e1837eb93691b1b4896264d067db9a5fe6ff21317ea861890724c962683c4407bae8b7733378e2b74a8087d6c7
+  languageName: node
+  linkType: hard
+
+"@ng-idle/keepalive@npm:16.0.0":
+  version: 16.0.0
+  resolution: "@ng-idle/keepalive@npm:16.0.0"
+  dependencies:
+    tslib: "npm:^2.6.0"
+  peerDependencies:
+    "@angular/common": ">=17.3.10"
+    "@angular/core": ">=17.3.10"
+    "@ng-idle/core": ^16.0.0
+  checksum: 10c0/6e727ad20888df4a0cc818e17e4f9a1483b9679fb36ab313574115d0a0458af598a90b6cd97806089cc39c92453ac603903e23d1106a5a256ddcb9af225255df
   languageName: node
   linkType: hard
 
@@ -5877,7 +5905,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"base64-js@npm:^1.3.1":
+"base64-js@npm:^1.3.0, base64-js@npm:^1.3.1":
   version: 1.5.1
   resolution: "base64-js@npm:1.5.1"
   checksum: 10c0/f23823513b63173a001030fae4f2dabe283b99a9d324ade3ad3d148e218134676f1ee8568c877cd79ec1c53158dcf2d2ba527a97c606618928ba99dd930102bf
@@ -6398,10 +6426,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"commander@npm:^8.3.0":
-  version: 8.3.0
-  resolution: "commander@npm:8.3.0"
-  checksum: 10c0/8b043bb8322ea1c39664a1598a95e0495bfe4ca2fad0d84a92d7d1d8d213e2a155b441d2470c8e08de7c4a28cf2bc6e169211c49e1b21d9f7edc6ae4d9356060
+"commander@npm:^15.0.0":
+  version: 15.1.0
+  resolution: "commander@npm:15.1.0"
+  checksum: 10c0/dd1013291d3e8779c726313616fa23174abc962182d0894ac73017c55d8b1ffe4a72401d91a1173974050536576896dc5279db07d37f929dbad469a16a12c54e
   languageName: node
   linkType: hard
 
@@ -7872,13 +7900,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:10.14.0":
-  version: 10.14.0
-  resolution: "eslint@npm:10.14.0"
+"eslint@npm:10.15.0":
+  version: 10.15.0
+  resolution: "eslint@npm:10.15.0"
   dependencies:
     "@eslint-community/eslint-utils": "npm:^4.8.0"
     "@eslint-community/regexpp": "npm:^4.12.2"
-    "@eslint/config-array": "npm:^0.23.5"
+    "@eslint/config-array": "npm:^0.23.6"
     "@eslint/config-helpers": "npm:^0.7.0"
     "@eslint/core": "npm:^1.2.1"
     "@eslint/plugin-kit": "npm:^0.7.3"
@@ -7903,7 +7931,7 @@ __metadata:
     imurmurhash: "npm:^0.1.4"
     is-glob: "npm:^4.0.0"
     json-stable-stringify-without-jsonify: "npm:^1.0.1"
-    minimatch: "npm:^10.2.6"
+    minimatch: "npm:^11.0.5"
     natural-compare: "npm:^1.4.0"
     optionator: "npm:^0.9.3"
   peerDependencies:
@@ -7913,7 +7941,7 @@ __metadata:
       optional: true
   bin:
     eslint: bin/eslint.js
-  checksum: 10c0/738cdd0a1aa37b8bddefb5c89206f9f202540e8fce57f7ef82649b5bdf0acd67f7b9f2724f538b11149bd9bfdd14605125568cf73b319baec007866677af72dd
+  checksum: 10c0/81775d3bc273007b3b6f08d114f57b0c83527e8ebbb89674726bbd29b66883a6fef016a0271e05014a067d1c1079514c5523df96b86740fdfe65ef56abacb030
   languageName: node
   linkType: hard
 
@@ -8156,6 +8184,13 @@ __metadata:
     "@fast-csv/format": "npm:4.3.5"
     "@fast-csv/parse": "npm:4.3.6"
   checksum: 10c0/45118395a75dbb4fb3a074ee76f03abefe8414accbde6613ec3f326c3fef7098b8dc6297de65b6f15755f7520079aac58249cc939010033285161af8b1e007c9
+  languageName: node
+  linkType: hard
+
+"fast-deep-equal@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "fast-deep-equal@npm:2.0.1"
+  checksum: 10c0/1602e0d6ed63493c865cc6b03f9070d6d3926e8cd086a123060b58f80a295f3f08b1ecfb479ae7c45b7fd45535202aea7cf5b49bc31bffb81c20b1502300be84
   languageName: node
   linkType: hard
 
@@ -10026,14 +10061,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"katex@npm:0.18.2":
-  version: 0.18.2
-  resolution: "katex@npm:0.18.2"
+"katex@npm:0.19.1":
+  version: 0.19.1
+  resolution: "katex@npm:0.19.1"
   dependencies:
-    commander: "npm:^8.3.0"
+    commander: "npm:^15.0.0"
   bin:
     katex: cli.js
-  checksum: 10c0/05f0eadc718cbf18d805089cfe7d930f15199b2781087f2055b25f93b0adaad5cfa7c50311366ced324e85f382edae7ed20ba09819ff8eab62b96bba5fe97029
+  checksum: 10c0/20ceeefe75b852acfb1739aa1fe64322acee332cdd7ccefb6e952285c27201ccfb92c65afb38d555d53a41756fba77b7cd60462f8cfce7323a3902ef2e57ad91
   languageName: node
   linkType: hard
 
@@ -10059,6 +10094,26 @@ __metadata:
   dependencies:
     asn1.js: "npm:^5.4.1"
   checksum: 10c0/bb49bf80eda500bacd5e2f934ee6edb347559719908b81a712c86db75c8a14109ba66796f906323ae68b04d687bccc2c057208ca96cad576d3d5cb0281ea20dd
+  languageName: node
+  linkType: hard
+
+"launchdarkly-js-client-sdk@npm:3.9.6":
+  version: 3.9.6
+  resolution: "launchdarkly-js-client-sdk@npm:3.9.6"
+  dependencies:
+    escape-string-regexp: "npm:^4.0.0"
+    launchdarkly-js-sdk-common: "npm:5.8.3"
+  checksum: 10c0/58880254a0877eeb0c49cf8ce6f2633dabfda41cd617464a5d2ec60f1f55d73049b6526e6106341532abd76b50947da5008b3c8d3edf166cef746a4001f33a09
+  languageName: node
+  linkType: hard
+
+"launchdarkly-js-sdk-common@npm:5.8.3":
+  version: 5.8.3
+  resolution: "launchdarkly-js-sdk-common@npm:5.8.3"
+  dependencies:
+    base64-js: "npm:^1.3.0"
+    fast-deep-equal: "npm:^2.0.1"
+  checksum: 10c0/1cd8450a1ba845e5796fd9af72c7656a9de79797b05cc28b21198bf6eb3610ca7a1127502137e78791d34a257b321e7a71e84e7946abc613d90548a56d56c21d
   languageName: node
   linkType: hard
 
@@ -13715,7 +13770,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:2.9.1, tslib@npm:^2.0.0, tslib@npm:^2.1.0, tslib@npm:^2.3.0, tslib@npm:^2.4.0":
+"tslib@npm:2.9.1, tslib@npm:^2.0.0, tslib@npm:^2.1.0, tslib@npm:^2.3.0, tslib@npm:^2.4.0, tslib@npm:^2.6.0":
   version: 2.9.1
   resolution: "tslib@npm:2.9.1"
   checksum: 10c0/8ff46e7a4d19fa62c23483c89cf5ccc3906e742ef6e6d60bd3826b686143b300b4f6f04161cc1cf31a6b11fe70e1058ae4d4e4a108b5c68326d469684736a83c

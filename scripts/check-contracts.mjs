@@ -66,7 +66,7 @@ export function vitestOutcomes(text) {
   const expectedConsoleErrors = [
     /^Translation cache (?:read|write|delete) failed$/,
     /^\[DatabaseClosedError: Database has been closed\](?:\n|$)/,
-    /^\{\n[\s\S]*"name": "SyntaxError"[\s\S]*"message": "safeJsonParse failed to parse JSON\."[\s\S]*\}$/
+    /^\{\n(?=[\s\S]*"errorName": "SyntaxError")(?=[\s\S]*"message": "safeJsonParse failed to parse JSON\.")[\s\S]*\}$/
   ];
   if (report?.schemaVersion !== 1 || report.runner !== 'vitest' || report.vitestVersion !== expectedVitestVersion || report.complete !== true ||
     !Array.isArray(report.errors) || report.errors.length || !Array.isArray(report.consoleErrors) ||

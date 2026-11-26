@@ -1,1 +1,1 @@
-export * from './structured-logger.service';
+export * from '@hmcts/rpx-xui-core-lib/case/logging';

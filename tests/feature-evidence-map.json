@@ -571,12 +571,52 @@
       }
     },
     {
+      "feature": "Role route guard",
+      "contracts": {
+        "roleUnit": [
+          "role guard waits for role state before allowing a matching route",
+          "role guard preserves ALL and default ANY matching and redirects denied routes",
+          "role guard reuses the RoleMatching enum exported by role-state"
+        ],
+        "package": [
+          "package.role-guard-graph",
+          "package.role-guard-behavior"
+        ],
+        "browser": [
+          {
+            "projectName": "chromium",
+            "title": "role guard waits for initialized roles and redirects routes without a match",
+            "feature": "role-guard"
+          },
+          {
+            "projectName": "chromium",
+            "title": "role guard ALL mode requires every configured role",
+            "feature": "role-guard"
+          }
+        ]
+      }
+    },
+    {
       "feature": "Feature toggle token and dependency injection (unit contracts)",
       "contracts": {
         "featureToggleUnit": [
           "unconfigured feature service fails explicitly for all operations",
           "both alias directions use one provided feature service across parent and unshadowed child",
           "child provider shadowing creates a distinct feature service"
+        ],
+        "editorUnit": [
+          "LaunchDarklyService resolves the SDK factory from the Angular injection token",
+          "LaunchDarklyService uses the anonymous context when the caller passes no user",
+          "LaunchDarklyService uses the current context, emits defaults then live values, and observes flag changes",
+          "LaunchDarklyService re-identifies one SDK client and ignores completion from an older identity request",
+          "LaunchDarklyService getValueOnce completes after its first ready value",
+          "LaunchDarklyService closes the old client when the client ID changes and ignores its late events",
+          "LaunchDarklyService returns the safe default when re-identification fails instead of exposing old-context flags",
+          "LaunchDarklyService fails closed when the SDK errors during identity change, even if identify later resolves",
+          "LaunchDarklyService closes its client and ignores pending identify work when destroyed"
+        ],
+        "package": [
+          "package.launch-darkly-selective-entry"
         ]
       }
     },
@@ -863,7 +903,8 @@
       "contracts": {
         "package": [
           "package.loading-angular-build",
-          "package.loading-eager-fault"
+          "package.loading-eager-fault",
+          "package.runtime-services-selective-entries"
         ]
       }
     },
@@ -1027,6 +1068,42 @@
         "package": [
           "package.gov-input-graph",
           "package.gov-input-behavior"
+        ]
+      }
+    },
+    {
+      "feature": "CommonLib HMCTS error summary and sub-navigation",
+      "contracts": {
+        "browser": [
+          {
+            "projectName": "chromium",
+            "title": "sub-navigation exposes its label, active page, item links and roundel",
+            "feature": "hmcts-shell"
+          },
+          {
+            "projectName": "chromium",
+            "title": "error summary focuses the summary, links to a present field and reports missing targets as text",
+            "feature": "hmcts-shell"
+          },
+          {
+            "projectName": "chromium",
+            "title": "clearing errors hides the summary and removes only the error title prefix",
+            "feature": "hmcts-shell"
+          },
+          {
+            "projectName": "chromium",
+            "title": "warning state does not expose an error summary or change the page title",
+            "feature": "hmcts-shell"
+          },
+          {
+            "projectName": "chromium",
+            "title": "HMCTS shell controls have no automated accessibility violations",
+            "feature": "hmcts-shell"
+          }
+        ],
+        "package": [
+          "package.hmcts-error-summary-graph",
+          "package.hmcts-sub-navigation-graph"
         ]
       }
     },
@@ -1793,6 +1870,10 @@
           },
           {
             "projectName": "chromium",
+            "title": "preserves the persisted status when selecting an existing case flag"
+          },
+          {
+            "projectName": "chromium",
             "title": "shows a selection error when proceeding without choosing a case flag"
           }
         ],
@@ -2039,6 +2120,16 @@
           },
           {
             "projectName": "chromium",
+            "title": "user details renders every configured permission and warning",
+            "feature": "user-details"
+          },
+          {
+            "projectName": "chromium",
+            "title": "user details shows edit and help links independently",
+            "feature": "user-details"
+          },
+          {
+            "projectName": "chromium",
             "title": "pending user hides permissions and emits a reinvite action",
             "feature": "user-details"
           },
@@ -2098,11 +2189,33 @@
       "feature": "Pagination controls",
       "contracts": {
         "unit": [
+          "CCD pagination preserves its Toolkit input defaults",
+          "CCD pagination coerces false string inputs to false",
           "generic pagination retains the null payload on both public outputs",
           "user-list and standalone HMCTS pagination share one component identity",
           "both pagination entries allow a caller to distinguish navigation landmarks"
         ],
         "browser": [
+          {
+            "projectName": "chromium",
+            "title": "CCD pagination shows the Toolkit labels and moves pages with the keyboard",
+            "feature": "pagination"
+          },
+          {
+            "projectName": "chromium",
+            "title": "CCD pagination corrects the current page when the result set shrinks",
+            "feature": "pagination"
+          },
+          {
+            "projectName": "chromium",
+            "title": "CCD pagination only hides one-page controls when autoHide is enabled",
+            "feature": "pagination"
+          },
+          {
+            "projectName": "chromium",
+            "title": "CCD pagination has no automated accessibility violations",
+            "feature": "pagination"
+          },
           {
             "projectName": "chromium",
             "title": "generic pagination preserves null events and exposes keyboard-operable page actions",
@@ -2197,6 +2310,16 @@
           {
             "projectName": "chromium",
             "title": "invitation retains and updates a preselected permission",
+            "feature": "invitation"
+          },
+          {
+            "projectName": "chromium",
+            "title": "invitation maps case manager to the pui-case-manager role alone",
+            "feature": "invitation"
+          },
+          {
+            "projectName": "chromium",
+            "title": "invitation maps organisation manager to the pui-organisation-manager role alone",
             "feature": "invitation"
           },
           {
@@ -2568,6 +2691,22 @@
       }
     },
     {
+      "feature": "Session guard and storage diagnostics",
+      "contracts": {
+        "editorUnit": [
+          "SessionStorageGuard allows navigation when user details are absent or valid JSON",
+          "SessionStorageGuard redirects malformed user details without logging the stored value",
+          "SessionStorageGuard uses the configured error route and logger for JSON null",
+          "SessionStorageGuard reuses the same guard class through its editor compatibility entry"
+        ],
+        "package": [
+          "package.session-guard-graph",
+          "package.session-guard-types",
+          "package.case-logging-identity"
+        ]
+      }
+    },
+    {
       "feature": "Case viewer: route and access behavior",
       "contracts": {
         "editorUnit": [
@@ -2579,6 +2718,10 @@
           {
             "projectName": "chromium",
             "title": "renders the full case viewer for resolved standard-access case data"
+          },
+          {
+            "projectName": "chromium",
+            "title": "renders the migrated full-access case tab and field"
           },
           {
             "projectName": "chromium",

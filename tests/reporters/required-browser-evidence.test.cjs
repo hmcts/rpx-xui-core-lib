@@ -39,7 +39,12 @@ test('malformed and duplicate inventory and absent suite do not yield success', 
   assert.match(render(snapshot, null, true), /Summary unavailable/);
 });
 
-const reviewedContracts = `service-messages|a corrupt dismissal cookie does not hide service messages
+const reviewedContracts = `hmcts-shell|sub-navigation exposes its label, active page, item links and roundel
+hmcts-shell|error summary focuses the summary, links to a present field and reports missing targets as text
+hmcts-shell|clearing errors hides the summary and removes only the error title prefix
+hmcts-shell|warning state does not expose an error summary or change the page title
+hmcts-shell|HMCTS shell controls have no automated accessibility violations
+service-messages|a corrupt dismissal cookie does not hide service messages
 service-messages|renders sanitized message and dismisses it with the keyboard across reloads
 service-messages|service messages have no automated accessibility violations
 validation|keyboard checkbox toggles update real FormGroup validity and submitted errors
@@ -89,6 +94,8 @@ feature-toggle-directive|feature directive switches subscriptions and clears sta
 feature-toggle-directive|feature directive unsubscribes on removal and subscribes again on remount
 feature-toggle-guard|feature guard allows a web route and redirects it when its flag is disabled
 feature-toggle-guard|registration routes follow reciprocal feature expectations without a redirect loop
+role-guard|role guard waits for initialized roles and redirects routes without a match
+role-guard|role guard ALL mode requires every configured role
 date-input|date input preserves validation and values across translations
 date-input|date input has accessible keyboard reachable date fields
 session-error|session error page shows default content and supports custom messages
@@ -178,6 +185,8 @@ selected-cases|prefixed sharing forms have unique IDs and show their own errors
 selected-cases|sharing error links work with valid ID prefixes containing punctuation
 selected-cases|sharing forms distinguish the same case in each accordion
 user-details|user details shows roles and emits a suspend action
+user-details|user details renders every configured permission and warning
+user-details|user details shows edit and help links independently
 user-details|pending user hides permissions and emits a reinvite action
 user-details|user details actions work from the keyboard and pass an axe scan
 user-list|users without a route can be selected with the keyboard
@@ -185,6 +194,10 @@ user-list|users with a route retain a navigable link and emit selection
 user-list|user list pages through users and emits the chosen user
 user-list|pagination can be operated with the keyboard
 user-list|user list and pagination have no automated accessibility violations
+pagination|CCD pagination shows the Toolkit labels and moves pages with the keyboard
+pagination|CCD pagination corrects the current page when the result set shrinks
+pagination|CCD pagination only hides one-page controls when autoHide is enabled
+pagination|CCD pagination has no automated accessibility violations
 pagination|generic pagination preserves null events and exposes keyboard-operable page actions
 pagination|HMCTS paginator is independently usable and keeps separate list state
 pagination|pagination entries have no automated accessibility violations
@@ -196,6 +209,8 @@ invitation|invitation emits entered details and selected permissions
 invitation|invitation form supports keyboard selection and passes axe
 invitation|invalid invitation inputs expose their errors accessibly
 invitation|invitation retains and updates a preselected permission
+invitation|invitation maps case manager to the pui-case-manager role alone
+invitation|invitation maps organisation manager to the pui-organisation-manager role alone
 invitation|permission error is announced by the permissions fieldset
 invitation|permissions with an empty error never reference a missing message
 page-wrapper|page wrapper renders its translated shell and projected content

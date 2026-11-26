@@ -7,6 +7,7 @@ import { buildSync } from 'esbuild';
 import { inspectLoadingGraph, assertPackedBytes, assertEagerDateFailure } from '../packed-loading/graph.mjs';
 import { probeLoading } from '../editor/selective-loading-lib.mjs';
 import { createHash, randomUUID } from 'node:crypto';
+import { createServer } from 'node:net';
 import { gzipSync } from 'node:zlib';
 import { spawnSync } from 'node:child_process';
 import { cp, lstat, mkdir, mkdtemp, readFile, readdir, realpath, rename, rm, stat, symlink, writeFile } from 'node:fs/promises';
@@ -56,6 +57,18 @@ async function check(id, action) {
   return result;
 }
 
+async function availableLocalPort() {
+  const server = createServer();
+  await new Promise((resolve, reject) => {
+    server.once('error', reject);
+    server.listen({ port: 0, host: '127.0.0.1' }, () => resolve(undefined));
+  });
+  const address = server.address();
+  assert.ok(address && typeof address !== 'string', 'OS must allocate a local test port');
+  await new Promise((resolve, reject) => server.close(error => error ? reject(error) : resolve()));
+  return String(address.port);
+}
+
 try {
   assert.equal(process.versions.node, '24.22.2', 'Run with the pinned Node 24.22.2');
   scratch = await realpath(await mkdtemp(join(tmpdir(), 'core-lib-package-')));
@@ -66,7 +79,20 @@ try {
   const dist = join(root, 'dist/core-lib');
   const declaration = 'forms/validation/index.d.ts';
   const filterLicenceEntries = ['ui/filter-state', 'ui/find-location', 'ui/find-service', 'ui/search-service', 'ui/capitalize', 'ui/generic-filter'];
-  const sourceLicenceEntries = [...filterLicenceEntries, 'ui/find-task-name', 'ui/find-work-type', 'ui/search-work-type', 'ui/find-person', 'ui/checkbox-list', 'ui/gov-date', 'ui/gov-select', 'ui/search-location', 'ui/search-judicials', 'ui/search-venue', 'ui/pagination', 'ui/hmcts-pagination', 'terms/display', 'terms/confirmation', 'ui/gov-input', 'case/session-error', 'case/editor-date', 'browser/window', 'browser/session-storage', 'reference/locations', 'reference/ref-data', 'terms/models', 'ui/cookie', 'ui/cookie-banner', 'ui/feature-toggle', 'ui/feature-toggle-directive', 'ui/feature-toggle-guard', 'ui/role-state', 'ui/task-data', 'case/sharing-state', 'ui/contact-details', 'ui/page-wrapper', 'ui/loading-spinner', 'ui/loading-state', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog', 'ui/banner', 'ui/form-label', 'case/models', 'case/reference', 'case/sharing', 'browser/user-agent', 'ui/ccd-pagination', 'ui/case-list', 'address/normalization', 'ui/address'];
+  const sourceLicenceEntries = [
+    ...filterLicenceEntries,
+    'ui/find-task-name', 'ui/find-work-type', 'ui/search-work-type', 'ui/find-person', 'ui/checkbox-list',
+    'ui/gov-date', 'ui/gov-select', 'ui/search-location', 'ui/search-judicials', 'ui/search-venue',
+    'ui/pagination', 'ui/hmcts-pagination', 'terms/display', 'terms/confirmation', 'ui/gov-input',
+    'case/session-error', 'case/session-guard', 'case/logging', 'case/editor-date',
+    'browser/window', 'browser/session-storage', 'reference/locations', 'reference/ref-data', 'terms/models',
+    'ui/cookie', 'ui/cookie-banner', 'ui/feature-toggle', 'ui/feature-toggle-directive', 'ui/feature-toggle-guard',
+    'ui/role-state', 'ui/role-guard', 'ui/task-data', 'case/sharing-state', 'ui/contact-details', 'ui/page-wrapper',
+    'ui/loading-spinner', 'ui/loading-state', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog',
+    'ui/banner', 'ui/form-label', 'case/models', 'case/reference', 'case/sharing', 'browser/user-agent',
+    'ui/ccd-pagination', 'ui/case-list', 'address/normalization', 'ui/address',
+    'ui/google-analytics', 'ui/google-tag-manager', 'ui/manage-session', 'ui/timeout-notifications', 'ui/launch-darkly'
+  ];
 
   // Fail before dependency setup when the legacy TypeScript entry point is absent.
   await check('package.physical-secondary-declaration', async () => {
@@ -110,6 +136,41 @@ try {
     const implementation = await readFile(join(dist, 'fesm2022/hmcts-rpx-xui-core-lib-i18n.mjs'), 'utf8');
     assert.doesNotMatch(implementation, /from ['"]rpx-xui-translation['"]/, 'Canonical implementation must not depend on legacy runtime');
   });
+  await check('package.runtime-services-selective-entries', async () => {
+    const manifest = JSON.parse(await readFile(join(dist, 'package.json'), 'utf8'));
+    for (const [entry, symbol, bundle, idle] of [
+      ['google-analytics', 'GoogleAnalyticsService', 'google-analytics', false],
+      ['google-tag-manager', 'GoogleTagManagerService', 'google-tag-manager', false],
+      ['manage-session', 'ManageSessionServices', 'manage-session', true],
+      ['timeout-notifications', 'TimeoutNotificationsService', 'timeout-notifications', true],
+    ]) {
+      const key = `./ui/${entry}`;
+      assert.ok(manifest.exports[key]?.types && manifest.exports[key]?.default, `Missing public selective entry ${key}`);
+      const loading = await probeLoading(dist, `fesm2022/hmcts-rpx-xui-core-lib-ui-${bundle}.mjs`, symbol);
+      assert.equal(loading.mediaViewer, false, `${key} must not load Media Viewer`);
+      assert.equal(loading.payment, false, `${key} must not load payment components`);
+      assert.ok(loading.externalImports.includes('@angular/core'), `${key} must keep Angular external`);
+      assert.equal(loading.externalImports.includes('rxjs'), idle, `${key} must include RxJS only when required by its public implementation`);
+      assert.equal(loading.externalImports.includes('@angular/router'), !idle, `${key} must include Router only for route tracking`);
+      assert.equal(loading.externalImports.some(name => name.startsWith('@ng-idle/')), idle, `${key} must request only the idle peers it uses`);
+    }
+    assert.deepEqual(manifest.peerDependenciesMeta['@ng-idle/core'], { optional: true });
+    assert.deepEqual(manifest.peerDependenciesMeta['@ng-idle/keepalive'], { optional: true });
+  });
+  await check('package.launch-darkly-selective-entry', async () => {
+    const manifest = JSON.parse(await readFile(join(dist, 'package.json'), 'utf8'));
+    const toggle = './ui/feature-toggle';
+    const launchDarkly = './ui/launch-darkly';
+    assert.ok(manifest.exports[launchDarkly]?.types && manifest.exports[launchDarkly]?.default);
+    assert.deepEqual(manifest.peerDependenciesMeta['launchdarkly-js-client-sdk'], { optional: true });
+
+    const contractGraph = await probeLoading(dist, 'fesm2022/hmcts-rpx-xui-core-lib-ui-feature-toggle.mjs', 'FeatureToggleService');
+    assert.ok(!contractGraph.externalImports.includes('launchdarkly-js-client-sdk'), `${toggle} must not load the SDK`);
+    const launchGraph = await probeLoading(dist, 'fesm2022/hmcts-rpx-xui-core-lib-ui-launch-darkly.mjs', 'LaunchDarklyService');
+    assert.ok(launchGraph.externalImports.includes('launchdarkly-js-client-sdk'), `${launchDarkly} must retain the SDK as an optional external peer`);
+    assert.equal(launchGraph.mediaViewer, false);
+    assert.equal(launchGraph.payment, false);
+  });
   await cp(dist, staged, { recursive: true });
   await writeFile(join(staged, 'yarn.lock'), '');
   const candidate = join(scratch, 'candidate.tgz');
@@ -145,7 +206,7 @@ try {
     const lock = await readFile(join(nodeConsumer, 'yarn.lock'), 'utf8');
     await run('node-only-install-immutable', [yarn, 'install', '--immutable'], nodeConsumer);
     assert.equal(await readFile(join(nodeConsumer, 'yarn.lock'), 'utf8'), lock);
-    for (const peer of ['@angular/common', '@angular/core', '@angular/forms', '@angular/material', '@angular/cdk', '@angular/platform-browser', 'rxjs', 'zone.js']) {
+    for (const peer of ['@angular/common', '@angular/core', '@angular/forms', '@angular/material', '@angular/cdk', '@angular/platform-browser', 'rxjs', 'zone.js', 'launchdarkly-js-client-sdk']) {
       await assert.rejects(stat(join(nodeConsumer, 'node_modules', peer)), { code: 'ENOENT' }, `Node consumer must not install ${peer}`);
     }
     await run('node-only-runtime', ['node-only-runtime.mjs'], nodeConsumer);
@@ -411,7 +472,7 @@ try {
     try { await rm(mapFile); assert.throws(() => inspectLoadingGraph(directory), /ENOENT/); } finally { await writeFile(mapFile, mapBytes); }
     await cp(join(consumer, 'loading-dist'), join(evidence, 'loading-dist'), { recursive: true });
     await writeFile(join(evidence, 'loading-graph.json'), JSON.stringify({ ...graph, ...currentIdentity(root), sourceSnapshot: sourceSnapshot(root), candidateSha256: report.package.sha256 }) + '\n');
-    for (const entry of ['forms-validation', 'case-editor-date', 'case-session-error']) {
+    for (const entry of ['forms-validation', 'case-editor-date', 'case-session-error', 'case-logging', 'case-session-guard']) {
       const name = 'fesm2022/hmcts-rpx-xui-core-lib-' + entry + '.mjs';
       const extracted = spawnSync('/usr/bin/tar', ['-xOf', candidate, 'package/' + name]);
       assert.equal(extracted.status, 0, 'Packed entry must be extractable');
@@ -421,20 +482,32 @@ try {
     }
     env.CORE_LOADING_HOST = directory;
     env.CORE_LOADING_ID = randomUUID();
+    env.CORE_LOADING_PORT = await availableLocalPort();
     env.CORE_LOADING_REPORT = join(evidence, 'loading-browser.json');
     env.CORE_LOADING_OUTPUT = join(evidence, 'loading-browser');
     env.CORE_DATE_CHUNK = graph.date;
     env.CORE_SESSION_CHUNK = graph.session;
     try {
       await run('loading-browser', [join(root, 'node_modules/@playwright/test/cli.js'), 'test', '-c', join(root, 'tests/packed-loading/playwright.config.mjs'), 'loading.spec.mjs'], root);
+      const outcomes = browserOutcomes(JSON.parse(await readFile(env.CORE_LOADING_REPORT, 'utf8')));
+      const expected = [
+        'installed package keeps date and session pages lazy and usable',
+        'installed lookup uses the consuming application HTTP provider and renders results',
+        'installed session guard allows a protected route when user details are absent',
+        'installed session guard allows a protected route when user details are valid JSON',
+        'installed session guard redirects malformed user details to the lazy error page without exposing the stored value'
+      ];
+      assert.equal(outcomes.length, expected.length, 'Every installed loading and session-guard browser case must execute once');
+      for (const title of expected) assert.equal(outcomes.filter(test => test.id === JSON.stringify(['chromium', title]) && test.passed).length, 1, 'Installed browser cases cannot be missing, skipped, retried or duplicated');
     } finally {
-      for (const key of ['CORE_LOADING_HOST', 'CORE_LOADING_ID', 'CORE_LOADING_REPORT', 'CORE_LOADING_OUTPUT', 'CORE_DATE_CHUNK', 'CORE_SESSION_CHUNK']) delete env[key];
+      for (const key of ['CORE_LOADING_HOST', 'CORE_LOADING_ID', 'CORE_LOADING_PORT', 'CORE_LOADING_REPORT', 'CORE_LOADING_OUTPUT', 'CORE_DATE_CHUNK', 'CORE_SESSION_CHUNK']) delete env[key];
     }
   });
 
   await check('package.translation-counterpart-browser', async () => {
     env.CORE_LOADING_HOST = join(consumer, 'loading-dist/browser');
     env.CORE_LOADING_ID = randomUUID();
+    env.CORE_LOADING_PORT = await availableLocalPort();
     env.CORE_LOADING_REPORT = join(evidence, 'translation-counterpart-browser.json');
     env.CORE_LOADING_OUTPUT = join(evidence, 'translation-counterpart-browser');
     try {
@@ -447,7 +520,7 @@ try {
       assert.equal(outcomes.length, expected.length, 'Every counterpart browser case must execute');
       for (const title of expected) assert.equal(outcomes.filter(test => test.id === JSON.stringify(['chromium', title]) && test.passed).length, 1, 'Counterpart browser cases cannot be missing, skipped, retried or duplicated');
     } finally {
-      for (const key of ['CORE_LOADING_HOST', 'CORE_LOADING_ID', 'CORE_LOADING_REPORT', 'CORE_LOADING_OUTPUT']) delete env[key];
+      for (const key of ['CORE_LOADING_HOST', 'CORE_LOADING_ID', 'CORE_LOADING_PORT', 'CORE_LOADING_REPORT', 'CORE_LOADING_OUTPUT']) delete env[key];
     }
   });
 
@@ -456,6 +529,7 @@ try {
     await check('package.' + name, async () => {
       env.CORE_LOADING_HOST = join(consumer, 'loading-dist/browser');
       env.CORE_LOADING_ID = randomUUID();
+      env.CORE_LOADING_PORT = await availableLocalPort();
       env.CORE_LOADING_REPORT = join(evidence, name + '-browser.json');
       env.CORE_LOADING_OUTPUT = join(evidence, name + '-browser');
       env.CORE_FILTER_SPLIT = split ? '1' : '0';
@@ -468,7 +542,7 @@ try {
         assert.equal(outcomes[0].passed, !split);
         if (split) assert.match(diagnostic, /Generic Filter Apply must notify the directly injected FilterService stream[\s\S]*Received: null/);
       } finally {
-        for (const key of ['CORE_LOADING_HOST', 'CORE_LOADING_ID', 'CORE_LOADING_REPORT', 'CORE_LOADING_OUTPUT', 'CORE_FILTER_SPLIT']) delete env[key];
+        for (const key of ['CORE_LOADING_HOST', 'CORE_LOADING_ID', 'CORE_LOADING_PORT', 'CORE_LOADING_REPORT', 'CORE_LOADING_OUTPUT', 'CORE_FILTER_SPLIT']) delete env[key];
       }
     });
   }
@@ -497,6 +571,7 @@ try {
       };
       env.CORE_LOADING_HOST = directory;
       env.CORE_LOADING_ID = randomUUID();
+      env.CORE_LOADING_PORT = await availableLocalPort();
       env.CORE_LOADING_REPORT = join(evidence, 'loading-eager-browser.json');
       env.CORE_LOADING_OUTPUT = join(evidence, 'loading-eager-browser');
       env.CORE_DATE_CHUNK = await findChunk('/hmcts-rpx-xui-core-lib-case-editor-date.mjs');
@@ -505,7 +580,7 @@ try {
         await run('loading-eager-browser', [join(root, 'node_modules/@playwright/test/cli.js'), 'test', '-c', join(root, 'tests/packed-loading/playwright.config.mjs'), 'loading.spec.mjs'], root, 1);
         assertEagerDateFailure(JSON.parse(await readFile(env.CORE_LOADING_REPORT, 'utf8')));
       } finally {
-        for (const key of ['CORE_LOADING_HOST', 'CORE_LOADING_ID', 'CORE_LOADING_REPORT', 'CORE_LOADING_OUTPUT', 'CORE_DATE_CHUNK', 'CORE_SESSION_CHUNK']) delete env[key];
+        for (const key of ['CORE_LOADING_HOST', 'CORE_LOADING_ID', 'CORE_LOADING_PORT', 'CORE_LOADING_REPORT', 'CORE_LOADING_OUTPUT', 'CORE_DATE_CHUNK', 'CORE_SESSION_CHUNK']) delete env[key];
       }
       assert.equal(detected, true, 'Eager date import must fail the graph check');
       await writeFile(join(evidence, 'loading-eager-fault.json'), JSON.stringify({ detected, reason: 'Date entry must not be in the initial static graph', candidateSha256: report.package.sha256 }) + '\n');
@@ -668,6 +743,8 @@ try {
     ['search-location', 'search-location-graph.mjs', ['ui-search-location', 'reference-locations', 'reference-ref-data', 'browser-session-storage', 'i18n']],
     ['search-judicials', 'search-judicials-graph.mjs', ['ui-search-judicials', 'ui-find-person', 'browser-session-storage', 'i18n']],
     ['search-venue', 'search-venue-graph.mjs', ['ui-search-venue', 'reference-locations', 'i18n']],
+    ['hmcts-error-summary', 'hmcts-error-summary-graph.mjs', ['ui-hmcts-error-summary', 'i18n']],
+    ['hmcts-sub-navigation', 'hmcts-sub-navigation-graph.mjs', ['ui-hmcts-sub-navigation', 'i18n']],
     ['gov-input', 'gov-input-graph.mjs', ['ui-gov-input', 'i18n']],
     ['checkbox-list', 'checkbox-list-graph.mjs', ['ui-checkbox-list', 'i18n']],
     ['gov-date', 'gov-date-graph.mjs', ['ui-gov-date', 'ui-gov-input', 'i18n']],
@@ -680,6 +757,7 @@ try {
     ['feature-toggle-guard', 'feature-toggle-guard-graph.mjs', ['ui-feature-toggle-guard', 'ui-feature-toggle']],
     ['feature-directive', 'feature-directive-graph.mjs', ['ui-feature-toggle-directive', 'ui-feature-toggle']],
     ['role-state', 'role-state-graph.mjs', ['ui-role-state']],
+    ['role-guard', 'role-guard-graph.mjs', ['ui-role-guard', 'ui-role-state']],
   ];
   for (const [id, file, entries] of selectiveEntries) {
     await check('package.' + id + '-graph', async () => {
@@ -691,6 +769,10 @@ try {
         for (const entry of entries) assert.ok(core.some(input => input.endsWith('/fesm2022/hmcts-rpx-xui-core-lib-' + entry + '.mjs')));
         assert.ok(!used.some(input => /(?:^|\/)node(?:\/|$)|^node:/.test(input)));
         if (['selected-case', 'share-case', 'user-details', 'user-list', 'invitation'].includes(id)) assert.ok(!used.some(input => /@hmcts\/(media-viewer|ccpay-web-component)/.test(input)));
+        if (id === 'hmcts-error-summary' || id === 'hmcts-sub-navigation') {
+          assert.ok(used.some(input => input.includes('@angular/router')), 'HMCTS navigation controls must retain their RouterLink contract');
+          assert.ok(!used.some(input => /@hmcts\/(?:media-viewer|ccpay-web-component)|hmcts-rpx-xui-core-lib-(?:case-editor-source|case-notifier)/.test(input)), 'HMCTS shell entries must not pull editor, Media Viewer or payment code');
+        }
         if (id === 'user-details' || id === 'invitation') assert.ok(!used.some(input => input.includes('/ngx-pagination/')));
         if (id === 'pagination') assert.ok(!used.some(input => /(?:\/ngx-pagination\/|@angular\/router|hmcts-rpx-xui-core-lib-ui-hmcts-pagination)/.test(input)), 'Generic pagination must not pull the numbered paginator or routing');
         if (id === 'hmcts-pagination') assert.ok(!used.some(input => /(?:hmcts-rpx-xui-core-lib-ui-user-list|hmcts-rpx-xui-core-lib-ui-pagination|@angular\/router|@hmcts\/(?:media-viewer|ccpay-web-component))/.test(input)), 'HMCTS pagination must not pull user-list, generic pagination, routing or heavy peers');
@@ -699,6 +781,10 @@ try {
         if (id === 'address') assert.ok(!used.some(input => /(?:hmcts-rpx-xui-core-lib-(?:case-editor-source|ui-search-location|ui-find-person)|@angular\/router|@hmcts\/(?:media-viewer|ccpay-web-component)|(?:^|\/)node(?:\/|$)|^node:)/.test(input)), 'Address UI must not pull the editor, routing, heavy peers or Node code');
         if (id === 'feature-toggle') assert.ok(!used.some(input => input.includes('@angular/router')), 'Feature service must not pull Angular Router');
         if (id === 'feature-toggle-guard') assert.ok(used.some(input => input.includes('@angular/router')), 'Feature guard must carry its Angular Router dependency');
+        if (id === 'role-guard') {
+          assert.ok(used.some(input => input.includes('@angular/router')), 'Role guard must carry its Angular Router dependency');
+          assert.ok(!used.some(input => /@hmcts\/(?:media-viewer|ccpay-web-component)|hmcts-rpx-xui-core-lib-(?:case-editor-source|node)/.test(input)), 'Role guard must not pull case editing, Media Viewer, payment or Node code');
+        }
       };
       const source = await readFile(join(consumer, file), 'utf8');
       verify(graph(source));
@@ -781,6 +867,9 @@ try {
   await check('package.feature-toggle-behavior', () => run('feature-toggle-behavior', ['--test', 'feature-toggle.test.mjs'], consumer));
   await cp(join(root, 'tests/feature-toggle/feature-toggle-guard.test.mjs'), join(consumer, 'feature-toggle-guard.test.mjs'));
   await check('package.feature-toggle-guard-behavior', () => run('feature-toggle-guard-behavior', ['--test', 'feature-toggle-guard.test.mjs'], consumer));
+
+  await cp(join(root, 'tests/roles/role-guard.test.mjs'), join(consumer, 'role-guard.test.mjs'));
+  await check('package.role-guard-behavior', () => run('role-guard-behavior', ['--test', 'role-guard.test.mjs'], consumer));
   await cp(join(root, 'tests/roles/roles.test.mjs'), join(consumer, 'roles.test.mjs'));
   await check('package.role-state-behavior', () => run('role-state-behavior', ['--test', 'roles.test.mjs'], consumer));
 
@@ -840,6 +929,43 @@ try {
     const source = await readFile(join(consumer, 'session-error-graph.mjs'), 'utf8');
     verify(graph(source));
     assert.throws(() => verify(graph(source + "\nimport { windowToken } from '@hmcts/rpx-xui-core-lib/browser/window'; console.log(windowToken);")), /only its own Core entry/);
+  });
+
+  await check('package.case-logging-identity', async () => {
+    const installedManifest = JSON.parse(await readFile(join(installed, 'package.json'), 'utf8'));
+    const entries = ['case/logging', 'case/session-guard'];
+    const declarations = await Promise.all(entries.map(entry => stat(join(installed, entry, 'index.d.ts'))));
+    for (const [index, entry] of entries.entries()) {
+      assert.ok(installedManifest.exports[`./${entry}`], `Packed package must export ./${entry}`);
+      assert.ok(declarations[index].isFile(), `Packed ./${entry} declarations must exist`);
+    }
+    await run('case-logging-identity', ['case-logging-identity.mjs'], consumer);
+  });
+
+  await check('package.session-guard-types', () => run('session-guard-types', [compiler, '--strict', '--skipLibCheck', 'false', '--esModuleInterop', '--target', 'ES2022', '--module', 'ES2022', '--moduleResolution', 'node', '--noEmit', 'session-guard-types.ts'], consumer));
+
+  await check('package.session-guard-graph', async () => {
+    const graph = contents => buildSync({ stdin: { contents, resolveDir: consumer }, absWorkingDir: consumer, bundle: true, platform: 'browser', format: 'esm', metafile: true, write: false, logLevel: 'silent' });
+    const verify = result => {
+      const used = Object.values(result.metafile.outputs).flatMap(output => Object.entries(output.inputs).filter(([, value]) => value.bytesInOutput > 0).map(([input]) => input.replaceAll('\\', '/')));
+      const core = used.filter(input => input.includes('/@hmcts/rpx-xui-core-lib/'));
+      const expectedEntries = ['case-session-guard', 'case-logging', 'browser-session-storage'];
+      const coreEntries = core.map(input => /fesm2022\/hmcts-rpx-xui-core-lib-([^/]+)\.mjs$/.exec(input)?.[1]).filter(Boolean);
+      assert.equal(coreEntries.length, expectedEntries.length, 'Session guard graph must contain exactly three Core entries');
+      assert.equal(new Set(coreEntries).size, expectedEntries.length, 'Session guard graph must not contain duplicate Core entries');
+      for (const entry of expectedEntries) {
+        assert.ok(coreEntries.includes(entry), `Session guard graph must use ${entry}`);
+        assert.ok(core.some(input => input.endsWith(`/fesm2022/hmcts-rpx-xui-core-lib-${entry}.mjs`)), `Session guard graph must include ${entry}`);
+      }
+      assert.ok(!used.some(input => /hmcts-rpx-xui-core-lib-(?:case-editor-source|case-notifier|node)|@hmcts\/(?:media-viewer|ccpay-web-component)|(?:^|\/)node(?:\/|$)|^node:/.test(input)), 'Session guard must exclude the editor, notifier, Node, Media Viewer and payment entries');
+    };
+    const source = await readFile(join(consumer, 'session-guard-graph.mjs'), 'utf8');
+    verify(graph(source));
+    assert.throws(() => verify(graph(source + "\nimport { SessionErrorPageComponent } from '@hmcts/rpx-xui-core-lib/case/session-error'; console.log(SessionErrorPageComponent);")), /exactly three Core entries/);
+    const identitySource = await readFile(join(consumer, 'case-logging-graph.mjs'), 'utf8');
+    const identityGraph = graph(identitySource);
+    const identityInputs = Object.values(identityGraph.metafile.outputs).flatMap(output => Object.entries(output.inputs).filter(([, value]) => value.bytesInOutput > 0).map(([input]) => input.replaceAll('\\', '/')));
+    assert.ok(identityInputs.some(input => input.endsWith('/fesm2022/hmcts-rpx-xui-core-lib-case-logging.mjs')));
   });
 
   await check('package.sharing-graph', async () => {
