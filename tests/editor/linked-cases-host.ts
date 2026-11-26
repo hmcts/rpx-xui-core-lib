@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Pipe, PipeTransform } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { AbstractAppConfig } from '../../projects/core-lib/case/editor-source/lib/app.config';
@@ -10,6 +10,9 @@ import { LinkedCasesToTableComponent } from '../../projects/core-lib/case/editor
 import { LinkedCasesService } from '../../projects/core-lib/case/editor-source/lib/shared/components/palette/linked-cases/services';
 import { CasesService } from '../../projects/core-lib/case/editor-source/lib/shared/components/case-editor/services/cases.service';
 import { CommonDataService } from '../../projects/core-lib/case/editor-source/lib/shared/services/common-data-service/common-data-service';
+import { BeforeYouStartComponent } from '../../projects/core-lib/case/editor-source/lib/shared/components/palette/linked-cases/components/before-you-start/before-you-start.component';
+import { NoLinkedCasesComponent } from '../../projects/core-lib/case/editor-source/lib/shared/components/palette/linked-cases/components/no-linked-cases/no-linked-cases.component';
+import { MultipageComponentStateService } from '../../projects/core-lib/case/editor-source/lib/shared/services/journey/multipage-component-state.service';
 
 @Pipe({ name: 'ccdCaseReference', standalone: false })
 class CaseReferenceStub implements PipeTransform {
@@ -28,6 +31,8 @@ class LinkFromReasonStub implements PipeTransform {
 
 let fixture: ReturnType<typeof TestBed.createComponent<ReadLinkedCasesFieldComponent>>;
 let navigation: unknown[][] = [];
+let backNavigationFixture: ComponentFixture<BeforeYouStartComponent> | ComponentFixture<NoLinkedCasesComponent>;
+let backNavigation: unknown[][] = [];
 
 export async function createLinkedCasesHost(failing: 'to' | 'from' | 'both') {
   TestBed.resetTestingModule();
@@ -112,4 +117,45 @@ export function readLinkedCasesState() {
 export function reloadLinkedCases() {
   (fixture.nativeElement as HTMLElement).querySelector<HTMLAnchorElement>('a.govuk-link')?.click();
   return navigation;
+}
+
+export async function createLinkedCasesBackHost(target: 'before-you-start' | 'no-linked-cases') {
+  TestBed.resetTestingModule();
+  backNavigation = [];
+  const linkedCases = {
+    caseDetails: {
+      case_id: 'CASE-123',
+      case_type: { id: 'civil', name: 'civil', description: 'Civil', jurisdiction: { id: 'family', description: 'Family' } }
+    },
+    caseId: 'CASE-123',
+    isLinkedCasesEventTrigger: false,
+    serverLinkedApiError: { id: 'linked-cases-error', message: 'Linked cases are unavailable' },
+    caseFieldValue: [] as unknown[],
+    initialCaseLinks: [] as unknown[],
+    casesToUnlink: [] as unknown[],
+    linkedCases: [] as unknown[],
+    hasContinuedFromStart: false
+  };
+
+  await TestBed.configureTestingModule({
+    imports: [CommonModule],
+    declarations: [BeforeYouStartComponent, NoLinkedCasesComponent],
+    providers: [
+      { provide: Router, useValue: { navigate: (commands: unknown[], extras: unknown) => { backNavigation.push([commands, extras]); return Promise.resolve(true); } } },
+      { provide: LinkedCasesService, useValue: linkedCases },
+      MultipageComponentStateService
+    ]
+  }).compileComponents();
+
+  if (target === 'before-you-start') {
+    backNavigationFixture = TestBed.createComponent(BeforeYouStartComponent);
+  } else {
+    backNavigationFixture = TestBed.createComponent(NoLinkedCasesComponent);
+  }
+  document.body.appendChild(backNavigationFixture.nativeElement);
+  backNavigationFixture.detectChanges();
+}
+
+export function readLinkedCasesBackNavigation() {
+  return backNavigation;
 }

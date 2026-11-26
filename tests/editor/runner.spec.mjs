@@ -297,3 +297,25 @@ test('linked-case browser shows the combined failure and retries the linked-case
     navigation: [[['cases', 'case-details', 'family', 'civil', 'CASE-123'], { fragment: 'Linked cases' }]]
   });
 });
+
+test('linked-case before-you-start error returns to the case links tab', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => globalThis.createLinkedCasesBackHost('before-you-start'));
+
+  await expect(page.getByRole('heading', { name: 'There is a problem' })).toBeVisible();
+  await page.getByRole('button', { name: 'Go back to the Linked cases tab' }).click();
+  expect(await page.evaluate(() => globalThis.readLinkedCasesBackNavigation())).toEqual([
+    [['cases', 'case-details', 'family', 'civil', 'CASE-123'], { fragment: 'Linked cases' }]
+  ]);
+});
+
+test('linked-case empty state returns to the case links tab', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => globalThis.createLinkedCasesBackHost('no-linked-cases'));
+
+  await expect(page.getByText('Linked cases are unavailable')).toBeVisible();
+  await page.getByRole('button', { name: 'Go back to the Linked cases tab' }).click();
+  expect(await page.evaluate(() => globalThis.readLinkedCasesBackNavigation())).toEqual([
+    [['cases', 'case-details', 'family', 'civil', 'CASE-123'], { fragment: 'Linked cases' }]
+  ]);
+});

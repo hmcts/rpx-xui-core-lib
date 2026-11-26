@@ -1974,6 +1974,14 @@
           {
             "projectName": "chromium",
             "title": "linked-case browser shows the combined failure and retries the linked-cases route"
+          },
+          {
+            "projectName": "chromium",
+            "title": "linked-case before-you-start error returns to the case links tab"
+          },
+          {
+            "projectName": "chromium",
+            "title": "linked-case empty state returns to the case links tab"
           }
         ]
       }
