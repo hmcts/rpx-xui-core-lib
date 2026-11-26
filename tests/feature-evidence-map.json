@@ -2120,6 +2120,16 @@
           },
           {
             "projectName": "chromium",
+            "title": "user details renders every configured permission and warning",
+            "feature": "user-details"
+          },
+          {
+            "projectName": "chromium",
+            "title": "user details shows edit and help links independently",
+            "feature": "user-details"
+          },
+          {
+            "projectName": "chromium",
             "title": "pending user hides permissions and emits a reinvite action",
             "feature": "user-details"
           },
@@ -2300,6 +2310,16 @@
           {
             "projectName": "chromium",
             "title": "invitation retains and updates a preselected permission",
+            "feature": "invitation"
+          },
+          {
+            "projectName": "chromium",
+            "title": "invitation maps case manager to the pui-case-manager role alone",
+            "feature": "invitation"
+          },
+          {
+            "projectName": "chromium",
+            "title": "invitation maps organisation manager to the pui-organisation-manager role alone",
             "feature": "invitation"
           },
           {

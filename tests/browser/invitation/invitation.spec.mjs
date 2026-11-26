@@ -53,6 +53,36 @@ test('invitation retains and updates a preselected permission', async ({ page })
   expect(data.roles['pui-user-manager']).toBe(false);
 });
 
+test('invitation maps case manager to the pui-case-manager role alone', async ({ page }) => {
+  await page.goto('/invitation');
+  await page.getByLabel('First name').fill('Synthetic');
+  await page.getByLabel('Last name').fill('User');
+  await page.getByLabel('Email address').fill('user@example.invalid');
+  await page.getByLabel('Manage Cases').check();
+  await page.getByRole('button', { name: 'Send invitation' }).click();
+  const data = JSON.parse(await page.getByTestId('submitted').innerText());
+  expect(data.roles).toEqual({
+    'pui-case-manager': true,
+    'pui-user-manager': false,
+    'pui-organisation-manager': false
+  });
+});
+
+test('invitation maps organisation manager to the pui-organisation-manager role alone', async ({ page }) => {
+  await page.goto('/invitation');
+  await page.getByLabel('First name').fill('Synthetic');
+  await page.getByLabel('Last name').fill('User');
+  await page.getByLabel('Email address').fill('user@example.invalid');
+  await page.getByLabel('Manage Organisation').check();
+  await page.getByRole('button', { name: 'Send invitation' }).click();
+  const data = JSON.parse(await page.getByTestId('submitted').innerText());
+  expect(data.roles).toEqual({
+    'pui-case-manager': false,
+    'pui-user-manager': false,
+    'pui-organisation-manager': true
+  });
+});
+
 
 test('permission error is announced by the permissions fieldset', async ({ page }) => {
   await page.goto('/invitation');

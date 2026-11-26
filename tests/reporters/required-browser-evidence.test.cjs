@@ -185,6 +185,8 @@ selected-cases|prefixed sharing forms have unique IDs and show their own errors
 selected-cases|sharing error links work with valid ID prefixes containing punctuation
 selected-cases|sharing forms distinguish the same case in each accordion
 user-details|user details shows roles and emits a suspend action
+user-details|user details renders every configured permission and warning
+user-details|user details shows edit and help links independently
 user-details|pending user hides permissions and emits a reinvite action
 user-details|user details actions work from the keyboard and pass an axe scan
 user-list|users without a route can be selected with the keyboard
@@ -207,6 +209,8 @@ invitation|invitation emits entered details and selected permissions
 invitation|invitation form supports keyboard selection and passes axe
 invitation|invalid invitation inputs expose their errors accessibly
 invitation|invitation retains and updates a preselected permission
+invitation|invitation maps case manager to the pui-case-manager role alone
+invitation|invitation maps organisation manager to the pui-organisation-manager role alone
 invitation|permission error is announced by the permissions fieldset
 invitation|permissions with an empty error never reference a missing message
 page-wrapper|page wrapper renders its translated shell and projected content

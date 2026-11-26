@@ -8,11 +8,22 @@ import { UserDetailsModule, type User } from '@hmcts/rpx-xui-core-lib/ui/user-de
   <h1>User details diagnostic</h1>
   <button type="button" (click)="pending()">Pending user</button>
   <button type="button" (click)="active()">Active user</button>
-  <xuilib-user-details [user]="user" [showSuspendUserButton]="true" (reinvite)="record('reinvite', $event)" (suspendUserEvent)="record('suspend', $event)" />
+  <button type="button" (click)="showEditLink = !showEditLink">{{showEditLink ? 'Disable' : 'Enable'}} edit link</button>
+  <button type="button" (click)="showHelpLink = !showHelpLink">{{showHelpLink ? 'Disable' : 'Enable'}} help link</button>
+  <xuilib-user-details [user]="user" [enabledAccessTypes]="enabledAccessTypes" [warningTitle]="warningTitle"
+    [editPermissionRouterLink]="editPermissionRouterLink" [showEditLink]="showEditLink" [showHelpLink]="showHelpLink"
+    [suspendHelpLink]="suspendHelpLink" [showSuspendUserButton]="true"
+    (reinvite)="record('reinvite', $event)" (suspendUserEvent)="record('suspend', $event)" />
   <output data-testid="event">{{ event }}</output>
 </main>`})
 class UserDetailsGallery {
-  user: User = { fullName: 'Synthetic User', email: 'user@example.invalid', roles: ['pui-caa'] };
+  user: User = { fullName: 'Synthetic User', email: 'user@example.invalid', manageOrganisations: 'Yes', manageUsers: 'Yes', manageCases: 'Yes', roles: ['pui-caa', 'pui-finance-manager'] };
+  readonly enabledAccessTypes = ['Hearings access'];
+  readonly warningTitle = 'Synthetic warning';
+  readonly editPermissionRouterLink = '/user-details/edit';
+  readonly suspendHelpLink = '/user-details/help';
+  showEditLink = false;
+  showHelpLink = false;
   event = '';
   pending() { this.user = { ...this.user, resendInvite: true }; }
   active() { this.user = { ...this.user, resendInvite: false }; }
