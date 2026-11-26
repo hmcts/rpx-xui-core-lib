@@ -11,7 +11,9 @@ export function safeJsonParse<T>(value: string | null, fallback: T | null = null
     return JSON.parse(value) as T;
   } catch (error) {
     // Log for diagnostics, then return fallback to avoid UI crashes.
-    logger.error('safeJsonParse failed to parse JSON.', { error });
+    logger.error('safeJsonParse failed to parse JSON.', {
+      errorName: error instanceof Error ? error.name : 'UnknownError'
+    });
     return fallback;
   }
 }

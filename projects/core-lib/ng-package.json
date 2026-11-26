@@ -8,6 +8,8 @@
     { "input": "ui/service-messages", "glob": "LICENCE", "output": "ui/service-messages" },
     { "input": "browser/user-agent", "glob": "LICENCE", "output": "browser/user-agent" },
     { "input": "ui/ccd-pagination", "glob": "LICENCE", "output": "ui/ccd-pagination" },
+    { "input": "case/logging", "glob": "LICENCE", "output": "case/logging" },
+    { "input": "case/session-guard", "glob": "LICENCE", "output": "case/session-guard" },
     { "input": "ui/case-list", "glob": "LICENCE", "output": "ui/case-list" },
     { "input": "ui/filter-state", "glob": "LICENCE", "output": "ui/filter-state" },
     { "input": "ui/find-location", "glob": "LICENCE", "output": "ui/find-location" },

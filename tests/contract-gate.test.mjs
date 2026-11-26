@@ -527,6 +527,7 @@ addedBrowserJourneys.push(
   'terms confirmation translates content and passes an accessibility scan',
 );
 packageIds.push('package.terms-confirmation-graph', 'package.editor-source-case-viewer-api-and-loading');
+packageIds.push('package.case-logging-identity', 'package.session-guard-types', 'package.session-guard-graph');
 const filterFeatureContracts = [
   { feature: "Filter state", contracts: {
     unit: [
