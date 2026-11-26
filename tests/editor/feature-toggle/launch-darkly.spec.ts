@@ -148,6 +148,8 @@ describe('LaunchDarklyService', () => {
 
     service.initialize({ anonymous: true }, 'second-client');
     expect(values.at(-1)).toBe(false);
+    expect(service.getValueSync('enabled', false)).toBe(false);
+    const enabledAfterReady = firstValueFrom(service.getValueOnce('enabled', false));
     expect(first.close).toHaveBeenCalledOnce();
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     const hadStaleListeners = staleReadyListener !== undefined && staleErrorListener !== undefined;
@@ -162,6 +164,7 @@ describe('LaunchDarklyService', () => {
     second.emit('ready');
     await Promise.resolve();
     expect(values.at(-1)).toBe(true);
+    expect(await enabledAfterReady).toBe(true);
     expect(createClient).toHaveBeenCalledTimes(2);
   });
 
