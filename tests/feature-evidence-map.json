@@ -577,6 +577,19 @@
           "unconfigured feature service fails explicitly for all operations",
           "both alias directions use one provided feature service across parent and unshadowed child",
           "child provider shadowing creates a distinct feature service"
+        ],
+        "editorUnit": [
+          "LaunchDarklyService resolves the SDK factory from the Angular injection token",
+          "LaunchDarklyService uses the current context, emits defaults then live values, and observes flag changes",
+          "LaunchDarklyService re-identifies one SDK client and ignores completion from an older identity request",
+          "LaunchDarklyService getValueOnce completes after its first ready value",
+          "LaunchDarklyService closes the old client when the client ID changes and ignores its late events",
+          "LaunchDarklyService returns the safe default when re-identification fails instead of exposing old-context flags",
+          "LaunchDarklyService fails closed when the SDK errors during identity change, even if identify later resolves",
+          "LaunchDarklyService closes its client and ignores pending identify work when destroyed"
+        ],
+        "package": [
+          "package.launch-darkly-selective-entry"
         ]
       }
     },

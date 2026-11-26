@@ -79,7 +79,7 @@ try {
   const dist = join(root, 'dist/core-lib');
   const declaration = 'forms/validation/index.d.ts';
   const filterLicenceEntries = ['ui/filter-state', 'ui/find-location', 'ui/find-service', 'ui/search-service', 'ui/capitalize', 'ui/generic-filter'];
-  const sourceLicenceEntries = [...filterLicenceEntries, 'ui/find-task-name', 'ui/find-work-type', 'ui/search-work-type', 'ui/find-person', 'ui/checkbox-list', 'ui/gov-date', 'ui/gov-select', 'ui/search-location', 'ui/search-judicials', 'ui/search-venue', 'ui/pagination', 'ui/hmcts-pagination', 'terms/display', 'terms/confirmation', 'ui/gov-input', 'case/session-error', 'case/editor-date', 'browser/window', 'browser/session-storage', 'reference/locations', 'reference/ref-data', 'terms/models', 'ui/cookie', 'ui/cookie-banner', 'ui/feature-toggle', 'ui/feature-toggle-directive', 'ui/feature-toggle-guard', 'ui/role-state', 'ui/task-data', 'case/sharing-state', 'ui/contact-details', 'ui/page-wrapper', 'ui/loading-spinner', 'ui/loading-state', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog', 'ui/banner', 'ui/form-label', 'case/models', 'case/reference', 'case/sharing', 'browser/user-agent', 'ui/ccd-pagination', 'ui/case-list', 'address/normalization', 'ui/address', 'ui/google-analytics', 'ui/google-tag-manager', 'ui/manage-session', 'ui/timeout-notifications'];
+  const sourceLicenceEntries = [...filterLicenceEntries, 'ui/find-task-name', 'ui/find-work-type', 'ui/search-work-type', 'ui/find-person', 'ui/checkbox-list', 'ui/gov-date', 'ui/gov-select', 'ui/search-location', 'ui/search-judicials', 'ui/search-venue', 'ui/pagination', 'ui/hmcts-pagination', 'terms/display', 'terms/confirmation', 'ui/gov-input', 'case/session-error', 'case/editor-date', 'browser/window', 'browser/session-storage', 'reference/locations', 'reference/ref-data', 'terms/models', 'ui/cookie', 'ui/cookie-banner', 'ui/feature-toggle', 'ui/feature-toggle-directive', 'ui/feature-toggle-guard', 'ui/role-state', 'ui/task-data', 'case/sharing-state', 'ui/contact-details', 'ui/page-wrapper', 'ui/loading-spinner', 'ui/loading-state', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog', 'ui/banner', 'ui/form-label', 'case/models', 'case/reference', 'case/sharing', 'browser/user-agent', 'ui/ccd-pagination', 'ui/case-list', 'address/normalization', 'ui/address', 'ui/google-analytics', 'ui/google-tag-manager', 'ui/manage-session', 'ui/timeout-notifications', 'ui/launch-darkly'];
 
   // Fail before dependency setup when the legacy TypeScript entry point is absent.
   await check('package.physical-secondary-declaration', async () => {
@@ -144,6 +144,20 @@ try {
     assert.deepEqual(manifest.peerDependenciesMeta['@ng-idle/core'], { optional: true });
     assert.deepEqual(manifest.peerDependenciesMeta['@ng-idle/keepalive'], { optional: true });
   });
+  await check('package.launch-darkly-selective-entry', async () => {
+    const manifest = JSON.parse(await readFile(join(dist, 'package.json'), 'utf8'));
+    const toggle = './ui/feature-toggle';
+    const launchDarkly = './ui/launch-darkly';
+    assert.ok(manifest.exports[launchDarkly]?.types && manifest.exports[launchDarkly]?.default);
+    assert.deepEqual(manifest.peerDependenciesMeta['launchdarkly-js-client-sdk'], { optional: true });
+
+    const contractGraph = await probeLoading(dist, 'fesm2022/hmcts-rpx-xui-core-lib-ui-feature-toggle.mjs', 'FeatureToggleService');
+    assert.ok(!contractGraph.externalImports.includes('launchdarkly-js-client-sdk'), `${toggle} must not load the SDK`);
+    const launchGraph = await probeLoading(dist, 'fesm2022/hmcts-rpx-xui-core-lib-ui-launch-darkly.mjs', 'LaunchDarklyService');
+    assert.ok(launchGraph.externalImports.includes('launchdarkly-js-client-sdk'), `${launchDarkly} must retain the SDK as an optional external peer`);
+    assert.equal(launchGraph.mediaViewer, false);
+    assert.equal(launchGraph.payment, false);
+  });
   await cp(dist, staged, { recursive: true });
   await writeFile(join(staged, 'yarn.lock'), '');
   const candidate = join(scratch, 'candidate.tgz');
@@ -179,7 +193,7 @@ try {
     const lock = await readFile(join(nodeConsumer, 'yarn.lock'), 'utf8');
     await run('node-only-install-immutable', [yarn, 'install', '--immutable'], nodeConsumer);
     assert.equal(await readFile(join(nodeConsumer, 'yarn.lock'), 'utf8'), lock);
-    for (const peer of ['@angular/common', '@angular/core', '@angular/forms', '@angular/material', '@angular/cdk', '@angular/platform-browser', 'rxjs', 'zone.js']) {
+    for (const peer of ['@angular/common', '@angular/core', '@angular/forms', '@angular/material', '@angular/cdk', '@angular/platform-browser', 'rxjs', 'zone.js', 'launchdarkly-js-client-sdk']) {
       await assert.rejects(stat(join(nodeConsumer, 'node_modules', peer)), { code: 'ENOENT' }, `Node consumer must not install ${peer}`);
     }
     await run('node-only-runtime', ['node-only-runtime.mjs'], nodeConsumer);
