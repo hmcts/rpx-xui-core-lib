@@ -388,6 +388,10 @@ The `@hmcts/rpx-xui-core-lib/ui/page-wrapper` entry preserves CommonLib's `exui-
 
 The rich-text editor now has real Chromium journeys for text entry and ordered-list serialization, keyboard indentation and outdentation of nested list items, and sanitizing pasted HTML before it reaches the form value. The checks assert both rendered editor state and the stored form payload. They strengthen the local Core candidate only: Word/Docmosis document variants, full source-library parity, application integration, and assistive-technology review remain open.
 
+### Rich-text editor dependency compatibility
+
+Core retains `ngx-editor` **19.0.0-beta.1** for its Angular 20 cohort. Version **19.1.1** declares `@angular/common`, `@angular/core`, `@angular/forms` and `@angular/platform-browser` peers at `>=22.0.0`, which does not match Core or the frozen Web App, Manage Organisations and Approve Org profiles at Angular 20.3.31. Approve Org's existing `19.1.1` selection with Angular 20 is recorded as an unresolved peer mismatch; it is not evidence that Core supports that combination. Revisit the editor upgrade after the host Angular cohort and package peer metadata agree, then rerun the packed compatibility matrix and rich-text browser journeys. Core's `prosemirror-schema-list` 1.6.1 selection differs from Toolkit's exact 1.5.1 pin but satisfies ngx-editor's declared `^1.5.1` dependency range; the local identity and browser checks validate the Core package graph, while application-level bundle identity remains a consumer acceptance gate.
+
 ### Case editor migration candidate: interpreter language display
 
 The local case-editor candidate changes legacy interpreter-language display when an existing pipe instance receives a different language object: Core displays the new language instead of returning an empty value. This is an intentional compatibility deviation under review, not a released or adopted feature. The case-editor package build and real application acceptance are still outstanding.
