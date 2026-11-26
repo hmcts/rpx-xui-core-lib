@@ -23,6 +23,7 @@ describe('SessionStorageGuard', () => {
     try {
       expect(guard.canActivate()).toBe(false);
       expect(router.navigate).toHaveBeenCalledWith(['/session-error']);
+      expect(consoleError.mock.calls.map(([entry]) => entry?.message)).toContain('safeJsonParse failed to parse JSON.');
       expect(JSON.stringify(consoleError.mock.calls)).not.toContain('SENTINEL');
     } finally {
       consoleError.mockRestore();

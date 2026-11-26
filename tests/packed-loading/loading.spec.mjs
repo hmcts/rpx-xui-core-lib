@@ -67,9 +67,13 @@ test('installed session guard allows a protected route when user details are val
 test('installed session guard redirects malformed user details to the lazy error page without exposing the stored value', async ({ page }) => {
   const sentinel = 'SENTINEL-PRIVATE-USER-DETAILS-9384';
   const scripts = [];
-  const consoleErrors = [];
+  const consoleErrorPayloads = [];
   page.on('request', request => { const pathname = new URL(request.url()).pathname; if (pathname.endsWith('.js')) scripts.push(pathname); });
-  page.on('console', message => { if (message.type() === 'error') consoleErrors.push(message.text()); });
+  page.on('console', message => {
+    if (message.type() === 'error') {
+      consoleErrorPayloads.push(Promise.all(message.args().map(argument => argument.jsonValue())));
+    }
+  });
   await page.goto('/');
   await page.waitForLoadState('networkidle');
   const sessionErrorFile = '/' + process.env.CORE_SESSION_CHUNK;
@@ -79,5 +83,7 @@ test('installed session guard redirects malformed user details to the lazy error
   await expect(page.getByRole('heading', { name: 'There is a problem with your session' })).toBeVisible();
   await expect(page).toHaveURL(/\/session-error$/);
   expect(scripts).toContain(sessionErrorFile);
-  expect(consoleErrors.join('\n')).not.toContain('SENTINEL');
+  const diagnostics = JSON.stringify(await Promise.all(consoleErrorPayloads));
+  expect(diagnostics).toContain('safeJsonParse failed to parse JSON.');
+  expect(diagnostics).not.toContain(sentinel);
 });
