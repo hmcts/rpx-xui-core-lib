@@ -330,7 +330,11 @@ Import the state service and models from `@hmcts/rpx-xui-core-lib/ui/filter-stat
 
 The component, service, models, pipe and MIT licences are based on CommonLib revision `880125eec3a561ba5e4938a4fed8a6077688fb0e`. The synthetic Work Allocation and Staff Admin configurations use the relevant shapes from Web App revision `02c16611cb863100701af639ddb446b88e0097f1`. The installed consumer test mounts the real widget, applies a filter, and observes the change on the service injected directly from the state entry. The split-provider comparison writes the browser setting while leaving the direct service stream unchanged.
 
-Core uses the API-provided `userDetails.filterOwnerHash` to check ownership. A matching owned local setting takes precedence over a stale session setting. Core removes unmatched or legacy local entries and restores any valid session fallback. A local write without an owner hash goes to session storage. Core strips the legacy raw `idamId` when saving.
+Core uses the consumer-provided `userDetails.filterOwnerHash` to check ownership. A matching owned local setting takes precedence over a stale session setting. Core removes a setting only when a different owner hash is known, or when a legacy record contains the raw `idamId`; it does not return an unowned record. While current identity is unavailable, Core leaves an owned local setting untouched and does not expose it. A subsequent read after the same owner becomes available can restore it. A local write without an owner hash goes to session storage. Core strips the legacy raw `idamId` when saving.
+
+A legacy filter without an owner hash and without a raw ID cannot be attributed safely, so Core keeps it in storage but does not restore it. A migration or cleanup policy for those records still needs consumer agreement.
+
+A source check of the current Web App, Manage Org and Approve Org trees found no producer for `filterOwnerHash`. Until a consumer supplies a privacy-reviewed opaque owner hash, a request for local filter persistence therefore lasts only for the browser session. Core does not substitute the raw user `id` or `uid`. Consumer teams must agree and test the owner-hash contract before relying on filters surviving a browser restart.
 
 The intentional compatibility improvements are:
 

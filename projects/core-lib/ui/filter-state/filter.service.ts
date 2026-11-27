@@ -37,12 +37,17 @@ export class FilterService {
     const localSetting = localStorage.getItem(id);
     if (localSetting) {
       const setting: FilterSetting = JSON.parse(localSetting);
-      if (this.isSameUser(setting)) {
+      const ownerHash = this.getOwnerHash();
+      if (ownerHash && setting.ownerHash === ownerHash) {
         // A legacy session entry must not override the restored local filter.
         sessionStorage.removeItem(id);
         return setting;
       }
-      localStorage.removeItem(id);
+      if ((setting as FilterSetting & { idamId?: string }).idamId
+        || (ownerHash && setting.ownerHash && setting.ownerHash !== ownerHash)) {
+        // Remove raw identifiers and settings proven to belong to another known owner.
+        localStorage.removeItem(id);
+      }
     }
     const sessionSetting = sessionStorage.getItem(id);
     if (sessionSetting) {
