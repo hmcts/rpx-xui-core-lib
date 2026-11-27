@@ -412,6 +412,9 @@ The `@hmcts/rpx-xui-core-lib/ui/page-wrapper` entry preserves CommonLib's `exui-
 
 The Core rich-text editor has Chromium journeys for text entry and ordered-list serialization, keyboard indentation and outdentation of nested list items, and sanitising pasted HTML before it reaches the form value. It also sanitizes rich-text values supplied through a parent-owned form control before Angular delivers them to the editor callback: browser coverage verifies unsafe callback markup cannot execute or persist, safe text remains editable, and the stored form value is sanitized. Ordinary typing preserves citation-like text and does not apply Word-specific date-range spacing; that spacing remains part of the paste-normalization path. The checks assert rendered editor state and the stored form payload. Word/Docmosis variants, complete source-library parity, application integration and assistive-technology review remain open.
 
+### Case editor error-summary navigation
+
+Core error-summary links use a route-relative Angular fragment. In consumer apps with `<base href="/">`, a raw `href="#fieldId"` can resolve to the application root instead of the current case route. The local Chromium journey starts from a nested route and checks that the error target, route and unsaved form value survive. Consumer-app routing and provider integration still need acceptance.
 ### Case editor activity polling
 
 Activity requests remain batched by case ID, while each rendered activity row now owns its own completion subject. Removing one row stops only the batch with no remaining rows; it cannot cancel another page's polling, and duplicate rows for one case remain independent. The migration contract covers batch teardown, same-case subscribers, timer cleanup and recovery after terminal polling errors. Consumer-side activity rendering and polling load still need integration verification.

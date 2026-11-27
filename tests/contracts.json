@@ -1915,6 +1915,10 @@
       {
         "projectName": "chromium",
         "title": "linked-case empty state returns to the case links tab"
+      },
+      {
+        "projectName": "chromium",
+        "title": "error-summary navigation keeps the editor route and unsaved form values"
       }
     ]
   },
