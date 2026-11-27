@@ -135,7 +135,6 @@ export class CaseEditSubmitComponent implements OnInit, OnDestroy {
         submit: this.caseEdit.submit,
         caseDetails: this.caseEdit.caseDetails
       });
-      this.caseFlagStateService.resetInitialCaseFlags();
     }
   }
 

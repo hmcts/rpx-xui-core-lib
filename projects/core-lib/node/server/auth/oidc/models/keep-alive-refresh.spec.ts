@@ -58,6 +58,101 @@ test('refresh without success listener continues once with new tokens', async ()
   expect(next.mock.calls).toEqual([[]])
 })
 
+test('refresh response without token rotation preserves the current refresh and ID tokens', async () => {
+  const { oidc, req } = fixture(
+    jest.fn().mockResolvedValue({ active: false }),
+    jest.fn().mockResolvedValue({ access_token: 'rotated-access' }),
+  )
+  req.session.passport.user.tokenset.idToken = 'current-id'
+  const next = jest.fn()
+
+  await oidc.keepAliveHandler(req, response, next)
+
+  expect(req.session.passport.user.tokenset).toEqual({
+    accessToken: 'rotated-access',
+    refreshToken: 'synthetic-refresh',
+    idToken: 'current-id',
+  })
+  expect(next).toHaveBeenCalledTimes(1)
+})
+
+test('invalid refresh response fails closed without replacing the current session tokens', async () => {
+  const { oidc, req } = fixture(jest.fn().mockResolvedValue({ active: false }), jest.fn().mockResolvedValue({}))
+  const originalTokens = { ...req.session.passport.user.tokenset }
+  const next = jest.fn()
+
+  await oidc.keepAliveHandler(req, response, next)
+
+  expect(req.session.passport.user.tokenset).toEqual(originalTokens)
+  expect(next).toHaveBeenCalledTimes(1)
+  expect(next.mock.calls[0][0]).toBeInstanceOf(Error)
+})
+
+test.each(['/auth/login', '/auth/logout'])(
+  'OIDC refresh failure does not intercept authentication recovery route %s', async (path) => {
+    const introspect = jest.fn().mockRejectedValue(new Error('synthetic provider failure'))
+    const { oidc, req } = fixture(introspect, jest.fn())
+    Object.assign(req, { path, baseUrl: '' })
+    const next = jest.fn()
+
+    await oidc.keepAliveHandler(req, response, next)
+
+    expect(introspect).not.toHaveBeenCalled()
+    expect(next).toHaveBeenCalledWith()
+  },
+)
+
+test.each(['/cases/login', '/cases/logout', '/login', '/logout'])(
+  'OIDC refresh still checks unrelated route %s', async (path) => {
+    const introspect = jest.fn().mockResolvedValue({ active: true, exp: Math.floor(Date.now() / 1000) + 600 })
+    const { oidc, req } = fixture(introspect, jest.fn())
+    Object.assign(req, { path, baseUrl: '' })
+    const next = jest.fn()
+
+    await oidc.keepAliveHandler(req, response, next)
+
+    expect(introspect).toHaveBeenCalledTimes(1)
+    expect(next).toHaveBeenCalledWith()
+  },
+)
+
+test('Express authentication recovery routes remain reachable when the provider refresh endpoint fails', async () => {
+  const introspect = jest.fn().mockRejectedValue(new Error('synthetic provider failure'))
+  const { oidc } = fixture(introspect, jest.fn())
+  const app = express()
+  const login = jest.fn((_req, res) => res.status(200).end('login'))
+  const logout = jest.fn((_req, res) => res.status(200).end('logout'))
+  app.use((req, _res, next) => {
+    Object.assign(req, {
+      session: { passport: { user: { tokenset: { accessToken: 'synthetic-access', refreshToken: 'synthetic-refresh' } } } },
+      isAuthenticated: () => true,
+    })
+    next()
+  })
+  app.use(oidc.keepAliveHandler)
+  app.get('/auth/login', login)
+  app.get('/auth/logout', logout)
+  app.use((_error: unknown, _req: Request, res: Response, next: import('express').NextFunction) => {
+    void next
+    return res.status(503).end()
+  })
+  const server = http.createServer(app)
+  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve))
+
+  try {
+    const origin = `http://127.0.0.1:${(server.address() as import('node:net').AddressInfo).port}`
+    const loginResponse = await fetch(`${origin}/auth/login`)
+    const logoutResponse = await fetch(`${origin}/auth/logout`)
+    expect(loginResponse.status).toBe(200)
+    expect(logoutResponse.status).toBe(200)
+    expect(login).toHaveBeenCalledTimes(1)
+    expect(logout).toHaveBeenCalledTimes(1)
+    expect(introspect).not.toHaveBeenCalled()
+  } finally {
+    await new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve()))
+  }
+})
+
 test('Express refresh failure reaches error handler and never reaches protected route', async () => {
   const error = new Error('synthetic refresh failure')
   const { oidc } = fixture(jest.fn().mockResolvedValue({ active: false }), jest.fn().mockRejectedValue(error))

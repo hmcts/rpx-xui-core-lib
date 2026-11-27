@@ -383,6 +383,45 @@ test('uploads an accepted document and writes its links into the case field', as
   await expect(page.getByRole('alert')).toBeHidden();
 });
 
+test('keeps the replacement document when uploads complete out of order', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => globalThis.createDocumentUploadHost(true));
+
+  const fileInput = page.locator('input[type="file"]');
+  await fileInput.setInputFiles({ name: 'first.pdf', mimeType: 'application/pdf', buffer: Buffer.from('first') });
+  await fileInput.setInputFiles({ name: 'replacement.pdf', mimeType: 'application/pdf', buffer: Buffer.from('replacement') });
+
+  expect(await page.evaluate(() => globalThis.readDocumentUploadState().activeUploadObservers)).toEqual([false, true]);
+  await page.evaluate(() => globalThis.resolveDocumentUpload(1, '/documents/replacement', 'replacement.pdf'));
+  await page.evaluate(() => globalThis.resolveDocumentUpload(0, '/documents/first', 'first.pdf'));
+
+  const state = await page.evaluate(() => globalThis.readDocumentUploadState());
+  expect(state.documentValue).toEqual({
+    document_url: '/documents/replacement',
+    document_binary_url: '/documents/replacement/binary',
+    document_filename: 'replacement.pdf'
+  });
+  expect(state.caseFieldValue.document_url).toBe('/documents/replacement');
+  expect(state.uploadInProgress).toBe(false);
+});
+
+test('does not apply a late upload after the selected replacement is rejected', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => globalThis.createDocumentUploadHost(true));
+
+  const fileInput = page.locator('input[type="file"]');
+  await fileInput.setInputFiles({ name: 'first.pdf', mimeType: 'application/pdf', buffer: Buffer.from('first') });
+  await fileInput.setInputFiles({ name: 'rejected.exe', mimeType: 'application/octet-stream', buffer: Buffer.from('rejected') });
+  await page.evaluate(() => globalThis.resolveDocumentUpload(0, '/documents/first', 'first.pdf'));
+
+  const state = await page.evaluate(() => globalThis.readDocumentUploadState());
+  expect(state.activeUploadObservers).toEqual([false]);
+  expect(state.uploadInProgress).toBe(false);
+  expect(state.formErrors).toEqual({ invalidFileFormat: true });
+  expect(state.documentValue).toMatchObject({ document_url: null, document_binary_url: null, document_filename: null });
+  await expect(page.getByRole('alert')).toHaveText('Document format is not supported');
+});
+
 test('linked-case browser reports an outgoing lookup failure without failing the incoming table', async ({ page }) => {
   await page.goto('/');
   await page.evaluate(() => globalThis.createLinkedCasesHost('to'));

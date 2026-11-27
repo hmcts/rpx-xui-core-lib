@@ -158,6 +158,7 @@
           "RpxTranslationService Null/Undefined handling returns an empty string for undefined yesOrNoValue without a request",
           "translation real cache recovery recovers from a rejected invalid deletion with real IndexedDB and a fresh service",
           "translation real cache recovery recovers from a rejected expired deletion with real IndexedDB and a fresh service",
+          "translation real cache recovery shows the source fallback after a transient service failure without caching it, then retries translation",
           "translation real cache recovery keeps a malformed response fallback stable then recovers after a language cycle",
           "replacePlaceholders handles literal metacharacter keys, repeated values and empty literals",
           "RpxTranslatePipe transform passes explicit literal replacements to the service",
@@ -288,7 +289,7 @@
           },
           {
             "projectName": "chromium",
-            "title": "a translation HTTP failure returns and caches the original phrase",
+            "title": "a translation HTTP failure returns the source fallback without caching and retries successfully",
             "feature": "i18n"
           },
           {
@@ -1607,9 +1608,13 @@
           "Document type migration contract recognises HTML only by the allowed MIME type or missing-MIME extension fallback",
           "Document folder predicate migration contract preserves folder recognition for empty and populated child arrays",
           "Document upload migration contract rejects disallowed file types before attempting an upload",
+          "Document upload migration contract keeps upload state active until every document field finishes",
+          "Document upload migration contract clears active field uploads when navigation is explicitly allowed",
           "Document upload migration contract updates secure document references and clears the upload state",
           "Document upload migration contract reports an unavailable upload service and clears the upload state",
           "Document upload migration contract cancels an in-flight upload and resets the file input",
+          "Document upload migration contract keeps the latest accepted upload when an earlier request completes afterwards",
+          "Document upload migration contract ignores an earlier accepted upload after the replacement file is rejected",
           "Query attachment migration contract preserves document links and filename in the CCD collection format",
           "Editor link navigation preserves the legacy no-query navigation argument",
           "Editor link navigation preserves parsed query parameters",
@@ -1623,6 +1628,14 @@
           {
             "projectName": "chromium",
             "title": "uploads an accepted document and writes its links into the case field"
+          },
+          {
+            "projectName": "chromium",
+            "title": "keeps the replacement document when uploads complete out of order"
+          },
+          {
+            "projectName": "chromium",
+            "title": "does not apply a late upload after the selected replacement is rejected"
           }
         ]
       }
@@ -1665,7 +1678,10 @@
           "Editor HTTP error handler contract uses the transport status when direct model conversion has no body status",
           "Editor alert migration contract shows the event-trigger failure message and preserves its rejection",
           "Editor error summary accessibility associates one heading for each generic or event error branch",
-          "Editor error summary accessibility associates one heading for each generic or callback viewer error branch"
+          "Editor error summary accessibility associates one heading for each generic or callback viewer error branch",
+          "Case editor submission data contract clears the case flag snapshot after a successful event response",
+          "Case editor submission data contract keeps persisted case flags available when a failed submission is retried",
+          "Case editor submission data contract clears a previous event snapshot when a new case flag journey starts"
         ]
       }
     },
@@ -1952,7 +1968,9 @@
           "Case flag writer migration contract restores matching flag statuses in root and nested details",
           "Dynamic list sanitiser migration contract preserves list definition order for nested multiselect fields",
           "Dynamic list sanitiser migration contract keeps unmatched dynamic-list strings intact",
-          "Dynamic radio list migration contract maps a code or nested value to its label and leaves unknown codes empty"
+          "Dynamic radio list migration contract maps a code or nested value to its label and leaves unknown codes empty",
+          "Case flag writer migration contract retains persisted case flags through a new flag selection and submission mapping",
+          "Case flag writer migration contract replaces only a prior unsaved flag when the writer adds another flag"
         ]
       }
     },
@@ -2809,7 +2827,15 @@
       "feature": "Node authentication strategy",
       "lane": "nodeServerUnit",
       "suiteTokens": [
-        "projects/core-lib/node/server/auth/models/strategy.class.spec.ts"
+        "projects/core-lib/node/server/auth/models/strategy.class.spec.ts",
+        "projects/core-lib/node/server/auth/models/csrf-provenance.spec.ts"
+      ]
+    },
+    {
+      "feature": "Node login handler failure completion",
+      "lane": "nodeServerUnit",
+      "suiteTokens": [
+        "projects/core-lib/node/server/auth/models/login-handler-failures.integration.spec.ts"
       ]
     },
     {

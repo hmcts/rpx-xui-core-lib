@@ -16,6 +16,7 @@ export class CaseFlagStateService {
     this.fieldStateToNavigate = undefined;
     this.pageLocation = pageLocation;
     this.lastPageFieldState = 0;
+    this.resetInitialCaseFlags();
   }
 
   public resetInitialCaseFlags(): void {

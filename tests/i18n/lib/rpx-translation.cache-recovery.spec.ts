@@ -100,6 +100,33 @@ describe('translation real cache recovery', () => {
     });
   }
 
+  it('shows the source fallback after a transient service failure without caching it, then retries translation', async () => {
+    const bulkAdd = vi.spyOn(db.translations, 'bulkAdd');
+    const service = createService();
+    const values: string[] = [];
+    service.getTranslation$('source').subscribe(value => values.push(value));
+
+    const failedRequest = await nextRequest();
+    failedRequest.flush({}, { status: 503, statusText: 'Synthetic Service Unavailable' });
+
+    expect(values.at(-1)).toBe('source');
+    expect(bulkAdd).not.toHaveBeenCalled();
+    expect(await db.translations.count()).toBe(0);
+
+    service.ngOnDestroy();
+    const recovered = createService();
+    const recoveredValues: string[] = [];
+    recovered.getTranslation$('source').subscribe(value => recoveredValues.push(value));
+    const retry = await nextRequest();
+    expect(retry.request.body).toEqual({ phrases: ['source'] });
+    retry.flush({ translations: { source: 'new Welsh translation' } });
+
+    expect(recoveredValues.at(-1)).toBe('new Welsh translation');
+    await waitFor(async () => (await db.translations.count()) === 1 ? true : undefined);
+    expect((await db.translations.toArray())[0].translation).toEqual({ translation: 'new Welsh translation' });
+    recovered.ngOnDestroy();
+  });
+
   it('keeps a malformed response fallback stable then recovers after a language cycle', async () => {
     const service = createService();
     const values: string[] = [];
