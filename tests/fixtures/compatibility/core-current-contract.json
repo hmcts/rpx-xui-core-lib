@@ -80,7 +80,15 @@
     "jest-config@npm:30.5.2/deepmerge": "npm:@shivammathur/deepmerge@4.3.2",
     "ngx-markdown@npm:20.1.0/katex": "0.19.1",
     "mermaid@npm:11.17.2/katex": "0.19.1",
-    "exceljs@npm:4.4.0/uuid": "11.1.1"
+    "exceljs@npm:4.4.0/uuid": "11.1.1",
+    "lmdb": "3.5.1",
+    "@lmdb/lmdb-darwin-arm64": "3.5.1",
+    "@lmdb/lmdb-darwin-x64": "3.5.1",
+    "@lmdb/lmdb-linux-arm": "3.5.1",
+    "@lmdb/lmdb-linux-arm64": "3.5.1",
+    "@lmdb/lmdb-linux-x64": "3.5.1",
+    "@lmdb/lmdb-win32-arm64": "3.5.1",
+    "@lmdb/lmdb-win32-x64": "3.5.1"
   },
   "overrides": {},
   "libraryPeerDependencies": {

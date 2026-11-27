@@ -560,6 +560,27 @@ test('current core cohort rejects source and lock drift independently of git HEA
   }
 });
 
+test('LMDB cache workaround stays in the Core development cohort, outside consumer manifests', () => {
+  const currentCore = fixture('core-current-contract.json');
+  const expectedLmdbResolutions = {
+    lmdb: '3.5.1',
+    '@lmdb/lmdb-darwin-arm64': '3.5.1',
+    '@lmdb/lmdb-darwin-x64': '3.5.1',
+    '@lmdb/lmdb-linux-arm': '3.5.1',
+    '@lmdb/lmdb-linux-arm64': '3.5.1',
+    '@lmdb/lmdb-linux-x64': '3.5.1',
+    '@lmdb/lmdb-win32-arm64': '3.5.1',
+    '@lmdb/lmdb-win32-x64': '3.5.1',
+  };
+  const contractLmdbResolutions = Object.fromEntries(Object.entries(currentCore.resolutions).filter(([name]) => name === 'lmdb' || name.startsWith('@lmdb/')));
+  assert.deepEqual(contractLmdbResolutions, expectedLmdbResolutions);
+
+  const library = JSON.parse(readFileSync(new URL('../projects/core-lib/package.json', import.meta.url), 'utf8'));
+  assert.equal(library.resolutions, undefined, 'The published library manifest must not force consumer dependency selections');
+  const coreHost = hostManifest(manifest, fixture('profiles.json').core);
+  assert.equal(coreHost.resolutions, undefined, 'The synthetic consumer host must not inherit repository development resolutions');
+});
+
 test('prospective concrete peer selections must satisfy the current declared range', () => {
   const current = fixture('core-current-contract.json');
   const actual = structuredClone(current);

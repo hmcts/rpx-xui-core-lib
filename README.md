@@ -32,6 +32,8 @@ node scripts/core-yarn.mjs playwright install chromium
 
 With nvm, run `nvm use` instead. Confirm Node prints `v24.22.2`. `core-yarn.mjs` follows `yarnPath` from `.yarnrc.yml`; immutable install does not change the lockfile.
 
+Angular's compiler cache uses LMDB. The workspace resolves `lmdb` and its platform binaries to 3.5.1: on macOS arm64 with Node 24.22.2, the 3.4.2 binary aborts during cache teardown before editor tests run. Keep the seven `@lmdb/*` resolutions aligned with `lmdb` when changing this workaround. It is development-tooling only and is not imported by the published Core entries.
+
 ### Run the library locally
 
 Start the package watcher and gallery:

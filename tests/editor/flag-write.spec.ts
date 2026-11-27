@@ -1,10 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
 import { FormControl, FormGroup } from '@angular/forms';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { CaseEditComponent } from '../../projects/core-lib/case/editor-source/lib/shared/components/case-editor/case-edit/case-edit.component';
+import { CaseEditSubmitComponent } from '../../projects/core-lib/case/editor-source/lib/shared/components/case-editor/case-edit-submit/case-edit-submit.component';
 import { SelectFlagTypeComponent } from '../../projects/core-lib/case/editor-source/lib/shared/components/palette/case-flag/components/select-flag-type/select-flag-type.component';
 import { CaseFlagFormFields } from '../../projects/core-lib/case/editor-source/lib/shared/components/palette/case-flag/enums';
-import { CaseEventTrigger, CaseField, CaseView } from '@hmcts/rpx-xui-core-lib/case/notifier';
+import { CaseEventTrigger, CaseField } from '@hmcts/rpx-xui-core-lib/case/notifier';
 import { CaseFlagStateService } from '../../projects/core-lib/case/editor-source/lib/shared/components/case-editor/services/case-flag-state.service';
 import { FormValueService } from '../../projects/core-lib/case/editor-source/lib/shared/services/form/form-value.service';
 import { FieldTypeSanitiser } from '../../projects/core-lib/case/editor-source/lib/shared/services/form/field-type-sanitiser';
@@ -47,7 +48,7 @@ describe('Case flag writer migration contract', () => {
     expect(fields[1].value).toEqual({ status: 'unchanged' });
   });
 
-  it('retains persisted case flags through a new flag selection and submission mapping', () => {
+  it('submits a selected new flag with persisted details and retains the snapshot for retry', () => {
     const persistedDetails = [
       { id: 'persisted-1', value: { name: 'Existing concern one', status: 'Active' } },
       { id: 'persisted-2', value: { name: 'Existing concern two', status: 'Active' } }
@@ -57,27 +58,50 @@ describe('Case flag writer migration contract', () => {
     flagsField.field_type = { id: 'Flags', type: 'Complex', complex_fields: [] } as CaseField['field_type'];
     flagsField.value = { details: structuredClone(persistedDetails) };
     flagsField.formatted_value = { details: structuredClone(persistedDetails) };
-    const writer = Object.create(WriteCaseFlagFieldComponent.prototype) as WriteCaseFlagFieldComponent;
-    writer.validateCaseFields([flagsField]);
-    expect(flagsField.value.details).toBe(flagsField.formatted_value?.details);
+    const snapshot = { data: { partyFlags: { details: structuredClone(persistedDetails) } } };
+    const caseFlagStateService = new CaseFlagStateService();
+    caseFlagStateService.initialCaseFlags = snapshot;
 
     const selectedType = { name: 'New concern', flagCode: 'NEW', isParent: false, flagComment: true };
+    const flagsLocation = {
+      pathToFlagsFormGroup: 'partyFlags',
+      flags: { details: persistedDetails },
+      caseField: flagsField
+    };
+    const selectionForm = new FormGroup({
+      [CaseFlagFormFields.FLAG_TYPE]: new FormControl(selectedType),
+      [CaseFlagFormFields.OTHER_FLAG_DESCRIPTION]: new FormControl(''),
+      flagComments: new FormControl('New concern details'),
+      selectedLocation: new FormControl(flagsLocation)
+    });
     const selectFlag = Object.assign(Object.create(SelectFlagTypeComponent.prototype), {
-      formGroup: new FormGroup({
-        [CaseFlagFormFields.FLAG_TYPE]: new FormControl(selectedType),
-        [CaseFlagFormFields.OTHER_FLAG_DESCRIPTION]: new FormControl('')
-      }),
-      selectedFlagsLocation: { caseField: flagsField },
+      formGroup: selectionForm,
+      selectedFlagsLocation: flagsLocation,
       isDisplayContextParameterExternal: false,
       errorMessages: [],
       subJourneyIndex: 0,
-      caseFlagStateEmitter: { emit: (): void => undefined },
-      flagCommentsOptionalEmitter: { emit: (): void => undefined },
-      flagTypeSubJourneyEmitter: { emit: (): void => undefined },
-      addState: (): void => undefined
+      caseFlagStateEmitter: { emit: vi.fn() },
+      flagCommentsOptionalEmitter: { emit: vi.fn() },
+      flagTypeSubJourneyEmitter: { emit: vi.fn() },
+      addState: vi.fn()
     }) as SelectFlagTypeComponent;
-
     selectFlag.onNext();
+    expect(selectFlag.errorMessages).toEqual([]);
+    expect(flagsField.value.details).toEqual(persistedDetails);
+    expect(flagsField.formatted_value.details).toEqual(persistedDetails);
+
+    const writer = Object.assign(Object.create(WriteCaseFlagFieldComponent.prototype), {
+      flagsData: [flagsLocation],
+      caseFlagParentFormGroup: selectionForm,
+      isDisplayContextParameterExternal: false,
+      isDisplayContextParameter2Point1Enabled: false,
+      rpxTranslationService: { language: 'en' }
+    }) as WriteCaseFlagFieldComponent;
+    writer.validateCaseFields([flagsField]);
+    writer.addFlagToCollection();
+    const addedFlag = flagsField.value.details.find((detail: { id?: string }) => !detail.id);
+    expect(addedFlag?.value).toMatchObject({ name: 'New concern', flagCode: 'NEW' });
+    expect(flagsField.value.details).toEqual([...persistedDetails, addedFlag]);
 
     const eventTrigger = Object.assign(new CaseEventTrigger(), {
       id: 'createFlag',
@@ -87,13 +111,21 @@ describe('Case flag writer migration contract', () => {
       wizard_pages: []
     });
     const form = new FormGroup({
-      data: new FormGroup({ partyFlags: new FormControl({ details: structuredClone(persistedDetails) }) }),
+      data: new FormGroup({
+        partyFlags: new FormControl(flagsField.value)
+      }),
       event: new FormGroup({ id: new FormControl('createFlag') })
     });
+    const firstSubmission = new Subject<object>();
+    const retrySubmission = new Subject<object>();
     const submittedPayloads: object[] = [];
-    const caseFlagStateService = new CaseFlagStateService();
+    const submit = vi.fn((payload: object) => {
+      submittedPayloads.push(payload);
+      return submittedPayloads.length === 1 ? firstSubmission : retrySubmission;
+    });
     const editor = Object.assign(Object.create(CaseEditComponent.prototype), {
       isCaseFlagSubmission: true,
+      submit,
       formValueService: new FormValueService(new FieldTypeSanitiser()),
       validPageListCaseFieldsService: {
         deleteNonValidatedFields: vi.fn(),
@@ -107,21 +139,33 @@ describe('Case flag writer migration contract', () => {
       postCompleteTaskIfRequired: () => of(true),
       finishEventCompletionLogic: vi.fn()
     }) as CaseEditComponent;
-
-    editor.submitForm({
+    const submitComponent = Object.assign(Object.create(CaseEditSubmitComponent.prototype), {
+      caseEdit: editor,
+      caseFlagStateService,
+      linkedCasesService: { resetLinkedCaseData: vi.fn() },
       eventTrigger,
-      form,
-      caseDetails: Object.assign(new CaseView(), { case_id: 'case-1' }),
-      submit: payload => {
-        submittedPayloads.push(payload);
-        return of({ id: 'case-1' });
-      }
-    });
+      editForm: form,
+      summary: { valid: true },
+      description: { valid: true }
+    }) as CaseEditSubmitComponent;
+
+    submitComponent.submit();
 
     expect(submittedPayloads).toHaveLength(1);
-    const submittedData = (submittedPayloads[0] as { data: Record<string, { details: unknown[] }> }).data;
-    expect(submittedData.partyFlags.details).toEqual(persistedDetails);
-    expect(submittedData).not.toHaveProperty('caseFlags');
+    const expectedDetails = [...persistedDetails, addedFlag];
+    const firstData = (submittedPayloads[0] as { data: Record<string, { details: unknown[] }> }).data;
+    expect(firstData.partyFlags.details).toEqual(expectedDetails);
+    firstSubmission.error(new Error('Synthetic event callback failure'));
+    expect(caseFlagStateService.initialCaseFlags).toBe(snapshot);
+
+    submitComponent.submit();
+
+    expect(submittedPayloads).toHaveLength(2);
+    const retryData = (submittedPayloads[1] as { data: Record<string, { details: unknown[] }> }).data;
+    expect(retryData.partyFlags.details).toEqual(expectedDetails);
+    retrySubmission.next({ id: 'case-1' });
+    retrySubmission.complete();
+    expect(caseFlagStateService.initialCaseFlags).toBeUndefined();
   });
 
   it('replaces only a prior unsaved flag when the writer adds another flag', () => {
