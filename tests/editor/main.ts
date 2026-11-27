@@ -2,7 +2,7 @@ import '@angular/compiler';
 import { NgModule, provideZonelessChangeDetection } from '@angular/core';
 import { getTestBed } from '@angular/core/testing';
 import { BrowserTestingModule, platformBrowserTesting } from '@angular/platform-browser/testing';
-import { createRichTextHost, readRichTextValue } from './rich-text-host';
+import { createRichTextHost, readRichTextValue, setRichTextValue } from './rich-text-host';
 import { createDatetimeToggleHost, refreshDatetimeToggleHost } from './datetime-toggle-host';
 import { createDialog } from './collection-dialog-host';
 import { createCaseFlagHost, readCaseFlagSelection, readCaseFlagState } from './case-flags-host';
@@ -20,8 +20,9 @@ getTestBed().initTestEnvironment([BrowserTestingModule, ZonelessHostTestingModul
 });
 
 Object.assign(globalThis, {
-  createRichTextHost: async () => { await createRichTextHost(); return true; },
+  createRichTextHost: async (preexistingControl?: boolean, initialValue?: string) => { await createRichTextHost(preexistingControl, initialValue); return true; },
   readRichTextValue,
+  setRichTextValue,
   createDatetimeToggleHost: async () => { await createDatetimeToggleHost(); return true; },
   refreshDatetimeToggleHost,
   createDialogCloseHost: async (index: number) => { await createDialog(index); return true; },

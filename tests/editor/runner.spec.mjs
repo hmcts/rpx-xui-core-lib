@@ -95,6 +95,42 @@ test('sanitises pasted rich text before storing it in the form', async ({ page }
   expect(errors).toEqual([]);
 });
 
+test('mid-event callback HTML does not execute or persist active markup', async ({ page }) => {
+  const blockedExternalRequests = [];
+  await page.route('**/*', route => {
+    const url = new URL(route.request().url());
+    if (url.hostname === '127.0.0.1' || url.hostname === 'localhost') {
+      return route.continue();
+    }
+    blockedExternalRequests.push(url.href);
+    return route.abort();
+  });
+  await page.addInitScript(() => { Reflect.set(window, '__xssMarker', 0); });
+  await page.goto('/');
+  await page.evaluate(() => globalThis.createRichTextHost(true, '<p>Initial safe text</p><img src="https://xui-rich-text.invalid/initial" onerror="window.__xssMarker=3">'));
+
+  const editor = page.getByRole('textbox', { name: 'Notes' });
+  await expect(editor).toContainText('Initial safe text');
+  await expect(editor.locator('a, img, svg')).toHaveCount(0);
+  await expect.poll(() => page.evaluate(() => globalThis.readRichTextValue())).toContain('Initial safe text');
+  expect(await page.evaluate(() => globalThis.readRichTextValue())).not.toMatch(/<img|onerror|javascript:/i);
+  expect(await page.evaluate(() => Reflect.get(globalThis, '__xssMarker'))).toBe(0);
+  await page.evaluate(() => globalThis.setRichTextValue(
+    '<p>Safe callback text</p><a href="javascript:window.__xssMarker=1">Safe link label</a><img src="https://xui-rich-text.invalid/pixel" onerror="window.__xssMarker=2">'
+  ));
+
+  await expect(editor).toContainText('Safe callback text');
+  await expect(editor).toContainText('Safe link label');
+  await expect(editor.locator('a, img, svg')).toHaveCount(0);
+  await expect.poll(() => page.evaluate(() => globalThis.readRichTextValue())).toContain('Safe callback text');
+  expect(await page.evaluate(() => Reflect.get(globalThis, '__xssMarker'))).toBe(0);
+  expect(blockedExternalRequests).toEqual([]);
+
+  await editor.click();
+  await page.keyboard.type(' remains editable');
+  await expect.poll(() => page.evaluate(() => globalThis.readRichTextValue())).toContain('remains editable');
+});
+
 test('closes each editor dialog using Enter and Space', async ({ page }) => {
   for (let index = 0; index < 4; index++) {
     for (const key of ['Enter', 'Space']) {

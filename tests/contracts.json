@@ -1794,6 +1794,10 @@
       },
       {
         "projectName": "chromium",
+        "title": "mid-event callback HTML does not execute or persist active markup"
+      },
+      {
+        "projectName": "chromium",
         "title": "closes each editor dialog using Enter and Space"
       },
       {

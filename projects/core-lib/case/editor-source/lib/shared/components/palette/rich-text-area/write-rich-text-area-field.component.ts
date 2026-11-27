@@ -12,7 +12,7 @@ import { Subscription } from 'rxjs';
 import { Constants } from '../../../commons/constants';
 import { CaseField } from '../../../domain/definition/case-field.model';
 import { AbstractFieldWriteComponent } from '../base-field/abstract-field-write.component';
-import { containsUnsafeRichTextMarkup, removeUnsafeRichTextElements, sanitiseRichTextDocument } from './rich-text-sanitizer';
+import { containsUnsafeRichTextMarkup, removeUnsafeRichTextElements, sanitiseRichTextDocument, sanitiseRichTextValue } from './rich-text-sanitizer';
 
 type RichTextToolbarCommand = 'undo' | 'redo' | 'bold' | 'italic' | 'underline' | 'paragraph' | 'heading' | 'indent' | 'outdent' | 'ordered_list' | 'bullet_list';
 type RichTextListStyle = '' | 'ordered_list' | 'ordered_alpha' | 'ordered_roman' | 'bullet_list';
@@ -189,7 +189,16 @@ export class WriteRichTextAreaFieldComponent extends AbstractFieldWriteComponent
         linkOnPaste: false
       }
     });
-    this.richTextAreaControl = this.registerControl(new FormControl(this.caseField.value || '')) as FormControl;
+    const existingControl = (this.parent || this.formGroup)?.get(this.caseField.id) as FormControl | null;
+    const control = existingControl || new FormControl(sanitiseRichTextValue(this.caseField.value || ''));
+    this.installRichTextValueSanitiser(control);
+    if (existingControl) {
+      const initialValue = existingControl.value === null && this.caseField.value
+        ? this.caseField.value
+        : existingControl.value;
+      control.setValue(initialValue, { emitEvent: false, emitModelToViewChange: false });
+    }
+    this.richTextAreaControl = this.registerControl(control) as FormControl;
     this.editorUpdateSubscription = this.editor.update.subscribe(() => {
       this.updateToolbarStateLater();
       this.syncAccessibilityLater();
@@ -1369,6 +1378,14 @@ export class WriteRichTextAreaFieldComponent extends AbstractFieldWriteComponent
     } finally {
       this.isNormalisingValue = false;
     }
+  }
+
+  private installRichTextValueSanitiser(control: FormControl): void {
+    const setValue = control.setValue.bind(control);
+    control.setValue = (value, options) => setValue(
+      typeof value === 'string' ? sanitiseRichTextValue(value) : value,
+      options
+    );
   }
 
   private differsOnlyByDocmosisBlankParagraphs(value: string, normalisedValue: string): boolean {

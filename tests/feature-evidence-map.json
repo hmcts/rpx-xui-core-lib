@@ -16,6 +16,10 @@
           {
             "projectName": "chromium",
             "title": "sanitises pasted rich text before storing it in the form"
+          },
+          {
+            "projectName": "chromium",
+            "title": "mid-event callback HTML does not execute or persist active markup"
           }
         ],
         "editorUnit": [
