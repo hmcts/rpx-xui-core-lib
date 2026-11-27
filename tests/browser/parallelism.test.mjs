@@ -11,8 +11,10 @@ async function loadConfig(mode) {
 
 test('browser suite keeps Playwright defaults locally and scales CI workers to available CPUs', async () => {
   const previousCI = process.env.CI;
+  const previousWorkers = process.env.PLAYWRIGHT_WORKERS;
   try {
     delete process.env.CI;
+    delete process.env.PLAYWRIGHT_WORKERS;
     const localConfig = (await loadConfig('local')).default;
     assert.equal(localConfig.workers, undefined);
 
@@ -22,6 +24,8 @@ test('browser suite keeps Playwright defaults locally and scales CI workers to a
   } finally {
     if (previousCI === undefined) delete process.env.CI;
     else process.env.CI = previousCI;
+    if (previousWorkers === undefined) delete process.env.PLAYWRIGHT_WORKERS;
+    else process.env.PLAYWRIGHT_WORKERS = previousWorkers;
   }
 });
 
@@ -31,4 +35,22 @@ test('CI worker count reserves available CPU capacity and respects its bounds', 
   assert.equal(ciWorkerCount(4), 2);
   assert.equal(ciWorkerCount(8), 6);
   assert.equal(ciWorkerCount(32), 6);
+});
+
+test('an explicit Playwright worker count is honored and invalid values fail fast', async () => {
+  const previousWorkers = process.env.PLAYWRIGHT_WORKERS;
+  const previousCI = process.env.CI;
+  try {
+    delete process.env.CI;
+    process.env.PLAYWRIGHT_WORKERS = '8';
+    assert.equal((await loadConfig('eight-workers')).default.workers, 8);
+
+    process.env.PLAYWRIGHT_WORKERS = '0';
+    await assert.rejects(loadConfig('invalid-workers'), /PLAYWRIGHT_WORKERS must be a positive integer/);
+  } finally {
+    if (previousWorkers === undefined) delete process.env.PLAYWRIGHT_WORKERS;
+    else process.env.PLAYWRIGHT_WORKERS = previousWorkers;
+    if (previousCI === undefined) delete process.env.CI;
+    else process.env.CI = previousCI;
+  }
 });

@@ -38,3 +38,40 @@ test('tabs translate labels and emit the selected index and tab on keyboard navi
   const results = await new AxeBuilder({ page }).include('main').analyze();
   expect(results.violations).toEqual([]);
 });
+
+test('identity bar translates the supplied name and disappears when the identity is cleared', async ({ page }) => {
+  const identity = page.locator('.hmcts-identity-bar');
+  await expect(identity).toHaveCount(0);
+  await page.getByRole('button', { name: 'Set identity' }).click();
+  await expect(identity).toContainText('Synthetic caseworker');
+  await page.getByRole('button', { name: 'Cymraeg' }).click();
+  await expect(identity).toContainText('Gweithiwr achos synthetig');
+  await page.getByRole('button', { name: 'Clear identity' }).click();
+  await expect(identity).toHaveCount(0);
+});
+
+test('GOV.UK table translates its labels, formats date cells once and keeps row links', async ({ page }) => {
+  const table = page.locator('xuilib-gov-uk-table table').first();
+  await expect(table).toBeVisible();
+  await expect(table).toHaveAccessibleName('Synthetic cases');
+  await expect(table.getByRole('columnheader')).toHaveText(['Case name', 'Date opened', 'View case']);
+  const row = table.getByRole('row', { name: /SYN-123/ });
+  await expect(row.getByRole('rowheader')).toHaveText('SYN-123');
+  await expect(row.getByRole('cell').nth(0)).toHaveText('02/01/2026');
+  await expect(row.getByRole('link', { name: 'Open case' })).toHaveAttribute('href', '/cases/SYN-123');
+  await expect(table.getByRole('row', { name: /SYN-124/ }).getByRole('cell').nth(0)).toHaveText('03/02/2026');
+
+  await page.getByRole('button', { name: 'Cymraeg' }).click();
+  await expect(table).toHaveAccessibleName('Achosion synthetig');
+  await expect(table.getByRole('columnheader')).toHaveText(['Enw achos', 'Dyddiad agor', 'Gweld achos']);
+  const results = await new AxeBuilder({ page }).include('main').analyze();
+  expect(results.violations).toEqual([]);
+});
+
+test('GOV.UK table preserves custom classes and renders data cells when row headers are disabled', async ({ page }) => {
+  const table = page.locator('table.core-flat-table');
+  await expect(table).toHaveAccessibleName('Synthetic flat cases');
+  const row = table.getByRole('row', { name: /SYN-222/ });
+  await expect(row.getByRole('rowheader')).toHaveCount(0);
+  await expect(row.getByRole('cell')).toHaveText(['SYN-222', '04/03/2026', 'Open case']);
+});

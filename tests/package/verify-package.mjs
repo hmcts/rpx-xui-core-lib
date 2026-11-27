@@ -743,10 +743,15 @@ try {
     };
     const letGraph = graph("import '@angular/compiler'; import { LetModule } from '@hmcts/rpx-xui-core-lib/ui/let'; console.log(LetModule);");
     const tabsGraph = graph("import '@angular/compiler'; import { TabsModule } from '@hmcts/rpx-xui-core-lib/ui/tabs'; console.log(TabsModule);");
+    const tableGraph = graph("import '@angular/compiler'; import { GovukTableModule } from '@hmcts/rpx-xui-core-lib/ui/gov-uk-table'; console.log(GovukTableModule);");
+    const identityGraph = graph("import '@angular/compiler'; import { HmctsIdentityBarModule } from '@hmcts/rpx-xui-core-lib/ui/hmcts-identity-bar'; console.log(HmctsIdentityBarModule);");
     verify(letGraph, 'let', ['ui-let']);
     verify(tabsGraph, 'tabs', ['i18n', 'ui-tabs']);
+    verify(tableGraph, 'gov-uk-table', ['i18n', 'ui-gov-uk-table']);
+    verify(identityGraph, 'hmcts-identity-bar', ['i18n', 'ui-hmcts-identity-bar']);
     assert.throws(() => verify(graph("import '@angular/compiler'; import { LetModule } from '@hmcts/rpx-xui-core-lib/ui/let'; import { TabsModule } from '@hmcts/rpx-xui-core-lib/ui/tabs'; console.log(LetModule, TabsModule);"), 'let', ['ui-let']), /Unexpected Core entries in let graph/);
-    await writeFile(join(evidence, 'commonlib-primitives-graphs.json'), JSON.stringify({ let: letGraph.metafile, tabs: tabsGraph.metafile }, null, 2));
+    assert.throws(() => verify(graph("import '@angular/compiler'; import { GovukTableModule } from '@hmcts/rpx-xui-core-lib/ui/gov-uk-table'; import { HmctsIdentityBarModule } from '@hmcts/rpx-xui-core-lib/ui/hmcts-identity-bar'; console.log(GovukTableModule, HmctsIdentityBarModule);"), 'gov-uk-table', ['i18n', 'ui-gov-uk-table']), /Unexpected Core entries in gov-uk-table graph/);
+    await writeFile(join(evidence, 'commonlib-primitives-graphs.json'), JSON.stringify({ let: letGraph.metafile, tabs: tabsGraph.metafile, govukTable: tableGraph.metafile, identityBar: identityGraph.metafile }, null, 2));
   });
 
   await cp(join(root, 'tests/package/pagination-types.ts'), join(consumer, 'pagination-types.ts'));

@@ -2,6 +2,8 @@ import type { EventEmitter } from '@angular/core';
 import type { MatTabChangeEvent } from '@angular/material/tabs';
 import type { LetContext, LetDirective } from '@hmcts/rpx-xui-core-lib/ui/let';
 import type { TabComponent, TabItem } from '@hmcts/rpx-xui-core-lib/ui/tabs';
+import type { GovukTableColumnConfig, GovukTableModule } from '@hmcts/rpx-xui-core-lib/ui/gov-uk-table';
+import type { HmctsIdentityBarModule } from '@hmcts/rpx-xui-core-lib/ui/hmcts-identity-bar';
 
 type Assert<T extends true> = T;
 type AssertFalse<T extends false> = T;
@@ -25,3 +27,12 @@ export type CommonLibTabsContract = [
   Assert<IsAssignable<TabItem, { text: string }>>,
   AssertFalse<IsAssignable<{ text: number }, TabItem>>,
 ];
+
+export type CommonLibGovukTableContract = [
+  typeof GovukTableModule,
+  GovukTableColumnConfig,
+  Assert<IsEqual<GovukTableColumnConfig['header'], string>>,
+  Assert<IsEqual<GovukTableColumnConfig['key'], string>>,
+];
+
+export type CommonLibIdentityBarContract = typeof HmctsIdentityBarModule;

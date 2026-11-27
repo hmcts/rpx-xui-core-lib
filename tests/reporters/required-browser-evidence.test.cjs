@@ -253,7 +253,10 @@ pagination|HMCTS paginator hides page controls and result count for a single-pag
 runtime-services|runtime services load their own external tags once and retain browser event contracts
 commonlib-primitives|let directive updates both template variables without recreating its view
 commonlib-primitives|let directive renders false and zero values rather than treating them as conditions
-commonlib-primitives|tabs translate labels and emit the selected index and tab on keyboard navigation`.split('\n').map(row => {
+commonlib-primitives|tabs translate labels and emit the selected index and tab on keyboard navigation
+commonlib-primitives|identity bar translates the supplied name and disappears when the identity is cleared
+commonlib-primitives|GOV.UK table translates its labels, formats date cells once and keeps row links
+commonlib-primitives|GOV.UK table preserves custom classes and renders data cells when row headers are disabled`.split('\n').map(row => {
   const [feature, title] = row.split('|');
   return ['chromium', title, feature];
 });

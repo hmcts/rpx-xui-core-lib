@@ -1,21 +1,19 @@
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from '@playwright/test';
 import { reporters } from '../reporters/config.mjs';
-import { ciWorkerCount } from './worker-count.mjs';
+import { configuredWorkerCount } from './worker-count.mjs';
 
 // Only isolated package-cohort configurations may select another CSP host.
 delete process.env.CORE_CSP_HOST_MODULE;
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
-const ciWorkers = ciWorkerCount();
-
 export default defineConfig({
   globalSetup: '../evidence-host/setup.mjs',
   outputDir: `${root}/test-results/browser`,
   testDir: '.',
   projects: [{ name: 'chromium', use: { browserName: 'chromium' } }],
   fullyParallel: true,
-  workers: process.env.CI ? ciWorkers : undefined,
+  workers: configuredWorkerCount(),
   forbidOnly: Boolean(process.env.CI),
   retries: 0,
   reporter: reporters('browser'),

@@ -481,6 +481,9 @@ addedBrowserJourneys.push(...[
   'let directive updates both template variables without recreating its view',
   'let directive renders false and zero values rather than treating them as conditions',
   'tabs translate labels and emit the selected index and tab on keyboard navigation',
+  'identity bar translates the supplied name and disappears when the identity is cleared',
+  'GOV.UK table translates its labels, formats date cells once and keeps row links',
+  'GOV.UK table preserves custom classes and renders data cells when row headers are disabled',
 ]);
 packageIds.push('package.commonlib-primitives-types', 'package.commonlib-primitives-graphs', 'package.commonlib-primitives-packed-browser');
 
