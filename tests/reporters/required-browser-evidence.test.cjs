@@ -242,7 +242,11 @@ generic-filter-accessibility|two composed service fields each have a unique inpu
 cookie-banner|cookie consent banner has a translated accessible name and a working details link
 cookie-banner|cookie details route loads directly in the cookie banner gallery
 cookie-banner|accepting analytics consent stores it for a year and enables opted-in Dynatrace after consent
-cookie-banner|rejecting analytics consent persists false and does not enable Dynatrace`.split('\n').map(row => {
+cookie-banner|rejecting analytics consent persists false and does not enable Dynatrace
+gov-controls|remaining GOV.UK controls update their reactive form values through real browser input
+gov-controls|textarea instances have unique existing hint and error targets
+gov-controls|migrated controls expose errors and remove missing error descriptions when messages clear
+gov-controls|migrated controls support form reset and have no automated accessibility violations`.split('\n').map(row => {
   const [feature, title] = row.split('|');
   return ['chromium', title, feature];
 });

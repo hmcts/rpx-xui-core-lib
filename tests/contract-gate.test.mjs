@@ -473,6 +473,9 @@ packageIds.push(...["package.task-lookups-behavior", "package.find-task-name-gra
 unitNames.push("task-name retries incompatible cached results without modifying shared cache");
 
 unitNames.push("task-name cancels an active request when its service changes");
+unitNames.push(...["radio preserves caller configuration identity and focus/class initialization", "checkbox columns and selection preserve legacy order without mutating the prior value", "textarea and file upload preserve configured hint and error descriptions", "file upload retains legacy label sizing and reload default", "radios preserves the caller-owned option model", "invitation and standalone form-group entries share their wrapper and fieldset classes", "the standalone host-removal directive preserves the existing selector"]);
+addedBrowserJourneys.push(...["remaining GOV.UK controls update their reactive form values through real browser input", "textarea instances have unique existing hint and error targets", "migrated controls expose errors and remove missing error descriptions when messages clear", "migrated controls support form reset and have no automated accessibility violations"]);
+packageIds.push(...["package.gov-controls-browser", "package.gov-controls-types", "package.gov-controls-behavior", "package.gov-controls-graphs"]);
 
 unitNames.push("task-name retries corrupt cache without writing on a failed uncached request");
 

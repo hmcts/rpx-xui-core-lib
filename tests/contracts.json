@@ -209,7 +209,14 @@
       "nested skill checkbox selection maps back to keys and keeps the selected groups",
       "skill groups sort by English alphabetic order regardless of letter case",
       "known person and task values update only declared controls and the task clear sentinel empties task fields",
-      "confirmation button emits the confirm event"
+      "confirmation button emits the confirm event",
+      "radio preserves caller configuration identity and focus/class initialization",
+      "checkbox columns and selection preserve legacy order without mutating the prior value",
+      "textarea and file upload preserve configured hint and error descriptions",
+      "file upload retains legacy label sizing and reload default",
+      "radios preserves the caller-owned option model",
+      "invitation and standalone form-group entries share their wrapper and fieldset classes",
+      "the standalone host-removal directive preserves the existing selector"
     ]
   },
   "browser": {
@@ -1234,6 +1241,26 @@
         "projectName": "chromium",
         "title": "rejecting analytics consent persists false and does not enable Dynatrace",
         "feature": "cookie-banner"
+      },
+      {
+        "projectName": "chromium",
+        "title": "remaining GOV.UK controls update their reactive form values through real browser input",
+        "feature": "gov-controls"
+      },
+      {
+        "projectName": "chromium",
+        "title": "textarea instances have unique existing hint and error targets",
+        "feature": "gov-controls"
+      },
+      {
+        "projectName": "chromium",
+        "title": "migrated controls expose errors and remove missing error descriptions when messages clear",
+        "feature": "gov-controls"
+      },
+      {
+        "projectName": "chromium",
+        "title": "migrated controls support form reset and have no automated accessibility violations",
+        "feature": "gov-controls"
       }
     ]
   },
@@ -1379,7 +1406,11 @@
       "package.filter-service-identity-fault",
       "package.cookie-banner-behavior",
       "package.cookie-banner-graph",
-      "package.editor-source-case-viewer-api-and-loading"
+      "package.editor-source-case-viewer-api-and-loading",
+      "package.gov-controls-behavior",
+      "package.gov-controls-browser",
+      "package.gov-controls-types",
+      "package.gov-controls-graphs"
     ]
   },
   "nodeUnit": {
