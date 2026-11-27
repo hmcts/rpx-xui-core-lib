@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { FormControl, FormGroup } from '@angular/forms';
 import { SelectFlagTypeComponent } from '../../projects/core-lib/case/editor-source/lib/shared/components/palette/case-flag/components/select-flag-type/select-flag-type.component';
 import { CaseFlagFormFields } from '../../projects/core-lib/case/editor-source/lib/shared/components/palette/case-flag/enums';
-import { CaseField } from '../../projects/core-lib/case/notifier/lib/shared/domain/definition/case-field.model';
+import { CaseField } from '@hmcts/rpx-xui-core-lib/case/notifier';
 import { FormValueService } from '../../projects/core-lib/case/editor-source/lib/shared/services/form/form-value.service';
 import { WriteCaseFlagFieldComponent } from '../../projects/core-lib/case/editor-source/lib/shared/components/palette/case-flag/write-case-flag-field.component';
 import { ManageCaseFlagsComponent } from '../../projects/core-lib/case/editor-source/lib/shared/components/palette/case-flag/components/manage-case-flags/manage-case-flags.component';
@@ -53,6 +53,9 @@ describe('Case flag writer migration contract', () => {
     flagsField.field_type = { id: 'Flags', type: 'Complex' } as CaseField['field_type'];
     flagsField.value = { details: structuredClone(persistedDetails) };
     flagsField.formatted_value = { details: structuredClone(persistedDetails) };
+    const writer = Object.create(WriteCaseFlagFieldComponent.prototype) as WriteCaseFlagFieldComponent;
+    writer.validateCaseFields([flagsField]);
+    expect(flagsField.value.details).toBe(flagsField.formatted_value?.details);
 
     const selectedType = { name: 'New concern', flagCode: 'NEW', isParent: false, flagComment: true };
     const selectFlag = Object.assign(Object.create(SelectFlagTypeComponent.prototype), {

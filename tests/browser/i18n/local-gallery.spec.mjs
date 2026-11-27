@@ -32,9 +32,7 @@ test('local gallery demonstrates a synthetic service failure', async ({ page }) 
   await page.getByRole('button', { name: 'Cymraeg' }).click();
   expect((await response).status()).toBe(503);
   await expect(page.getByTestId('translation')).toHaveText('Service unavailable');
-  await expect.poll(() => cachedTranslations(page)).toEqual([
-    expect.objectContaining({ phrase: 'Service unavailable', lang: 'cy', translation: { translation: 'Service unavailable' } }),
-  ]);
+  await expect.poll(() => cachedTranslations(page)).toEqual([]);
   expect(external).toEqual([]);
 });
 

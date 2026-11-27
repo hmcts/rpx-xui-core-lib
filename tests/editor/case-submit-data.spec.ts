@@ -111,6 +111,7 @@ describe('Case editor submission data contract', () => {
 
     expect(caseFlagStateService.initialCaseFlags).toBe(snapshot);
     expect(flagsField.value.details).toEqual(persistedDetails);
+    retrySubmission.complete();
   });
 
   it('clears a previous event snapshot when a new case flag journey starts', () => {

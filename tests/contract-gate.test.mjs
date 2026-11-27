@@ -211,6 +211,7 @@ const i18nNames = [
   "replacePlaceholders handles literal metacharacter keys, repeated values and empty literals",
   "RpxTranslatePipe transform passes explicit literal replacements to the service",
   "translation real cache recovery keeps literal values out of requests and real IndexedDB across language changes",
+  "translation real cache recovery shows the source fallback after a transient service failure without caching it, then retries translation",
   "RpxTranslationService public API composition keeps explicit literal replacements out of translation requests",
   "matchCase should return the second string with the same case as the first string if the first character is uppercase",
   "matchCase should return the second string in lowercase if the first character is lowercase",
@@ -295,7 +296,7 @@ const i18nNames = [
   "translation real cache recovery recovers from a rejected expired deletion with real IndexedDB and a fresh service",
   "translation real cache recovery keeps a malformed response fallback stable then recovers after a language cycle",
 ];
-const i18nJourneys = ['contact links are keyboard reachable and remain accessible through data changes', 'case reference formatting preserves links and handles drafts', 'contact details show optional fields and translate labels', 'spinner displays default, updated and translated text', 'a late Welsh response preserves English and is reused after switching back', 'locale switches reuse persisted translations across English and page reloads', 'a translation HTTP failure returns and caches the original phrase', 'a malformed Welsh response falls back without caching and retries successfully', 'local gallery translates through its own synthetic service', 'local gallery demonstrates a synthetic service failure', 'local translation endpoint validates requests'];
+const i18nJourneys = ['contact links are keyboard reachable and remain accessible through data changes', 'case reference formatting preserves links and handles drafts', 'contact details show optional fields and translate labels', 'spinner displays default, updated and translated text', 'a late Welsh response preserves English and is reused after switching back', 'locale switches reuse persisted translations across English and page reloads', 'a translation HTTP failure returns the source fallback without caching and retries successfully', 'a malformed Welsh response falls back without caching and retries successfully', 'local gallery translates through its own synthetic service', 'local gallery demonstrates a synthetic service failure', 'local translation endpoint validates requests'];
 const dueDateJourneys = [
   'due-date displays urgency, date and accessible labels at cutoff boundaries',
   'due-date updates urgency when thresholds change and high urgency wins',
