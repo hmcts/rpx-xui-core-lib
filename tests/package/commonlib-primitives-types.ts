@@ -1,21 +1,27 @@
-import { LetContext, LetDirective } from '@hmcts/rpx-xui-core-lib/ui/let';
-import { TabComponent, TabItem } from '@hmcts/rpx-xui-core-lib/ui/tabs';
+import type { EventEmitter } from '@angular/core';
+import type { MatTabChangeEvent } from '@angular/material/tabs';
+import type { LetContext, LetDirective } from '@hmcts/rpx-xui-core-lib/ui/let';
+import type { TabComponent, TabItem } from '@hmcts/rpx-xui-core-lib/ui/tabs';
 
-const context: LetContext<string> = { $implicit: 'selected', xuilibLet: 'selected' };
-const directive: typeof LetDirective<string> = LetDirective;
-const item: TabItem = { text: 'History' };
-declare const tabs: TabComponent;
+type Assert<T extends true> = T;
+type AssertFalse<T extends false> = T;
+type IsAssignable<Source, Target> = [Source] extends [Target] ? true : false;
+type IsEqual<Left, Right> =
+  (<Value>() => Value extends Left ? 1 : 2) extends (<Value>() => Value extends Right ? 1 : 2)
+    ? (<Value>() => Value extends Right ? 1 : 2) extends (<Value>() => Value extends Left ? 1 : 2)
+      ? true
+      : false
+    : false;
 
-tabs.tabChange.subscribe(event => {
-  const index: number = event.index;
-  const label: string = event.tab.textLabel;
-  void index;
-  void label;
-});
+export type CommonLibLetContract = [
+  LetContext<string>,
+  typeof LetDirective<string>,
+];
 
-// @ts-expect-error tab labels are strings in the public contract
-const invalidItem: TabItem = { text: 3 };
-void context;
-void directive;
-void item;
-void invalidItem;
+export type CommonLibTabsContract = [
+  TabComponent,
+  TabItem,
+  Assert<IsEqual<TabComponent['tabChange'], EventEmitter<MatTabChangeEvent>>>,
+  Assert<IsAssignable<TabItem, { text: string }>>,
+  AssertFalse<IsAssignable<{ text: number }, TabItem>>,
+];

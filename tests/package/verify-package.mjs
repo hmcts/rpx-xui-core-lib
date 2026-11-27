@@ -738,8 +738,8 @@ try {
     const graph = contents => buildSync({ stdin: { contents, resolveDir: consumer }, absWorkingDir: consumer, bundle: true, platform: 'browser', format: 'esm', metafile: true, write: false, logLevel: 'silent' });
     const verify = (result, entry, expected) => {
       const used = Object.values(result.metafile.outputs).flatMap(output => Object.entries(output.inputs).filter(([, value]) => value.bytesInOutput > 0).map(([path]) => path.replaceAll('\\', '/')));
-      const core = used.filter(path => path.includes('/@hmcts/rpx-xui-core-lib/')).map(path => path.split('/').at(-1)).sort();
-      assert.deepEqual(core, expected.map(name => `hmcts-rpx-xui-core-lib-${name}.mjs`).sort(), `Unexpected Core entries in ${entry} graph`);
+      const core = used.filter(path => path.includes('/@hmcts/rpx-xui-core-lib/')).map(path => path.split('/').at(-1)).sort((left, right) => left.localeCompare(right));
+      assert.deepEqual(core, expected.map(name => `hmcts-rpx-xui-core-lib-${name}.mjs`).sort((left, right) => left.localeCompare(right)), `Unexpected Core entries in ${entry} graph`);
     };
     const letGraph = graph("import '@angular/compiler'; import { LetModule } from '@hmcts/rpx-xui-core-lib/ui/let'; console.log(LetModule);");
     const tabsGraph = graph("import '@angular/compiler'; import { TabsModule } from '@hmcts/rpx-xui-core-lib/ui/tabs'; console.log(TabsModule);");

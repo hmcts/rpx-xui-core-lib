@@ -18,10 +18,9 @@ export class LetDirective<T = unknown> {
   }
 
   public static ngTemplateContextGuard<T>(
-    _directive: LetDirective<T>,
+    directive: LetDirective<T>,
     context: unknown,
   ): context is LetContext<T> {
-    void context;
-    return true;
+    return directive instanceof LetDirective && context instanceof LetContext;
   }
 }
