@@ -58,10 +58,14 @@ describe('RpxTranslationService phrase dictionary keys', () => {
         }
         expect(special.at(-1)).toBe(outcome === 'success' ? 'Cy special' : phrase);
         expect(ordinary.at(-1)).toBe(outcome === 'success' ? 'Cy normal' : 'Normal phrase');
-        expect(writes).toHaveBeenCalledWith([
-          expect.objectContaining({ phrase, lang: 'cy', translation: { translation: outcome === 'success' ? 'Cy special' : phrase } }),
-          expect.objectContaining({ phrase: 'Normal phrase', lang: 'cy', translation: { translation: outcome === 'success' ? 'Cy normal' : 'Normal phrase' } })
-        ]);
+        if (outcome === 'success') {
+          expect(writes).toHaveBeenCalledWith([
+            expect.objectContaining({ phrase, lang: 'cy', translation: { translation: 'Cy special' } }),
+            expect.objectContaining({ phrase: 'Normal phrase', lang: 'cy', translation: { translation: 'Cy normal' } })
+          ]);
+        } else {
+          expect(writes).not.toHaveBeenCalled();
+        }
       });
     }
   }
