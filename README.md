@@ -412,6 +412,15 @@ The `@hmcts/rpx-xui-core-lib/ui/page-wrapper` entry preserves CommonLib's `exui-
 
 The Core rich-text editor has Chromium journeys for text entry and ordered-list serialization, keyboard indentation and outdentation of nested list items, and sanitising pasted HTML before it reaches the form value. It also sanitizes rich-text values supplied through a parent-owned form control before Angular delivers them to the editor callback: browser coverage verifies unsafe callback markup cannot execute or persist, safe text remains editable, and the stored form value is sanitized. Ordinary typing preserves citation-like text and does not apply Word-specific date-range spacing; that spacing remains part of the paste-normalization path. The checks assert rendered editor state and the stored form payload. Word/Docmosis variants, complete source-library parity, application integration and assistive-technology review remain open.
 
+### Case editor activity polling
+
+Activity requests remain batched by case ID, while each rendered activity row now owns its own completion subject. Removing one row stops only the batch with no remaining rows; it cannot cancel another page's polling, and duplicate rows for one case remain independent. The migration contract covers batch teardown, same-case subscribers, timer cleanup and recovery after terminal polling errors. Consumer-side activity rendering and polling load still need integration verification.
+### Rich-text editor dependency compatibility
+
+Core retains `ngx-editor` **19.0.0-beta.1** for its Angular 20 cohort. Version **19.1.1** declares `@angular/common`, `@angular/core`, `@angular/forms` and `@angular/platform-browser` peers at `>=22.0.0`, which does not match Core or the frozen Web App, Manage Organisations and Approve Org profiles at Angular 20.3.31. Approve Org's existing `19.1.1` selection with Angular 20 is recorded as an unresolved peer mismatch; it is not evidence that Core supports that combination. Revisit the editor upgrade after the host Angular cohort and package peer metadata agree, then rerun the packed compatibility matrix and rich-text browser journeys.
+
+Core declares its direct ProseMirror imports (`prosemirror-commands`, `prosemirror-history`, `prosemirror-model`, `prosemirror-schema-list` and `prosemirror-state`) as optional peers. This lets the host share one ProseMirror package graph with `ngx-editor`, avoiding duplicate model classes that can break editor transactions. The accepted peer ranges are `^1.7.1`, `^1.5.0`, `^1.25.0`, `^1.5.1` and `^1.4.3`, respectively, and match the Web App and Manage Organisations lock selections inspected for this decision. Core's root development lock remains pinned for reproducible local builds; those exact versions are not published runtime dependencies. A synthetic consumer-resolution contract now verifies Core and `ngx-editor` resolve the same `prosemirror-model` path. Application packed-install and browser checks remain required before consumer adoption.
+
 ### Case editor migration status
 
 The base Toolkit case-editor migration merged in PR [#73](https://github.com/hmcts/rpx-xui-core-lib/pull/73). The interpreter-language and flag-title pipes update when their input objects change; unit and rendered-host tests cover both behaviors. The field-control replacement logic also recalculates validity after inheriting validators. These are merged Core behaviors; they do not prove application adoption or release acceptance.
@@ -469,6 +478,8 @@ Editor link navigation retains Toolkit's empty-string `queryParams` fallback whe
 The case notifier and editor use the existing Core `SessionStorageService` token rather than a second Toolkit copy. Normal one-argument reads retain Toolkit behavior. Core also supports `getItem(key, true)` to remove the item after reading; Toolkit's JavaScript implementation ignored an extra second argument, so callers relying on that unsupported usage must review the change.
 
 The case notifier reuses Core's existing `CaseDetails` and `Draft` classes. Their field and draft helper definitions match the migrated Toolkit versions; class identity is now shared across these Core entry points, which changes `instanceof` results compared with two independent copies.
+
+Query field resolution is reset for each query-writing attempt. If the current case cannot resolve an editable query field, Core clears the prior field and collection state and does not create a raise-query or response payload. This intentionally prevents a failed lookup from reusing data cached for a different case; consumer query journeys still require integration verification.
 
 The editor's pipe module reuses Core's `CaseReferencePipe` and `CaseReferenceModule`. Formatting behavior is unchanged for the tested reference and draft examples; class identity is now shared instead of duplicated.
 
