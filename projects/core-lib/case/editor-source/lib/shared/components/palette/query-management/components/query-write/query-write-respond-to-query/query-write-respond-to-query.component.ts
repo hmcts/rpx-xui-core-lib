@@ -126,14 +126,12 @@ export class QueryWriteRespondToQueryComponent implements OnInit, OnChanges {
       return false;
     }
 
-    this.queryManagementService.setCaseQueriesCollectionData(
+    return this.queryManagementService.setCaseQueriesCollectionData(
       this.eventData,
       this.queryCreateContext,
       this.caseDetails,
       this.messageId
     );
-
-    return true;
   }
 
   private generateCaseQueriesCollectionData(): QmCaseQueriesCollection {

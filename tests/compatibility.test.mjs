@@ -29,6 +29,20 @@ test('current core projection resolves a Yarn patched package without changing i
   assert.equal(projection.lockedVersions['@angular/build'], '20.3.43');
 });
 
+test('the current Core projection keeps local ProseMirror selections when the library declares peers', () => {
+  const dependencies = {
+    'prosemirror-commands': '1.7.2',
+    'prosemirror-history': '1.5.2',
+    'prosemirror-model': '1.25.13',
+    'prosemirror-schema-list': '1.6.1',
+    'prosemirror-state': '1.4.4'
+  };
+  const lock = Object.fromEntries(Object.entries(dependencies).map(([name, version]) => [`${name}@npm:${version}`, { version }]));
+  const projection = compatibility.currentCoreProjection({ devDependencies: dependencies }, { dependencies: {}, peerDependencies: {} }, {}, {}, lock, {});
+  assert.deepEqual(projection.devCohort, dependencies);
+  assert.deepEqual(projection.lockedVersions, dependencies);
+});
+
 test('source identity cannot execute a Git replacement from PATH', (t) => {
   const directory = mkdtempSync(join(tmpdir(), 'core-untrusted-git-'));
   t.after(() => rmSync(directory, { recursive: true, force: true }));
