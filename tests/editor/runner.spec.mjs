@@ -261,3 +261,100 @@ test('uploads an accepted document and writes its links into the case field', as
   });
   await expect(page.getByRole('alert')).toBeHidden();
 });
+
+test('keeps the replacement document when uploads complete out of order', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => globalThis.createDocumentUploadHost(true));
+
+  const fileInput = page.locator('input[type="file"]');
+  await fileInput.setInputFiles({ name: 'first.pdf', mimeType: 'application/pdf', buffer: Buffer.from('first') });
+  await fileInput.setInputFiles({ name: 'replacement.pdf', mimeType: 'application/pdf', buffer: Buffer.from('replacement') });
+
+  expect(await page.evaluate(() => globalThis.readDocumentUploadState().activeUploadObservers)).toEqual([false, true]);
+  await page.evaluate(() => globalThis.resolveDocumentUpload(1, '/documents/replacement', 'replacement.pdf'));
+  await page.evaluate(() => globalThis.resolveDocumentUpload(0, '/documents/first', 'first.pdf'));
+
+  const state = await page.evaluate(() => globalThis.readDocumentUploadState());
+  expect(state.documentValue).toEqual({
+    document_url: '/documents/replacement',
+    document_binary_url: '/documents/replacement/binary',
+    document_filename: 'replacement.pdf'
+  });
+  expect(state.caseFieldValue.document_url).toBe('/documents/replacement');
+  expect(state.uploadInProgress).toBe(false);
+});
+
+test('does not apply a late upload after the selected replacement is rejected', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => globalThis.createDocumentUploadHost(true));
+
+  const fileInput = page.locator('input[type="file"]');
+  await fileInput.setInputFiles({ name: 'first.pdf', mimeType: 'application/pdf', buffer: Buffer.from('first') });
+  await fileInput.setInputFiles({ name: 'rejected.exe', mimeType: 'application/octet-stream', buffer: Buffer.from('rejected') });
+  await page.evaluate(() => globalThis.resolveDocumentUpload(0, '/documents/first', 'first.pdf'));
+
+  const state = await page.evaluate(() => globalThis.readDocumentUploadState());
+  expect(state.activeUploadObservers).toEqual([false]);
+  expect(state.uploadInProgress).toBe(false);
+  expect(state.formErrors).toEqual({ invalidFileFormat: true });
+  expect(state.documentValue).toMatchObject({ document_url: null, document_binary_url: null, document_filename: null });
+  await expect(page.getByRole('alert')).toHaveText('Document format is not supported');
+});
+
+test('linked-case browser reports an outgoing lookup failure without failing the incoming table', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => globalThis.createLinkedCasesHost('to'));
+
+  const state = await page.evaluate(() => globalThis.readLinkedCasesState());
+  expect(state.toFailure).toBe(true);
+  expect(state.fromFailure).toBe(false);
+  expect(state.retryLinks).toEqual(['Reload the Linked cases tab']);
+  expect(state.fromRows).toContain('None');
+});
+
+test('linked-case browser reports an incoming lookup failure without failing the outgoing table', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => globalThis.createLinkedCasesHost('from'));
+
+  const state = await page.evaluate(() => globalThis.readLinkedCasesState());
+  expect(state.toFailure).toBe(false);
+  expect(state.fromFailure).toBe(true);
+  expect(state.retryLinks).toEqual(['Reload the Linked cases tab']);
+  expect(state.toRows).toContain('Linked case');
+});
+
+test('linked-case browser shows the combined failure and retries the linked-cases route', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => globalThis.createLinkedCasesHost('both'));
+
+  const state = await page.evaluate(() => globalThis.readLinkedCasesState());
+  expect(state.combinedFailures).toBe(2);
+  expect(state.retryLinks).toEqual(['Reload the Linked cases tab', 'Reload the Linked cases tab']);
+
+  await page.getByRole('link', { name: 'Reload the Linked cases tab' }).first().click();
+  expect(await page.evaluate(() => globalThis.readLinkedCasesState())).toMatchObject({
+    navigation: [[['cases', 'case-details', 'family', 'civil', 'CASE-123'], { fragment: 'Linked cases' }]]
+  });
+});
+
+test('linked-case before-you-start error returns to the case links tab', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => globalThis.createLinkedCasesBackHost('before-you-start'));
+
+  await expect(page.getByRole('heading', { name: 'There is a problem' })).toBeVisible();
+  await page.getByRole('button', { name: 'Go back to the Linked cases tab' }).click();
+  expect(await page.evaluate(() => globalThis.readLinkedCasesBackNavigation())).toEqual([
+    [['cases', 'case-details', 'family', 'civil', 'CASE-123'], { fragment: 'Linked cases' }]
+  ]);
+});
+
+test('linked-case empty state returns to the case links tab', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => globalThis.createLinkedCasesBackHost('no-linked-cases'));
+
+  await expect(page.getByText('Linked cases are unavailable')).toBeVisible();
+  await page.getByRole('button', { name: 'Go back to the Linked cases tab' }).click();
+  expect(await page.evaluate(() => globalThis.readLinkedCasesBackNavigation())).toEqual([
+    [['cases', 'case-details', 'family', 'civil', 'CASE-123'], { fragment: 'Linked cases' }]
+  ]);
+});

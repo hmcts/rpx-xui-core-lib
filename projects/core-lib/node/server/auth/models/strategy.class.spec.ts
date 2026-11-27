@@ -206,6 +206,49 @@ test('logout redirects with the ID token without writing it to logs', async () =
     deleteRequest.mockRestore()
 })
 
+test.each([0, 1])('logout destroys the local session when remote revocation %i fails', async (failedRevocation) => {
+    const logger = getMockLogger()
+    const strategy = new TestStrategy(logger)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- the test configures only runtime logout options.
+    ;(strategy as any).options = { clientID: 'client-id', clientSecret: 'client-secret', logoutURL: 'https://idam.test/logout' }
+    const remoteError = new Error('synthetic IdAM failure')
+    const deleteRequest = jest.spyOn(http, 'delete')
+        .mockImplementationOnce(() => failedRevocation === 0 ? Promise.reject(remoteError) : Promise.resolve({} as never))
+        .mockImplementationOnce(() => failedRevocation === 1 ? Promise.reject(remoteError) : Promise.resolve({} as never))
+    const logout = jest.fn((_options: unknown, callback: (error?: Error) => void) => callback())
+    const destroy = jest.fn((callback: (error?: Error) => void) => callback())
+    const request = {
+        session: { passport: { user: { tokenset: { accessToken: 'access-token', refreshToken: 'refresh-token' } } }, destroy },
+        logout,
+        protocol: 'https',
+        get: () => 'service.test',
+        query: { noredirect: 'true' },
+    } as unknown as Request
+    const response = { status: jest.fn(), send: jest.fn(), redirect: jest.fn() } as unknown as Response
+    jest.mocked(response.status).mockReturnValue(response)
+
+    await strategy.logout(request, response, jest.fn())
+    await new Promise<void>((resolve) => setImmediate(resolve))
+
+    expect(deleteRequest).toHaveBeenCalledTimes(2)
+    expect(deleteRequest.mock.calls.map(([, options]) => options?.timeout)).toEqual([5000, 5000])
+    expect(logout).toHaveBeenCalledTimes(1)
+    expect(destroy).toHaveBeenCalledTimes(1)
+    expect(response.status).toHaveBeenCalledWith(200)
+    expect(response.send).toHaveBeenCalledWith({ message: 'You have been logged out!' })
+    expect(JSON.stringify((logger.error as jest.Mock).mock.calls)).not.toContain(remoteError.message)
+    deleteRequest.mockRestore()
+})
+
+test('CSRF token extraction accepts request body and headers but not query or cookie values', () => {
+    const strategy = new TestStrategy(getMockLogger())
+
+    expect(strategy.getCSRFValue({ body: { _csrf: 'body-token' }, query: { _csrf: 'query-token' }, headers: {}, cookies: {} } as unknown as Request)).toBe('body-token')
+    expect(strategy.getCSRFValue({ body: {}, query: { _csrf: 'query-token' }, headers: { 'x-xsrf-token': 'header-token' }, cookies: { 'XSRF-TOKEN': 'cookie-token' } } as unknown as Request)).toBe('header-token')
+    expect(strategy.getCSRFValue({ body: {}, query: { _csrf: 'query-token' }, headers: {}, cookies: { 'XSRF-TOKEN': 'cookie-token' } } as unknown as Request)).toBe('')
+    expect(strategy.getCSRFValue({ body: {}, query: {}, headers: {} } as unknown as Request)).toBe('')
+})
+
 test('logout and access-denied callbacks log safe error names instead of raw errors', async () => {
     const logger = getMockLogger()
     const strategy = new TestStrategy(logger)
@@ -214,6 +257,7 @@ test('logout and access-denied callbacks log safe error names instead of raw err
     const request = {
         session: {
             passport: { user: { tokenset: { accessToken: 'access-token', refreshToken: 'refresh-token', idToken: 'id-token' } } },
+            destroy: (callback: (error?: Error) => void) => callback(),
         },
         logout: (_options: unknown, callback: (error?: Error) => void) => callback(error),
     } as unknown as Request

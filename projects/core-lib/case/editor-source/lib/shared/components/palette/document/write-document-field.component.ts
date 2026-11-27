@@ -21,6 +21,7 @@ import { SessionStorageService } from '../../../services/session';
   standalone: false
 })
 export class WriteDocumentFieldComponent extends AbstractFieldWriteComponent implements OnInit, OnDestroy {
+  private readonly uploadOwner = {};
   public static readonly DOCUMENT_URL = 'document_url';
   public static readonly DOCUMENT_BINARY_URL = 'document_binary_url';
   public static readonly DOCUMENT_FILENAME = 'document_filename';
@@ -109,9 +110,7 @@ export class WriteDocumentFieldComponent extends AbstractFieldWriteComponent imp
   }
 
   public ngOnDestroy(): void {
-    if (this.fileUploadSubscription) {
-      this.fileUploadSubscription.unsubscribe();
-    }
+    this.cancelPendingUpload();
     if (this.dialogSubscription) {
       this.dialogSubscription.unsubscribe();
     }
@@ -128,11 +127,7 @@ export class WriteDocumentFieldComponent extends AbstractFieldWriteComponent imp
   }
 
   public cancelUpload(): void {
-    if (this.fileUploadSubscription) {
-      this.fileUploadSubscription.unsubscribe();
-    }
-
-    this.fileUploadStateService.setUploadInProgress(false);
+    this.cancelPendingUpload();
     this.fileInput.nativeElement.value = '';
     this.resetUpload();
   }
@@ -148,6 +143,7 @@ export class WriteDocumentFieldComponent extends AbstractFieldWriteComponent imp
   // Preserve the Toolkit public contract until consumer migration.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public fileChangeEvent(fileInput: any, allowedRegex?: string): void {
+    this.cancelPendingUpload();
     let fileTypeRegex;
     if (allowedRegex) {
       fileTypeRegex = new RegExp(`(${allowedRegex.replace(/,/g, '|')})`, 'i');
@@ -158,7 +154,7 @@ export class WriteDocumentFieldComponent extends AbstractFieldWriteComponent imp
       this.selectedFile = fileInput.target.files[0];
       this.displayFileUploadMessages(WriteDocumentFieldComponent.UPLOAD_WAITING_FILE_STATUS);
       const documentUpload: FormData = this.buildDocumentUploadData(this.selectedFile);
-      this.fileUploadStateService.setUploadInProgress(true);
+      this.fileUploadStateService.beginUpload(this.uploadOwner);
 
       this.fileUploadSubscription = this.documentManagement.uploadFile(documentUpload).subscribe({
         next: (resultDocument: DocumentData) => this.handleDocumentUploadResult(resultDocument),
@@ -215,6 +211,14 @@ export class WriteDocumentFieldComponent extends AbstractFieldWriteComponent imp
     } else {
       this.valid = true;
     }
+  }
+
+  private cancelPendingUpload(): void {
+    if (this.fileUploadSubscription) {
+      this.fileUploadSubscription.unsubscribe();
+      this.fileUploadSubscription = undefined;
+    }
+    this.fileUploadStateService.endUpload(this.uploadOwner);
   }
 
   private openDialog(dialogConfig: MatDialogConfig): void {
@@ -395,7 +399,7 @@ export class WriteDocumentFieldComponent extends AbstractFieldWriteComponent imp
     }
 
     this.valid = true;
-    this.fileUploadStateService.setUploadInProgress(false);
+    this.fileUploadStateService.endUpload(this.uploadOwner);
 
     // refresh replaced document info
     if (this.caseField.value) {
@@ -412,6 +416,6 @@ export class WriteDocumentFieldComponent extends AbstractFieldWriteComponent imp
   private handleDocumentUploadError(error: HttpError): void {
     this.fileUploadMessages = this.getErrorMessage(error);
     this.valid = false;
-    this.fileUploadStateService.setUploadInProgress(false);
+    this.fileUploadStateService.endUpload(this.uploadOwner);
   }
 }

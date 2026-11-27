@@ -20,7 +20,7 @@ test('rendered filter rows show verified counts and the consumer adoption gate',
     'Filter state': { unit: 15, package: 2 },
     'Filter renderers': { unit: 8, browser: 6, package: 3 },
     'Capitalize pipe': { unit: 1, package: 1 },
-    'Generic Filter': { unit: 12, browser: 3, package: 3 },
+    'Generic Filter': { unit: 12, browser: 5, package: 3 },
     'Generic Filter accessibility': { browser: 2 },
   };
   for (const [name, counts] of Object.entries(expected)) {
@@ -58,14 +58,14 @@ test('rendered lookup report exposes inherited accessibility and cache limitatio
 });
 
 test('all migrated Node server cases have named feature groups', () => {
-  assert.equal(inventory.nodeServerUnit.required.length, 157);
-  assert.equal(mapping.suiteGroups.filter(group => group.lane === 'nodeServerUnit').length, 8);
+  assert.equal(inventory.nodeServerUnit.required.length, 177);
+  assert.equal(mapping.suiteGroups.filter(group => group.lane === 'nodeServerUnit').length, 9);
   const html = renderMatrix('verified', mapping, {}, inventory);
-  for (const feature of ['Node logger namespaces', 'Node HTTP session middleware', 'Node content security policy', 'Node authentication strategy', 'Node OIDC authentication', 'Node token refresh integration',
+  for (const feature of ['Node logger namespaces', 'Node HTTP session middleware', 'Node content security policy', 'Node authentication strategy', 'Node login handler failure completion', 'Node OIDC authentication', 'Node token refresh integration',
     'Node OAuth2 authentication', 'Node service authentication', 'Node application middleware', 'Node file sessions', 'Node Redis sessions']) {
     assert.ok(html.includes(feature));
   }
   assert.match(html, /<th scope="col">nodeServerUnit<\/th>/);
-  assert.match(html, /54 required cases passed/);
+  assert.match(html, /56 required cases passed/);
   assert.match(html, /21 required cases passed/);
 });

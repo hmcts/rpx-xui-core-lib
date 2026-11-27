@@ -211,6 +211,7 @@ const i18nNames = [
   "replacePlaceholders handles literal metacharacter keys, repeated values and empty literals",
   "RpxTranslatePipe transform passes explicit literal replacements to the service",
   "translation real cache recovery keeps literal values out of requests and real IndexedDB across language changes",
+  "translation real cache recovery shows the source fallback after a transient service failure without caching it, then retries translation",
   "RpxTranslationService public API composition keeps explicit literal replacements out of translation requests",
   "matchCase should return the second string with the same case as the first string if the first character is uppercase",
   "matchCase should return the second string in lowercase if the first character is lowercase",
@@ -295,7 +296,7 @@ const i18nNames = [
   "translation real cache recovery recovers from a rejected expired deletion with real IndexedDB and a fresh service",
   "translation real cache recovery keeps a malformed response fallback stable then recovers after a language cycle",
 ];
-const i18nJourneys = ['contact links are keyboard reachable and remain accessible through data changes', 'case reference formatting preserves links and handles drafts', 'contact details show optional fields and translate labels', 'spinner displays default, updated and translated text', 'a late Welsh response preserves English and is reused after switching back', 'locale switches reuse persisted translations across English and page reloads', 'a translation HTTP failure returns and caches the original phrase', 'a malformed Welsh response falls back without caching and retries successfully', 'local gallery translates through its own synthetic service', 'local gallery demonstrates a synthetic service failure', 'local translation endpoint validates requests'];
+const i18nJourneys = ['contact links are keyboard reachable and remain accessible through data changes', 'case reference formatting preserves links and handles drafts', 'contact details show optional fields and translate labels', 'spinner displays default, updated and translated text', 'a late Welsh response preserves English and is reused after switching back', 'locale switches reuse persisted translations across English and page reloads', 'a translation HTTP failure returns the source fallback without caching and retries successfully', 'a malformed Welsh response falls back without caching and retries successfully', 'local gallery translates through its own synthetic service', 'local gallery demonstrates a synthetic service failure', 'local translation endpoint validates requests'];
 const dueDateJourneys = [
   'due-date displays urgency, date and accessible labels at cutoff boundaries',
   'due-date updates urgency when thresholds change and high urgency wins',
@@ -483,6 +484,7 @@ unitNames.push(...["task-name preserves null event and selected task object cont
 unitNames.push(...["task-name uses the cached result for an unaffected service after incompatible data", "task-name setting the same service preserves an active lookup", "uncached task-name request uses the same endpoint and leaves storage untouched"]);
 
 packageIds.push('package.node-only-peer-install', 'package.angular-20_3_31-cohort-build', 'package.strict-node-node-types', 'package.strict-node-server-types', 'package.strict-node-auth-types', 'package.strict-node-session-types');
+packageIds.push('package.express-5_3_0-peer');
 addedBrowserJourneys.push(
   'CSP enforcement runs nonce scripts and styles while blocking unapproved inline code',
   'CSP report-only emits its header and allows the identical unapproved script to execute',
@@ -552,8 +554,8 @@ const filterFeatureContracts = [
       "a mismatched local owner is removed and the session setting survives",
       "cached local settings become unavailable when the owner changes",
       "a second user can save their own filter after rejecting the first owner",
-      "local restore removes settings with a legacy raw ID or no ownership metadata",
-      "an owned local selection is removed if no current owner is available",
+      "local restore removes raw-ID records but keeps unowned filters unavailable",
+      "an owned local selection survives an unavailable owner and restores once identity arrives",
       "local writes fall back to session without a supplied owner hash",
       "session writes remove colliding local data and survive only during that session",
       "streams replay restored state, publish changes per ID and emit null on clear",
@@ -619,6 +621,8 @@ const filterFeatureContracts = [
       "Work Allocation composes scalar service, booking location, person, task and work-type fields",
       "Work Allocation checkbox service lookup omits services_all and disabling clears all selected locations",
       "invalid Apply exposes template errors and Reset rebinds edits to the active form",
+      "a local filter survives unavailable identity and restores after the same owner returns",
+      "a local filter is not exposed to another known owner",
     ],
     package: [
       "package.generic-filter-graph",
