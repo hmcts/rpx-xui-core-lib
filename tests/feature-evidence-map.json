@@ -2783,6 +2783,14 @@
       }
     },
     {
+      "feature": "Google Analytics queue contract",
+      "contracts": {
+        "unit": [
+          "Google Analytics shim queues Arguments objects for initialization, events and navigation"
+        ]
+      }
+    },
+    {
       "feature": "Cookie consent banner",
       "contracts": {
         "cookieBannerUnit": [

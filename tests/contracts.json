@@ -2,6 +2,7 @@
   "unit": {
     "report": "test-results/validation.tap",
     "required": [
+      "Google Analytics shim queues Arguments objects for initialization, events and navigation",
       "a single public message can display before roles load, but multiple messages require a role match",
       "future and invalid dates are not displayed and invalid dates produce a warning",
       "refresh replaces the previous feature stream",

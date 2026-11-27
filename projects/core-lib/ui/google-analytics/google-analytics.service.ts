@@ -36,7 +36,8 @@ export class GoogleAnalyticsService {
     if (!this.initialized) {
       const dataLayer = this.analyticsWindow.dataLayer ??= [];
       if (typeof this.analyticsWindow.gtag !== 'function') {
-        this.analyticsWindow.gtag = (...args: unknown[]) => dataLayer.push(args);
+        // eslint-disable-next-line prefer-rest-params -- Preserve CommonLib's Arguments-object queue contract.
+        this.analyticsWindow.gtag = function (): void { dataLayer.push(arguments); };
       }
 
       this.analyticsWindow.gtag('js', new Date());
