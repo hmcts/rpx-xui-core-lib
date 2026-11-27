@@ -1892,6 +1892,30 @@
       },
       {
         "projectName": "chromium",
+        "title": "mid-event callback HTML does not execute or persist active markup"
+      },
+      {
+        "projectName": "chromium",
+        "title": "does not stack the rich-text sanitizer when a parent control is reused"
+      },
+      {
+        "projectName": "chromium",
+        "title": "preserves legal citations when entered as ordinary text"
+      },
+      {
+        "projectName": "chromium",
+        "title": "does not apply Word date-range spacing to text typed into the editor"
+      },
+      {
+        "projectName": "chromium",
+        "title": "keeps the caret before formatted text when a typed date range becomes complete"
+      },
+      {
+        "projectName": "chromium",
+        "title": "keeps Word date-range spacing when the formatted content is pasted"
+      },
+      {
+        "projectName": "chromium",
         "title": "closes each editor dialog using Enter and Space"
       },
       {
@@ -2205,6 +2229,9 @@
       "Query list migration contract sorts text and dates in both directions",
       "Query list migration contract preserves Toolkit staff markers only on new staff queries",
       "Query list migration contract preserves the absent staff marker on query responses",
+      "Query-management case-isolation contract clears prior-case state and reports failure when the new field cannot be resolved",
+      "Query-management case-isolation contract does not emit a case-A payload when a new case cannot resolve its query field",
+      "Query-management case-isolation contract does not emit a case-A payload when a response message cannot be resolved for the new case",
       "Complex table migration contract sorts numeric rows in both directions without losing row data",
       "Document tree migration contract flattens a leaf and nested folders even when children are absent",
       "Document tree migration contract sorts document children recursively and retains document counts",

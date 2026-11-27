@@ -133,12 +133,15 @@ export class QueryManagementService {
     queryCreateContext: QueryCreateContext,
     caseDetails: CaseView,
     messageId?: string
-  ): void {
+  ): boolean {
+    this.fieldId = '';
+    this.caseQueriesCollections = [];
+
     const resolvedFieldId = this.resolveFieldId(eventData, queryCreateContext, caseDetails, messageId);
 
     if (!resolvedFieldId) {
       this.logger.error('Failed to resolve fieldId for CaseQueriesCollection. Cannot proceed.');
-      return;
+      return false;
     }
 
     this.fieldId = resolvedFieldId;
@@ -152,6 +155,8 @@ export class QueryManagementService {
       }
       return acc;
     }, []);
+
+    return true;
   }
 
   private resolveFieldId(

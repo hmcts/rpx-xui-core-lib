@@ -412,7 +412,7 @@ The `@hmcts/rpx-xui-core-lib/ui/page-wrapper` entry preserves CommonLib's `exui-
 
 ### Rich-text editor migration coverage
 
-The Core rich-text editor has Chromium journeys for text entry and ordered-list serialization, keyboard indentation and outdentation of nested list items, and sanitising pasted HTML before it reaches the form value. The checks assert both rendered editor state and the stored form payload. Word/Docmosis variants, complete source-library parity, application integration and assistive-technology review remain open.
+The Core rich-text editor has Chromium journeys for text entry and ordered-list serialization, keyboard indentation and outdentation of nested list items, and sanitising pasted HTML before it reaches the form value. It also sanitizes rich-text values supplied through a parent-owned form control before Angular delivers them to the editor callback: browser coverage verifies unsafe callback markup cannot execute or persist, safe text remains editable, and the stored form value is sanitized. Ordinary typing preserves citation-like text and does not apply Word-specific date-range spacing; that spacing remains part of the paste-normalization path. The checks assert rendered editor state and the stored form payload. Word/Docmosis variants, complete source-library parity, application integration and assistive-technology review remain open.
 
 ### Case editor migration status
 
@@ -471,6 +471,8 @@ Editor link navigation retains Toolkit's empty-string `queryParams` fallback whe
 The case notifier and editor use the existing Core `SessionStorageService` token rather than a second Toolkit copy. Normal one-argument reads retain Toolkit behavior. Core also supports `getItem(key, true)` to remove the item after reading; Toolkit's JavaScript implementation ignored an extra second argument, so callers relying on that unsupported usage must review the change.
 
 The case notifier reuses Core's existing `CaseDetails` and `Draft` classes. Their field and draft helper definitions match the migrated Toolkit versions; class identity is now shared across these Core entry points, which changes `instanceof` results compared with two independent copies.
+
+Query field resolution is reset for each query-writing attempt. If the current case cannot resolve an editable query field, Core clears the prior field and collection state and does not create a raise-query or response payload. This intentionally prevents a failed lookup from reusing data cached for a different case; consumer query journeys still require integration verification.
 
 The editor's pipe module reuses Core's `CaseReferencePipe` and `CaseReferenceModule`. Formatting behavior is unchanged for the tested reference and draft examples; class identity is now shared instead of duplicated.
 
