@@ -246,7 +246,7 @@ export class RpxTranslationService implements OnDestroy {
             return { phrase: p, data: value ?? fallback(p), cache: value !== undefined };
           });
         }),
-        catchError(() => of(phrases.map((p) => ({ phrase: p, data: fallback(p), cache: true })))),
+        catchError(() => of(phrases.map((p) => ({ phrase: p, data: fallback(p), cache: false })))),
         take(1),
         finalize(() => phrases.forEach((p) => inFlight.delete(p)))
       ).subscribe((translations) => {

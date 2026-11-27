@@ -54,7 +54,7 @@ validation|validation invalid-submit exposes accessible roles and passes axe
 validation|validation valid exposes accessible roles and passes axe
 validation|validation axe detects the label rule when a checkbox label is removed
 i18n|locale switches reuse persisted translations across English and page reloads
-i18n|a translation HTTP failure returns and caches the original phrase
+i18n|a translation HTTP failure returns the source fallback without caching and retries successfully
 i18n|a malformed Welsh response falls back without caching and retries successfully
 i18n|a late Welsh response preserves English and is reused after switching back
 i18n|local gallery translates through its own synthetic service
@@ -235,6 +235,8 @@ filter-renderers|single location selection keeps its committed text on submissio
 generic-filter|Work Allocation composes scalar service, booking location, person, task and work-type fields
 generic-filter|Work Allocation checkbox service lookup omits services_all and disabling clears all selected locations
 generic-filter|invalid Apply exposes template errors and Reset rebinds edits to the active form
+generic-filter|a local filter survives unavailable identity and restores after the same owner returns
+generic-filter|a local filter is not exposed to another known owner
 generic-filter-accessibility|Staff Admin titles its combobox, filters skills, and persists venue records from option-object services
 generic-filter-accessibility|two composed service fields each have a unique input and a label that focuses only that input
 cookie-banner|cookie consent banner has a translated accessible name and a working details link
