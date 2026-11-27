@@ -31,11 +31,11 @@ The successful probe resolved these additional packages:
 | ngx-editor | 19.0.0-beta.1 |
 | ngx-markdown | 20.1.0 |
 | ngx-pagination | 6.0.3 |
-| prosemirror-commands | 1.7.2 |
-| prosemirror-history | 1.5.2 |
-| prosemirror-model | 1.25.13 |
-| prosemirror-schema-list | 1.5.1 |
-| prosemirror-state | 1.4.4 |
+| prosemirror-commands | `^1.7.1` optional peer; local root lock selects 1.7.2 |
+| prosemirror-history | `^1.5.0` optional peer; local root lock selects 1.5.2 |
+| prosemirror-model | `^1.25.0` optional peer; local root lock selects 1.25.13 |
+| prosemirror-schema-list | `^1.5.1` optional peer; local root lock selects 1.6.1 |
+| prosemirror-state | `^1.4.3` optional peer; local root lock selects 1.4.4 |
 | underscore | 1.13.8 |
 | uuid | 11.1.1 |
 
@@ -68,7 +68,7 @@ The cached lockfiles for the revisions above contain the following versions. Mul
 | ngx-editor | 19.0.0-beta.1 | 19.0.0-beta.1 | 19.1.1 | 19.0.0-beta.1 |
 | marked | 7.0.3, 16.4.2, 18.1.0 | 16.4.2, 18.1.3 | 18.0.7 | 16.4.2, 18.0.14 |
 
-Toolkit's direct `marked@^18.0.5` lock entry resolves to 18.1.0; the diagnostic overlay resolved 16.4.2. The editor candidate directly imports `@edium/fsm`, `@hmcts/media-viewer`, `lodash`, `prosemirror-state` and `uuid` from production source. `@angular/platform-browser-dynamic/testing` was observed in copied spec files, so that import alone does not establish a production dependency. This is a partial ownership classification; the complete package graph, peer contracts and actual consumer resolution remain to be verified.
+Toolkit's direct `marked@^18.0.5` lock entry resolves to 18.1.0; the diagnostic overlay resolved 16.4.2. The editor candidate directly imports `@edium/fsm`, `@hmcts/media-viewer`, `lodash`, the ProseMirror packages and `uuid` from production source. The ProseMirror imports are optional package peers so the consumer and `ngx-editor` share package identity; the versions in the root lock are local test selections. `@angular/platform-browser-dynamic/testing` was observed in copied spec files, so that import alone does not establish a production dependency. This is a partial ownership classification; the complete package graph, peer contracts and actual consumer resolution remain to be verified.
 
 ## Test-build gap
 

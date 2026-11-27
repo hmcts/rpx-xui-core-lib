@@ -12,14 +12,20 @@ interface PollingOptions {
   exponentialUnit?: number;
 }
 
+interface ActivityBatch {
+  requests: Map<string, Set<Subject<Activity>>>;
+  activeSubjects: Set<Subject<Activity>>;
+  subscription?: Subscription;
+}
+
 // @dynamic
 @Injectable()
 export class ActivityPollingService {
   private readonly logger = new StructuredLoggerService();
 
-  private readonly pendingRequests = new Map<string, Subject<Activity>>();
+  private readonly pendingRequests = new Map<string, Set<Subject<Activity>>>();
   private currentTimeoutHandle: ReturnType<typeof setTimeout> | undefined;
-  private pollActivitiesSubscription: Subscription | undefined;
+  private readonly activeBatches = new Set<ActivityBatch>();
   private readonly pollConfig: PollingOptions;
   private readonly batchCollectionDelayMs: number;
   private readonly maxRequestsPerBatch: number;
@@ -42,26 +48,10 @@ export class ActivityPollingService {
       return new Subject<Activity>();
     }
 
-    let subject = this.pendingRequests.get(caseId);
-    if (subject) {
-      subject.subscribe(done);
-    } else {
-      // Only the first pending request should start the batch collection timer.
-      const wasEmpty = this.pendingRequests.size === 0;
-      subject = new Subject<Activity>();
-      subject.subscribe(done);
-      this.addPendingRequest(caseId, subject);
-
-      if (wasEmpty) {
-        this.ngZone.runOutsideAngular(() => {
-          this.currentTimeoutHandle = setTimeout(
-            () => this.ngZone.run(() => {
-              this.flushRequests();
-            }),
-            this.batchCollectionDelayMs);
-        });
-      }
-    }
+    const subject = new Subject<Activity>();
+    // The row has no error UI; the service logs terminal polling failures below.
+    subject.subscribe({ next: done, error: () => undefined });
+    this.addPendingRequest(caseId, subject);
 
     if (this.pendingRequests.size >= this.maxRequestsPerBatch) {
       this.flushRequests();
@@ -70,9 +60,7 @@ export class ActivityPollingService {
   }
 
   public stopPolling(): void {
-    if (this.pollActivitiesSubscription) {
-      this.pollActivitiesSubscription.unsubscribe();
-    }
+    Array.from(this.activeBatches).forEach(batch => this.stopBatch(batch));
   }
 
   public flushRequests(): void {
@@ -85,7 +73,7 @@ export class ActivityPollingService {
       return;
     }
 
-    const requests = new Map(this.pendingRequests);
+    const requests = new Map(Array.from(this.pendingRequests, ([caseId, subjects]) => [caseId, new Set(subjects)]));
     this.pendingRequests.clear();
     this.performBatchRequest(requests);
   }
@@ -106,23 +94,35 @@ export class ActivityPollingService {
     return this.postActivity(caseId, ActivityService.ACTIVITY_EDIT);
   }
 
-  protected performBatchRequest(requests: Map<string, Subject<Activity>>): void {
+  protected performBatchRequest(requests: Map<string, Set<Subject<Activity>>>): void {
     const caseIds = Array.from(requests.keys()).join();
+    const batch: ActivityBatch = {
+      requests,
+      activeSubjects: new Set(Array.from(requests.values()).flatMap(subjects => Array.from(subjects)))
+    };
+    this.activeBatches.add(batch);
     this.ngZone.runOutsideAngular( () => {
       // run polling outside angular zone so it does not trigger change detection
-      this.pollActivitiesSubscription = this.pollActivities(caseIds).subscribe({
+      batch.subscription = this.pollActivities(caseIds).subscribe({
         // process activity inside zone so it triggers change detection for activity.component.ts
         next: (activities: Activity[]) => this.ngZone.run(() => {
           activities.forEach((activity) => {
             // Ignore activities returned for cases outside this local batch.
-            requests.get(activity.caseId)?.next(activity);
+            requests.get(activity.caseId)?.forEach(subject => {
+              if (batch.activeSubjects.has(subject)) {
+                subject.next(activity);
+              }
+            });
           });
         }),
         error: (err) => this.ngZone.run(() => {
           this.logger.error('Error while polling activities.', { error: err });
-          Array.from(requests.values()).forEach((subject) => subject.error(err));
+          Array.from(batch.activeSubjects).forEach(subject => subject.error(err));
         })
       });
+      if (!batch.activeSubjects.size) {
+        this.stopBatch(batch);
+      }
     });
   }
 
@@ -140,26 +140,53 @@ export class ActivityPollingService {
   }
 
   private addPendingRequest(caseId: string, subject: Subject<Activity>): void {
-    this.pendingRequests.set(caseId, subject);
+    const wasEmpty = this.pendingRequests.size === 0;
+    let subjects = this.pendingRequests.get(caseId);
+    if (!subjects) {
+      subjects = new Set<Subject<Activity>>();
+      this.pendingRequests.set(caseId, subjects);
+    }
+    subjects.add(subject);
 
-    // Components complete their returned Subject on destroy; remove it so a later same-case subscription gets a fresh Subject.
+    // Each component owns its Subject, even when several rows show the same case.
     subject.subscribe({
       complete: () => this.removePendingRequest(caseId, subject),
       error: () => this.removePendingRequest(caseId, subject)
     });
+
+    if (wasEmpty) {
+      this.ngZone.runOutsideAngular(() => {
+        this.currentTimeoutHandle = setTimeout(
+          () => this.ngZone.run(() => {
+            this.flushRequests();
+          }),
+          this.batchCollectionDelayMs);
+      });
+    }
   }
 
   private removePendingRequest(caseId: string, subject: Subject<Activity>): void {
-    if (this.pendingRequests.get(caseId) !== subject) {
-      return;
+    const subjects = this.pendingRequests.get(caseId);
+    if (subjects?.delete(subject) && !subjects.size) {
+      this.pendingRequests.delete(caseId);
     }
-
-    this.pendingRequests.delete(caseId);
 
     if (!this.pendingRequests.size && this.currentTimeoutHandle) {
       clearTimeout(this.currentTimeoutHandle);
       this.currentTimeoutHandle = undefined;
     }
+
+    this.activeBatches.forEach(batch => {
+      batch.activeSubjects.delete(subject);
+      if (!batch.activeSubjects.size) {
+        this.stopBatch(batch);
+      }
+    });
+  }
+
+  private stopBatch(batch: ActivityBatch): void {
+    batch.subscription?.unsubscribe();
+    this.activeBatches.delete(batch);
   }
 
   private polling<T>(request$: Observable<T>, options: PollingOptions): Observable<T> {
