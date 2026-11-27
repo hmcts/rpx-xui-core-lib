@@ -1584,9 +1584,13 @@
           "Document type migration contract recognises HTML only by the allowed MIME type or missing-MIME extension fallback",
           "Document folder predicate migration contract preserves folder recognition for empty and populated child arrays",
           "Document upload migration contract rejects disallowed file types before attempting an upload",
+          "Document upload migration contract keeps upload state active until every document field finishes",
+          "Document upload migration contract clears active field uploads when navigation is explicitly allowed",
           "Document upload migration contract updates secure document references and clears the upload state",
           "Document upload migration contract reports an unavailable upload service and clears the upload state",
           "Document upload migration contract cancels an in-flight upload and resets the file input",
+          "Document upload migration contract keeps the latest accepted upload when an earlier request completes afterwards",
+          "Document upload migration contract ignores an earlier accepted upload after the replacement file is rejected",
           "Query attachment migration contract preserves document links and filename in the CCD collection format",
           "Editor link navigation preserves the legacy no-query navigation argument",
           "Editor link navigation preserves parsed query parameters",
@@ -1600,6 +1604,14 @@
           {
             "projectName": "chromium",
             "title": "uploads an accepted document and writes its links into the case field"
+          },
+          {
+            "projectName": "chromium",
+            "title": "keeps the replacement document when uploads complete out of order"
+          },
+          {
+            "projectName": "chromium",
+            "title": "does not apply a late upload after the selected replacement is rejected"
           }
         ]
       }
