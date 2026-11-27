@@ -39,6 +39,9 @@
       ],
       "@hmcts/rpx-xui-core-lib/browser/user-agent": [
         "../../projects/core-lib/browser/user-agent/public-api.ts"
+      ],
+      "@hmcts/rpx-xui-core-lib/ui/feature-toggle": [
+        "../../projects/core-lib/ui/feature-toggle/public-api.ts"
       ]
     },
     "outDir": "../../test-results/i18n-compiled"

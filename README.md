@@ -19,47 +19,61 @@ The `/ui/accessibility` entry provides the original CommonLib accessibility stat
 
 ## Develop locally
 
-The Jest development dependency graph pins `glob@14.0.6` and `minimatch@11.0.8` for their affected parents. Only `jest-config` resolves `deepmerge` to the MIT-licensed [`@shivammathur/deepmerge@4.3.2`](https://github.com/shivammathur/deepmerge/commit/9e04a97afa90b9d50883dd723f7d0fb0d2c16dca) fork: the original package has no patched release for GHSA-gcqx-w48m-w2h4. Its published code adds prototype-key guards; the tooling tests check normal configuration merging and the affected boundary. The exact version and lock checksum pin this additional maintainer dependency. It is development tooling only and is absent from the published library runtime. Revisit the scoped alias when the original project publishes an accepted fix; do not remove the regression checks or suppress the advisory.
-
-For agent-assisted local startup, checks and failure diagnosis, ask your repository-aware agent to read [the core local test skill](.agents/skills/core-local-test/SKILL.md). It uses the same repository commands and reports; it does not replace human review or remote CI. For example: “Use `core-local-test` to run the full local gate for this checkout, inspect the feature report and explain any failures.” The agent checks prerequisites and preserves evidence before running; it reports local results and limits rather than claiming release readiness.
-
-Select Node **24.22.2** from `.nvmrc`. With asdf, run `core_node_path=$(asdf where nodejs "$(cat .nvmrc)") && export PATH="$core_node_path/bin:$PATH"`. With nvm, run `nvm use`. Confirm that `node --version` prints `v24.22.2` before continuing. The checked-in `scripts/core-yarn.mjs` launcher follows `yarnPath` from `.yarnrc.yml` and runs that exact release with the selected Node runtime.
+Use Node **24.22.2** from `.nvmrc` and the checked-in Yarn release. With asdf:
 
 ```sh
+core_node_path=$(asdf where nodejs "$(cat .nvmrc)")
+export PATH="$core_node_path/bin:$PATH"
 node --version
 node scripts/core-yarn.mjs --version
 node scripts/core-yarn.mjs install --immutable
 node scripts/core-yarn.mjs playwright install chromium
-node scripts/core-yarn.mjs test:all
+```
+
+With nvm, run `nvm use` instead. Confirm Node prints `v24.22.2`. `core-yarn.mjs` follows `yarnPath` from `.yarnrc.yml`; immutable install does not change the lockfile.
+
+### Run the library locally
+
+Start the package watcher and gallery:
+
+```sh
 node scripts/core-yarn.mjs start
 ```
 
-`test:all` resets generated reports, builds the package, runs lint and type checks, runs the report-gate regression tests, validator and native Node contracts, verifies the installed tarball, builds the gallery, runs the complete local browser suite, then compares executed outcomes with the independent inventory in `tests/contracts.json` and opens both generated Odhín report lanes in Chromium at mobile and desktop widths. The required CI `build` job runs this same fail-fast command. The shared browser suite uses at most six workers in CI, choosing two fewer than detected CPU availability with a one-worker floor; local runs retain Playwright's host-based default. The cache-upgrade and editor browser lanes remain single-worker. Missing reports, filtered-out required tests, skipped scenarios and failures cannot satisfy the contract gate. Reports are `test-results/validation.tap`, `test-results/node.tap`, `test-results/package.json`, `test-results/browser.json`, `test-results/browser-junit.xml` and `playwright-report/index.html`; browser artifacts stay below `test-results/browser/` so browser cleanup cannot remove earlier unit/package reports.
+Wait for `Validation diagnostic build ready` and `http://127.0.0.1:4307`. The watcher builds Core before serving the gallery, then rebuilds after source, template or style edits. Use the gallery's synthetic examples to exercise the built package. Stop the process with Ctrl+C. Stop the gallery before browser suites that use port 4307.
 
-`start` lets the official library watcher complete its initial build before serving the private gallery at [localhost:4307](http://127.0.0.1:4307). Source/template/style edits rebuild, compilation errors appear in the terminal, and corrected source resumes compilation. Stop with Ctrl+C. The gallery and direct tests use the built package's public `@hmcts/rpx-xui-core-lib/forms/validation` import through an explicit local development link, without source aliases. The gallery excludes that linked package from prebundling so library edits reach the browser. Avoid placing this checkout below an unrelated Yarn Plug'n'Play workspace, whose ancestor manifest can override esbuild resolution.
+### Verify changes locally
 
-Open the [translation gallery](http://127.0.0.1:4307/translation) to try Welsh translation and the service-failure scenario. Its development server returns fictional local responses; it does not contact a translation service. The standalone browser checks use those responses without intercepting requests. This local endpoint is not included in the library package or production gallery build.
+Run the full gate before sharing a change:
 
-For individual checks, run `yarn build` before `yarn lint`, `yarn test`, `yarn test:package` or `yarn build:host`. Local checks require macOS or Linux with `/usr/bin/git` and Python 3. Lint covers ESLint, library TypeScript, strict validation-source and gallery/template checking and JavaScript scripts/config/tests. Pure validator cases use native `node:test` against real Angular FormGroups; no custom Angular runner bridge is involved. Browser coverage uses native Chromium keyboard interactions and real form values, validity and submitted errors, with retries disabled.
+```sh
+node scripts/core-yarn.mjs test:all
+```
 
-The migrated Toolkit case viewer is exported from `@hmcts/rpx-xui-core-lib/case/editor-source` alongside the case editor because its current `CaseViewerModule` statically depends on `CaseEditorModule` and the broad palette. A Node 24.22.2 package probe measured 2,574,840 minified bytes (704,155 gzip) for `CaseEditorModule` and 2,574,840 bytes (704,162 gzip) for `CaseViewerModule`, with Media Viewer and payment imports externalized. This is retained Core bundle evidence, not a complete consumer bundle or transfer-size claim. The viewer is therefore a documented coupled capability today; a smaller viewer chunk requires a separately tested palette/rendering boundary and consumer-bundle measurements before it can be claimed.
+This builds and lints Core, runs the component and Node contracts, checks the packed package, runs the browser suites and compares reports with the required test inventory. It includes editor tests against source and a freshly packed artifact. The CI `build` job uses the same gate. The full run deletes previous `test-results/` and uses shared local ports; preserve reports you need and do not run another browser suite in the same checkout at the same time.
 
-The case-viewer browser contracts cover standard access from resolved route data, challenged access, and the notifier fallback when route data is absent. The challenged-access journey renders Core's real basic-access view and checks its access guidance, case-details heading, request and cancel controls, and challenged-request target. The full-access journey renders Core's real full-access component and Material tabs, then verifies the migrated tab and field in a synthetic host. Peripheral CCD widgets and unrelated providers remain test doubles; the notifier journey confirms the full-access branch appears only after case details arrive. These checks do not replace real resolver/service, access-request submission, event-trigger, print or consumer integration journeys.
+Review `test-results/odhin/browser/index.html`, `test-results/odhin/cache-upgrade/index.html`, `test-results/editor/features.html`, `test-results/editor-packed/features.html` and `test-results/lane-provenance/run.json`. Feature rows count required test outcomes; they are not code-coverage percentages or proof of consumer adoption. A local pass is repository evidence, not CI, release or application acceptance. Local Playwright uses its host default worker count; CI caps shared browser runs at six workers. For an explicit eight-worker editor browser run:
 
-`test:package` packs the actual built output, hashes the tarball, installs it into a fresh external consumer and checks the public import under strict legacy `moduleResolution: node` and modern `bundler` with library checks enabled. It executes the real validator on installed bytes, proves an omitted secondary declaration fails legacy resolution and verifies restoration. This narrow package proof does not establish the complete future dependency manifest or actual application adoption.
+```sh
+node scripts/core-yarn.mjs playwright test -c tests/editor/playwright.config.mjs --workers 8
+```
 
-The local editor dependency cohort pins KaTeX **0.18.2** only for ngx-markdown **20.1.0** and Mermaid **11.17.2**, and UUID **11.1.1** only for ExcelJS **4.4.0**. These scoped overrides address GHSA-238p-pmpm-9mq7 and GHSA-w5hq-g745-h8pq. Parent-contract checks exercise math rendering, auto-render imports, extended conditional-formatting IDs and XLSX write/readback. These pins exceed the parents' declared ranges; they prove the tested local cohort, not upstream support or independent consumer graphs. Mermaid's exported core uses external KaTeX, while its alternative prebundled distributions retain embedded older KaTeX and are not covered by the override. Core source does not directly import Mermaid.
+For a focused editor investigation, run `node scripts/core-yarn.mjs test:editor`; the full gate also runs `test:editor:loading` and `test:editor:packed`. The loading check inspects built entry-point graphs; the packed check runs unit and browser contracts against the tarball in an isolated consumer workspace.
 
-The vulnerability gate runs `yarn npm audit --all --recursive --no-deprecations --json` across all workspaces, dependencies and severities. Yarn's official `--no-deprecations` switch separates vulnerability advisories from package-maintenance notices; no advisories, packages or severities are excluded. CI separately retains the complete raw audit and its exit code in `dependency-maintenance.jsonl` and `dependency-maintenance.exit-code`. A deprecation-only raw audit can exit `1` even when the vulnerability gate passes. Deprecated Angular animation/bootstrap APIs and the external archive stack remain maintenance work; this change does not retire those APIs or certify consumers.
+For agent-assisted setup, testing and failure diagnosis, ask your repository-aware agent to read [the core local test skill](.agents/skills/core-local-test/SKILL.md). For example: “Use `core-local-test` to run the full local gate for this checkout, inspect the feature report and explain any failures.” It uses these repository commands and keeps local evidence separate from remote and consumer acceptance.
+
+The gallery serves the public `@hmcts/rpx-xui-core-lib/forms/validation` entry through a local development link, without source aliases. It excludes that package from prebundling so edits reach the browser. Avoid placing this checkout below an unrelated Yarn Plug'n'Play workspace, whose ancestor manifest can override esbuild resolution.
+
+Open the [translation gallery](http://127.0.0.1:4307/translation) to try Welsh text and a local service-failure scenario. The gallery returns fictional local responses and does not contact a translation service. The route is not part of the production library.
+
+Local checks require macOS or Linux with `/usr/bin/git` and Python 3. Lint covers ESLint, library TypeScript, strict validation-source and gallery/template checking, and JavaScript scripts/config/tests.
 
 ## Replaying contract evidence
 
-`check:contracts` validates native Node TAP and complete Vitest browser receipts, rejecting missing, failed, skipped, duplicate, unexpected-console and global-error outcomes, verifies the actual `test-results/package-evidence/candidate.tgz` digest, and checks each required lane's receipt against its report bytes and run identity. CI retains `GITHUB_SHA`, `GITHUB_RUN_ID` and `GITHUB_RUN_ATTEMPT`; a local full run uses the current commit, a newly generated UUID as its run ID, and attempt `1`. Each full run also has a distinct invocation UUID. Keep the local diff with any dirty-tree evidence.
-
-For downloaded evidence, use the complete replay argument set, taking the expected values from the trusted workflow run rather than its report:
+Replay a preserved evidence directory with its recorded source and CI run identity:
 
 ```sh
-yarn check:contracts --report-root /path/to/extracted-evidence --source-sha <tested-commit> --run-id <workflow-run-id> --attempt <run-attempt>
+node scripts/core-yarn.mjs check:contracts --report-root /path/to/extracted-evidence --source-sha <tested-commit> --run-id <workflow-run-id> --attempt <run-attempt>
 ```
 
 Missing, partial or mismatched identity, lane receipts, report bytes or candidate bytes fail the gate. Preserve `test-results/` intact, including the candidate, native reports and lane receipts; `test:all` deletes prior reports. Historical receipts without lane provenance require their matching historical gate; there is no fallback to unbound receipts. The source snapshot covers tracked and nonignored working-tree files at the recorded checks, not ignored files or installed dependencies, and cannot detect a transient edit restored between checks. The self-asserted digests and identifiers correlate evidence but do not authenticate its producer or run; verify workflow and artifact provenance separately.
@@ -184,6 +198,8 @@ Broader supported Angular cohorts and the complete future manifest remain design
 ## Dependency and release assurance
 
 The separate CI `dependency-audit` job uses the checked-in Yarn release to audit the full locked runtime and development graph. CI explicitly enables Yarn hardened mode for both jobs. The audit job installs with dependency build scripts disabled, retains `dependency-audit.jsonl`, and fails on reported findings or scanner errors. Reproduce it with `yarn npm audit --all --recursive --json`. Triage named advisories separately from deprecation notices; an empty GitHub alert list does not replace this check. Unresolved results remain visible until fixed or explicitly assessed by the security owner; do not add blanket ignores or force incompatible transitive majors.
+
+The Jest development dependency graph pins `glob@14.0.6` and `minimatch@11.0.8` for their affected parents. Only `jest-config` resolves `deepmerge` to the MIT-licensed [`@shivammathur/deepmerge@4.3.2`](https://github.com/shivammathur/deepmerge/commit/9e04a97afa90b9d50883dd723f7d0fb0d2c16dca) fork: the original package has no patched release for GHSA-gcqx-w48m-w2h4. Its published code adds prototype-key guards; the tooling tests check normal configuration merging and the affected boundary. The exact version and lock checksum pin this additional maintainer dependency. It is development tooling only and is absent from the published library runtime. Revisit the scoped alias when the original project publishes an accepted fix; do not remove the regression checks or suppress the advisory.
 
 ESLint 10.14.0 and typescript-eslint 8.72.2 support the pinned Node 24 and TypeScript 5.9 cohort. Seven version-specific parent resolutions select real upstream minimatch 11.0.8 and glob 14.0.6 releases for ESLint, its config-array matcher, the TypeScript parser project service, npm package preparation, its content-addressable cache, ignore-file traversal and TUF delegation matching. The parents still request older vulnerable majors; these replacements are limited to their verified matching/traversal APIs, with no consumer peer override. `yarn test:tooling-security` checks actual parent resolution, file discovery and rule detection, typed-project matching, package preparation, bounded pattern expansion and cancellation. See the [glob advisory](https://github.com/advisories/GHSA-3g3m-2fjr-6pw4), [minimatch advisory](https://github.com/advisories/GHSA-g3hv-75wg-m249), [glob changes](https://github.com/isaacs/node-glob/blob/v14.0.6/changelog.md) and [minimatch changes](https://github.com/isaacs/minimatch/blob/v11.0.8/changelog.md). Preserve registry age gates and hardened installation; retire each resolution when its parent natively supports the fixed dependency. These contract checks do not replace the full locked-graph audit. The exact `minimatch@11.0.8` and `glob@14.0.6` descriptors are preapproved for security fixes; Yarn's default age gate remains active for every other package version.
 
@@ -394,27 +410,21 @@ The `@hmcts/rpx-xui-core-lib/ui/page-wrapper` entry preserves CommonLib's `exui-
 
 ### Rich-text editor migration coverage
 
-The rich-text editor now has real Chromium journeys for text entry and ordered-list serialization, keyboard indentation and outdentation of nested list items, and sanitizing pasted HTML before it reaches the form value. The checks assert both rendered editor state and the stored form payload. They strengthen the local Core candidate only: Word/Docmosis document variants, full source-library parity, application integration, and assistive-technology review remain open.
+The Core rich-text editor has Chromium journeys for text entry and ordered-list serialization, keyboard indentation and outdentation of nested list items, and sanitising pasted HTML before it reaches the form value. The checks assert both rendered editor state and the stored form payload. Word/Docmosis variants, complete source-library parity, application integration and assistive-technology review remain open.
 
-### Case editor migration candidate: interpreter language display
+### Case editor migration status
 
-The local case-editor candidate changes legacy interpreter-language display when an existing pipe instance receives a different language object: Core displays the new language instead of returning an empty value. This is an intentional compatibility deviation under review, not a released or adopted feature. The case-editor package build and real application acceptance are still outstanding.
+The base Toolkit case-editor migration merged in PR [#73](https://github.com/hmcts/rpx-xui-core-lib/pull/73). The interpreter-language and flag-title pipes update when their input objects change; unit and rendered-host tests cover both behaviors. The field-control replacement logic also recalculates validity after inheriting validators. These are merged Core behaviors; they do not prove application adoption or release acceptance.
 
-The same local candidate corrects flag-title display when an existing title pipe receives a different flag; previously it could display an undefined title. This change requires the same review, rendered journey and release gates.
+The open PR [#114](https://github.com/hmcts/rpx-xui-core-lib/pull/114) adds case-flag lifecycle fixes: a new flag remains selectable when no persisted detail exists, submission preserves existing `partyFlags.details` while excluding the `FlagLauncher`, failed submission retains the original snapshot for retry, and successful completion clears it. Unit contracts exercise the real selector-to-`CaseEditComponent.submitForm()` payload mapping. The Chromium host currently mounts only `ManageCaseFlagsComponent` with synthetic data; it does not exercise the production writer, full flag wizard, CYA navigation or application provider wiring. A complete browser journey through those real components remains a concrete test gap.
 
-The local case-editor candidate recalculates a replacement form control after inheriting its validator. An empty replacement that violates an existing required validator is now invalid immediately; the legacy code could leave the control and parent valid until later validation. This intentional behaviour change is unmerged and requires broader form-journey and application acceptance.
+The migrated editor uses the datetime-picker package's own toggle because its current picker does not satisfy the legacy Material toggle's Angular type contract. Package compilation and Chromium checks cover keyboard opening and date selection; consumer verification remains required.
 
-The local case-editor candidate also avoids failing when a newly added case flag has no matching persisted detail. The flag remains selectable and has no persisted original status. The legacy path could throw before displaying it; this change remains unmerged and requires full case-flag journey and consumer acceptance.
+The editor retains Toolkit's payment input values with narrow template type escapes where the payment package declares different types. In particular, changing `SERVICEREQUEST` from boolean `false` to the string `'false'` changes a truthiness-based branch. These types do not establish compatibility with each consumer's payment version or host integration.
 
-Local Chromium contracts now exercise the migrated case-flag management component for that state and for continuing without a selection. The tests use a synthetic Angular host and verify the selected flag state and validation message; they do not cover case-flag persistence, the complete wizard journey, or application provider wiring.
+Complex-field templates retain the Toolkit `formGroup` binding with a narrow type escape because the inherited input admits `AbstractControl` while Angular's directive declares `FormGroup`. Compilation does not validate arbitrary runtime controls; consumer input shapes and nested rendering still need integration checks.
 
-The local editor candidate uses the datetime-picker package's own toggle with its picker. This replaces the legacy Material toggle because the current picker is not compatible with that toggle's Angular type contract. Package compilation accepts the binding, and local Chromium checks cover opening it by keyboard and selecting a date; real consumer verification remains required before adoption.
-
-The local editor candidate retains the toolkit's existing payment input values using narrowly scoped Angular template casts because the payment package declares different types. In particular, changing `SERVICEREQUEST` from boolean `false` to the string `'false'` changes a truthiness-based branch in the dependency. These casts do not establish payment compatibility: the declared consumer dependency version, real payment flow, and host integration remain acceptance gates.
-
-The local editor candidate retains the existing complex-field `formGroup` binding using a template type escape because the inherited input admits `AbstractControl` while Angular's form directive declares `FormGroup`. A passing package build does not validate arbitrary controls at runtime; the supported host inputs and nested complex-field rendering still require integration checks.
-
-The unmerged editor candidate separates `CaseNotifier` into `@hmcts/rpx-xui-core-lib/case/notifier`, while preserving its editor entry-point export. A local bundle probe excludes payment and Media Viewer for notifier-only imports. Run `yarn test:editor` for the editor browser contracts and `yarn test:editor:loading` after a package build to check selective imports, and `yarn test:editor:packed` to rebuild and run the browser contracts against the packed build in a temporary workspace. The packed check reuses the local dependency installation and writes its report to `test-results/editor-packed`. The candidate has passed these checks using its declared dependencies; packed-consumer and peer-compatibility validation remain outstanding. See `tests/editor/DEPENDENCIES.md` for evidence and outstanding acceptance gates.
+PR [#104](https://github.com/hmcts/rpx-xui-core-lib/pull/104) added the selective `case/notifier` entry while preserving the editor re-export. Its graph checks exclude payment and Media Viewer from notifier-only imports. `test:editor`, `test:editor:loading` and `test:editor:packed` exercise browser behavior, package graphs and the packed build; real consumer adoption and peer compatibility remain separate gates. See [editor compatibility evidence](tests/editor/DEPENDENCIES.md).
 
 The aggregate feature matrix requires the five editor Playwright drivers as well as the Vitest browser scenarios, with separately bound native reports. `test-results/editor/features.html` describes Vitest browser scenarios only; driver results are in `driver.json` and `driver-junit.xml`. These show required test outcomes, not a code-coverage percentage or complete consumer acceptance.
 
@@ -436,6 +446,8 @@ Event-trigger, case-history, print and event-completion error paths use the aler
 
 The document tree now treats an absent `children` array as an empty list when flattening a node. Toolkit threw for that case; nested traversal order is unchanged. This behavior change is covered locally and requires consumer review.
 
+The document field cancels its pending request when a replacement file is selected, before the new file is validated or uploaded. A slow earlier response can no longer overwrite the latest accepted file or restore a file after an invalid replacement. Upload state is tracked per document field, so cancelling one field does not hide another field's active upload; the existing guard's explicit navigation override still clears the shared state. These paths have unit and Chromium coverage with controlled, out-of-order responses. The checks prove client-side field state only. They do not establish server-side cleanup if an upload completed before cancellation.
+
 Wizard redirects still resolve the route immediately. Failed wizard, review-page and confirmation navigation promises now reach Angular's `ErrorHandler` with the original error; confirmation navigation failure does not resubmit an accepted event. Host error handlers may log error details; consumers should review their logging policy.
 
 Field-read initialization remains deferred, but no longer starts after the field has been destroyed. Initialization errors now reach Angular's `ErrorHandler` as the original error rather than an unhandled promise rejection. A host's error handler may log error details, so consumers should review its logging policy.
@@ -448,7 +460,7 @@ Each collection item is now a separately labelled fieldset instead of sharing an
 
 Editor dialog close controls are now labelled buttons instead of clickable headings. Consumers using the former heading selector should update it; the controls retain their cancel result.
 
-The confirmed Core design uses an empty `FormGroup` for the unmerged case-confirmation component, where Toolkit used a `FormControl` for its public `formGroup` property. Angular's strict template compiler rejects the old control when bound to `[formGroup]`; the candidate's rendered submission is covered locally. The property type change is an intentional compatibility deviation requiring consumer review before adoption.
+The migrated case-confirmation component uses an empty `FormGroup`, where Toolkit used a `FormControl` for its public `formGroup` property. Angular's strict template compiler rejects the old control at `[formGroup]`; rendered submission is covered locally. This public type and behavior difference is intentional and still requires consumer review before adoption.
 
 The event-history API retains Toolkit's string-typed emitter and selected-event properties. Its template uses a localized Angular type escape because the source event model permits numeric IDs; the runtime value is forwarded unchanged. Consumers must not infer runtime string normalization from the legacy TypeScript annotation.
 
