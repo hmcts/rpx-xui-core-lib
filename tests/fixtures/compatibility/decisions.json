@@ -29,9 +29,9 @@
   },
   {
     "id": "editor",
-    "selection": "19.0.0-beta.1",
-    "conflict": "AO selects19.1.1",
-    "required_proof": "Actual AO import/declaration census plus removal/alignment or API compatibility proof",
+    "selection": "19.0.0-beta.1 retained for Core's Angular20 cohort",
+    "conflict": "ngx-editor19.1.1 declares Angular common/core/forms/platform-browser >=22.0.0 while frozen Core and consumer profiles use Angular20.3.31; Approve Org's 19.1.1 pairing is an existing out-of-range peer mismatch",
+    "required_proof": "Align the consumer and Core Angular cohort with ngx-editor's declared peer requirements, or use an upstream-compatible editor release; rerun packed compatibility and real rich-text browser checks",
     "status": "blocked"
   },
   {
