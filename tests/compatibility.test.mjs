@@ -625,3 +625,9 @@ test('matrix CLI rejects unknown or duplicate artifact options before executing 
     assert.doesNotMatch(result.stdout, /Checking core:/);
   }
 });
+
+test('Core viewer peer accepts only the two artifact-verified patch versions', () => {
+  const library = JSON.parse(readFileSync(new URL('../projects/core-lib/package.json', import.meta.url), 'utf8'));
+  assert.equal(library.peerDependencies['@hmcts/media-viewer'], '4.2.48 || 4.2.49');
+  assert.equal(library.peerDependenciesMeta['@hmcts/media-viewer'].optional, true);
+});
