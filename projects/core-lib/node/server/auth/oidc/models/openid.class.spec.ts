@@ -1,5 +1,6 @@
 
 
+import { createServer } from 'node:http'
 import { oidc, OpenID } from './openid.class'
 import passport from 'passport'
 import express, { NextFunction, Request, response, Response, Router } from 'express'
@@ -516,6 +517,72 @@ test('OIDC initialiseStrategy', async () => {
     expect(spyUseStrategy).toHaveBeenCalled()
 })
 
+test('OIDC discovery recovers from one transient provider failure with its bounded retry', async () => {
+    let attempts = 0
+    const server = createServer((request, response) => {
+        attempts += 1
+        if (attempts === 1) {
+            response.statusCode = 503
+            response.end(JSON.stringify({ error: 'temporarily_unavailable' }))
+            return
+        }
+
+        const issuer = `http://${request.headers.host}`
+        response.setHeader('content-type', 'application/json')
+        response.end(JSON.stringify({
+            issuer,
+            authorization_endpoint: `${issuer}/authorize`,
+            token_endpoint: `${issuer}/token`,
+            jwks_uri: `${issuer}/jwks`,
+            response_types_supported: ['code'],
+            subject_types_supported: ['public'],
+            id_token_signing_alg_values_supported: ['RS256'],
+        }))
+    })
+    await new Promise<void>((resolve, reject) => {
+        server.once('error', reject)
+        server.listen(0, '127.0.0.1', resolve)
+    })
+
+    try {
+        const address = server.address()
+        if (!address || typeof address === 'string') throw new Error('OIDC test server did not bind a TCP port')
+        const logger = createMock<XuiLogger>()
+        const openId = new OpenID(Router({ mergeParams: true }), logger)
+        const useStrategy = jest.spyOn(openId, 'useStrategy')
+        const authOptions = {
+            ...options,
+            discoveryEndpoint: `http://127.0.0.1:${address.port}`,
+        }
+        openId.configure(authOptions)
+        await openId.waitUntilReady()
+
+        expect(useStrategy).toHaveBeenCalledTimes(1)
+        expect(attempts).toBe(2)
+    } finally {
+        await new Promise<void>((resolve, reject) => server.close(error => error ? reject(error) : resolve()))
+    }
+})
+
+test('OIDC discovery stops after one retry and keeps strategy initialization failed', async () => {
+    const logger = createMock<XuiLogger>()
+    const openId = new OpenID(Router({ mergeParams: true }), logger)
+    const discoveryError = Object.assign(new Error('synthetic-provider-detail'), { name: 'DiscoveryError' })
+    const discoverIssuer = jest.spyOn(openId, 'discoverIssuer').mockRejectedValue(discoveryError)
+    const useStrategy = jest.spyOn(openId, 'useStrategy')
+
+    openId.configure({ ...options, discoveryEndpoint: 'https://idam.test/.well-known?token=synthetic-token' })
+
+    await expect(openId.waitUntilReady()).rejects.toBe(discoveryError)
+
+    expect(discoverIssuer).toHaveBeenCalledTimes(2)
+    expect(useStrategy).not.toHaveBeenCalled()
+    const diagnostics = JSON.stringify([...logger.warn.mock.calls, ...logger.error.mock.calls])
+    expect(diagnostics).toContain('DiscoveryError')
+    expect(diagnostics).not.toContain('synthetic-provider-detail')
+    expect(diagnostics).not.toContain('synthetic-token')
+})
+
 test('test createNewStrategy', async () => {
     const options = {
         authorizationURL: 'http://oauth/authorize',
@@ -870,7 +937,7 @@ test('keepAliveHandler session and isAuthenticated uses introspection for refres
     const spyOnRefresh = jest.fn().mockReturnValue(tokenSet)
     client.refresh = spyOnRefresh
     const spyConvertTokenSet = jest.spyOn(oidc, 'convertTokenSet')
-    const convertedTokenSet = createMock<TokenSet>()
+    const convertedTokenSet = { accessToken: 'converted-access', refreshToken: 'converted-refresh', idToken: 'converted-id' }
     spyConvertTokenSet.mockReturnValue(convertedTokenSet)
 
     const spyListenerCount = jest.spyOn(oidc, 'listenerCount').mockReturnValue(1)

@@ -21,6 +21,8 @@ import { VERIFY_ERROR_MESSAGE_NO_ACCESS_ROLES } from '../../messaging.constants'
 import { getLogger, XuiLogger } from '../../../common/util/debug.logger'
 import { MySessionData } from '../../models/sessionData.interface'
 
+const OIDC_DISCOVERY_RETRY_DELAY_MS = 250
+
 export class OpenID extends AuthStrategy {
     protected issuer: Issuer<Client> | undefined
     protected client: Client | undefined
@@ -41,7 +43,6 @@ export class OpenID extends AuthStrategy {
     /* istanbul ignore next */
     public setHttpOptionsDefaults = (options: HttpOptions): void => {
         const defaults = {
-            retry: 3,
             timeout: 15000,
             hooks: {
                 beforeRequest: [
@@ -83,6 +84,12 @@ export class OpenID extends AuthStrategy {
     // This function is hard to mock, come back to once we've mocked out easier prod code.
     /* istanbul ignore next */
     public keepAliveHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        const path = typeof req.path === 'string' ? req.path : ''
+        const recoveryPath = path.replace(/\/+$/, '')
+        if (recoveryPath === AUTH.ROUTE.LOGIN || recoveryPath === AUTH.ROUTE.LOGOUT) {
+            return next()
+        }
+
         const reqsession = req.session as MySessionData
 
         if (!reqsession?.passport?.user) {
@@ -108,11 +115,18 @@ export class OpenID extends AuthStrategy {
                     if (tokenExpiredOrInvalid) {
                         this.logger.log('token expired or inactive')
 
-                        const tokenSet: TokenSet | undefined = await client?.refresh(
-                            reqsession.passport.user.tokenset.refreshToken,
-                        )
+                        const existingTokens = reqsession.passport.user.tokenset
+                        const tokenSet: TokenSet | undefined = await client?.refresh(existingTokens.refreshToken)
+                        const refreshedTokens = this.convertTokenSet(tokenSet)
+                        if (!refreshedTokens.accessToken) {
+                            throw new Error('Token refresh returned no access token')
+                        }
 
-                        reqsession.passport.user.tokenset = this.convertTokenSet(tokenSet)
+                        reqsession.passport.user.tokenset = {
+                            accessToken: refreshedTokens.accessToken,
+                            refreshToken: refreshedTokens.refreshToken || existingTokens.refreshToken,
+                            idToken: refreshedTokens.idToken || existingTokens.idToken,
+                        }
 
                         if (!this.listenerCount(AUTH.EVENT.AUTHENTICATE_SUCCESS)) {
                             this.logger.log(`refresh: no listener count: ${AUTH.EVENT.AUTHENTICATE_SUCCESS}`)
@@ -134,7 +148,19 @@ export class OpenID extends AuthStrategy {
 
     public discover = async (): Promise<Issuer<Client>> => {
         this.logger.info('discovering OIDC issuer')
-        const issuer = await this.discoverIssuer()
+        let issuer: Issuer<Client>
+        try {
+            issuer = await this.discoverIssuer()
+        } catch (error) {
+            this.logger.warn('OIDC discovery failed; retrying once', this.getSafeErrorName(error))
+            await new Promise<void>((resolve) => setTimeout(resolve, OIDC_DISCOVERY_RETRY_DELAY_MS))
+            try {
+                issuer = await this.discoverIssuer()
+            } catch (retryError) {
+                this.logger.error('OIDC discovery failed after one retry', this.getSafeErrorName(retryError))
+                throw retryError
+            }
+        }
 
         const metadata = issuer.metadata
         this.logger.log('OIDC discovery metadata received')
@@ -281,6 +307,7 @@ export class OpenID extends AuthStrategy {
 
                     if (error) {
                         this.logger.error('loginHandler error', this.getSafeErrorName(error))
+                        return next(new Error('Authentication service error'))
                     }
                     /* istanbul ignore next */
                     if (info) {
@@ -294,6 +321,7 @@ export class OpenID extends AuthStrategy {
                     if (!user) {
                         const message = 'loginHandler no User details returned by passport authenticate'
                         this.logger.log(message)
+                        return next(new Error('No user details returned by the authentication service'))
                     }
                 },
             )(req, res, next)
