@@ -108,20 +108,26 @@ test('a second user can save their own filter after rejecting the first owner', 
   assert.equal(service.get(setting.id), null);
 });
 
-test('local restore removes settings with a legacy raw ID or no ownership metadata', () => {
-  for (const unowned of [setting, { ...setting, idamId: 'synthetic-user' }]) {
-    localStorage.setItem(setting.id, JSON.stringify(unowned));
-    assert.equal(new FilterService().get(setting.id), null);
-    assert.equal(localStorage.getItem(setting.id), null);
-  }
-});
-
-test('an owned local selection is removed if no current owner is available', () => {
-  localStorage.setItem(setting.id, JSON.stringify(ownedSetting));
-  sessionStorage.removeItem('userDetails');
-
+test('local restore removes raw-ID records but keeps unowned filters unavailable', () => {
+  localStorage.setItem(setting.id, JSON.stringify({ ...setting, idamId: 'synthetic-user' }));
   assert.equal(new FilterService().get(setting.id), null);
   assert.equal(localStorage.getItem(setting.id), null);
+
+  localStorage.setItem(setting.id, JSON.stringify(setting));
+  assert.equal(new FilterService().get(setting.id), null);
+  assert.equal(localStorage.getItem(setting.id), JSON.stringify(setting));
+});
+
+test('an owned local selection survives an unavailable owner and restores once identity arrives', () => {
+  localStorage.setItem(setting.id, JSON.stringify(ownedSetting));
+  sessionStorage.removeItem('userDetails');
+  const service = new FilterService();
+
+  assert.equal(service.get(setting.id), null);
+  assert.equal(localStorage.getItem(setting.id), JSON.stringify(ownedSetting));
+
+  setUserDetails({ filterOwnerHash: ownerHash });
+  assert.deepEqual(service.get(setting.id), ownedSetting);
 });
 
 test('local writes fall back to session without a supplied owner hash', () => {
