@@ -498,3 +498,43 @@ test('linked-case empty state returns to the case links tab', async ({ page }) =
     [['cases', 'case-details', 'family', 'civil', 'CASE-123'], { fragment: 'Linked cases' }]
   ]);
 });
+
+
+test('writes a new case flag through the real wizard while preserving persisted details', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  await page.evaluate(() => globalThis.mountFlagWriterHost());
+  const host = page.locator('#flag-writer-journey');
+  const evidence = async () => JSON.parse(await host.locator('#flag-writer-evidence').textContent());
+  await host.getByRole('radio', { name: 'Fictional party' }).check();
+  await host.getByRole('button', { name: 'Continue flag journey' }).click();
+  await host.getByRole('radio', { name: 'New concern', exact: true }).check();
+  await host.getByRole('button', { name: 'Continue flag journey' }).click();
+  const selected = await evidence();
+  expect(selected.details).toEqual([{ id: 'existing', value: { name: 'Existing concern', status: 'Active' } }]);
+  expect(selected.formattedDetails).toEqual(selected.details);
+  await host.locator('textarea').fill('Synthetic safety concern');
+  await host.getByRole('button', { name: 'Continue flag journey' }).click();
+  const reviewed = await evidence();
+  expect(reviewed.reviewRequested).toBe(true);
+  expect(reviewed.valid).toBe(true);
+  expect(reviewed.details).toHaveLength(2);
+  expect(reviewed.details[0]).toEqual(selected.details[0]);
+  expect(reviewed.details[1].value).toMatchObject({ name: 'New concern', flagCode: 'NEW', status: 'Active' });
+  await host.getByRole('button', { name: 'Submit flag', exact: true }).click();
+  const first = (await evidence()).submission;
+  expect(first.payloads).toHaveLength(1);
+  expect(first.payloads[0].data.partyFlags.details).toEqual(reviewed.details);
+  await host.getByRole('button', { name: 'Return callback failure' }).click();
+  expect((await evidence()).submission.snapshotRetained).toBe(true);
+  expect((await evidence()).submission.snapshotDetails).toEqual(selected.details);
+  await host.getByRole('button', { name: 'Submit flag', exact: true }).click();
+  const retry = (await evidence()).submission;
+  expect(retry.payloads).toHaveLength(2);
+  expect(retry.payloads[1]).toEqual(retry.payloads[0]);
+  await host.getByRole('button', { name: 'Return callback success' }).click();
+  expect((await evidence()).submission.snapshotRetained).toBe(false);
+  expect((await evidence()).submission).not.toHaveProperty('snapshotDetails');
+  expect(errors).toEqual([]);
+});

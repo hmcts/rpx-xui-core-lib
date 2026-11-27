@@ -29,7 +29,7 @@ async function fixture(/** @type {import('node:test').TestContext} */ t) {
   return root;
 }
 
-test('only the reviewed dependency parents resolve the pinned security fixes', () => {
+test('only the reviewed dependency parents receive pinned resolutions', () => {
   const manifest = require('../package.json');
   assert.equal(manifest.devDependencies.eslint, '10.15.0');
   assert.equal(manifest.devDependencies['typescript-eslint'], '8.72.2');
@@ -50,6 +50,15 @@ test('only the reviewed dependency parents resolve the pinned security fixes', (
     'ngx-markdown@npm:20.1.0/katex': '0.19.1',
     'mermaid@npm:11.17.2/katex': '0.19.1',
     'exceljs@npm:4.4.0/uuid': '11.1.1',
+    // Angular's persistent compiler cache crashes with LMDB 3.4.2 on macOS arm64 under Node 24.
+    'lmdb': '3.5.1',
+    '@lmdb/lmdb-darwin-arm64': '3.5.1',
+    '@lmdb/lmdb-darwin-x64': '3.5.1',
+    '@lmdb/lmdb-linux-arm': '3.5.1',
+    '@lmdb/lmdb-linux-arm64': '3.5.1',
+    '@lmdb/lmdb-linux-x64': '3.5.1',
+    '@lmdb/lmdb-win32-arm64': '3.5.1',
+    '@lmdb/lmdb-win32-x64': '3.5.1',
   });
   for (const parent of [eslint, configArray, estree, ignoreWalk, tuf]) assert.equal(parent('minimatch/package.json').version, '11.0.9');
   assert.equal(packageJson('glob/package.json').version, '14.0.6');

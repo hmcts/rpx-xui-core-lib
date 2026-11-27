@@ -691,6 +691,39 @@ try {
   await check('package.user-list-behavior', () => run('user-list-behavior', ['--test', 'user-list.test.mjs'], consumer));
   await cp(join(root, 'tests/pagination/pagination.test.mjs'), join(consumer, 'pagination.test.mjs'));
   await check('package.pagination-behavior', () => run('pagination-behavior', ['--test', 'pagination.test.mjs'], consumer));
+  await cp(join(root, 'tests/form-primitives/controls.test.mjs'), join(consumer, 'gov-controls.test.mjs'));
+  await cp(join(root, 'tests/form-primitives/identity.test.mjs'), join(consumer, 'form-primitives.test.mjs'));
+  await check('package.gov-controls-behavior', () => run('gov-controls-behavior', ['--test', 'gov-controls.test.mjs', 'form-primitives.test.mjs'], consumer));
+  await check('package.gov-controls-browser', () => run('gov-controls-browser', [join(root, 'tests/form-primitives/packed-browser.mjs')], root));
+  await cp(join(root, 'tests/package/gov-controls-types.ts'), join(consumer, 'gov-controls-types.ts'));
+  await check('package.gov-controls-types', async () => {
+    const options = [compiler, '--strict', '--skipLibCheck', 'false', '--noEmit', '--target', 'ES2022', '--module', 'ESNext'];
+    await run('gov-controls-types-node', [...options, '--moduleResolution', 'node', 'gov-controls-types.ts'], consumer);
+    await run('gov-controls-types-bundler', [...options, '--moduleResolution', 'bundler', 'gov-controls-types.ts'], consumer);
+  });
+  await check('package.gov-controls-graphs', async () => {
+    const entries = ['gov-radio', 'gov-radios', 'gov-checkboxes', 'gov-textarea', 'gov-file-upload', 'form-group'];
+    const graph = contents => buildSync({ stdin: { contents, resolveDir: consumer }, absWorkingDir: consumer, bundle: true, platform: 'browser', format: 'esm', metafile: true, write: false, logLevel: 'silent' });
+    const verify = (result, entry) => {
+      const used = Object.values(result.metafile.outputs).flatMap(output => Object.entries(output.inputs).filter(([, value]) => value.bytesInOutput > 0).map(([path]) => path.replaceAll('\\', '/')));
+      const allowed = new Set(['i18n', 'ui-gov-input', `ui-${entry}`]);
+      if (['gov-radio', 'gov-radios'].includes(entry)) allowed.add('ui-form-group');
+      if (entry === 'gov-radios') allowed.add('ui-gov-radio');
+      const core = used.filter(path => path.includes('/@hmcts/rpx-xui-core-lib/')).map(path => path.split('/').at(-1));
+      assert.ok(core.includes(`hmcts-rpx-xui-core-lib-ui-${entry}.mjs`));
+      assert.ok(core.every(name => [...allowed].some(suffix => name === `hmcts-rpx-xui-core-lib-${suffix}.mjs`)), `Unrelated Core code in ${entry}`);
+    };
+    const modules = ['GovRadioModule', 'GovRadiosModule', 'GovCheckboxesModule', 'GovTextareaModule', 'GovFileUploadModule', 'FormGroupModule'];
+    for (const [index, entry] of entries.entries()) verify(graph(`import '@angular/compiler'; import { ${modules[index]} } from '@hmcts/rpx-xui-core-lib/ui/${entry}'; console.log(${modules[index]});`), entry);
+    assert.throws(() => verify(graph("import '@angular/compiler'; import { GovTextareaModule } from '@hmcts/rpx-xui-core-lib/ui/gov-textarea'; import { InvitationModule } from '@hmcts/rpx-xui-core-lib/ui/invitation'; console.log(GovTextareaModule, InvitationModule);"), 'gov-textarea'), /Unrelated Core code/);
+  });
+
+  await cp(join(root, 'tests/package/pagination-types.ts'), join(consumer, 'pagination-types.ts'));
+  await check('package.pagination-types', async () => {
+    const options = [compiler, '--strict', '--skipLibCheck', 'false', '--noEmit', '--target', 'ES2022', '--module', 'ESNext'];
+    await run('pagination-types-node', [...options, '--moduleResolution', 'node', 'pagination-types.ts'], consumer);
+    await run('pagination-types-bundler', [...options, '--moduleResolution', 'bundler', 'pagination-types.ts'], consumer);
+  });
   await cp(join(root, 'tests/address/address.test.mjs'), join(consumer, 'address.test.mjs'));
   await cp(join(root, 'tests/address/normalization.test.mjs'), join(consumer, 'address-normalization.test.mjs'));
   await check('package.address-behavior', () => run('address-behavior', ['--test', 'address.test.mjs', 'address-normalization.test.mjs'], consumer));
@@ -741,7 +774,7 @@ try {
     ['case-list', 'case-list-graph.mjs', ['ui-case-list', 'ui-ccd-pagination', 'browser-user-agent', 'i18n']],
     ['ccd-pagination', 'ccd-pagination-graph.mjs', ['ui-ccd-pagination', 'i18n']],
     ['user-agent', 'user-agent-graph.mjs', ['browser-user-agent']],
-    ['invitation', 'invitation-graph.mjs', ['ui-invitation', 'ui-gov-input', 'i18n']],
+    ['invitation', 'invitation-graph.mjs', ['ui-invitation', 'ui-gov-input', 'ui-form-group', 'i18n']],
     ['page-wrapper', 'page-wrapper-graph.mjs', ['ui-page-wrapper', 'i18n']],
     ['selected-case', 'selected-case-graph.mjs', ['case-selected-case', 'case-sharing-state', 'i18n']],
     ['share-case', 'share-case-graph.mjs', ['case-share-case', 'case-selected-case', 'case-sharing-state', 'case-sharing', 'ui-gov-input', 'i18n']],

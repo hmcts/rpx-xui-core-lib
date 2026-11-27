@@ -574,6 +574,27 @@ test('current core cohort rejects source and lock drift independently of git HEA
   }
 });
 
+test('LMDB cache workaround stays in the Core development cohort, outside consumer manifests', () => {
+  const currentCore = fixture('core-current-contract.json');
+  const expectedLmdbResolutions = {
+    lmdb: '3.5.1',
+    '@lmdb/lmdb-darwin-arm64': '3.5.1',
+    '@lmdb/lmdb-darwin-x64': '3.5.1',
+    '@lmdb/lmdb-linux-arm': '3.5.1',
+    '@lmdb/lmdb-linux-arm64': '3.5.1',
+    '@lmdb/lmdb-linux-x64': '3.5.1',
+    '@lmdb/lmdb-win32-arm64': '3.5.1',
+    '@lmdb/lmdb-win32-x64': '3.5.1',
+  };
+  const contractLmdbResolutions = Object.fromEntries(Object.entries(currentCore.resolutions).filter(([name]) => name === 'lmdb' || name.startsWith('@lmdb/')));
+  assert.deepEqual(contractLmdbResolutions, expectedLmdbResolutions);
+
+  const library = JSON.parse(readFileSync(new URL('../projects/core-lib/package.json', import.meta.url), 'utf8'));
+  assert.equal(library.resolutions, undefined, 'The published library manifest must not force consumer dependency selections');
+  const coreHost = hostManifest(manifest, fixture('profiles.json').core);
+  assert.equal(coreHost.resolutions, undefined, 'The synthetic consumer host must not inherit repository development resolutions');
+});
+
 test('prospective concrete peer selections must satisfy the current declared range', () => {
   const current = fixture('core-current-contract.json');
   const actual = structuredClone(current);
@@ -588,4 +609,39 @@ test('prospective concrete peer selections must satisfy the current declared ran
     proposal.peerDependencies.helmet = version;
     assert.throws(() => compatibility.validateCurrentCore(actual, current, proposal), /Prospective peer/);
   }
+});
+
+test('current artifact mode preserves built metadata while prospective mode overlays the planned graph', () => {
+  const built = { name: '@hmcts/rpx-xui-core-lib', exports: { './node': './node/index.js' }, peerDependencies: { express: '^5.2.1' } };
+  const planned = { peerDependencies: { express: '5.2.1', '@angular/upgrade': '20.3.35' } };
+  assert.deepEqual(compatibility.matrixArtifactManifest(built, planned, 'current'), built);
+  assert.deepEqual(compatibility.matrixArtifactManifest(built, planned, 'prospective'), { ...built, ...planned });
+  assert.throws(() => compatibility.matrixArtifactManifest(built, planned, 'other'), /mode/i);
+});
+
+test('current artifact host uses delivered peers without injecting prospective-only providers', () => {
+  const built = { peerDependencies: { express: '^5.2.1' } };
+  const planned = { peerDependencies: { express: '5.2.1', '@angular/upgrade': '20.3.35' } };
+  const actual = compatibility.matrixArtifactManifest(built, planned, 'current');
+  const core = { id: 'core', actual_requirements: {}, locked_peer_versions: {}, locked_toolchain: {} };
+  const host = hostManifest(actual, core);
+  assert.equal(host.dependencies.express, '^5.2.1');
+  assert.equal(host.dependencies['@angular/upgrade'], undefined);
+  assert.equal(hostManifest(actual, core, {}, false).dependencies['@hmcts/rpx-xui-core-lib'], undefined);
+  assert.equal(host.dependencies['@hmcts/rpx-xui-core-lib'], 'file:./prospective.tgz');
+});
+
+test('matrix CLI rejects unknown or duplicate artifact options before executing the matrix', () => {
+  for (const args of [['--unknown'], ['--current', '--current']]) {
+    const result = spawnSync(process.execPath, ['scripts/check-compatibility.mjs', ...args], { encoding: 'utf8' });
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /Usage:/);
+    assert.doesNotMatch(result.stdout, /Checking core:/);
+  }
+});
+
+test('Core viewer peer accepts only the two artifact-verified patch versions', () => {
+  const library = JSON.parse(readFileSync(new URL('../projects/core-lib/package.json', import.meta.url), 'utf8'));
+  assert.equal(library.peerDependencies['@hmcts/media-viewer'], '4.2.48 || 4.2.49');
+  assert.equal(library.peerDependenciesMeta['@hmcts/media-viewer'].optional, true);
 });

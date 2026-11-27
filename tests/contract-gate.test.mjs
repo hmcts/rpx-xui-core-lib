@@ -474,6 +474,9 @@ packageIds.push(...["package.task-lookups-behavior", "package.find-task-name-gra
 unitNames.push("task-name retries incompatible cached results without modifying shared cache");
 
 unitNames.push("task-name cancels an active request when its service changes");
+unitNames.push(...["radio preserves caller configuration identity and focus/class initialization", "checkbox columns and selection preserve legacy order without mutating the prior value", "textarea and file upload preserve configured hint and error descriptions", "file upload retains legacy label sizing and reload default", "radios preserves the caller-owned option model", "invitation and standalone form-group entries share their wrapper and fieldset classes", "the standalone host-removal directive preserves the existing selector"]);
+addedBrowserJourneys.push(...["remaining GOV.UK controls update their reactive form values through real browser input", "textarea instances have unique existing hint and error targets", "migrated controls expose errors and remove missing error descriptions when messages clear", "migrated controls support form reset and have no automated accessibility violations"]);
+packageIds.push(...["package.gov-controls-browser", "package.gov-controls-types", "package.gov-controls-behavior", "package.gov-controls-graphs"]);
 
 unitNames.push("task-name retries corrupt cache without writing on a failed uncached request");
 
@@ -528,7 +531,7 @@ addedBrowserJourneys.push(
 addedBrowserJourneys.push('page wrapper renders its translated shell and projected content', 'page wrapper omits unset shell elements and passes a scoped accessibility scan');
 packageIds.push('package.user-details-behavior', 'package.user-details-graph');
 packageIds.push('package.user-list-behavior', 'package.user-list-graph');
-packageIds.push('package.pagination-behavior', 'package.pagination-graph', 'package.hmcts-pagination-graph');
+packageIds.push('package.pagination-types', 'package.pagination-behavior', 'package.pagination-graph', 'package.hmcts-pagination-graph');
 packageIds.push('package.invitation-behavior', 'package.invitation-graph');
 packageIds.push('package.case-list-behavior', 'package.user-agent-behavior', 'package.case-list-graph', 'package.ccd-pagination-graph', 'package.user-agent-graph');
 packageIds.push('package.page-wrapper-graph');
@@ -653,6 +656,30 @@ test('registers each new filter feature against the independently required contr
     assert.deepEqual(map.features.find(row => row.feature === feature)?.contracts, expected, feature);
   }
 });
+
+unitNames.push(...[
+  "Google Analytics initializes one external script and queues the original configuration without inline markup",
+  "Google Analytics events and navigation use the injected window and do not duplicate listeners on repeated init",
+  "Google Tag Manager preserves initial, navigation, event and virtual page-view payloads with one script",
+  "analytics script insertion failures are reported, leave services retryable, and do not duplicate initialization",
+  "feature-toggle is a public selective package entry",
+  "launch-darkly is a public selective package entry",
+  "google-analytics is a public selective package entry",
+  "google-tag-manager is a public selective package entry",
+  "manage-session is a public selective package entry",
+  "timeout-notifications is a public selective package entry",
+  "idle runtime packages are optional package peers",
+  "Manage Session retains the calculated idle schedule and interrupt contract",
+  "Manage Session emits existing modal, signout and keepalive state values",
+  "Timeout Notifications converts milliseconds and retains its idle, keepalive and event contracts",
+  "Timeout Notifications defaults keepalive, deduplicates countdowns and closes all sources"
+]);
+addedBrowserJourneys.push(...[
+  "generic pagination disables next after the final result page",
+  "HMCTS paginator reflects the final page and its visible result range",
+  "HMCTS paginator hides page controls and result count for a single-page list",
+  "runtime services load their own external tags once and retain browser event contracts"
+]);
 
 const expectedContracts = addedBrowserJourneys.length + Object.values(addedLaneNames).reduce((sum, names) => sum + names.length, 0) + unitNames.length + nodeNames.length + i18nNames.length + i18nJourneys.length + dueDateJourneys.length + accessibilityJourneys.length + sessionDialogJourneys.length + primitiveJourneys.length + cacheJourneys.length + validationJourneys.length + packageIds.length + 1 + contractInventory.nodeServerUnit.required.length + contractInventory.editorUnit.required.length + contractInventory.editorDrivers.required.length;
 
@@ -1225,10 +1252,10 @@ test('replay CLI requires a complete unique argument set', (t) => {
   }
 });
 
-test('extra passing Vitest cases are allowed while required coverage remains mandatory', (t) => {
+test('extra passing Vitest cases require registration and failed cases remain rejected', (t) => {
   const files = reports(); const report = files['i18n/vitest.json'];
   report.tests.push({ fullName: 'additional real test', status: 'pass' });
-  assert.equal(checkFixture(t, files)(), expectedContracts);
+  assert.throws(checkFixture(t, files), /i18nUnit unregistered contract/);
   report.tests.at(-1).status = 'fail';
   assert.throws(checkFixture(t, files), /Vitest|report/i);
 });
@@ -1324,4 +1351,18 @@ test('new package cases require inventory and feature review before the gate can
   const files = reports();
   files['package.json'].tests.push({ id: 'package.new-unreviewed-case', status: 'passed' });
   assert.throws(checkFixture(t, files), /package unregistered contract/);
+});
+
+test('new unit cases require inventory and feature review before the gate can pass', t => {
+  const files = reports();
+  files['validation.tap'] = nativeTap([...unitNames, 'new unreviewed unit case']);
+  assert.throws(checkFixture(t, files), /unit unregistered contract/);
+});
+
+test('new browser cases require inventory and feature review before the gate can pass', t => {
+  const files = reports();
+  const extra = structuredClone(files['browser.json'].suites[0].specs[0]);
+  extra.title = 'new unreviewed browser case';
+  files['browser.json'].suites[0].specs.push(extra);
+  assert.throws(checkFixture(t, files), /browser unregistered contract/);
 });

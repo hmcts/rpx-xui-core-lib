@@ -1,3 +1,4 @@
+import { mountFlagWriterHost } from './flag-writer-host';
 import '@angular/compiler';
 import { NgModule, provideZonelessChangeDetection } from '@angular/core';
 import { getTestBed } from '@angular/core/testing';
@@ -28,6 +29,7 @@ Object.assign(globalThis, {
   createDatetimeToggleHost: async () => { await createDatetimeToggleHost(); return true; },
   refreshDatetimeToggleHost,
   createDialogCloseHost: async (index: number) => { await createDialog(index); return true; },
+  mountFlagWriterHost,
   createCaseFlagHost: async (persistedStatus?: string) => { await createCaseFlagHost(persistedStatus); return true; },
   readCaseFlagSelection,
   readCaseFlagState,

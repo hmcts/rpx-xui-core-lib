@@ -227,8 +227,13 @@ export function checkMatrixReport(report) {
   }
 }
 
-async function runMatrix() {
-  const output = join(root, 'test-results/compatibility');
+export function matrixArtifactManifest(built, prospective, mode) {
+  assert.ok(['current', 'prospective'].includes(mode), 'Unknown artifact mode');
+  return mode === 'current' ? { ...built } : { ...built, ...prospective };
+}
+
+async function runMatrix(mode = 'prospective') {
+  const output = join(root, mode === 'current' ? 'test-results/compatibility-current' : 'test-results/compatibility');
   await rm(output, { recursive: true, force: true });
   await mkdir(output, { recursive: true });
   assert.equal(process.versions.node, '24.22.2', 'Use the pinned Node24.22.2');
@@ -252,7 +257,7 @@ async function runMatrix() {
   const env = { ...process.env, PATH: `${dirname(process.execPath)}:${process.env.PATH}` };
   for (const name of Object.keys(env)) if (name === 'NODE_PATH' || name === 'NODE_OPTIONS' || name.startsWith('YARN_')) delete env[name];
   env.YARN_IGNORE_PATH = '1';
-  const report = { schemaVersion: 1, status: 'running', scope: 'Prospective full graph on current real core bytes; not full migrated runtime or application adoption', scratch, candidateSourceSha: '', candidateWorktreeClean: false, artifactSha256: '', profiles: [], unresolvedDecisions: decisions };
+  const report = { schemaVersion: 1, status: 'running', artifactMode: mode, scope: mode === 'current' ? 'Current built package graph; not full migrated runtime or application adoption' : 'Prospective full graph on current real core bytes; not full migrated runtime or application adoption', scratch, candidateSourceSha: '', candidateWorktreeClean: false, artifactSha256: '', profiles: [], unresolvedDecisions: decisions };
   async function command(name, args, cwd) {
     const result = spawnSync(process.execPath, args, { cwd, env, encoding: 'utf8', timeout: 6 * 60_000 });
     await writeFile(join(output, `${name}.log`), `${result.stdout ?? ''}${result.stderr ?? ''}${result.error?.message ?? ''}`);
@@ -263,7 +268,8 @@ async function runMatrix() {
     const staged = join(scratch, 'prospective-package');
     await cp(join(root, 'dist/core-lib'), staged, { recursive: true });
     const built = JSON.parse(await readFile(join(staged, 'package.json'), 'utf8'));
-    await writeFile(join(staged, 'package.json'), `${JSON.stringify({ ...built, ...manifest }, null, 2)}\n`);
+    const artifactManifest = matrixArtifactManifest(built, manifest, mode);
+    await writeFile(join(staged, 'package.json'), `${JSON.stringify(artifactManifest, null, 2)}\n`);
     await writeFile(join(staged, 'yarn.lock'), '');
     const candidate = join(scratch, 'prospective.tgz');
     validateHostProfile(profiles.core, sourceContract);
@@ -283,43 +289,48 @@ async function runMatrix() {
     report.unresolvedDecisions = decisions.filter((entry) => entry.status !== 'accepted');
     await cp(candidate, join(output, 'prospective.tgz'));
     for (const name of ['prospective-package.json', 'profiles.json', 'decisions.json', 'peer-providers.json', 'source-contract.json', 'core-current-contract.json']) await cp(join(fixtures, name), join(output, name));
-    for (const profile of matrix) {
-      const cwd = join(scratch, profile.id);
-      await mkdir(cwd, { recursive: true });
-      const manager = profile.id === 'core' ? coreYarn : join(scratch, `yarn-${profile.manager}.cjs`);
-      if (profile.id !== 'core') {
-        const response = await fetch(profile.manager_source_url);
-        assert.equal(response.ok, true, `Missing frozen manager ${profile.id}`);
-        const bytes = Buffer.from(await response.arrayBuffer());
-        checkManagerBytes(bytes, profile.manager_sha256);
-        await writeFile(manager, bytes);
+    async function runProfile(profile) {
+      const { cwd, manager, baseline, baselineImmutable, baselineWarnings, baselineImmutableWarnings } = await prepareProfile();
+      async function prepareProfile() {
+        const cwd = join(scratch, profile.id);
+        await mkdir(cwd, { recursive: true });
+        const manager = profile.id === 'core' ? coreYarn : join(scratch, `yarn-${profile.manager}.cjs`);
+        if (profile.id !== 'core') {
+          const response = await fetch(profile.manager_source_url);
+          assert.equal(response.ok, true, `Missing frozen manager ${profile.id}`);
+          const bytes = Buffer.from(await response.arrayBuffer());
+          checkManagerBytes(bytes, profile.manager_sha256);
+          await writeFile(manager, bytes);
+        }
+        const hostLock = await hostLockBytes(profile);
+
+        const baselineCwd = join(scratch, `${profile.id}-baseline`);
+        await mkdir(baselineCwd, { recursive: true });
+        await writeFile(join(baselineCwd, 'package.json'), `${JSON.stringify(hostManifest(artifactManifest, profile, peerProviders, false), null, 2)}\n`);
+        const yarnrc = Object.entries(hostInstallSettings(profile, join(root, 'test-results/compatibility-cache'), join(scratch, 'global'))).map(([key, value]) => `${key}: ${JSON.stringify(value)}\n`).join('');
+        await writeFile(join(baselineCwd, '.yarnrc.yml'), yarnrc);
+        if (hostLock) await writeFile(join(baselineCwd, 'yarn.lock'), hostLock);
+        const baseline = await command(`${profile.id}-baseline-install`, [manager, 'install', '--json'], baselineCwd);
+        const baselineWarnings = `${baseline.stdout ?? ''}${baseline.stderr ?? ''}`;
+        const baselineImmutable = baseline.status === 0 ? await command(`${profile.id}-baseline-immutable`, [manager, 'install', '--immutable', '--json'], baselineCwd) : { status: null, stdout: '', stderr: '' };
+        const baselineImmutableWarnings = `${baselineImmutable.stdout ?? ''}${baselineImmutable.stderr ?? ''}`;
+        await cp(join(baselineCwd, 'package.json'), join(output, `${profile.id}-baseline-package.json`));
+        if (await readFile(join(baselineCwd, 'yarn.lock')).then(() => true, () => false)) await cp(join(baselineCwd, 'yarn.lock'), join(output, `${profile.id}-baseline-yarn.lock`));
+
+        await writeFile(join(cwd, 'package.json'), `${JSON.stringify(hostManifest(artifactManifest, profile, peerProviders), null, 2)}\n`);
+        await writeFile(join(cwd, '.yarnrc.yml'), yarnrc);
+        await cp(candidate, join(cwd, 'prospective.tgz'));
+        if (hostLock) await writeFile(join(cwd, 'yarn.lock'), hostLock);
+        const version = await command(`${profile.id}-manager`, [manager, '--version'], cwd);
+        assert.equal(version.stdout.trim(), profile.manager);
+        console.log(`Checking ${profile.id}: Yarn${profile.manager}`);
+        return { cwd, manager, baseline, baselineImmutable, baselineWarnings, baselineImmutableWarnings };
       }
-      const hostLock = await hostLockBytes(profile);
-
-      const baselineCwd = join(scratch, `${profile.id}-baseline`);
-      await mkdir(baselineCwd, { recursive: true });
-      await writeFile(join(baselineCwd, 'package.json'), `${JSON.stringify(hostManifest(manifest, profile, peerProviders, false), null, 2)}\n`);
-      const yarnrc = Object.entries(hostInstallSettings(profile, join(root, 'test-results/compatibility-cache'), join(scratch, 'global'))).map(([key, value]) => `${key}: ${JSON.stringify(value)}\n`).join('');
-      await writeFile(join(baselineCwd, '.yarnrc.yml'), yarnrc);
-      if (hostLock) await writeFile(join(baselineCwd, 'yarn.lock'), hostLock);
-      const baseline = await command(`${profile.id}-baseline-install`, [manager, 'install', '--json'], baselineCwd);
-      const baselineWarnings = `${baseline.stdout ?? ''}${baseline.stderr ?? ''}`;
-      const baselineImmutable = baseline.status === 0 ? await command(`${profile.id}-baseline-immutable`, [manager, 'install', '--immutable', '--json'], baselineCwd) : { status: null, stdout: '', stderr: '' };
-      const baselineImmutableWarnings = `${baselineImmutable.stdout ?? ''}${baselineImmutable.stderr ?? ''}`;
-      await cp(join(baselineCwd, 'package.json'), join(output, `${profile.id}-baseline-package.json`));
-      if (await readFile(join(baselineCwd, 'yarn.lock')).then(() => true, () => false)) await cp(join(baselineCwd, 'yarn.lock'), join(output, `${profile.id}-baseline-yarn.lock`));
-
-      await writeFile(join(cwd, 'package.json'), `${JSON.stringify(hostManifest(manifest, profile, peerProviders), null, 2)}\n`);
-      await writeFile(join(cwd, '.yarnrc.yml'), yarnrc);
-      await cp(candidate, join(cwd, 'prospective.tgz'));
-      if (hostLock) await writeFile(join(cwd, 'yarn.lock'), hostLock);
-      const version = await command(`${profile.id}-manager`, [manager, '--version'], cwd);
-      assert.equal(version.stdout.trim(), profile.manager);
-      console.log(`Checking ${profile.id}: Yarn${profile.manager}`);
       const started = Date.now();
       const installed = await command(`${profile.id}-install`, [manager, 'install', '--json'], cwd);
       const translationIdentityRequired = profile.id === 'core' || Boolean(profile.actual_requirements?.['rpx-xui-translation']);
-      const row = { id: profile.id, manager: profile.manager, gitHead: profile.gitHead ?? null, hostResolutionCount: Object.keys(profile.host_resolutions ?? {}).length, hostResolutionSource: profile.source_contract ?? null, hostLockSource: profile.lock_source_url ?? null, lockedTelemetryVerified: null, translationIdentityRequired, baselineNativeStatus: baseline.status, baselineImmutableNativeStatus: baselineImmutable.status, baselinePeerDiagnostics: peerDiagnostics(baselineWarnings), nativeStatus: installed.status, immutableNativeStatus: null, elapsedMs: Date.now() - started, candidatePeerDiagnostics: peerDiagnostics(`${installed.stdout ?? ''}${installed.stderr ?? ''}`), newPeerDiagnostics: [], cleanInstall: false, immutableInstall: false, identity: translationIdentityRequired ? false : null, issues: [] };
+      const row = createRow();
+      function createRow() { return { id: profile.id, manager: profile.manager, gitHead: profile.gitHead ?? null, hostResolutionCount: Object.keys(profile.host_resolutions ?? {}).length, hostResolutionSource: profile.source_contract ?? null, hostLockSource: profile.lock_source_url ?? null, lockedTelemetryVerified: null, translationIdentityRequired, baselineNativeStatus: baseline.status, baselineImmutableNativeStatus: baselineImmutable.status, baselinePeerDiagnostics: peerDiagnostics(baselineWarnings), nativeStatus: installed.status, immutableNativeStatus: null, elapsedMs: Date.now() - started, candidatePeerDiagnostics: peerDiagnostics(`${installed.stdout ?? ''}${installed.stderr ?? ''}`), newPeerDiagnostics: [], cleanInstall: false, immutableInstall: false, identity: translationIdentityRequired ? false : null, issues: [] }; }
       if (baseline.status !== 0 || baselineImmutable.status !== 0) row.issues.push('No-Core source-host baseline did not install immutably');
       try {
         assert.equal(installed.status, 0, `Native install failed: ${installed.status}`);
@@ -327,38 +338,49 @@ async function runMatrix() {
         assert.deepEqual(row.newPeerDiagnostics, [], 'Candidate adds peer diagnostics not present in the no-Core baseline');
         row.cleanInstall = true;
       } catch (error) { row.issues.push(error.message); }
-      if (installed.status === 0) {
-        await cp(join(cwd, 'package.json'), join(output, `${profile.id}-package.json`));
-        await command(`${profile.id}-peer-requirements`, [manager, 'explain', 'peer-requirements'], cwd);
-        const lock = await readFile(join(cwd, 'yarn.lock'));
-        await writeFile(join(output, `${profile.id}-yarn.lock`), lock);
-        const expectedTelemetry = sourceContract.locked_telemetry_versions[profile.id];
-        if (expectedTelemetry) {
+      await verifyInstalled();
+      async function verifyInstalled() {
+        if (installed.status === 0) {
+          await cp(join(cwd, 'package.json'), join(output, `${profile.id}-package.json`));
+          await command(`${profile.id}-peer-requirements`, [manager, 'explain', 'peer-requirements'], cwd);
+          const lock = await readFile(join(cwd, 'yarn.lock'));
+          await writeFile(join(output, `${profile.id}-yarn.lock`), lock);
+          const expectedTelemetry = sourceContract.locked_telemetry_versions[profile.id];
+          await verifyTelemetry();
+          async function verifyTelemetry() {
+            if (expectedTelemetry) {
+              try {
+                const versions = checkLockedTelemetry(lock.toString('utf8'), expectedTelemetry);
+                await writeFile(join(output, `${profile.id}-telemetry-versions.json`), `${JSON.stringify(versions, null, 2)}\n`);
+                row.lockedTelemetryVerified = true;
+              } catch (error) { row.lockedTelemetryVerified = false; row.cleanInstall = false; row.issues.push(error.message); }
+            }
+          }
+          const immutable = await command(`${profile.id}-immutable`, [manager, 'install', '--immutable', '--json'], cwd);
+          row.immutableNativeStatus = immutable.status;
           try {
-            const versions = checkLockedTelemetry(lock.toString('utf8'), expectedTelemetry);
-            await writeFile(join(output, `${profile.id}-telemetry-versions.json`), `${JSON.stringify(versions, null, 2)}\n`);
-            row.lockedTelemetryVerified = true;
-          } catch (error) { row.lockedTelemetryVerified = false; row.cleanInstall = false; row.issues.push(error.message); }
-        }
-        const immutable = await command(`${profile.id}-immutable`, [manager, 'install', '--immutable', '--json'], cwd);
-        row.immutableNativeStatus = immutable.status;
-        try {
-          assert.equal(immutable.status, 0, `Immutable native install failed: ${immutable.status}`);
-          const immutableNewPeerDiagnostics = newPeerDiagnostics(`${immutable.stdout ?? ''}${immutable.stderr ?? ''}`, baselineImmutableWarnings);
-          assert.deepEqual(immutableNewPeerDiagnostics, [], 'Immutable candidate adds peer diagnostics not present in the no-Core baseline');
-          row.immutableInstall = true;
-        } catch (error) { row.issues.push(error.message); }
-        assert.deepEqual(await readFile(join(cwd, 'yarn.lock')), lock);
-        if (translationIdentityRequired) {
-          await cp(join(fixtures, 'translation-identity.mjs'), join(cwd, 'translation-identity.mjs'));
-          const identity = await command(`${profile.id}-identity`, ['translation-identity.mjs'], cwd);
-          row.identity = identity.status === 0;
-          if (!row.identity) row.issues.push(`Published legacy/core import or identity probe failed; inspect ${profile.id}-identity.log before accepting a registry counterpart or direct cutover`);
+            assert.equal(immutable.status, 0, `Immutable native install failed: ${immutable.status}`);
+            const immutableNewPeerDiagnostics = newPeerDiagnostics(`${immutable.stdout ?? ''}${immutable.stderr ?? ''}`, baselineImmutableWarnings);
+            assert.deepEqual(immutableNewPeerDiagnostics, [], 'Immutable candidate adds peer diagnostics not present in the no-Core baseline');
+            row.immutableInstall = true;
+          } catch (error) { row.issues.push(error.message); }
+          assert.deepEqual(await readFile(join(cwd, 'yarn.lock')), lock);
+          if (translationIdentityRequired) {
+            await cp(join(fixtures, 'translation-identity.mjs'), join(cwd, 'translation-identity.mjs'));
+            const identity = await command(`${profile.id}-identity`, ['translation-identity.mjs'], cwd);
+            row.identity = identity.status === 0;
+            if (!row.identity) row.issues.push(`Published legacy/core import or identity probe failed; inspect ${profile.id}-identity.log before accepting a registry counterpart or direct cutover`);
+          }
         }
       }
       report.profiles.push(row);
       console.log(`${profile.id}: clean=${row.cleanInstall}, immutable=${row.immutableInstall}, canonicalIdentity=${row.identity}`);
     }
+    // Host installs share local resources; keep them sequential.
+    await matrix.reduce(async (previous, profile) => {
+      await previous;
+      await runProfile(profile);
+    }, Promise.resolve());
     try { checkMatrixReport(report); report.status = 'passed'; } catch { report.status = 'blocked'; process.exitCode = 1; }
   } finally {
     if (report.status === 'running') report.status = 'failed';
@@ -368,5 +390,12 @@ async function runMatrix() {
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  runMatrix().catch((error) => { console.error(error); process.exitCode = 1; });
+  const args = process.argv.slice(2);
+  if (args.length > 1 || (args.length === 1 && args[0] !== '--current')) {
+    console.error('Usage: check-compatibility.mjs [--current]');
+    process.exitCode = 1;
+  } else {
+    try { await runMatrix(args[0] === '--current' ? 'current' : 'prospective'); }
+    catch (error) { console.error(error); process.exitCode = 1; }
+  }
 }
