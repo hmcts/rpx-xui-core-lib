@@ -631,7 +631,7 @@
     "otplib": "13.6.0",
     "passport": "0.7.0",
     "passport-oauth2": "1.8.0",
-    "redis": "6.3.1",
+    "redis": "6.4.0",
     "session-file-store": "1.5.0",
     "@edium/fsm": "3.0.2",
     "class-transformer": "0.5.1",
