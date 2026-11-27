@@ -388,6 +388,10 @@ The `@hmcts/rpx-xui-core-lib/ui/page-wrapper` entry preserves CommonLib's `exui-
 
 The rich-text editor now has real Chromium journeys for text entry and ordered-list serialization, keyboard indentation and outdentation of nested list items, and sanitizing pasted HTML before it reaches the form value. The checks assert both rendered editor state and the stored form payload. They strengthen the local Core candidate only: Word/Docmosis document variants, full source-library parity, application integration, and assistive-technology review remain open.
 
+### Case editor error-summary navigation
+
+Core error-summary links use a route-relative Angular fragment. In consumer apps with `<base href="/">`, a raw `href="#fieldId"` can resolve to the application root instead of the current case route. The local Chromium journey starts from a nested route and checks that the error target, route and unsaved form value survive. Consumer-app routing and provider integration still need acceptance.
+
 ### Case editor migration candidate: interpreter language display
 
 The local case-editor candidate changes legacy interpreter-language display when an existing pipe instance receives a different language object: Core displays the new language instead of returning an empty value. This is an intentional compatibility deviation under review, not a released or adopted feature. The case-editor package build and real application acceptance are still outstanding.
