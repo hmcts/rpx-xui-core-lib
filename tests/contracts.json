@@ -1628,6 +1628,7 @@
       "projects/core-lib/node/server/auth/models/strategy.class.spec.ts valid callbacks do not log authorization state values",
       "projects/core-lib/node/server/auth/models/strategy.class.spec.ts verifyLogin does not log user profile data on access denial",
       "projects/core-lib/node/server/auth/oauth2/models/XUIOAuth2Strategy.class.spec.ts getUserDetails() should call http.get",
+      "projects/core-lib/node/server/auth/oauth2/models/XUIOAuth2Strategy.class.spec.ts userProfile passes /details failures to Passport once",
       "projects/core-lib/node/server/auth/oauth2/models/oauth2.class.spec.ts OAUTH2 Auth callbackHandler should not overwrite session state from query state",
       "projects/core-lib/node/server/auth/oauth2/models/oauth2.class.spec.ts OAUTH2 Auth initialiseStrategy",
       "projects/core-lib/node/server/auth/oauth2/models/oauth2.class.spec.ts OAUTH2 Auth it should be configurable",
