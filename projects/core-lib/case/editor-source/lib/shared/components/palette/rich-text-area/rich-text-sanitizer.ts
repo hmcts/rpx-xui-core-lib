@@ -180,7 +180,11 @@ function isRichTextControlOrWhitespace(characterCode: number): boolean {
 }
 
 export function removeUnsafeRichTextElements(documentElement: Document): void {
-  const elements = Array.prototype.slice.call(documentElement.body.querySelectorAll('*')) as HTMLElement[];
+  removeUnsafeRichTextElementsFrom(documentElement.body);
+}
+
+function removeUnsafeRichTextElementsFrom(root: ParentNode): void {
+  const elements = Array.prototype.slice.call(root.querySelectorAll('*')) as HTMLElement[];
 
   elements.forEach((element) => {
     if (UNSAFE_RICH_TEXT_TAGS.has(element.tagName.toLowerCase())) {
@@ -190,9 +194,21 @@ export function removeUnsafeRichTextElements(documentElement: Document): void {
 }
 
 export function sanitiseRichTextDocument(documentElement: Document): string {
-  removeUnsafeRichTextElements(documentElement);
+  sanitiseRichTextRoot(documentElement.body);
+  return documentElement.body.innerHTML;
+}
 
-  const elements = Array.prototype.slice.call(documentElement.body.querySelectorAll('*')) as HTMLElement[];
+export function sanitiseRichTextValue(value: string): string {
+  const template = document.createElement('template');
+  template.innerHTML = value || '';
+  sanitiseRichTextRoot(template.content);
+  return template.innerHTML;
+}
+
+function sanitiseRichTextRoot(root: ParentNode): void {
+  removeUnsafeRichTextElementsFrom(root);
+
+  const elements = Array.prototype.slice.call(root.querySelectorAll('*')) as HTMLElement[];
   elements.forEach((element) => {
     if (!element.parentNode) {
       return;
@@ -235,8 +251,6 @@ export function sanitiseRichTextDocument(documentElement: Document): string {
       element.setAttribute('type', listType);
     }
   });
-
-  return documentElement.body.innerHTML;
 }
 
 export function sanitiseRichTextHtml(value: string): string {

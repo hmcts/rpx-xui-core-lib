@@ -12,7 +12,7 @@ import { Subscription } from 'rxjs';
 import { Constants } from '../../../commons/constants';
 import { CaseField } from '../../../domain/definition/case-field.model';
 import { AbstractFieldWriteComponent } from '../base-field/abstract-field-write.component';
-import { containsUnsafeRichTextMarkup, removeUnsafeRichTextElements, sanitiseRichTextDocument } from './rich-text-sanitizer';
+import { containsUnsafeRichTextMarkup, removeUnsafeRichTextElements, sanitiseRichTextDocument, sanitiseRichTextValue } from './rich-text-sanitizer';
 
 type RichTextToolbarCommand = 'undo' | 'redo' | 'bold' | 'italic' | 'underline' | 'paragraph' | 'heading' | 'indent' | 'outdent' | 'ordered_list' | 'bullet_list';
 type RichTextListStyle = '' | 'ordered_list' | 'ordered_alpha' | 'ordered_roman' | 'bullet_list';
@@ -64,6 +64,7 @@ const WORD_COLUMN_SPACING = 12;
 const MAX_INDENT = 6;
 const DEFAULT_HEADING_LEVEL: RichTextHeadingLevel = 3;
 const CSS_LENGTH_UNITS = ['rem', 'px', 'pt', 'in', 'cm', 'mm', 'em'];
+const controlsWithRichTextSanitiser = new WeakSet<FormControl>();
 const BLOCK_NODE_NAMES = new Set([
   'address', 'article', 'aside', 'blockquote', 'div', 'dl', 'fieldset', 'figcaption', 'figure', 'footer', 'form',
   'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'hr', 'li', 'main', 'nav', 'ol', 'p', 'pre', 'section', 'table', 'ul'
@@ -189,7 +190,16 @@ export class WriteRichTextAreaFieldComponent extends AbstractFieldWriteComponent
         linkOnPaste: false
       }
     });
-    this.richTextAreaControl = this.registerControl(new FormControl(this.caseField.value || '')) as FormControl;
+    const existingControl = (this.parent || this.formGroup)?.get(this.caseField.id) as FormControl | null;
+    const control = existingControl || new FormControl(sanitiseRichTextValue(this.caseField.value || ''));
+    this.installRichTextValueSanitiser(control);
+    if (existingControl) {
+      const initialValue = existingControl.value === null && this.caseField.value
+        ? this.caseField.value
+        : existingControl.value;
+      control.setValue(initialValue, { emitEvent: false, emitModelToViewChange: false });
+    }
+    this.richTextAreaControl = this.registerControl(control) as FormControl;
     this.editorUpdateSubscription = this.editor.update.subscribe(() => {
       this.updateToolbarStateLater();
       this.syncAccessibilityLater();
@@ -1175,7 +1185,6 @@ export class WriteRichTextAreaFieldComponent extends AbstractFieldWriteComponent
     this.normaliseSupportedInlineFormatting(documentElement);
     this.normaliseBlockFormatting(documentElement);
     this.removeUnsupportedMarkup(documentElement);
-    this.normaliseDateRangeSpacing(documentElement);
     this.removeUnsupportedAttributes(documentElement);
     this.normaliseDocmosisInlineFormatting(documentElement);
     const hasMeaningfulContent = this.hasMeaningfulRichTextContent(documentElement);
@@ -1183,9 +1192,7 @@ export class WriteRichTextAreaFieldComponent extends AbstractFieldWriteComponent
       this.preserveDocmosisBlankParagraphs(documentElement);
     }
     const sanitisedValue = sanitiseRichTextDocument(documentElement);
-    return hasMeaningfulContent
-      ? this.normalisePlainTextValue(sanitisedValue)
-      : '';
+    return hasMeaningfulContent ? sanitisedValue : '';
   }
 
   /**
@@ -1369,6 +1376,19 @@ export class WriteRichTextAreaFieldComponent extends AbstractFieldWriteComponent
     } finally {
       this.isNormalisingValue = false;
     }
+  }
+
+  private installRichTextValueSanitiser(control: FormControl): void {
+    if (controlsWithRichTextSanitiser.has(control)) {
+      return;
+    }
+
+    const setValue = control.setValue.bind(control);
+    control.setValue = (value, options) => setValue(
+      typeof value === 'string' ? sanitiseRichTextValue(value) : value,
+      options
+    );
+    controlsWithRichTextSanitiser.add(control);
   }
 
   private differsOnlyByDocmosisBlankParagraphs(value: string, normalisedValue: string): boolean {
