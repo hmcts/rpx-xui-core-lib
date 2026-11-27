@@ -428,6 +428,8 @@ Event-trigger, case-history, print and event-completion error paths use the aler
 
 The document tree now treats an absent `children` array as an empty list when flattening a node. Toolkit threw for that case; nested traversal order is unchanged. This behavior change is covered locally and requires consumer review.
 
+The document field cancels its pending request when a replacement file is selected, before the new file is validated or uploaded. A slow earlier response can no longer overwrite the latest accepted file or restore a file after an invalid replacement. Upload state is tracked per document field, so cancelling one field does not hide another field's active upload; the existing guard's explicit navigation override still clears the shared state. These paths have unit and Chromium coverage with controlled, out-of-order responses. The checks prove client-side field state only. They do not establish server-side cleanup if an upload completed before cancellation.
+
 Wizard redirects still resolve the route immediately. Failed wizard, review-page and confirmation navigation promises now reach Angular's `ErrorHandler` with the original error; confirmation navigation failure does not resubmit an accepted event. Host error handlers may log error details; consumers should review their logging policy.
 
 Field-read initialization remains deferred, but no longer starts after the field has been destroyed. Initialization errors now reach Angular's `ErrorHandler` as the original error rather than an unhandled promise rejection. A host's error handler may log error details, so consumers should review its logging policy.
