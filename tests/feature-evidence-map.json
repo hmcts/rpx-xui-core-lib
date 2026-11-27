@@ -1897,6 +1897,10 @@
           },
           {
             "projectName": "chromium",
+            "title": "writes a new case flag through the real wizard while preserving persisted details"
+          },
+          {
+            "projectName": "chromium",
             "title": "preserves the persisted status when selecting an existing case flag"
           },
           {
@@ -1946,6 +1950,7 @@
           "Dynamic list sanitiser migration contract keeps unmatched dynamic-list strings intact",
           "Dynamic radio list migration contract maps a code or nested value to its label and leaves unknown codes empty",
           "Case flag writer migration contract submits a selected new flag with persisted details and retains the snapshot for retry",
+          "Case flag writer rendered journey preserves persisted details through the real writer location type and comment stages",
           "Case flag writer migration contract replaces only a prior unsaved flag when the writer adds another flag"
         ]
       }
