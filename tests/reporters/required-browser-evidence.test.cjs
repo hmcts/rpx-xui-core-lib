@@ -256,7 +256,10 @@ commonlib-shell|event-only Back is keyboard-operable and emits the unchanged voi
 commonlib-shell|route Back remains a link and still emits its event
 commonlib-shell|main wrapper preserves content, title, banner, error and action contracts
 commonlib-shell|main wrapper warning state replaces the error summary and passes an Axe scan
-commonlib-shell|a wrapper without a route or event listener does not render a Back control`.split('\n').map(row => {
+commonlib-shell|a wrapper without a route or event listener does not render a Back control
+commonlib-checkbox|single permission checkbox updates the reactive FormGroup like Manage Org expects
+commonlib-checkbox|preselected role checkbox follows its FormGroup and preserves the configured focus target
+commonlib-checkbox|checkbox hints remain associated, translate and have no automated accessibility violations`.split('\n').map(row => {
   const [feature, title] = row.split('|');
   return ['chromium', title, feature];
 });

@@ -218,6 +218,8 @@
       "radios preserves the caller-owned option model",
       "invitation and standalone form-group entries share their wrapper and fieldset classes",
       "the standalone host-removal directive preserves the existing selector",
+      "single checkbox has an independent entry and preserves its CommonLib form contract",
+      "Invitation preserves the checkbox public API by re-exporting the shared class",
       "Google Analytics initializes one external script and queues the original configuration without inline markup",
       "Google Analytics events and navigation use the injected window and do not duplicate listeners on repeated init",
       "Google Tag Manager preserves initial, navigation, event and virtual page-view payloads with one script",
@@ -1327,6 +1329,21 @@
         "projectName": "chromium",
         "title": "a wrapper without a route or event listener does not render a Back control",
         "feature": "commonlib-shell"
+      },
+      {
+        "projectName": "chromium",
+        "title": "single permission checkbox updates the reactive FormGroup like Manage Org expects",
+        "feature": "commonlib-checkbox"
+      },
+      {
+        "projectName": "chromium",
+        "title": "preselected role checkbox follows its FormGroup and preserves the configured focus target",
+        "feature": "commonlib-checkbox"
+      },
+      {
+        "projectName": "chromium",
+        "title": "checkbox hints remain associated, translate and have no automated accessibility violations",
+        "feature": "commonlib-checkbox"
       }
     ]
   },
@@ -1478,7 +1495,10 @@
       "package.gov-controls-types",
       "package.gov-controls-graphs",
       "package.commonlib-shell-selective-entries",
-      "package.strict-commonlib-shell-types"
+      "package.strict-commonlib-shell-types",
+      "package.commonlib-checkbox-graphs",
+      "package.commonlib-checkbox-identity",
+      "package.strict-commonlib-checkbox-types"
     ]
   },
   "nodeUnit": {

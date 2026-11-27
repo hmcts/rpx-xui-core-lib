@@ -559,6 +559,17 @@ const shellBrowserJourneys = [
 ];
 addedBrowserJourneys.push(...shellBrowserJourneys);
 packageIds.push('package.commonlib-shell-selective-entries', 'package.strict-commonlib-shell-types');
+const checkboxBrowserJourneys = [
+  'single permission checkbox updates the reactive FormGroup like Manage Org expects',
+  'preselected role checkbox follows its FormGroup and preserves the configured focus target',
+  'checkbox hints remain associated, translate and have no automated accessibility violations',
+];
+addedBrowserJourneys.push(...checkboxBrowserJourneys);
+unitNames.push(
+  'single checkbox has an independent entry and preserves its CommonLib form contract',
+  'Invitation preserves the checkbox public API by re-exporting the shared class',
+);
+packageIds.push('package.commonlib-checkbox-graphs', 'package.commonlib-checkbox-identity', 'package.strict-commonlib-checkbox-types');
 const filterFeatureContracts = [
   { feature: "Filter state", contracts: {
     unit: [
@@ -673,6 +684,19 @@ test('CommonLib shell required checks are assigned to the shell feature report',
   assert.deepEqual(shell?.contracts, {
     browser: shellBrowserJourneys.map(title => ({ projectName: 'chromium', title, feature: 'commonlib-shell' })),
     package: ['package.commonlib-shell-selective-entries', 'package.strict-commonlib-shell-types'],
+  });
+});
+
+test('CommonLib single checkbox required checks are assigned to the selective entry feature report', () => {
+  const map = JSON.parse(readFileSync(new URL('./feature-evidence-map.json', import.meta.url), 'utf8'));
+  const checkbox = map.features.find(row => row.feature === 'CommonLib single checkbox');
+  assert.deepEqual(checkbox?.contracts, {
+    browser: checkboxBrowserJourneys.map(title => ({ projectName: 'chromium', title, feature: 'commonlib-checkbox' })),
+    unit: [
+      'single checkbox has an independent entry and preserves its CommonLib form contract',
+      'Invitation preserves the checkbox public API by re-exporting the shared class',
+    ],
+    package: ['package.commonlib-checkbox-graphs', 'package.commonlib-checkbox-identity', 'package.strict-commonlib-checkbox-types'],
   });
 });
 

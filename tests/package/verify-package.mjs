@@ -90,6 +90,7 @@ try {
     'ui/cookie', 'ui/cookie-banner', 'ui/feature-toggle', 'ui/feature-toggle-directive', 'ui/feature-toggle-guard',
     'ui/role-state', 'ui/role-guard', 'ui/task-data', 'case/sharing-state', 'ui/contact-details', 'ui/page-wrapper',
     'ui/hmcts-main-wrapper', 'ui/hmcts-primary-navigation',
+    'ui/gov-checkbox',
     'ui/loading-spinner', 'ui/loading-state', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog',
     'ui/banner', 'ui/form-label', 'case/models', 'case/reference', 'case/sharing', 'browser/user-agent',
     'ui/ccd-pagination', 'ui/case-list', 'address/normalization', 'ui/address',
@@ -405,6 +406,12 @@ try {
     ], consumer));
   }
   await check('package.strict-commonlib-shell-types', () => run('strict-commonlib-shell-types', [compiler, '--strict', '--skipLibCheck', 'false', '--esModuleInterop', '--target', 'ES2022', '--module', 'ES2022', '--moduleResolution', 'bundler', '--noEmit', 'commonlib-shell-types.ts'], consumer));
+  await cp(join(root, 'tests/fixtures/package/commonlib-checkbox-types.ts'), join(consumer, 'commonlib-checkbox-types.ts'));
+  await check('package.strict-commonlib-checkbox-types', async () => {
+    const options = [compiler, '--strict', '--skipLibCheck', 'false', '--esModuleInterop', '--target', 'ES2022', '--module', 'ES2022', '--noEmit'];
+    await run('commonlib-checkbox-types-node', [...options, '--moduleResolution', 'node', 'commonlib-checkbox-types.ts'], consumer);
+    await run('commonlib-checkbox-types-bundler', [...options, '--moduleResolution', 'bundler', 'commonlib-checkbox-types.ts'], consumer);
+  });
   await check('package.strict-bundler', () => run('strict-bundler', [compiler, '-p', 'tsconfig.bundler.json'], consumer));
   await check('package.node-logging-isolation', async () => {
     const result = buildSync({ entryPoints: ['node-logging-types.ts'], absWorkingDir: consumer, bundle: true,
@@ -745,6 +752,23 @@ try {
     for (const [index, entry] of entries.entries()) verify(graph(`import '@angular/compiler'; import { ${modules[index]} } from '@hmcts/rpx-xui-core-lib/ui/${entry}'; console.log(${modules[index]});`), entry);
     assert.throws(() => verify(graph("import '@angular/compiler'; import { GovTextareaModule } from '@hmcts/rpx-xui-core-lib/ui/gov-textarea'; import { InvitationModule } from '@hmcts/rpx-xui-core-lib/ui/invitation'; console.log(GovTextareaModule, InvitationModule);"), 'gov-textarea'), /Unrelated Core code/);
   });
+  await check('package.commonlib-checkbox-graphs', async () => {
+    const graph = contents => buildSync({ stdin: { contents, resolveDir: consumer }, absWorkingDir: consumer, bundle: true, platform: 'browser', format: 'esm', metafile: true, write: false, logLevel: 'silent' });
+    const verify = result => {
+      const used = Object.values(result.metafile.outputs).flatMap(output => Object.entries(output.inputs).filter(([, value]) => value.bytesInOutput > 0).map(([path]) => path.replaceAll('\\', '/')));
+      const core = used.filter(path => path.includes('/@hmcts/rpx-xui-core-lib/')).map(path => path.split('/').at(-1));
+      const allowed = ['hmcts-rpx-xui-core-lib-i18n.mjs', 'hmcts-rpx-xui-core-lib-ui-gov-checkbox.mjs', 'hmcts-rpx-xui-core-lib-ui-gov-input.mjs', 'hmcts-rpx-xui-core-lib-ui-form-group.mjs'];
+      assert.ok(core.includes('hmcts-rpx-xui-core-lib-ui-gov-checkbox.mjs'), 'Checkbox entry must be in the runtime graph');
+      assert.ok(core.every(name => allowed.includes(name)), `Checkbox entry must exclude unrelated Core entries: ${core.join(', ')}`);
+    };
+    const source = "import '@angular/compiler'; import { GovCheckboxModule } from '@hmcts/rpx-xui-core-lib/ui/gov-checkbox'; console.log(GovCheckboxModule);";
+    verify(graph(source));
+    assert.throws(() => verify(graph(`${source} import { InvitationModule } from '@hmcts/rpx-xui-core-lib/ui/invitation'; console.log(InvitationModule);`)), /exclude unrelated Core entries/);
+  });
+  await check('package.commonlib-checkbox-identity', async () => {
+    await cp(join(root, 'tests/package/commonlib-checkbox-identity.mjs'), join(consumer, 'commonlib-checkbox-identity.mjs'));
+    await run('commonlib-checkbox-identity', ['commonlib-checkbox-identity.mjs'], consumer);
+  });
 
   await cp(join(root, 'tests/package/pagination-types.ts'), join(consumer, 'pagination-types.ts'));
   await check('package.pagination-types', async () => {
@@ -802,7 +826,7 @@ try {
     ['case-list', 'case-list-graph.mjs', ['ui-case-list', 'ui-ccd-pagination', 'browser-user-agent', 'i18n']],
     ['ccd-pagination', 'ccd-pagination-graph.mjs', ['ui-ccd-pagination', 'i18n']],
     ['user-agent', 'user-agent-graph.mjs', ['browser-user-agent']],
-    ['invitation', 'invitation-graph.mjs', ['ui-invitation', 'ui-gov-input', 'ui-form-group', 'i18n']],
+    ['invitation', 'invitation-graph.mjs', ['ui-invitation', 'ui-gov-input', 'ui-gov-checkbox', 'ui-form-group', 'i18n']],
     ['page-wrapper', 'page-wrapper-graph.mjs', ['ui-page-wrapper', 'i18n']],
     ['selected-case', 'selected-case-graph.mjs', ['case-selected-case', 'case-sharing-state', 'i18n']],
     ['share-case', 'share-case-graph.mjs', ['case-share-case', 'case-selected-case', 'case-sharing-state', 'case-sharing', 'ui-gov-input', 'i18n']],

@@ -17,6 +17,8 @@ const welsh = new Map([
   ['This task is due to be completed today', 'Mae’r dasg hon i fod i gael ei chwblhau heddiw'],
   ['Back', 'Yn ôl'],
   ['Primary navigation', 'Prif lywio'],
+  ['This allows the user to submit and manage cases on behalf of your organisation', 'Mae hyn yn galluogi’r defnyddiwr i gyflwyno a rheoli achosion ar ran eich sefydliad'],
+  ['This allows the user to manage access to cases within your organisation', 'Mae hyn yn galluogi’r defnyddiwr i reoli mynediad at achosion yn eich sefydliad'],
   ['Open applications', 'Ceisiadau agored'],
   ['Closed applications', 'Ceisiadau caeedig'],
   ['Case list', 'Rhestr achosion'],

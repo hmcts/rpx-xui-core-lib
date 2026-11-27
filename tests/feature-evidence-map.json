@@ -3001,6 +3001,37 @@
           "package.strict-commonlib-shell-types"
         ]
       }
+    },
+    {
+      "feature": "CommonLib single checkbox",
+      "contracts": {
+        "browser": [
+          {
+            "projectName": "chromium",
+            "title": "single permission checkbox updates the reactive FormGroup like Manage Org expects",
+            "feature": "commonlib-checkbox"
+          },
+          {
+            "projectName": "chromium",
+            "title": "preselected role checkbox follows its FormGroup and preserves the configured focus target",
+            "feature": "commonlib-checkbox"
+          },
+          {
+            "projectName": "chromium",
+            "title": "checkbox hints remain associated, translate and have no automated accessibility violations",
+            "feature": "commonlib-checkbox"
+          }
+        ],
+        "unit": [
+          "single checkbox has an independent entry and preserves its CommonLib form contract",
+          "Invitation preserves the checkbox public API by re-exporting the shared class"
+        ],
+        "package": [
+          "package.commonlib-checkbox-graphs",
+          "package.commonlib-checkbox-identity",
+          "package.strict-commonlib-checkbox-types"
+        ]
+      }
     }
   ],
   "suiteGroups": [

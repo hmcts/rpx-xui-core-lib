@@ -256,6 +256,11 @@
         "output": "ui/hmcts-primary-navigation"
       },
       {
+        "input": "ui/gov-checkbox",
+        "glob": "LICENCE",
+        "output": "ui/gov-checkbox"
+      },
+      {
         "input": "ui/hmcts-sub-navigation",
         "glob": "LICENCE",
         "output": "ui/hmcts-sub-navigation"
