@@ -227,8 +227,13 @@ export function checkMatrixReport(report) {
   }
 }
 
-async function runMatrix() {
-  const output = join(root, 'test-results/compatibility');
+export function matrixArtifactManifest(built, prospective, mode) {
+  assert.ok(['current', 'prospective'].includes(mode), 'Unknown artifact mode');
+  return mode === 'current' ? { ...built } : { ...built, ...prospective };
+}
+
+async function runMatrix(mode = 'prospective') {
+  const output = join(root, mode === 'current' ? 'test-results/compatibility-current' : 'test-results/compatibility');
   await rm(output, { recursive: true, force: true });
   await mkdir(output, { recursive: true });
   assert.equal(process.versions.node, '24.22.2', 'Use the pinned Node24.22.2');
@@ -252,7 +257,7 @@ async function runMatrix() {
   const env = { ...process.env, PATH: `${dirname(process.execPath)}:${process.env.PATH}` };
   for (const name of Object.keys(env)) if (name === 'NODE_PATH' || name === 'NODE_OPTIONS' || name.startsWith('YARN_')) delete env[name];
   env.YARN_IGNORE_PATH = '1';
-  const report = { schemaVersion: 1, status: 'running', scope: 'Prospective full graph on current real core bytes; not full migrated runtime or application adoption', scratch, candidateSourceSha: '', candidateWorktreeClean: false, artifactSha256: '', profiles: [], unresolvedDecisions: decisions };
+  const report = { schemaVersion: 1, status: 'running', artifactMode: mode, scope: mode === 'current' ? 'Current built package graph; not full migrated runtime or application adoption' : 'Prospective full graph on current real core bytes; not full migrated runtime or application adoption', scratch, candidateSourceSha: '', candidateWorktreeClean: false, artifactSha256: '', profiles: [], unresolvedDecisions: decisions };
   async function command(name, args, cwd) {
     const result = spawnSync(process.execPath, args, { cwd, env, encoding: 'utf8', timeout: 6 * 60_000 });
     await writeFile(join(output, `${name}.log`), `${result.stdout ?? ''}${result.stderr ?? ''}${result.error?.message ?? ''}`);
@@ -263,7 +268,8 @@ async function runMatrix() {
     const staged = join(scratch, 'prospective-package');
     await cp(join(root, 'dist/core-lib'), staged, { recursive: true });
     const built = JSON.parse(await readFile(join(staged, 'package.json'), 'utf8'));
-    await writeFile(join(staged, 'package.json'), `${JSON.stringify({ ...built, ...manifest }, null, 2)}\n`);
+    const artifactManifest = matrixArtifactManifest(built, manifest, mode);
+    await writeFile(join(staged, 'package.json'), `${JSON.stringify(artifactManifest, null, 2)}\n`);
     await writeFile(join(staged, 'yarn.lock'), '');
     const candidate = join(scratch, 'prospective.tgz');
     validateHostProfile(profiles.core, sourceContract);
@@ -298,7 +304,7 @@ async function runMatrix() {
 
       const baselineCwd = join(scratch, `${profile.id}-baseline`);
       await mkdir(baselineCwd, { recursive: true });
-      await writeFile(join(baselineCwd, 'package.json'), `${JSON.stringify(hostManifest(manifest, profile, peerProviders, false), null, 2)}\n`);
+      await writeFile(join(baselineCwd, 'package.json'), `${JSON.stringify(hostManifest(artifactManifest, profile, peerProviders, false), null, 2)}\n`);
       const yarnrc = Object.entries(hostInstallSettings(profile, join(root, 'test-results/compatibility-cache'), join(scratch, 'global'))).map(([key, value]) => `${key}: ${JSON.stringify(value)}\n`).join('');
       await writeFile(join(baselineCwd, '.yarnrc.yml'), yarnrc);
       if (hostLock) await writeFile(join(baselineCwd, 'yarn.lock'), hostLock);
@@ -309,7 +315,7 @@ async function runMatrix() {
       await cp(join(baselineCwd, 'package.json'), join(output, `${profile.id}-baseline-package.json`));
       if (await readFile(join(baselineCwd, 'yarn.lock')).then(() => true, () => false)) await cp(join(baselineCwd, 'yarn.lock'), join(output, `${profile.id}-baseline-yarn.lock`));
 
-      await writeFile(join(cwd, 'package.json'), `${JSON.stringify(hostManifest(manifest, profile, peerProviders), null, 2)}\n`);
+      await writeFile(join(cwd, 'package.json'), `${JSON.stringify(hostManifest(artifactManifest, profile, peerProviders), null, 2)}\n`);
       await writeFile(join(cwd, '.yarnrc.yml'), yarnrc);
       await cp(candidate, join(cwd, 'prospective.tgz'));
       if (hostLock) await writeFile(join(cwd, 'yarn.lock'), hostLock);
@@ -368,5 +374,9 @@ async function runMatrix() {
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  runMatrix().catch((error) => { console.error(error); process.exitCode = 1; });
+  const args = process.argv.slice(2);
+  if (args.length > 1 || (args.length === 1 && args[0] !== '--current')) {
+    console.error('Usage: check-compatibility.mjs [--current]');
+    process.exitCode = 1;
+  } else runMatrix(args[0] === '--current' ? 'current' : 'prospective').catch((error) => { console.error(error); process.exitCode = 1; });
 }

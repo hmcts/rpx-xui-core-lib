@@ -596,3 +596,32 @@ test('prospective concrete peer selections must satisfy the current declared ran
     assert.throws(() => compatibility.validateCurrentCore(actual, current, proposal), /Prospective peer/);
   }
 });
+
+test('current artifact mode preserves built metadata while prospective mode overlays the planned graph', () => {
+  const built = { name: '@hmcts/rpx-xui-core-lib', exports: { './node': './node/index.js' }, peerDependencies: { express: '^5.2.1' } };
+  const planned = { peerDependencies: { express: '5.2.1', '@angular/upgrade': '20.3.35' } };
+  assert.deepEqual(compatibility.matrixArtifactManifest(built, planned, 'current'), built);
+  assert.deepEqual(compatibility.matrixArtifactManifest(built, planned, 'prospective'), { ...built, ...planned });
+  assert.throws(() => compatibility.matrixArtifactManifest(built, planned, 'other'), /mode/i);
+});
+
+test('current artifact host uses delivered peers without injecting prospective-only providers', () => {
+  const built = { peerDependencies: { express: '^5.2.1' } };
+  const planned = { peerDependencies: { express: '5.2.1', '@angular/upgrade': '20.3.35' } };
+  const actual = compatibility.matrixArtifactManifest(built, planned, 'current');
+  const core = { id: 'core', actual_requirements: {}, locked_peer_versions: {}, locked_toolchain: {} };
+  const host = hostManifest(actual, core);
+  assert.equal(host.dependencies.express, '^5.2.1');
+  assert.equal(host.dependencies['@angular/upgrade'], undefined);
+  assert.equal(hostManifest(actual, core, {}, false).dependencies['@hmcts/rpx-xui-core-lib'], undefined);
+  assert.equal(host.dependencies['@hmcts/rpx-xui-core-lib'], 'file:./prospective.tgz');
+});
+
+test('matrix CLI rejects unknown or duplicate artifact options before executing the matrix', () => {
+  for (const args of [['--unknown'], ['--current', '--current']]) {
+    const result = spawnSync(process.execPath, ['scripts/check-compatibility.mjs', ...args], { encoding: 'utf8' });
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /Usage:/);
+    assert.doesNotMatch(result.stdout, /Checking core:/);
+  }
+});

@@ -477,3 +477,7 @@ The editor's pipe module reuses Core's `CaseReferencePipe` and `CaseReferenceMod
 The editor's form module reuses the existing Core `DateInputComponent` and `DateInputModule` instead of a second component. The shared class identity is observable to consumers and remains subject to adoption review.
 
 `yarn test:editor:translation-compatibility` is a strict adoption diagnostic for the installed legacy translation package. It currently fails against `rpx-xui-translation` 1.2.18 because its module and service are separate from Core's; it is intentionally separate from the Core development suite while the translation facade and consumer release path are unresolved. The packed preview facade is tested separately by `yarn test:package` and is not a released replacement.
+
+### Current and prospective consumer compatibility
+
+After building, run `node scripts/core-yarn.mjs test:compatibility` for the planned full dependency graph. Run `node scripts/check-compatibility.mjs --current` to install the actual built package metadata in the same five host profiles. Use Node 24.22.2 for both commands. The current mode writes to `test-results/compatibility-current`; the prospective mode retains `test-results/compatibility`. Both retain strict baseline/immutable install checks, translation identity checks and unresolved decision gates. A successful installation alone does not establish consumer adoption.
