@@ -69,6 +69,9 @@ test(${JSON.stringify('representative report case ' + hostileText)}, async ({}, 
     assert.ok(!html.includes('data:image/'));
     const evidence = parse(html).querySelector('#required-browser-evidence');
     assert.ok(evidence);
+    assert.equal(evidence.classList.contains('required-browser-evidence-card'), true, 'required browser evidence is rendered as a dashboard report card');
+    assert.equal(evidence.querySelector('.info-box-header h2')?.text.trim(), 'Required browser-contract evidence');
+    assert.ok(evidence.querySelector('.required-browser-evidence-content table.table'), 'required browser evidence uses the report table treatment');
     const validation = evidence.querySelectorAll('tbody tr').find(row => row.querySelector('th')?.text.trim() === 'validation').querySelectorAll('td').map(cell => Number(cell.text));
     assert.deepEqual(validation, [failing ? 0 : 1, failing ? 1 : 0, 0, 1, 0]);
     assert.equal(fs.readFileSync(path.join(fixture, 'native/browser.json'), 'utf8'), '{"stale":true}');
@@ -82,7 +85,7 @@ test(${JSON.stringify('representative report case ' + hostileText)}, async ({}, 
       assert.match(fs.readFileSync(path.join(fixture, 'report/browser/logs', logs[0]), 'utf8'), /self-check output/);
     }
     const browser = spawnSync(process.execPath, [path.join(__dirname, 'browser-check.cjs'), path.join(fixture, 'report/browser/index.html')], { cwd: root, encoding: 'utf8', timeout: 20_000 });
-    assert.equal(browser.status, 0, browser.stdout + browser.stderr);
+    assert.equal(browser.status, 0, browser.error ? String(browser.error) : browser.stdout + browser.stderr);
     console.log(`Retained ${failing ? 'failed' : 'passed'} reporter self-check at ${fixture}`);
   });
 }
