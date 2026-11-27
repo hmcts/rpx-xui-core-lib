@@ -186,6 +186,7 @@ const addedLaneNames = {
 unitNames.push("date input reports mandatory and partial values through the legacy validator", "date input write and callback preserve the legacy padded value", "date input retains legacy touched callback and destruction behavior");
 unitNames.push('date revalidates on month and year changes and stops after destruction');
 unitNames.push('date preserves legacy required and optional empty-value validation');
+unitNames.push('Google Analytics shim queues Arguments objects for initialization, events and navigation');
 
 const nodeNames = [
   'Node authentication and session constants retain the legacy values',
