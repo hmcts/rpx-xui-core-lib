@@ -1569,6 +1569,18 @@
       }
     },
     {
+      "feature": "Case editor: activity polling",
+      "contracts": {
+        "editorUnit": [
+          "Activity polling migration contract keeps a later batch alive when a component from an earlier batch is destroyed",
+          "Activity polling migration contract keeps a same-case subscriber alive when another component is destroyed",
+          "Activity polling migration contract clears the batch collection timer when the last pending component is destroyed",
+          "Activity polling migration contract starts a fresh poll when a case is subscribed again after its earlier component is destroyed",
+          "Activity polling migration contract removes a terminally failed batch and allows a later subscription to recover"
+        ]
+      }
+    },
+    {
       "feature": "Case editor: date and markdown",
       "contracts": {
         "editorDrivers": [
@@ -2033,6 +2045,17 @@
           {
             "projectName": "chromium",
             "title": "linked-case empty state returns to the case links tab"
+          }
+        ]
+      }
+    },
+    {
+      "feature": "Case editor: error-summary navigation",
+      "contracts": {
+        "editorDrivers": [
+          {
+            "projectName": "chromium",
+            "title": "error-summary navigation keeps the editor route and unsaved form values"
           }
         ]
       }
