@@ -281,6 +281,7 @@ export class OpenID extends AuthStrategy {
 
                     if (error) {
                         this.logger.error('loginHandler error', this.getSafeErrorName(error))
+                        return next(new Error('Authentication service error'))
                     }
                     /* istanbul ignore next */
                     if (info) {
@@ -294,6 +295,7 @@ export class OpenID extends AuthStrategy {
                     if (!user) {
                         const message = 'loginHandler no User details returned by passport authenticate'
                         this.logger.log(message)
+                        return next(new Error('No user details returned by the authentication service'))
                     }
                 },
             )(req, res, next)

@@ -159,6 +159,7 @@ export abstract class Strategy extends events.EventEmitter {
                     /* istanbul ignore next */
                     if (error) {
                         this.logger.error('passport authenticate error', this.getSafeErrorName(error))
+                        return next(new Error('Authentication service error'))
                     }
                     /* istanbul ignore next */
                     if (info) {
@@ -168,6 +169,7 @@ export abstract class Strategy extends events.EventEmitter {
                     if (!user) {
                         const message = 'No user details returned by the authentication service, redirecting to login'
                         this.logger.log(message)
+                        return next(new Error('No user details returned by the authentication service'))
                     } else {
                         this.logger.log('User details returned by passport.authenticate')
                     }

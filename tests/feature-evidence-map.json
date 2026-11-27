@@ -2781,6 +2781,13 @@
       ]
     },
     {
+      "feature": "Node login handler failure completion",
+      "lane": "nodeServerUnit",
+      "suiteTokens": [
+        "projects/core-lib/node/server/auth/models/login-handler-failures.integration.spec.ts"
+      ]
+    },
+    {
       "feature": "Node OIDC authentication",
       "lane": "nodeServerUnit",
       "suiteTokens": [
