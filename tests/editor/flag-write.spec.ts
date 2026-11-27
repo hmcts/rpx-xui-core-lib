@@ -1,9 +1,13 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { FormControl, FormGroup } from '@angular/forms';
+import { of } from 'rxjs';
+import { CaseEditComponent } from '../../projects/core-lib/case/editor-source/lib/shared/components/case-editor/case-edit/case-edit.component';
 import { SelectFlagTypeComponent } from '../../projects/core-lib/case/editor-source/lib/shared/components/palette/case-flag/components/select-flag-type/select-flag-type.component';
 import { CaseFlagFormFields } from '../../projects/core-lib/case/editor-source/lib/shared/components/palette/case-flag/enums';
-import { CaseField } from '@hmcts/rpx-xui-core-lib/case/notifier';
+import { CaseEventTrigger, CaseField, CaseView } from '@hmcts/rpx-xui-core-lib/case/notifier';
+import { CaseFlagStateService } from '../../projects/core-lib/case/editor-source/lib/shared/components/case-editor/services/case-flag-state.service';
 import { FormValueService } from '../../projects/core-lib/case/editor-source/lib/shared/services/form/form-value.service';
+import { FieldTypeSanitiser } from '../../projects/core-lib/case/editor-source/lib/shared/services/form/field-type-sanitiser';
 import { WriteCaseFlagFieldComponent } from '../../projects/core-lib/case/editor-source/lib/shared/components/palette/case-flag/write-case-flag-field.component';
 import { ManageCaseFlagsComponent } from '../../projects/core-lib/case/editor-source/lib/shared/components/palette/case-flag/components/manage-case-flags/manage-case-flags.component';
 
@@ -50,7 +54,7 @@ describe('Case flag writer migration contract', () => {
     ];
     const flagsField = new CaseField();
     flagsField.id = 'partyFlags';
-    flagsField.field_type = { id: 'Flags', type: 'Complex' } as CaseField['field_type'];
+    flagsField.field_type = { id: 'Flags', type: 'Complex', complex_fields: [] } as CaseField['field_type'];
     flagsField.value = { details: structuredClone(persistedDetails) };
     flagsField.formatted_value = { details: structuredClone(persistedDetails) };
     const writer = Object.create(WriteCaseFlagFieldComponent.prototype) as WriteCaseFlagFieldComponent;
@@ -75,14 +79,49 @@ describe('Case flag writer migration contract', () => {
 
     selectFlag.onNext();
 
-    const caseEventData = { partyFlags: { details: structuredClone(persistedDetails) } };
-    const formValueService = Object.create(FormValueService.prototype) as FormValueService;
-    formValueService.repopulateFormDataFromCaseFieldValues(caseEventData, [
-      flagsField,
-      { id: 'caseFlags', field_type: { type: 'FlagLauncher' } } as CaseField
-    ]);
+    const eventTrigger = Object.assign(new CaseEventTrigger(), {
+      id: 'createFlag',
+      name: 'Create case flag',
+      event_token: 'event-token',
+      case_fields: [flagsField, { id: 'caseFlags', field_type: { type: 'FlagLauncher' } } as CaseField],
+      wizard_pages: []
+    });
+    const form = new FormGroup({
+      data: new FormGroup({ partyFlags: new FormControl({ details: structuredClone(persistedDetails) }) }),
+      event: new FormGroup({ id: new FormControl('createFlag') })
+    });
+    const submittedPayloads: object[] = [];
+    const caseFlagStateService = new CaseFlagStateService();
+    const editor = Object.assign(Object.create(CaseEditComponent.prototype), {
+      isCaseFlagSubmission: true,
+      formValueService: new FormValueService(new FieldTypeSanitiser()),
+      validPageListCaseFieldsService: {
+        deleteNonValidatedFields: vi.fn(),
+        validPageListCaseFields: (): never[] => []
+      },
+      sessionStorageService: { getItem: (): string | null => null, setItem: vi.fn(), removeItem: vi.fn() },
+      abstractConfig: { logMessage: vi.fn() },
+      loadingService: { register: () => 'spinner', unregister: vi.fn() },
+      callbackErrorsSubject: { next: vi.fn() },
+      caseFlagStateService,
+      postCompleteTaskIfRequired: () => of(true),
+      finishEventCompletionLogic: vi.fn()
+    }) as CaseEditComponent;
 
-    expect(caseEventData.partyFlags.details).toEqual(persistedDetails);
+    editor.submitForm({
+      eventTrigger,
+      form,
+      caseDetails: Object.assign(new CaseView(), { case_id: 'case-1' }),
+      submit: payload => {
+        submittedPayloads.push(payload);
+        return of({ id: 'case-1' });
+      }
+    });
+
+    expect(submittedPayloads).toHaveLength(1);
+    const submittedData = (submittedPayloads[0] as { data: Record<string, { details: unknown[] }> }).data;
+    expect(submittedData.partyFlags.details).toEqual(persistedDetails);
+    expect(submittedData).not.toHaveProperty('caseFlags');
   });
 
   it('replaces only a prior unsaved flag when the writer adds another flag', () => {
