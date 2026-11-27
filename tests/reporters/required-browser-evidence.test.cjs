@@ -250,7 +250,10 @@ gov-controls|migrated controls support form reset and have no automated accessib
 pagination|generic pagination disables next after the final result page
 pagination|HMCTS paginator reflects the final page and its visible result range
 pagination|HMCTS paginator hides page controls and result count for a single-page list
-runtime-services|runtime services load their own external tags once and retain browser event contracts`.split('\n').map(row => {
+runtime-services|runtime services load their own external tags once and retain browser event contracts
+commonlib-primitives|let directive updates both template variables without recreating its view
+commonlib-primitives|let directive renders false and zero values rather than treating them as conditions
+commonlib-primitives|tabs translate labels and emit the selected index and tab on keyboard navigation`.split('\n').map(row => {
   const [feature, title] = row.split('|');
   return ['chromium', title, feature];
 });

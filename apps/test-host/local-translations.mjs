@@ -18,6 +18,8 @@ const welsh = new Map([
   ['Back', 'Yn ôl'],
   ['Case list', 'Rhestr achosion'],
   ['Case management', 'Rheoli achosion'],
+  ['Overview', 'Trosolwg'],
+  ['History', 'Hanes'],
   ['Using this service', 'Defnyddio’r gwasanaeth hwn'],
   ['Terms and conditions', 'Telerau ac amodau'],
   ['terms and conditions', 'telerau ac amodau'],

@@ -88,6 +88,7 @@ try {
     'browser/window', 'browser/session-storage', 'reference/locations', 'reference/ref-data', 'terms/models',
     'ui/cookie', 'ui/cookie-banner', 'ui/feature-toggle', 'ui/feature-toggle-directive', 'ui/feature-toggle-guard',
     'ui/role-state', 'ui/role-guard', 'ui/task-data', 'case/sharing-state', 'ui/contact-details', 'ui/page-wrapper',
+    'ui/let', 'ui/tabs',
     'ui/loading-spinner', 'ui/loading-state', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog',
     'ui/banner', 'ui/form-label', 'case/models', 'case/reference', 'case/sharing', 'browser/user-agent',
     'ui/ccd-pagination', 'ui/case-list', 'address/normalization', 'ui/address',
@@ -695,6 +696,22 @@ try {
   await cp(join(root, 'tests/form-primitives/identity.test.mjs'), join(consumer, 'form-primitives.test.mjs'));
   await check('package.gov-controls-behavior', () => run('gov-controls-behavior', ['--test', 'gov-controls.test.mjs', 'form-primitives.test.mjs'], consumer));
   await check('package.gov-controls-browser', () => run('gov-controls-browser', [join(root, 'tests/form-primitives/packed-browser.mjs')], root));
+  await check('package.commonlib-primitives-packed-browser', async () => {
+    const packedReport = JSON.parse(await readFile(join(output, 'form-controls-packed/browser.json'), 'utf8'));
+    const inventory = JSON.parse(await readFile(join(root, 'tests/contracts.json'), 'utf8'));
+    const expected = inventory.browser.required.filter(row => row.feature === 'commonlib-primitives').map(row => row.title).sort((a, b) => a.localeCompare(b));
+    function titles(suite) { return [...(suite.specs ?? []).map(spec => spec.title), ...(suite.suites ?? []).flatMap(titles)]; }
+    assert.deepEqual(titles(packedReport).filter(title => expected.includes(title)).sort((a, b) => a.localeCompare(b)), expected);
+    assert.equal(packedReport.stats.unexpected, 0);
+    assert.equal(packedReport.stats.skipped, 0);
+    assert.equal(packedReport.stats.flaky, 0);
+  });
+  await cp(join(root, 'tests/package/commonlib-primitives-types.ts'), join(consumer, 'commonlib-primitives-types.ts'));
+  await check('package.commonlib-primitives-types', async () => {
+    const options = [compiler, '--strict', '--skipLibCheck', 'false', '--noEmit', '--target', 'ES2022', '--module', 'ESNext'];
+    await run('commonlib-primitives-types-node', [...options, '--moduleResolution', 'node', 'commonlib-primitives-types.ts'], consumer);
+    await run('commonlib-primitives-types-bundler', [...options, '--moduleResolution', 'bundler', 'commonlib-primitives-types.ts'], consumer);
+  });
   await cp(join(root, 'tests/package/gov-controls-types.ts'), join(consumer, 'gov-controls-types.ts'));
   await check('package.gov-controls-types', async () => {
     const options = [compiler, '--strict', '--skipLibCheck', 'false', '--noEmit', '--target', 'ES2022', '--module', 'ESNext'];
@@ -716,6 +733,20 @@ try {
     const modules = ['GovRadioModule', 'GovRadiosModule', 'GovCheckboxesModule', 'GovTextareaModule', 'GovFileUploadModule', 'FormGroupModule'];
     for (const [index, entry] of entries.entries()) verify(graph(`import '@angular/compiler'; import { ${modules[index]} } from '@hmcts/rpx-xui-core-lib/ui/${entry}'; console.log(${modules[index]});`), entry);
     assert.throws(() => verify(graph("import '@angular/compiler'; import { GovTextareaModule } from '@hmcts/rpx-xui-core-lib/ui/gov-textarea'; import { InvitationModule } from '@hmcts/rpx-xui-core-lib/ui/invitation'; console.log(GovTextareaModule, InvitationModule);"), 'gov-textarea'), /Unrelated Core code/);
+  });
+  await check('package.commonlib-primitives-graphs', async () => {
+    const graph = contents => buildSync({ stdin: { contents, resolveDir: consumer }, absWorkingDir: consumer, bundle: true, platform: 'browser', format: 'esm', metafile: true, write: false, logLevel: 'silent' });
+    const verify = (result, entry, expected) => {
+      const used = Object.values(result.metafile.outputs).flatMap(output => Object.entries(output.inputs).filter(([, value]) => value.bytesInOutput > 0).map(([path]) => path.replaceAll('\\', '/')));
+      const core = used.filter(path => path.includes('/@hmcts/rpx-xui-core-lib/')).map(path => path.split('/').at(-1)).sort();
+      assert.deepEqual(core, expected.map(name => `hmcts-rpx-xui-core-lib-${name}.mjs`).sort(), `Unexpected Core entries in ${entry} graph`);
+    };
+    const letGraph = graph("import '@angular/compiler'; import { LetModule } from '@hmcts/rpx-xui-core-lib/ui/let'; console.log(LetModule);");
+    const tabsGraph = graph("import '@angular/compiler'; import { TabsModule } from '@hmcts/rpx-xui-core-lib/ui/tabs'; console.log(TabsModule);");
+    verify(letGraph, 'let', ['ui-let']);
+    verify(tabsGraph, 'tabs', ['i18n', 'ui-tabs']);
+    assert.throws(() => verify(graph("import '@angular/compiler'; import { LetModule } from '@hmcts/rpx-xui-core-lib/ui/let'; import { TabsModule } from '@hmcts/rpx-xui-core-lib/ui/tabs'; console.log(LetModule, TabsModule);"), 'let', ['ui-let']), /Unexpected Core entries in let graph/);
+    await writeFile(join(evidence, 'commonlib-primitives-graphs.json'), JSON.stringify({ let: letGraph.metafile, tabs: tabsGraph.metafile }, null, 2));
   });
 
   await cp(join(root, 'tests/package/pagination-types.ts'), join(consumer, 'pagination-types.ts'));
