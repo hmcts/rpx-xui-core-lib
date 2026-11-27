@@ -9,6 +9,25 @@ test('loads the editor browser host without errors', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+test('error-summary navigation keeps the editor route and unsaved form values', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => globalThis.createErrorSummaryHost());
+  const title = page.getByLabel('Case title');
+  await title.fill('Unsaved case detail');
+  // BrowserTestingModule uses MockLocationStrategy; sync the native URL for base-href resolution.
+  await page.evaluate(() => history.replaceState({}, '', '/cases/123/edit'));
+  const documentTimeOrigin = await page.evaluate(() => performance.timeOrigin);
+  const errorLink = page.getByRole('link', { name: 'Enter a case title' });
+
+  await errorLink.click();
+
+  await expect(page).toHaveURL(/\/cases\/123\/edit$/);
+  await expect(errorLink).toHaveAttribute('href', '/cases/123/edit#case-title');
+  await expect(title).toHaveValue('Unsaved case detail');
+  await expect.poll(() => page.evaluate(() => globalThis.readErrorSummaryRouterUrl())).toBe('/cases/123/edit#case-title');
+  expect(await page.evaluate(() => performance.timeOrigin)).toBe(documentTimeOrigin);
+});
+
 test('opens the datetime calendar with the keyboard', async ({ page }) => {
   await page.goto('/');
   await page.evaluate(() => globalThis.createDatetimeToggleHost());

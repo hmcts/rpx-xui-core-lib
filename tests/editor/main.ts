@@ -9,6 +9,7 @@ import { createCaseFlagHost, readCaseFlagSelection, readCaseFlagState } from './
 import { createCaseViewerFullAccessHost, createCaseViewerHost, createCaseViewerNotifierHost, emitCaseViewerDetails, readCaseViewerRequestUrl } from './case-viewer-host';
 import { createDocumentUploadHost, readDocumentUploadState, resolveDocumentUpload } from './document-upload-host';
 import { createLinkedCasesBackHost, createLinkedCasesHost, readLinkedCasesBackNavigation, readLinkedCasesState, reloadLinkedCases } from './linked-cases-host';
+import { createErrorSummaryHost, readErrorSummaryRouterUrl } from './error-summary-host';
 
 @NgModule({ providers: [provideZonelessChangeDetection()] })
 class ZonelessHostTestingModule {}
@@ -42,5 +43,7 @@ Object.assign(globalThis, {
   readLinkedCasesState,
   reloadLinkedCases,
   createLinkedCasesBackHost,
-  readLinkedCasesBackNavigation
+  readLinkedCasesBackNavigation,
+  createErrorSummaryHost,
+  readErrorSummaryRouterUrl
 });
