@@ -74,7 +74,6 @@ export class ActivityComponent implements OnInit, OnDestroy {
     if (this.subscription) {
       this.subscription.complete();
     }
-    this.activityPollingService.stopPolling();
   }
 
   // Preserve the Toolkit public argument contract until its consumers migrate.

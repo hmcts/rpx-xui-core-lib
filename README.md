@@ -388,6 +388,10 @@ The `@hmcts/rpx-xui-core-lib/ui/page-wrapper` entry preserves CommonLib's `exui-
 
 The rich-text editor now has real Chromium journeys for text entry and ordered-list serialization, keyboard indentation and outdentation of nested list items, and sanitizing pasted HTML before it reaches the form value. The checks assert both rendered editor state and the stored form payload. They strengthen the local Core candidate only: Word/Docmosis document variants, full source-library parity, application integration, and assistive-technology review remain open.
 
+### Case editor activity polling
+
+Activity requests remain batched by case ID, while each rendered activity row now owns its own completion subject. Removing one row stops only the batch with no remaining rows; it cannot cancel another page's polling, and duplicate rows for one case remain independent. The migration contract covers batch teardown, same-case subscribers, timer cleanup and recovery after terminal polling errors. Consumer-side activity rendering and polling load still need integration verification.
+
 ### Case editor migration candidate: interpreter language display
 
 The local case-editor candidate changes legacy interpreter-language display when an existing pipe instance receives a different language object: Core displays the new language instead of returning an empty value. This is an intentional compatibility deviation under review, not a released or adopted feature. The case-editor package build and real application acceptance are still outstanding.
