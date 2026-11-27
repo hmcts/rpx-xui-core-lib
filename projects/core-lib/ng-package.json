@@ -302,11 +302,6 @@
     "lz-string",
     "marked",
     "moment",
-    "prosemirror-commands",
-    "prosemirror-history",
-    "prosemirror-model",
-    "prosemirror-schema-list",
-    "prosemirror-state",
     "reflect-metadata",
     "underscore",
     "uuid"

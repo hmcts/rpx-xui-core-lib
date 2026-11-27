@@ -1965,7 +1965,7 @@ __metadata:
     eslint: "npm:10.15.0"
     govuk-frontend: "npm:6.6.0"
     js-yaml: "npm:4.3.2"
-    launchdarkly-js-client-sdk: "npm:3.9.6"
+    launchdarkly-js-client-sdk: "npm:3.9.7"
     lodash: "npm:4.18.1"
     luxon: "npm:2.5.2"
     lz-string: "npm:1.5.0"
@@ -1984,7 +1984,7 @@ __metadata:
     prosemirror-commands: "npm:1.7.2"
     prosemirror-history: "npm:1.5.2"
     prosemirror-model: "npm:1.25.13"
-    prosemirror-schema-list: "npm:1.5.1"
+    prosemirror-schema-list: "npm:1.6.1"
     prosemirror-state: "npm:1.4.4"
     reflect-metadata: "npm:0.1.14"
     rpx-xui-translation: "npm:1.2.18"
@@ -3628,18 +3628,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@redis/bloom@npm:6.3.1":
-  version: 6.3.1
-  resolution: "@redis/bloom@npm:6.3.1"
+"@redis/bloom@npm:6.4.0":
+  version: 6.4.0
+  resolution: "@redis/bloom@npm:6.4.0"
   peerDependencies:
-    "@redis/client": ^6.3.1
-  checksum: 10c0/5aca0feb05fe054f3dcd3435f06c3876fd7c16cc364e68396da7d90b45dfb745f868623ff39fc2b6bd63ffb6dea294f5185ca461a34a66c0ef3b3d05af85fc0c
+    "@redis/client": ^6.4.0
+  checksum: 10c0/d081791bcf29edeff02d101933eb02920223a84671184646f2103dcfc7a787d058990bfc01603b1d86389a3a42767da1ce9ca3318dbbd5b6c2f981e18896c6cc
   languageName: node
   linkType: hard
 
-"@redis/client@npm:6.3.1":
-  version: 6.3.1
-  resolution: "@redis/client@npm:6.3.1"
+"@redis/client@npm:6.4.0":
+  version: 6.4.0
+  resolution: "@redis/client@npm:6.4.0"
   peerDependencies:
     "@node-rs/xxhash": ^1.1.0
     "@opentelemetry/api": ">=1 <2"
@@ -3648,34 +3648,34 @@ __metadata:
       optional: true
     "@opentelemetry/api":
       optional: true
-  checksum: 10c0/7955b42a5c55174f262e3b6b65d87fb72219ed0300734f7ce0fc155d1052285d5513fc81bf510461efc00a04f7471885d2cd7e568fa874d968b3a52ba9fe0c50
+  checksum: 10c0/339def7bf722080d41a008270e8e4e6713ad40a2b4e26fcbdeaaa45b7e38519df82caef38c86619e3c208cc8c1974d1d495e3e34236279c211d06ef92a8c17c8
   languageName: node
   linkType: hard
 
-"@redis/json@npm:6.3.1":
-  version: 6.3.1
-  resolution: "@redis/json@npm:6.3.1"
+"@redis/json@npm:6.4.0":
+  version: 6.4.0
+  resolution: "@redis/json@npm:6.4.0"
   peerDependencies:
-    "@redis/client": ^6.3.1
-  checksum: 10c0/dca78d82a99960dd8c5a7346ede96c39e969798d1ad410b0feba60c9d6083d746da2044fd9eb89bae9b4e6e053482a692b2e03a1d618dc94038736e6c1478e42
+    "@redis/client": ^6.4.0
+  checksum: 10c0/5944486068732daf528ad373576d9b941fea22dcc4acb0e30e1b465a3c1456af579308edb9fba73bf47af1d0fe19cc60e74c8ed851dbe03df48f706cc8a82753
   languageName: node
   linkType: hard
 
-"@redis/search@npm:6.3.1":
-  version: 6.3.1
-  resolution: "@redis/search@npm:6.3.1"
+"@redis/search@npm:6.4.0":
+  version: 6.4.0
+  resolution: "@redis/search@npm:6.4.0"
   peerDependencies:
-    "@redis/client": ^6.3.1
-  checksum: 10c0/9fe60ede0dd3df293647b54d99271d57f0a892b62e06b55f41d446115cec465d336b6b9e98708f63d6e0ad032ccd8297e216c6e099b6e4ece05681c862571bb6
+    "@redis/client": ^6.4.0
+  checksum: 10c0/78f9d1cac1e996cdaaab2c13fe274141bb4995b5ba8365702820789a3356975a4e876e54dd6b15c39dc015bb0027ffeaa8ed7276bc9e54a0f6deaf9608f1031e
   languageName: node
   linkType: hard
 
-"@redis/time-series@npm:6.3.1":
-  version: 6.3.1
-  resolution: "@redis/time-series@npm:6.3.1"
+"@redis/time-series@npm:6.4.0":
+  version: 6.4.0
+  resolution: "@redis/time-series@npm:6.4.0"
   peerDependencies:
-    "@redis/client": ^6.3.1
-  checksum: 10c0/7960a21985364ef65f0fe0043ca9dd8b8e2f5fbdd92fc2e9cb713f27d7c23b3a038acabbe2910cf9ff6d7cb93cd29c2a7dac2c1e9752623af28cc1b8ac23d1f1
+    "@redis/client": ^6.4.0
+  checksum: 10c0/12b77e275f6cde4c63f19ad10f7d03db306b0f9c2e3e7dd7ed82b5ad61763889289da8f0dc7fb68f098ef8061739edd3b0b842d020e6df40625cb8115eeaf324
   languageName: node
   linkType: hard
 
@@ -10104,23 +10104,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"launchdarkly-js-client-sdk@npm:3.9.6":
-  version: 3.9.6
-  resolution: "launchdarkly-js-client-sdk@npm:3.9.6"
+"launchdarkly-js-client-sdk@npm:3.9.7":
+  version: 3.9.7
+  resolution: "launchdarkly-js-client-sdk@npm:3.9.7"
   dependencies:
     escape-string-regexp: "npm:^4.0.0"
-    launchdarkly-js-sdk-common: "npm:5.8.3"
-  checksum: 10c0/58880254a0877eeb0c49cf8ce6f2633dabfda41cd617464a5d2ec60f1f55d73049b6526e6106341532abd76b50947da5008b3c8d3edf166cef746a4001f33a09
+    launchdarkly-js-sdk-common: "npm:5.8.4"
+  checksum: 10c0/7db8908a8bd9b33c117a8eaa590c75bdbd9bc12628fe2a29d9547c72db21473e9ffebd974b58df37ca269aac24600e3c5755ef408032196db3ab916575049920
   languageName: node
   linkType: hard
 
-"launchdarkly-js-sdk-common@npm:5.8.3":
-  version: 5.8.3
-  resolution: "launchdarkly-js-sdk-common@npm:5.8.3"
+"launchdarkly-js-sdk-common@npm:5.8.4":
+  version: 5.8.4
+  resolution: "launchdarkly-js-sdk-common@npm:5.8.4"
   dependencies:
     base64-js: "npm:^1.3.0"
     fast-deep-equal: "npm:^2.0.1"
-  checksum: 10c0/1cd8450a1ba845e5796fd9af72c7656a9de79797b05cc28b21198bf6eb3610ca7a1127502137e78791d34a257b321e7a71e84e7946abc613d90548a56d56c21d
+  checksum: 10c0/955b48a684206f1ff60027bcf496ece935a5a501341a60bef29c9bc6df2e222346bad41892925b9e69e3521d0c72873bc955014798f8ec4f0160c57e1f35f335
   languageName: node
   linkType: hard
 
@@ -12147,7 +12147,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prosemirror-history@npm:1.5.2":
+"prosemirror-history@npm:1.5.2, prosemirror-history@npm:^1.4.1":
   version: 1.5.2
   resolution: "prosemirror-history@npm:1.5.2"
   dependencies:
@@ -12156,18 +12156,6 @@ __metadata:
     prosemirror-view: "npm:^1.31.0"
     rope-sequence: "npm:^1.3.0"
   checksum: 10c0/cb643e9f68fa72749c8cd0b9c07c92bf33f63ffefea0f529339a0ebcf65e7bc3b26bbddbefd5e37e0b6ec062c1040fe42f0005db6bdbbfec7058e72ad0f9601c
-  languageName: node
-  linkType: hard
-
-"prosemirror-history@npm:^1.4.1":
-  version: 1.5.1
-  resolution: "prosemirror-history@npm:1.5.1"
-  dependencies:
-    prosemirror-state: "npm:^1.2.2"
-    prosemirror-transform: "npm:^1.0.0"
-    prosemirror-view: "npm:^1.31.0"
-    rope-sequence: "npm:^1.3.0"
-  checksum: 10c0/3918d2fa9601e98fa45337dcf85601f47dbb09da02ff560388b81420c22b68f0ca462c5ba651466f33d6539aaff30781f8c3dd97143f77cc92ce376c7d85f199
   languageName: node
   linkType: hard
 
@@ -12200,25 +12188,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prosemirror-schema-list@npm:1.5.1":
-  version: 1.5.1
-  resolution: "prosemirror-schema-list@npm:1.5.1"
+"prosemirror-schema-list@npm:1.6.1, prosemirror-schema-list@npm:^1.5.1":
+  version: 1.6.1
+  resolution: "prosemirror-schema-list@npm:1.6.1"
   dependencies:
     prosemirror-model: "npm:^1.0.0"
     prosemirror-state: "npm:^1.0.0"
     prosemirror-transform: "npm:^1.7.3"
-  checksum: 10c0/e6fd27446bc90556a9797f6ca0cb54e7db53cc7c20fbf633b7d0f4709c45accfa2f3a0f6575fe47aa83cb75781a9b773198d236a44db9d8eef2802a1501e4301
-  languageName: node
-  linkType: hard
-
-"prosemirror-schema-list@npm:^1.5.1":
-  version: 1.6.0
-  resolution: "prosemirror-schema-list@npm:1.6.0"
-  dependencies:
-    prosemirror-model: "npm:^1.0.0"
-    prosemirror-state: "npm:^1.0.0"
-    prosemirror-transform: "npm:^1.7.3"
-  checksum: 10c0/d2ee3a93d7852fec779918fe549fde50a6e91d443617fa87fc4114278e448132d90dac40e642e2c09e6635823184023ff7e919fe5afac5aa989fab6c4dd6cab2
+  checksum: 10c0/8d6562d950f11bf99bd2bff5537eca8fd618c124d4c69e807a2c8c68f24427269379719210535b09be455ce1cade64c4ee410042dc4b69ba78f9d2d24f1ef818
   languageName: node
   linkType: hard
 
@@ -12386,15 +12363,15 @@ __metadata:
   linkType: hard
 
 "redis@npm:^6.1.0":
-  version: 6.3.1
-  resolution: "redis@npm:6.3.1"
+  version: 6.4.0
+  resolution: "redis@npm:6.4.0"
   dependencies:
-    "@redis/bloom": "npm:6.3.1"
-    "@redis/client": "npm:6.3.1"
-    "@redis/json": "npm:6.3.1"
-    "@redis/search": "npm:6.3.1"
-    "@redis/time-series": "npm:6.3.1"
-  checksum: 10c0/db78bc84fac4fa5ce8d72ba22178c65f1e5b8b2284077564990531504ec42398f925501205c0bc19227aeaca7424743b249e754d37421c122fe9ab1f17278212
+    "@redis/bloom": "npm:6.4.0"
+    "@redis/client": "npm:6.4.0"
+    "@redis/json": "npm:6.4.0"
+    "@redis/search": "npm:6.4.0"
+    "@redis/time-series": "npm:6.4.0"
+  checksum: 10c0/78a32b0b38f1e9b54e6e95fa52af95beb7c5c66d184a5c4f20b7dc89214ca27fce276563202b5dfdc29f688f17e0603b3d271441236d8b3831079cf69e3c52a0
   languageName: node
   linkType: hard
 
