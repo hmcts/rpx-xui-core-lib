@@ -31,6 +31,14 @@ test('checkbox columns and selection preserve legacy order without mutating the 
   assert.deepEqual(checkbox.group.value.choices, ['a', 'b']);
   checkbox.onChecked(false, 'a');
   assert.deepEqual(checkbox.group.value.choices, ['b']);
+  assert.equal(checkbox.isChecked('b'), true);
+  assert.equal(checkbox.isChecked('a'), false);
+  for (const empty of [null, undefined, false, 0, '']) {
+    checkbox.group.controls.choices.setValue(empty);
+    assert.equal(checkbox.isChecked('a'), empty);
+  }
+  checkbox.group.controls.choices.setValue([]);
+  assert.equal(checkbox.isChecked('a'), false);
 });
 
 test('textarea and file upload preserve configured hint and error descriptions', () => {

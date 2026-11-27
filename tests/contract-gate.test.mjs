@@ -656,6 +656,30 @@ test('registers each new filter feature against the independently required contr
   }
 });
 
+unitNames.push(...[
+  "Google Analytics initializes one external script and queues the original configuration without inline markup",
+  "Google Analytics events and navigation use the injected window and do not duplicate listeners on repeated init",
+  "Google Tag Manager preserves initial, navigation, event and virtual page-view payloads with one script",
+  "analytics script insertion failures are reported, leave services retryable, and do not duplicate initialization",
+  "feature-toggle is a public selective package entry",
+  "launch-darkly is a public selective package entry",
+  "google-analytics is a public selective package entry",
+  "google-tag-manager is a public selective package entry",
+  "manage-session is a public selective package entry",
+  "timeout-notifications is a public selective package entry",
+  "idle runtime packages are optional package peers",
+  "Manage Session retains the calculated idle schedule and interrupt contract",
+  "Manage Session emits existing modal, signout and keepalive state values",
+  "Timeout Notifications converts milliseconds and retains its idle, keepalive and event contracts",
+  "Timeout Notifications defaults keepalive, deduplicates countdowns and closes all sources"
+]);
+addedBrowserJourneys.push(...[
+  "generic pagination disables next after the final result page",
+  "HMCTS paginator reflects the final page and its visible result range",
+  "HMCTS paginator hides page controls and result count for a single-page list",
+  "runtime services load their own external tags once and retain browser event contracts"
+]);
+
 const expectedContracts = addedBrowserJourneys.length + Object.values(addedLaneNames).reduce((sum, names) => sum + names.length, 0) + unitNames.length + nodeNames.length + i18nNames.length + i18nJourneys.length + dueDateJourneys.length + accessibilityJourneys.length + sessionDialogJourneys.length + primitiveJourneys.length + cacheJourneys.length + validationJourneys.length + packageIds.length + 1 + contractInventory.nodeServerUnit.required.length + contractInventory.editorUnit.required.length + contractInventory.editorDrivers.required.length;
 
 function nativeTap(names) {
@@ -1227,10 +1251,10 @@ test('replay CLI requires a complete unique argument set', (t) => {
   }
 });
 
-test('extra passing Vitest cases are allowed while required coverage remains mandatory', (t) => {
+test('extra passing Vitest cases require registration and failed cases remain rejected', (t) => {
   const files = reports(); const report = files['i18n/vitest.json'];
   report.tests.push({ fullName: 'additional real test', status: 'pass' });
-  assert.equal(checkFixture(t, files)(), expectedContracts);
+  assert.throws(checkFixture(t, files), /i18nUnit unregistered contract/);
   report.tests.at(-1).status = 'fail';
   assert.throws(checkFixture(t, files), /Vitest|report/i);
 });
@@ -1326,4 +1350,18 @@ test('new package cases require inventory and feature review before the gate can
   const files = reports();
   files['package.json'].tests.push({ id: 'package.new-unreviewed-case', status: 'passed' });
   assert.throws(checkFixture(t, files), /package unregistered contract/);
+});
+
+test('new unit cases require inventory and feature review before the gate can pass', t => {
+  const files = reports();
+  files['validation.tap'] = nativeTap([...unitNames, 'new unreviewed unit case']);
+  assert.throws(checkFixture(t, files), /unit unregistered contract/);
+});
+
+test('new browser cases require inventory and feature review before the gate can pass', t => {
+  const files = reports();
+  const extra = structuredClone(files['browser.json'].suites[0].specs[0]);
+  extra.title = 'new unreviewed browser case';
+  files['browser.json'].suites[0].specs.push(extra);
+  assert.throws(checkFixture(t, files), /browser unregistered contract/);
 });

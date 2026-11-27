@@ -246,7 +246,11 @@ cookie-banner|rejecting analytics consent persists false and does not enable Dyn
 gov-controls|remaining GOV.UK controls update their reactive form values through real browser input
 gov-controls|textarea instances have unique existing hint and error targets
 gov-controls|migrated controls expose errors and remove missing error descriptions when messages clear
-gov-controls|migrated controls support form reset and have no automated accessibility violations`.split('\n').map(row => {
+gov-controls|migrated controls support form reset and have no automated accessibility violations
+pagination|generic pagination disables next after the final result page
+pagination|HMCTS paginator reflects the final page and its visible result range
+pagination|HMCTS paginator hides page controls and result count for a single-page list
+runtime-services|runtime services load their own external tags once and retain browser event contracts`.split('\n').map(row => {
   const [feature, title] = row.split('|');
   return ['chromium', title, feature];
 });

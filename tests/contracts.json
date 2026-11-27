@@ -216,7 +216,22 @@
       "file upload retains legacy label sizing and reload default",
       "radios preserves the caller-owned option model",
       "invitation and standalone form-group entries share their wrapper and fieldset classes",
-      "the standalone host-removal directive preserves the existing selector"
+      "the standalone host-removal directive preserves the existing selector",
+      "Google Analytics initializes one external script and queues the original configuration without inline markup",
+      "Google Analytics events and navigation use the injected window and do not duplicate listeners on repeated init",
+      "Google Tag Manager preserves initial, navigation, event and virtual page-view payloads with one script",
+      "analytics script insertion failures are reported, leave services retryable, and do not duplicate initialization",
+      "feature-toggle is a public selective package entry",
+      "launch-darkly is a public selective package entry",
+      "google-analytics is a public selective package entry",
+      "google-tag-manager is a public selective package entry",
+      "manage-session is a public selective package entry",
+      "timeout-notifications is a public selective package entry",
+      "idle runtime packages are optional package peers",
+      "Manage Session retains the calculated idle schedule and interrupt contract",
+      "Manage Session emits existing modal, signout and keepalive state values",
+      "Timeout Notifications converts milliseconds and retains its idle, keepalive and event contracts",
+      "Timeout Notifications defaults keepalive, deduplicates countdowns and closes all sources"
     ]
   },
   "browser": {
@@ -1261,6 +1276,26 @@
         "projectName": "chromium",
         "title": "migrated controls support form reset and have no automated accessibility violations",
         "feature": "gov-controls"
+      },
+      {
+        "projectName": "chromium",
+        "title": "generic pagination disables next after the final result page",
+        "feature": "pagination"
+      },
+      {
+        "projectName": "chromium",
+        "title": "HMCTS paginator reflects the final page and its visible result range",
+        "feature": "pagination"
+      },
+      {
+        "projectName": "chromium",
+        "title": "HMCTS paginator hides page controls and result count for a single-page list",
+        "feature": "pagination"
+      },
+      {
+        "projectName": "chromium",
+        "title": "runtime services load their own external tags once and retain browser event contracts",
+        "feature": "runtime-services"
       }
     ]
   },
@@ -1484,7 +1519,7 @@
       "RpxTranslationService language changes does not replace English with a stale failed-request fallback",
       "RpxTranslationService language changes returns English for phrases matching inherited Object property names",
       "RpxTranslationService public API composition translates only static fragments and preserves repeated numeric replacements and spacing",
-      "RpxTranslationService public API composition selects Yes/No metadata and matches each input’s initial letter case from one request",
+      "RpxTranslationService public API composition selects Yes/No metadata and matches each input\u2019s initial letter case from one request",
       "RpxTranslationService public API composition restores original Yes/No inputs after a successful response without answer metadata",
       "RpxTranslationService request lifecycle batches distinct phrases and deduplicates repeated subscriptions and normalized aliases",
       "RpxTranslationService request lifecycle uses source fallback in production mode and allows a subsequent phrase to translate",

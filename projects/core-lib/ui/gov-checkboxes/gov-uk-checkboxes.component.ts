@@ -49,7 +49,8 @@ export class GovUkCheckboxesComponent implements OnInit {
 
   public isChecked(value: string) {
     const formControl = this.group.get(this.config.name);
-    return formControl.value && formControl.value.includes(value);
+    if (!formControl.value) return formControl.value;
+    return formControl.value.includes(value);
   }
 
   private setColumns(): CheckboxesModel[][] {

@@ -16,7 +16,6 @@ export class GovUkRadioComponent implements OnInit {
   constructor() { }
   @Input() public group: FormGroup;
   @Input() public config: GovUiConfigModel;
-  // {value: string, label: string, hint: string; name: string; focusOn: string; id: string; classes: string}; // TODO create interface
 
   public id: string;
 
