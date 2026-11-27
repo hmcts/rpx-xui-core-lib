@@ -2785,7 +2785,15 @@
       "feature": "Node authentication strategy",
       "lane": "nodeServerUnit",
       "suiteTokens": [
-        "projects/core-lib/node/server/auth/models/strategy.class.spec.ts"
+        "projects/core-lib/node/server/auth/models/strategy.class.spec.ts",
+        "projects/core-lib/node/server/auth/models/csrf-provenance.spec.ts"
+      ]
+    },
+    {
+      "feature": "Node login handler failure completion",
+      "lane": "nodeServerUnit",
+      "suiteTokens": [
+        "projects/core-lib/node/server/auth/models/login-handler-failures.integration.spec.ts"
       ]
     },
     {
