@@ -1668,6 +1668,8 @@
       "projects/core-lib/node/server/auth/oidc/models/openid.class.spec.ts OIDC discover",
       "projects/core-lib/node/server/auth/oidc/models/openid.class.spec.ts OIDC discoverIssuer",
       "projects/core-lib/node/server/auth/oidc/models/openid.class.spec.ts OIDC initialiseStrategy",
+      "projects/core-lib/node/server/auth/oidc/models/openid.class.spec.ts OIDC discovery recovers from one transient provider failure with its bounded retry",
+      "projects/core-lib/node/server/auth/oidc/models/openid.class.spec.ts OIDC discovery stops after one retry and keeps strategy initialization failed",
       "projects/core-lib/node/server/auth/oidc/models/openid.class.spec.ts OIDC jwTokenExpired",
       "projects/core-lib/node/server/auth/oidc/models/openid.class.spec.ts OIDC loginHandler",
       "projects/core-lib/node/server/auth/oidc/models/openid.class.spec.ts OIDC loginHandler ignores non-string login_hint values",

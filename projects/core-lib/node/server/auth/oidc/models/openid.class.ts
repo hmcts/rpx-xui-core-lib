@@ -21,6 +21,8 @@ import { VERIFY_ERROR_MESSAGE_NO_ACCESS_ROLES } from '../../messaging.constants'
 import { getLogger, XuiLogger } from '../../../common/util/debug.logger'
 import { MySessionData } from '../../models/sessionData.interface'
 
+const OIDC_DISCOVERY_RETRY_DELAY_MS = 250
+
 export class OpenID extends AuthStrategy {
     protected issuer: Issuer<Client> | undefined
     protected client: Client | undefined
@@ -41,7 +43,6 @@ export class OpenID extends AuthStrategy {
     /* istanbul ignore next */
     public setHttpOptionsDefaults = (options: HttpOptions): void => {
         const defaults = {
-            retry: 3,
             timeout: 15000,
             hooks: {
                 beforeRequest: [
@@ -147,7 +148,19 @@ export class OpenID extends AuthStrategy {
 
     public discover = async (): Promise<Issuer<Client>> => {
         this.logger.info('discovering OIDC issuer')
-        const issuer = await this.discoverIssuer()
+        let issuer: Issuer<Client>
+        try {
+            issuer = await this.discoverIssuer()
+        } catch (error) {
+            this.logger.warn('OIDC discovery failed; retrying once', this.getSafeErrorName(error))
+            await new Promise<void>((resolve) => setTimeout(resolve, OIDC_DISCOVERY_RETRY_DELAY_MS))
+            try {
+                issuer = await this.discoverIssuer()
+            } catch (retryError) {
+                this.logger.error('OIDC discovery failed after one retry', this.getSafeErrorName(retryError))
+                throw retryError
+            }
+        }
 
         const metadata = issuer.metadata
         this.logger.log('OIDC discovery metadata received')
