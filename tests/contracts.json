@@ -179,8 +179,8 @@
       "a mismatched local owner is removed and the session setting survives",
       "cached local settings become unavailable when the owner changes",
       "a second user can save their own filter after rejecting the first owner",
-      "local restore removes settings with a legacy raw ID or no ownership metadata",
-      "an owned local selection is removed if no current owner is available",
+      "local restore removes raw-ID records but keeps unowned filters unavailable",
+      "an owned local selection survives an unavailable owner and restores once identity arrives",
       "local writes fall back to session without a supplied owner hash",
       "session writes remove colliding local data and survive only during that session",
       "streams replay restored state, publish changes per ID and emit null on clear",
@@ -1193,6 +1193,16 @@
       {
         "projectName": "chromium",
         "title": "invalid Apply exposes template errors and Reset rebinds edits to the active form",
+        "feature": "generic-filter"
+      },
+      {
+        "projectName": "chromium",
+        "title": "a local filter survives unavailable identity and restores after the same owner returns",
+        "feature": "generic-filter"
+      },
+      {
+        "projectName": "chromium",
+        "title": "a local filter is not exposed to another known owner",
         "feature": "generic-filter"
       },
       {
