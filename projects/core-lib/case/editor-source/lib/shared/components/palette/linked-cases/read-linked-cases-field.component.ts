@@ -73,7 +73,7 @@ export class ReadLinkedCasesFieldComponent implements OnInit, AfterViewInit {
   }
 
   public reloadCurrentRoute(): void {
-    this.router.navigate(['cases', 'case-details', this.linkedCasesService.caseJurisdictionID, this.linkedCasesService.caseDetails.case_type, this.linkedCasesService.caseDetails.case_id], { fragment: 'Linked cases' });
+    this.router.navigate(['cases', 'case-details', this.linkedCasesService.caseDetails.case_type.jurisdiction.id, this.linkedCasesService.caseDetails.case_type.id, this.linkedCasesService.caseDetails.case_id], { fragment: 'Linked cases' });
   }
 
   // Retain the Toolkit event-handler signature.
