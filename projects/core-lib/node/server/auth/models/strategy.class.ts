@@ -224,51 +224,59 @@ export abstract class Strategy extends events.EventEmitter {
 
         try {
             this.logger.log('logout start')
-            const { accessToken, refreshToken, idToken } = reqSession?.passport.user.tokenset || null
-
+            const tokens = reqSession?.passport?.user?.tokenset
+            const { accessToken, refreshToken, idToken } = tokens || {}
             const auth = this.getAuthorization(this.options.clientID, this.options.clientSecret)
+            const revocationTokens = [accessToken, refreshToken].filter((token): token is string => Boolean(token))
 
-            await http.delete(this.urlFromToken(this.options.logoutURL, accessToken), {
-                headers: {
-                    Authorization: auth,
-                },
-            })
-            await http.delete(this.urlFromToken(this.options.logoutURL, refreshToken), {
-                headers: {
-                    Authorization: auth,
-                },
-            })
+            await Promise.all(revocationTokens.map(async (token) => {
+                try {
+                    await http.delete(this.urlFromToken(this.options.logoutURL, token), {
+                        headers: { Authorization: auth },
+                        timeout: 5000,
+                    })
+                } catch (error) {
+                    // Remote revocation is best effort; local session cleanup is the logout guarantee.
+                    this.logger.error('remote token revocation failed during logout', this.getSafeErrorName(error))
+                }
+            }))
 
-            //passport provides this method on request object
-            req.logout({ keepSessionInfo: false }, async (err) => {
-                if (err) {
-                    this.logger.error('logout callback error', this.getSafeErrorName(err))
-                    return next(err)
-                }
-                await this.destroySession(req)
-                /* istanbul ignore next */
-                if (req.query.noredirect) {
-                    res.status(200).send({ message: 'You have been logged out!' })
-                    return Promise.resolve()
-                }
-                const redirectUrl = URL.format({
-                    protocol: req.protocol,
-                    host: req.get('host'),
+            let passportLogoutError: unknown
+            try {
+                await new Promise<void>((resolve) => {
+                    req.logout({ keepSessionInfo: false }, (error) => {
+                        passportLogoutError = error
+                        resolve()
+                    })
                 })
-                const finalSSOLogoutUrl = this.getSSOLogoutUrl(redirectUrl, idToken)
+            } catch (error) {
+                passportLogoutError = error
+            }
 
-                const redirect = finalSSOLogoutUrl ? finalSSOLogoutUrl : AUTH.ROUTE.LOGIN
+            try {
+                await this.destroySession(req)
+            } catch (error) {
+                this.logger.error('session destruction failed during logout', this.getSafeErrorName(error))
+                return next(error)
+            }
 
-                this.logger.log('redirecting to logout target')
-                // 401 is when no accessToken
-                res.redirect(redirect as string)
+            if (passportLogoutError) {
+                this.logger.error('logout callback error', this.getSafeErrorName(passportLogoutError))
+                return next(passportLogoutError)
+            }
 
-                /* istanbul ignore next */
-            })
-
+            if (req.query.noredirect) {
+                res.status(200).send({ message: 'You have been logged out!' })
+                return
+            }
+            const redirectUrl = URL.format({ protocol: req.protocol, host: req.get('host') })
+            const finalSSOLogoutUrl = this.getSSOLogoutUrl(redirectUrl, idToken)
+            const redirect = finalSSOLogoutUrl ? finalSSOLogoutUrl : AUTH.ROUTE.LOGIN
+            this.logger.log('redirecting to logout target')
+            res.redirect(redirect)
         } catch (e) {
             this.logger.error('logout error', this.getSafeErrorName(e))
-            res.status(401).redirect(AUTH.ROUTE.DEFAULT_REDIRECT)
+            next(e)
         }
         this.logger.log('logout end')
     }
@@ -294,6 +302,9 @@ export abstract class Strategy extends events.EventEmitter {
     /* istanbul ignore next */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- preserve the migrated Node Lib public callback or provider contract until a separately versioned type change.
     public destroySession = async (req: Request): Promise<any> => {
+        if (!req.session) {
+            return true
+        }
         return new Promise((resolve, reject) => {
             req.session?.destroy((err) => {
                 if (err) {
@@ -618,21 +629,16 @@ export abstract class Strategy extends events.EventEmitter {
         }
     }
 
-    /**
-     * retrieve the csrf token value, lastly from sent cookies
-     * @param req
-     * @return string
-     */
+    /** Read submitted CSRF tokens from request bodies or headers; the XSRF cookie is client-side token material only. */
     /* istanbul ignore next */
     public getCSRFValue = (req: Request): string => {
         return (
             (req.body && req.body._csrf) ||
-            (req.query && req.query._csrf) ||
             req.headers['csrf-token'] ||
             req.headers['xsrf-token'] ||
             req.headers['x-csrf-token'] ||
             req.headers['x-xsrf-token'] ||
-            req.cookies['XSRF-TOKEN']
+            ''
         )
     }
 

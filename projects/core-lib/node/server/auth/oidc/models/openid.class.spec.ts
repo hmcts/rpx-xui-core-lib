@@ -870,7 +870,7 @@ test('keepAliveHandler session and isAuthenticated uses introspection for refres
     const spyOnRefresh = jest.fn().mockReturnValue(tokenSet)
     client.refresh = spyOnRefresh
     const spyConvertTokenSet = jest.spyOn(oidc, 'convertTokenSet')
-    const convertedTokenSet = createMock<TokenSet>()
+    const convertedTokenSet = { accessToken: 'converted-access', refreshToken: 'converted-refresh', idToken: 'converted-id' }
     spyConvertTokenSet.mockReturnValue(convertedTokenSet)
 
     const spyListenerCount = jest.spyOn(oidc, 'listenerCount').mockReturnValue(1)
