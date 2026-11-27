@@ -52,10 +52,33 @@ test('Google Analytics initializes one external script and queues the original c
   assert.equal(context.dataLayer[1][2].send_page_view, false);
 });
 
+test('Google Analytics shim queues Arguments objects for initialization, events and navigation', () => {
+  const context = analyticsContext();
+  const service = new GoogleAnalyticsService(context.router, /** @type {import('@angular/platform-browser').Title} */ (/** @type {unknown} */ (context.title)), /** @type {Window} */ (/** @type {unknown} */ (context.window)), /** @type {Document} */ (/** @type {unknown} */ (context.document)));
+
+  service.init('G-12345');
+  service.event('case_opened', { caseId: 'case-1' });
+  context.routeEvents.next(new NavigationEnd(1, '/case/1', '/case/1'));
+
+  assert.equal(context.dataLayer.length, 4);
+  for (const entry of context.dataLayer) {
+    assert.equal(Array.isArray(entry), false);
+    assert.equal(Object.prototype.toString.call(entry), '[object Arguments]');
+  }
+  assert.deepEqual(Array.from(context.dataLayer[0]), ['js', context.dataLayer[0][1]]);
+  assert.ok(context.dataLayer[0][1] instanceof Date);
+  assert.deepEqual(Array.from(context.dataLayer[1]), ['config', 'G-12345', { send_page_view: false }]);
+  assert.deepEqual(Array.from(context.dataLayer[2]), ['event', 'case_opened', { caseId: 'case-1' }]);
+  assert.deepEqual(Array.from(context.dataLayer[3]), ['config', 'G-12345', {
+    page_path: '/case/1', page_title: 'Current case'
+  }]);
+});
+
 test('Google Analytics events and navigation use the injected window and do not duplicate listeners on repeated init', () => {
   const context = analyticsContext();
   const calls = [];
-  context.window.gtag = (...args) => calls.push(args);
+  const originalGtag = (...args) => calls.push(args);
+  context.window.gtag = originalGtag;
   const service = new GoogleAnalyticsService(context.router, /** @type {import('@angular/platform-browser').Title} */ (/** @type {unknown} */ (context.title)), /** @type {Window} */ (/** @type {unknown} */ (context.window)), /** @type {Document} */ (/** @type {unknown} */ (context.document)));
 
   service.init('G-12345');
@@ -65,6 +88,8 @@ test('Google Analytics events and navigation use the injected window and do not 
 
   assert.equal(context.scripts.length, 1);
   assert.equal(service.googleAnalyticsKey, 'G-12345');
+  assert.strictEqual(context.window.gtag, originalGtag);
+  assert.equal(context.dataLayer.length, 0);
   assert.equal(calls.filter(([command, , params]) => command === 'config' && params?.page_path).length, 1);
   assert.deepEqual(calls.find(([command]) => command === 'event'), ['event', 'case_opened', { caseId: 'case-1' }]);
   assert.deepEqual(calls.filter(([command]) => command === 'config').at(-1), ['config', 'G-12345', {
