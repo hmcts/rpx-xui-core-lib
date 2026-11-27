@@ -26,6 +26,7 @@ import {
 import { Confirmation, Wizard, WizardPage } from '../domain';
 import { EventCompletionParams } from '../domain/event-completion-params.model';
 import { CaseNotifier, WizardFactoryService, WorkAllocationService } from '../services';
+import { CaseFlagStateService } from '../services/case-flag-state.service';
 import { ValidPageListCaseFieldsService } from '../services/valid-page-list-caseFields.service';
 import { removeTaskFromClientContext } from '../case-edit-utils/case-edit.utils';
 import { safeJsonParse } from '../../../json-utils';
@@ -126,6 +127,7 @@ export class CaseEditComponent implements OnInit, OnDestroy {
     private readonly workAllocationService: WorkAllocationService,
     private readonly alertService: AlertService,
     private readonly abstractConfig: AbstractAppConfig,
+    private readonly caseFlagStateService: CaseFlagStateService,
     // Preserve the Toolkit constructor dependency for Angular injection.
     _cookieService: ReadCookieService,
     private readonly errorHandler: ErrorHandler = new ErrorHandler()
@@ -508,6 +510,9 @@ export class CaseEditComponent implements OnInit, OnDestroy {
       }))
       .subscribe(
         () => {
+          if (this.isCaseFlagSubmission) {
+            this.caseFlagStateService.resetInitialCaseFlags();
+          }
           this.finishEventCompletionLogic(eventResponse);
         },
         error => {
@@ -522,6 +527,9 @@ export class CaseEditComponent implements OnInit, OnDestroy {
                 .mapFieldErrors(this.error.details.field_errors, form.controls['data'] as FormGroup, 'validation');
             }
           } else {
+            if (this.isCaseFlagSubmission) {
+              this.caseFlagStateService.resetInitialCaseFlags();
+            }
             this.sessionStorageService.setItem('taskCompletionError', 'true');
             // task assignment/completion error - handled within workallocation service
             // could set task to be deleted (or completed later)?

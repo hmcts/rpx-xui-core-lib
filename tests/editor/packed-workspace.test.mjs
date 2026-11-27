@@ -18,7 +18,20 @@ test('isolates the packed package and removes its source aliases', async () => {
     for (const file of ['tests/vitest-setup.ts', 'tests/vitest-zoneless.providers.ts', 'tests/reporters/vitest-evidence-reporter.mjs']) {
       await writeFile(join(root, file), '// packed browser support\n');
     }
-    const paths = { '@hmcts/rpx-xui-core-lib/case/notifier': ['source'], '@hmcts/rpx-xui-core-lib/case/editor-source': ['source'], '@hmcts/rpx-xui-core-lib/i18n': ['i18n'], '@hmcts/rpx-xui-core-lib/browser/session-storage': ['source'], '@hmcts/rpx-xui-core-lib/case/models': ['source'], '@hmcts/rpx-xui-core-lib/case/reference': ['source'], '@hmcts/rpx-xui-core-lib/case/editor-date': ['source'], '@hmcts/rpx-xui-core-lib/address/normalization': ['source'], '@hmcts/rpx-xui-core-lib/browser/user-agent': ['source'] };
+    const paths = {
+      '@hmcts/rpx-xui-core-lib/case/notifier': ['source'],
+      '@hmcts/rpx-xui-core-lib/case/editor-source': ['source'],
+      '@hmcts/rpx-xui-core-lib/i18n': ['i18n'],
+      '@hmcts/rpx-xui-core-lib/browser/session-storage': ['source'],
+      '@hmcts/rpx-xui-core-lib/case/models': ['source'],
+      '@hmcts/rpx-xui-core-lib/case/reference': ['source'],
+      '@hmcts/rpx-xui-core-lib/case/editor-date': ['source'],
+      '@hmcts/rpx-xui-core-lib/address/normalization': ['source'],
+      '@hmcts/rpx-xui-core-lib/browser/user-agent': ['source'],
+      '@hmcts/rpx-xui-core-lib/ui/feature-toggle': ['source'],
+      '@hmcts/rpx-xui-core-lib/case/session-guard': ['source'],
+      '@hmcts/rpx-xui-core-lib/case/logging': ['source']
+    };
     await writeFile(join(root, 'tests/editor/tsconfig.json'), JSON.stringify({ compilerOptions: { paths } }));
     workspace = await preparePackedWorkspace(root);
     const config = JSON.parse(await readFile(join(workspace, 'tests/editor/tsconfig.json'), 'utf8'));

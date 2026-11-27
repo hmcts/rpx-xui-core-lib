@@ -134,6 +134,7 @@
           "RpxTranslationService Null/Undefined handling returns an empty string for undefined yesOrNoValue without a request",
           "translation real cache recovery recovers from a rejected invalid deletion with real IndexedDB and a fresh service",
           "translation real cache recovery recovers from a rejected expired deletion with real IndexedDB and a fresh service",
+          "translation real cache recovery shows the source fallback after a transient service failure without caching it, then retries translation",
           "translation real cache recovery keeps a malformed response fallback stable then recovers after a language cycle",
           "replacePlaceholders handles literal metacharacter keys, repeated values and empty literals",
           "RpxTranslatePipe transform passes explicit literal replacements to the service",
@@ -264,7 +265,7 @@
           },
           {
             "projectName": "chromium",
-            "title": "a translation HTTP failure returns and caches the original phrase",
+            "title": "a translation HTTP failure returns the source fallback without caching and retries successfully",
             "feature": "i18n"
           },
           {
@@ -1653,7 +1654,10 @@
           "Editor HTTP error handler contract uses the transport status when direct model conversion has no body status",
           "Editor alert migration contract shows the event-trigger failure message and preserves its rejection",
           "Editor error summary accessibility associates one heading for each generic or event error branch",
-          "Editor error summary accessibility associates one heading for each generic or callback viewer error branch"
+          "Editor error summary accessibility associates one heading for each generic or callback viewer error branch",
+          "Case editor submission data contract clears the case flag snapshot after a successful event response",
+          "Case editor submission data contract keeps persisted case flags available when a failed submission is retried",
+          "Case editor submission data contract clears a previous event snapshot when a new case flag journey starts"
         ]
       }
     },
@@ -1940,7 +1944,9 @@
           "Case flag writer migration contract restores matching flag statuses in root and nested details",
           "Dynamic list sanitiser migration contract preserves list definition order for nested multiselect fields",
           "Dynamic list sanitiser migration contract keeps unmatched dynamic-list strings intact",
-          "Dynamic radio list migration contract maps a code or nested value to its label and leaves unknown codes empty"
+          "Dynamic radio list migration contract maps a code or nested value to its label and leaves unknown codes empty",
+          "Case flag writer migration contract retains persisted case flags through a new flag selection and submission mapping",
+          "Case flag writer migration contract replaces only a prior unsaved flag when the writer adds another flag"
         ]
       }
     },
