@@ -71,7 +71,11 @@ describe('RpxTranslationService overlapping batches', () => {
       expect(first.at(-1)).toBe(outcome === 'success' ? welshNotice : notice);
       expect(alias.at(-1)).toBe(outcome === 'success' ? welshNotice : notice);
       expect(second.at(-1)).toBe(`${hearing} [Translation in progress]`);
-      expect(writes.mock.lastCall![0].map(translation => translation.phrase)).toEqual([notice]);
+      if (outcome === 'success') {
+        expect(writes.mock.lastCall![0].map(translation => translation.phrase)).toEqual([notice]);
+      } else {
+        expect(writes).not.toHaveBeenCalled();
+      }
       await vi.advanceTimersByTimeAsync(debounceMs / 2);
       expect(requests.length).toBe(2);
       expect(requests[1].body).toEqual({ phrases: [hearing] });
@@ -108,7 +112,7 @@ describe('RpxTranslationService overlapping batches', () => {
       expect(first.at(-1)).toBe(outcome === 'success' ? welshNotice : notice);
       expect(alias.at(-1)).toBe(outcome === 'success' ? welshNotice : notice);
       expect(second.at(-1)).toBe(welshHearing);
-      expect(writes.mock.lastCall![0].map(translation => translation.phrase)).toEqual([notice]);
+      expect(writes.mock.lastCall![0].map(translation => translation.phrase)).toEqual(outcome === 'success' ? [notice] : [hearing]);
       expect(requests.length).toBe(2);
     });
   }

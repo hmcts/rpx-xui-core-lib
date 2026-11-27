@@ -200,8 +200,6 @@ export class SelectFlagTypeComponent extends AbstractJourneyComponent implements
   private handleFlagTypeSelection(): void {
     if (this.selectedFlagType?.isParent) {
       this.loadChildFlagTypes();
-    } else {
-      this.completeSubJourney();
     }
   }
 
@@ -216,15 +214,6 @@ export class SelectFlagTypeComponent extends AbstractJourneyComponent implements
       this.formGroup.get(CaseFlagFormFields.FLAG_TYPE)?.setValue(value, { emitEvent: false });
     }
     this.subJourneyIndex++;
-  }
-
-  private completeSubJourney(): void {
-    const currentSelectedFlag = this.formGroup.controls.flagType;
-    const addedFlagValue = this.selectedFlagsLocation?.caseField?.value?.details;
-    if (addedFlagValue && (addedFlagValue[Object.keys(addedFlagValue).length]?.name !== currentSelectedFlag.value.name)) {
-      this.selectedFlagsLocation['caseField'].value.details.pop();
-      this.selectedFlagsLocation['caseField'].formatted_value?.details.pop();
-    }
   }
 
   // Simplified version of the onPrevious method with optimized code

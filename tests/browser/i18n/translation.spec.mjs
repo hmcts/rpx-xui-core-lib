@@ -32,16 +32,29 @@ test('locale switches reuse persisted translations across English and page reloa
   expect(requests).toHaveLength(1);
 });
 
-test('a translation HTTP failure returns and caches the original phrase', async ({ page }) => {
-  await page.route('**/translations/cy', (route) => route.fulfill({ status: 503, json: { error: 'Unavailable' } }));
+test('a translation HTTP failure returns the source fallback without caching and retries successfully', async ({ page }) => {
+  const requests = [];
+  await page.route('**/translations/cy', async (route) => {
+    requests.push(route.request().postDataJSON());
+    if (requests.length === 1) {
+      await route.fulfill({ status: 503, json: { error: 'Unavailable' } });
+      return;
+    }
+    await route.fulfill({ json: { translations: { 'Hello world': 'Helo byd' } } });
+  });
   await page.goto('/translation');
   await page.getByRole('button', { name: 'Cymraeg' }).click();
   await expect(page.getByTestId('language')).toHaveText('cy');
-  await expect.poll(() => cachedTranslations(page)).toEqual([
-    expect.objectContaining({ phrase: 'Hello world', lang: 'cy', translation: { translation: 'Hello world' } }),
-  ]);
+  await expect.poll(() => cachedTranslations(page)).toEqual([]);
   await expect(page.getByTestId('translation')).toHaveText('Hello world');
   await expect(page.getByTestId('translation')).toHaveAttribute('lang', 'en');
+  await page.getByRole('button', { name: 'English' }).click();
+  await page.getByRole('button', { name: 'Cymraeg' }).click();
+  await expect(page.getByTestId('translation')).toHaveText('Helo byd');
+  await expect.poll(() => cachedTranslations(page)).toEqual([
+    expect.objectContaining({ phrase: 'Hello world', lang: 'cy', translation: { translation: 'Helo byd' } }),
+  ]);
+  expect(requests).toEqual([{ phrases: ['Hello world'] }, { phrases: ['Hello world'] }]);
 });
 
 test('a malformed Welsh response falls back without caching and retries successfully', async ({ page }) => {
