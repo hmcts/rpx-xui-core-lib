@@ -10,4 +10,3 @@ export interface RadioButtonsModel {
   errors: any;
   items: GovUiConfigModel[];
 }
-
