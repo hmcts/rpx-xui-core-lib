@@ -18,6 +18,7 @@ class ValidationGallery {
 }
 
 const galleries: Array<{ matches: (path: string) => boolean; start: () => Promise<unknown> }> = [
+  { matches: path => path.startsWith('/common-shell'), start: () => import('./common-shell').then(({ startCommonShellGallery }) => startCommonShellGallery()) },
   { matches: path => path === '/service-messages', start: () => import('./service-messages').then(({ startServiceMessagesGallery }) => startServiceMessagesGallery()) },
   { matches: path => path === '/hmcts-shell', start: () => import('./hmcts-shell').then(({ startHmctsShellGallery }) => startHmctsShellGallery()) },
   { matches: path => path === '/runtime-services', start: () => import('./runtime-services').then(({ startRuntimeServicesGallery }) => startRuntimeServicesGallery()) },

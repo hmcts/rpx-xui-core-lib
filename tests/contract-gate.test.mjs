@@ -680,6 +680,34 @@ addedBrowserJourneys.push(...[
   "runtime services load their own external tags once and retain browser event contracts"
 ]);
 
+unitNames.push(...[
+  "main wrapper retains route and event-only Back visibility with its original void output",
+  "main wrapper retains banner identity and initialization-only Back calculation",
+  "primary navigation preserves the caller login state and item objects",
+  "identity bar preserves its name setter and legacy null-input failure",
+  "GOV.UK table retains caption, column and row-header defaults independently per instance",
+  "GOV.UK table preserves the public column model and caller-owned row/configuration identities",
+  "GOV.UK table formats dates using its existing day/month/year contract and rejects invalid dates",
+  "Let renders one embedded view and updates both aliases in its original context including falsy values",
+  "Let instances retain independent contexts and caller object identity"
+]);
+addedBrowserJourneys.push(...[
+  "CommonLib page shell projects content and forwards identity, banner and error-summary inputs",
+  "event-only Back supports Enter and Space without navigation",
+  "shell action callbacks support Enter and Space without navigation",
+  "routed Back remains a native link and emits its existing event once",
+  "primary navigation keeps routed links, login visibility and sanitized formatted labels",
+  "table date cells render exactly one formatted value in data and row-header columns",
+  "Let retains its rendered view and updates falsy values without hiding the content",
+  "CommonLib shell and table have no scoped automated accessibility violations"
+]);
+packageIds.push(...[
+  "package.common-shell-behavior",
+  "package.common-shell-browser",
+  "package.common-shell-types",
+  "package.common-shell-graphs"
+]);
+
 const expectedContracts = addedBrowserJourneys.length + Object.values(addedLaneNames).reduce((sum, names) => sum + names.length, 0) + unitNames.length + nodeNames.length + i18nNames.length + i18nJourneys.length + dueDateJourneys.length + accessibilityJourneys.length + sessionDialogJourneys.length + primitiveJourneys.length + cacheJourneys.length + validationJourneys.length + packageIds.length + 1 + contractInventory.nodeServerUnit.required.length + contractInventory.editorUnit.required.length + contractInventory.editorDrivers.required.length;
 
 function nativeTap(names) {

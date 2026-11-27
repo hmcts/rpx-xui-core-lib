@@ -216,6 +216,61 @@
     },
     "assets": [
       {
+        "input": "ui/hmcts-main-wrapper",
+        "glob": "LICENCE",
+        "output": "ui/hmcts-main-wrapper"
+      },
+      {
+        "input": "ui/hmcts-primary-navigation",
+        "glob": "LICENCE",
+        "output": "ui/hmcts-primary-navigation"
+      },
+      {
+        "input": "ui/hmcts-identity-bar",
+        "glob": "LICENCE",
+        "output": "ui/hmcts-identity-bar"
+      },
+      {
+        "input": "ui/gov-table",
+        "glob": "LICENCE",
+        "output": "ui/gov-table"
+      },
+      {
+        "input": "ui/let",
+        "glob": "LICENCE",
+        "output": "ui/let"
+      },
+      {
+        "input": "ui/gov-radio",
+        "glob": "LICENCE",
+        "output": "ui/gov-radio"
+      },
+      {
+        "input": "ui/gov-radios",
+        "glob": "LICENCE",
+        "output": "ui/gov-radios"
+      },
+      {
+        "input": "ui/gov-checkboxes",
+        "glob": "LICENCE",
+        "output": "ui/gov-checkboxes"
+      },
+      {
+        "input": "ui/gov-textarea",
+        "glob": "LICENCE",
+        "output": "ui/gov-textarea"
+      },
+      {
+        "input": "ui/gov-file-upload",
+        "glob": "LICENCE",
+        "output": "ui/gov-file-upload"
+      },
+      {
+        "input": "ui/form-group",
+        "glob": "LICENCE",
+        "output": "ui/form-group"
+      },
+      {
         "input": "ui/service-messages",
         "glob": "LICENCE",
         "output": "ui/service-messages"

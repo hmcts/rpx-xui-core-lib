@@ -1,0 +1,42 @@
+import {Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import type { HmctsBannerInfo } from './hmcts-banner-info.interface';
+/*
+* Main Content wrapper
+* Responsible for:
+ * Wrapping content within the gov-uk html elements bellow
+ * @prop showBackLink - switch for back link
+ * @prop title = title
+ * @prop summaryErrors list of errors
+* @prop back link, title (title), summaryErrors (array of errors)
+* */
+@Component({
+    selector: 'xuilib-hmcts-main-wrapper',
+    templateUrl: './hmcts-main-wrapper.component.html',
+    styleUrls: ['./hmcts-main-wrapper.component.scss'],
+    standalone: false
+})
+export class HmctsMainWrapperComponent implements OnInit {
+  public bannerData: HmctsBannerInfo;
+
+  @Input() public backLink?: string;
+  @Input() public title: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Preserve CommonLib translated message input values.
+  @Input() public summaryErrors: {header: string; isFromValid: boolean; items: { id: string; message: any; }[]} | null | undefined;
+  @Input() public set banner(value: HmctsBannerInfo) {
+    this.bannerData = value;
+  }
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type -- Preserve CommonLib callback return contract.
+  @Input() public actionButtons: {name: string, class: string, action(): {}}[];
+  @Input() public showWarningMessage: boolean;
+
+  @Output() public backEvent = new EventEmitter<void>();
+  public hasBackLink: boolean;
+
+  public ngOnInit() {
+    this.hasBackLink = this.backLink !== undefined || this.backEvent.observers.length > 0;
+  }
+
+  public onGoBack() {
+    this.backEvent.emit();
+  }
+}

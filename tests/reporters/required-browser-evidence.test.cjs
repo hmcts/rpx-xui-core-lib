@@ -250,7 +250,15 @@ gov-controls|migrated controls support form reset and have no automated accessib
 pagination|generic pagination disables next after the final result page
 pagination|HMCTS paginator reflects the final page and its visible result range
 pagination|HMCTS paginator hides page controls and result count for a single-page list
-runtime-services|runtime services load their own external tags once and retain browser event contracts`.split('\n').map(row => {
+runtime-services|runtime services load their own external tags once and retain browser event contracts
+common-shell|CommonLib page shell projects content and forwards identity, banner and error-summary inputs
+common-shell|event-only Back supports Enter and Space without navigation
+common-shell|shell action callbacks support Enter and Space without navigation
+common-shell|routed Back remains a native link and emits its existing event once
+primary-navigation|primary navigation keeps routed links, login visibility and sanitized formatted labels
+gov-table|table date cells render exactly one formatted value in data and row-header columns
+let|Let retains its rendered view and updates falsy values without hiding the content
+common-shell|CommonLib shell and table have no scoped automated accessibility violations`.split('\n').map(row => {
   const [feature, title] = row.split('|');
   return ['chromium', title, feature];
 });

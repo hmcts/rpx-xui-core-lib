@@ -231,7 +231,16 @@
       "Manage Session retains the calculated idle schedule and interrupt contract",
       "Manage Session emits existing modal, signout and keepalive state values",
       "Timeout Notifications converts milliseconds and retains its idle, keepalive and event contracts",
-      "Timeout Notifications defaults keepalive, deduplicates countdowns and closes all sources"
+      "Timeout Notifications defaults keepalive, deduplicates countdowns and closes all sources",
+      "main wrapper retains route and event-only Back visibility with its original void output",
+      "main wrapper retains banner identity and initialization-only Back calculation",
+      "primary navigation preserves the caller login state and item objects",
+      "identity bar preserves its name setter and legacy null-input failure",
+      "GOV.UK table retains caption, column and row-header defaults independently per instance",
+      "GOV.UK table preserves the public column model and caller-owned row/configuration identities",
+      "GOV.UK table formats dates using its existing day/month/year contract and rejects invalid dates",
+      "Let renders one embedded view and updates both aliases in its original context including falsy values",
+      "Let instances retain independent contexts and caller object identity"
     ]
   },
   "browser": {
@@ -1296,6 +1305,46 @@
         "projectName": "chromium",
         "title": "runtime services load their own external tags once and retain browser event contracts",
         "feature": "runtime-services"
+      },
+      {
+        "projectName": "chromium",
+        "title": "CommonLib page shell projects content and forwards identity, banner and error-summary inputs",
+        "feature": "common-shell"
+      },
+      {
+        "projectName": "chromium",
+        "title": "event-only Back supports Enter and Space without navigation",
+        "feature": "common-shell"
+      },
+      {
+        "projectName": "chromium",
+        "title": "shell action callbacks support Enter and Space without navigation",
+        "feature": "common-shell"
+      },
+      {
+        "projectName": "chromium",
+        "title": "routed Back remains a native link and emits its existing event once",
+        "feature": "common-shell"
+      },
+      {
+        "projectName": "chromium",
+        "title": "primary navigation keeps routed links, login visibility and sanitized formatted labels",
+        "feature": "primary-navigation"
+      },
+      {
+        "projectName": "chromium",
+        "title": "table date cells render exactly one formatted value in data and row-header columns",
+        "feature": "gov-table"
+      },
+      {
+        "projectName": "chromium",
+        "title": "Let retains its rendered view and updates falsy values without hiding the content",
+        "feature": "let"
+      },
+      {
+        "projectName": "chromium",
+        "title": "CommonLib shell and table have no scoped automated accessibility violations",
+        "feature": "common-shell"
       }
     ]
   },
@@ -1445,7 +1494,11 @@
       "package.gov-controls-behavior",
       "package.gov-controls-browser",
       "package.gov-controls-types",
-      "package.gov-controls-graphs"
+      "package.gov-controls-graphs",
+      "package.common-shell-behavior",
+      "package.common-shell-browser",
+      "package.common-shell-types",
+      "package.common-shell-graphs"
     ]
   },
   "nodeUnit": {

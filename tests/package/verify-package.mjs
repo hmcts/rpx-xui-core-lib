@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { verifyCommonShellPackage } from '../common-shell/package-checks.mjs';
 import { prepareTranslationCounterpart } from '../../scripts/translation-counterpart.mjs';
 import { currentIdentity } from '../../scripts/evidence-identity.mjs';
 import { sourceSnapshot } from '../../scripts/evidence-source-snapshot.mjs';
@@ -81,6 +82,7 @@ try {
   const filterLicenceEntries = ['ui/filter-state', 'ui/find-location', 'ui/find-service', 'ui/search-service', 'ui/capitalize', 'ui/generic-filter'];
   const sourceLicenceEntries = [
     ...filterLicenceEntries,
+    'ui/hmcts-main-wrapper', 'ui/hmcts-primary-navigation', 'ui/hmcts-identity-bar', 'ui/gov-table', 'ui/let', 'ui/gov-radio', 'ui/gov-radios', 'ui/gov-checkboxes', 'ui/gov-textarea', 'ui/gov-file-upload', 'ui/form-group',
     'ui/find-task-name', 'ui/find-work-type', 'ui/search-work-type', 'ui/find-person', 'ui/checkbox-list',
     'ui/gov-date', 'ui/gov-select', 'ui/search-location', 'ui/search-judicials', 'ui/search-venue',
     'ui/pagination', 'ui/hmcts-pagination', 'terms/display', 'terms/confirmation', 'ui/gov-input',
@@ -717,6 +719,8 @@ try {
     for (const [index, entry] of entries.entries()) verify(graph(`import '@angular/compiler'; import { ${modules[index]} } from '@hmcts/rpx-xui-core-lib/ui/${entry}'; console.log(${modules[index]});`), entry);
     assert.throws(() => verify(graph("import '@angular/compiler'; import { GovTextareaModule } from '@hmcts/rpx-xui-core-lib/ui/gov-textarea'; import { InvitationModule } from '@hmcts/rpx-xui-core-lib/ui/invitation'; console.log(GovTextareaModule, InvitationModule);"), 'gov-textarea'), /Unrelated Core code/);
   });
+
+  await verifyCommonShellPackage({ root, consumer, compiler, check, run });
 
   await cp(join(root, 'tests/package/pagination-types.ts'), join(consumer, 'pagination-types.ts'));
   await check('package.pagination-types', async () => {

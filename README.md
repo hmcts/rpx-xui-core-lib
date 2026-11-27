@@ -497,3 +497,24 @@ Focused entries `ui/gov-radio`, `ui/gov-radios`, `ui/gov-checkboxes`, `ui/gov-te
 The new textarea, file-upload and checkbox controls also explicitly expose `aria-invalid` from the parent error state and omit error description IDs when no error messages render. CommonLib showed an error class without the invalid attribute and could reference a missing error node. These are intentional accessibility corrections; the controls still use parent-owned error state rather than introducing new validators or changing submitted values.
 
 Run the focused native controls checks with `node --test tests/form-primitives/*.test.mjs` after a build. For the installed-artifact browser check, run `node tests/form-primitives/packed-browser.mjs` on Node 24.22.2: it builds Core, creates the npm archive, installs its bytes into an isolated host, and runs the registered controls and invitation journeys. It records the artifact/source hashes and rejects missing, skipped or flaky journeys. `test:package` and `test:all` require this packed browser proof.
+
+### CommonLib page shell, tables and Let
+
+Focused entries `ui/hmcts-main-wrapper`, `ui/hmcts-primary-navigation`, `ui/hmcts-identity-bar`, `ui/gov-table` and `ui/let` retain their CommonLib selectors and public models. The main wrapper reuses Core banner/error-summary/translation classes. Its route input is explicitly optional, and its error input explicitly accepts `null`/`undefined`, reflecting the existing runtime guards and async consumer inputs. Keep the legacy `isFromValid` field spelling. Use one main wrapper per page: it retains the existing `content` landmark ID. Back visibility is calculated during initialization; the identity-bar setter still requires a non-null object with a name.
+
+Intentional corrections: event-only Back and action controls are native `type="button"` elements so Enter and Space work without submitting an enclosing form; routed Back remains an anchor and emits its existing event once. Date columns now render one formatted day/month/year value in both row headers and data cells. The legacy date row headers were empty, and the data-cell template also evaluated an unnecessary raw-value branch. Consumers with anchor-specific CSS or date-column assumptions must review these changes. Individual lint exceptions retain existing loose public input/generic/callback contracts; they do not disable the rules for a module or folder.
+
+The compatibility lint exceptions are limited to these public contracts:
+
+| Contract | Why it remains loose |
+| --- | --- |
+| `GovukTableComponent.rows` | Retains caller-owned row shapes and extra fields. |
+| `LetContext<T = any>` / `LetDirective<T = any>` | Retains the legacy generic defaults. |
+| `HmctsIdentityBarComponent.content` | Retains object-shaped callers without narrowing their extra fields. |
+| `HmctsPrimaryNavigationComponent.userLoggedIn` | Retains the original setter acceptance and template truthiness. |
+| `HmctsMainWrapperComponent.summaryErrors.items.message` | Retains the existing translated-message input contract. |
+| `HmctsMainWrapperComponent.actionButtons.action()` | Retains arbitrary non-null callback results, including numbers. |
+
+Cleanup requires an explicit typed consumer-contract migration (or an agreed major compatibility change), compiler/runtime evidence for affected consumers and human review; remove each exception with its corresponding contract change.
+
+Run the local gallery at `/common-shell`. After `yarn build`, run `node --test tests/common-shell/*.test.mjs` and `yarn test:browser tests/browser/common-shell/common-shell.spec.mjs`. `node tests/common-shell/packed-browser.mjs` rebuilds and renders the same journeys from a fresh archive. `yarn test:package` adds installed native/type and exact dependency-graph checks, including deliberate unrelated-feature imports; `yarn test:all` is the complete evidence gate. Feature reports separate page shell, navigation, table, Let and installed-package evidence. These local fixtures do not prove application cutover. CommonLib Material tabs remain separate from the editor's unrelated `cut-tab` API; the empty `GovUiService` has no migrated operational behavior.
