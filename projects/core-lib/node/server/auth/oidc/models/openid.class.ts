@@ -83,6 +83,12 @@ export class OpenID extends AuthStrategy {
     // This function is hard to mock, come back to once we've mocked out easier prod code.
     /* istanbul ignore next */
     public keepAliveHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        const path = typeof req.path === 'string' ? req.path : ''
+        const recoveryPath = path.replace(/\/+$/, '')
+        if (recoveryPath === AUTH.ROUTE.LOGIN || recoveryPath === AUTH.ROUTE.LOGOUT) {
+            return next()
+        }
+
         const reqsession = req.session as MySessionData
 
         if (!reqsession?.passport?.user) {
@@ -108,11 +114,18 @@ export class OpenID extends AuthStrategy {
                     if (tokenExpiredOrInvalid) {
                         this.logger.log('token expired or inactive')
 
-                        const tokenSet: TokenSet | undefined = await client?.refresh(
-                            reqsession.passport.user.tokenset.refreshToken,
-                        )
+                        const existingTokens = reqsession.passport.user.tokenset
+                        const tokenSet: TokenSet | undefined = await client?.refresh(existingTokens.refreshToken)
+                        const refreshedTokens = this.convertTokenSet(tokenSet)
+                        if (!refreshedTokens.accessToken) {
+                            throw new Error('Token refresh returned no access token')
+                        }
 
-                        reqsession.passport.user.tokenset = this.convertTokenSet(tokenSet)
+                        reqsession.passport.user.tokenset = {
+                            accessToken: refreshedTokens.accessToken,
+                            refreshToken: refreshedTokens.refreshToken || existingTokens.refreshToken,
+                            idToken: refreshedTokens.idToken || existingTokens.idToken,
+                        }
 
                         if (!this.listenerCount(AUTH.EVENT.AUTHENTICATE_SUCCESS)) {
                             this.logger.log(`refresh: no listener count: ${AUTH.EVENT.AUTHENTICATE_SUCCESS}`)
