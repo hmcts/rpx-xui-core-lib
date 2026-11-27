@@ -36,6 +36,7 @@ const galleries: Array<{ matches: (path: string) => boolean; start: () => Promis
   { matches: path => path === '/find-person', start: () => import('./find-person').then(({ startFindPersonGallery }) => startFindPersonGallery()) },
   { matches: path => path === '/checkbox-list', start: () => import('./checkbox-list').then(({ startCheckboxListGallery }) => startCheckboxListGallery()) },
   { matches: path => path === '/gov-date', start: () => import('./gov-date').then(({ startGovDateGallery }) => startGovDateGallery()) },
+  { matches: path => path === '/gov-controls', start: () => import('./gov-controls').then(({ startGovControlsGallery }) => startGovControlsGallery()) },
   { matches: path => path === '/gov-input', start: () => import('./gov-input').then(({ startGovInputGallery }) => startGovInputGallery()) },
   { matches: path => path === '/terms-display', start: () => import('./terms-display').then(({ startTermsDisplayGallery }) => startTermsDisplayGallery()) },
   { matches: path => path === '/generic-filter', start: () => import('./generic-filter').then(({ startGenericFilterGallery }) => startGenericFilterGallery()) },

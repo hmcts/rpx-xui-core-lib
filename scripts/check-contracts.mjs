@@ -124,14 +124,16 @@ export function checkContracts(reportRoot = root, expectedIdentity) {
     const outcomes = parsers[kind](readFileSync(resolve(reportRoot, inventory.report), 'utf8'));
     for (const outcome of outcomes) {
       if (typeof outcome.id !== 'string' || !outcome.passed) throw new Error(`${kind} contract did not pass: ${outcome.id}`);
-      const registered = inventory.required.some(required => (typeof required === 'string' ? required : JSON.stringify([required.projectName, required.title])) === outcome.id);
-      if (['package', 'nodeServerUnit', 'editorUnit', 'editorDrivers'].includes(kind) && !registered) throw new Error(`${kind} unregistered contract: ${outcome.id}`);
     }
     for (const required of inventory.required) {
       const id = typeof required === 'string' ? required : JSON.stringify([required.projectName, required.title]);
       const matches = outcomes.filter((outcome) => outcome.id === id);
       if (matches.length !== 1) throw new Error(`${kind} required contract must occur exactly once (missing or duplicate): ${id}`);
       count += 1;
+    }
+    for (const outcome of outcomes) {
+      const registered = inventory.required.some(required => (typeof required === 'string' ? required : JSON.stringify([required.projectName, required.title])) === outcome.id);
+      if (!registered) throw new Error(`${kind} unregistered contract: ${outcome.id}`);
     }
   }
   return count;
