@@ -474,6 +474,8 @@ The case notifier and editor use the existing Core `SessionStorageService` token
 
 The case notifier reuses Core's existing `CaseDetails` and `Draft` classes. Their field and draft helper definitions match the migrated Toolkit versions; class identity is now shared across these Core entry points, which changes `instanceof` results compared with two independent copies.
 
+Query field resolution is reset for each query-writing attempt. If the current case cannot resolve an editable query field, Core clears the prior field and collection state and does not create a raise-query or response payload. This intentionally prevents a failed lookup from reusing data cached for a different case; consumer query journeys still require integration verification.
+
 The editor's pipe module reuses Core's `CaseReferencePipe` and `CaseReferenceModule`. Formatting behavior is unchanged for the tested reference and draft examples; class identity is now shared instead of duplicated.
 
 The editor's form module reuses the existing Core `DateInputComponent` and `DateInputModule` instead of a second component. The shared class identity is observable to consumers and remains subject to adoption review.
