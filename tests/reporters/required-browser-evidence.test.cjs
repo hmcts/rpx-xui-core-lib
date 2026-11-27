@@ -250,7 +250,13 @@ gov-controls|migrated controls support form reset and have no automated accessib
 pagination|generic pagination disables next after the final result page
 pagination|HMCTS paginator reflects the final page and its visible result range
 pagination|HMCTS paginator hides page controls and result count for a single-page list
-runtime-services|runtime services load their own external tags once and retain browser event contracts`.split('\n').map(row => {
+runtime-services|runtime services load their own external tags once and retain browser event contracts
+commonlib-shell|primary navigation is login-gated, labelled, translated and route-aware
+commonlib-shell|event-only Back is keyboard-operable and emits the unchanged void event
+commonlib-shell|route Back remains a link and still emits its event
+commonlib-shell|main wrapper preserves content, title, banner, error and action contracts
+commonlib-shell|main wrapper warning state replaces the error summary and passes an Axe scan
+commonlib-shell|a wrapper without a route or event listener does not render a Back control`.split('\n').map(row => {
   const [feature, title] = row.split('|');
   return ['chromium', title, feature];
 });

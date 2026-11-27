@@ -6,6 +6,7 @@ import { browserOutcomes } from '../../scripts/check-contracts.mjs';
 import { buildSync } from 'esbuild';
 import { inspectLoadingGraph, assertPackedBytes, assertEagerDateFailure } from '../packed-loading/graph.mjs';
 import { probeLoading } from '../editor/selective-loading-lib.mjs';
+import { findForbiddenExternalImports } from './entry-graph-contract.mjs';
 import { createHash, randomUUID } from 'node:crypto';
 import { createServer } from 'node:net';
 import { gzipSync } from 'node:zlib';
@@ -88,6 +89,7 @@ try {
     'browser/window', 'browser/session-storage', 'reference/locations', 'reference/ref-data', 'terms/models',
     'ui/cookie', 'ui/cookie-banner', 'ui/feature-toggle', 'ui/feature-toggle-directive', 'ui/feature-toggle-guard',
     'ui/role-state', 'ui/role-guard', 'ui/task-data', 'case/sharing-state', 'ui/contact-details', 'ui/page-wrapper',
+    'ui/hmcts-main-wrapper', 'ui/hmcts-primary-navigation',
     'ui/loading-spinner', 'ui/loading-state', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog',
     'ui/banner', 'ui/form-label', 'case/models', 'case/reference', 'case/sharing', 'browser/user-agent',
     'ui/ccd-pagination', 'ui/case-list', 'address/normalization', 'ui/address',
@@ -170,6 +172,31 @@ try {
     assert.ok(launchGraph.externalImports.includes('launchdarkly-js-client-sdk'), `${launchDarkly} must retain the SDK as an optional external peer`);
     assert.equal(launchGraph.mediaViewer, false);
     assert.equal(launchGraph.payment, false);
+  });
+  await check('package.commonlib-shell-selective-entries', async () => {
+    const manifest = JSON.parse(await readFile(join(dist, 'package.json'), 'utf8'));
+    const nodeWorkspace = JSON.parse(await readFile(join(root, 'projects/core-lib/node/package.json'), 'utf8'));
+    const nodeOnlyPackages = Object.keys({
+      ...nodeWorkspace.dependencies,
+      ...nodeWorkspace.devDependencies,
+      ...nodeWorkspace.peerDependencies,
+    });
+    const unrelatedPackages = ['ngx-editor', 'prosemirror-commands', 'prosemirror-history', 'prosemirror-model', 'prosemirror-schema-list', 'prosemirror-state', '@hmcts/media-viewer', '@hmcts/ccpay-web-component'];
+    for (const [entry, symbol, bundle] of [
+      ['hmcts-main-wrapper', 'HmctsMainWrapperModule', 'hmcts-main-wrapper'],
+      ['hmcts-primary-navigation', 'HmctsPrimaryNavigationModule', 'hmcts-primary-navigation'],
+    ]) {
+      const key = `./ui/${entry}`;
+      assert.ok(manifest.exports[key]?.types && manifest.exports[key]?.default, `Missing public selective entry ${key}`);
+      const declaration = await readFile(join(dist, 'ui', entry, 'index.d.ts'), 'utf8');
+      assert.match(declaration, new RegExp(`\\b${symbol}\\b`), `${key} must publish ${symbol}`);
+      const loading = await probeLoading(dist, `fesm2022/hmcts-rpx-xui-core-lib-ui-${bundle}.mjs`, symbol);
+      assert.ok(loading.externalImports.includes('@angular/core'), `${key} must keep Angular external`);
+      assert.ok(loading.externalImports.includes('@angular/router'), `${key} must keep Router external`);
+      assert.equal(loading.mediaViewer, false, `${key} must not load Media Viewer`);
+      assert.equal(loading.payment, false, `${key} must not load payment components`);
+      assert.deepEqual(findForbiddenExternalImports(loading.externalImports, nodeOnlyPackages, unrelatedPackages), [], `${key} must exclude Node-only and unrelated Core domains`);
+    }
   });
   await cp(dist, staged, { recursive: true });
   await writeFile(join(staged, 'yarn.lock'), '');
@@ -377,6 +404,7 @@ try {
       '--module', 'ES2022', '--moduleResolution', 'node', '--noEmit', ...(entry === 'node' ? ['--types', 'node'] : []), `node-${entry}-types.ts`,
     ], consumer));
   }
+  await check('package.strict-commonlib-shell-types', () => run('strict-commonlib-shell-types', [compiler, '--strict', '--skipLibCheck', 'false', '--esModuleInterop', '--target', 'ES2022', '--module', 'ES2022', '--moduleResolution', 'bundler', '--noEmit', 'commonlib-shell-types.ts'], consumer));
   await check('package.strict-bundler', () => run('strict-bundler', [compiler, '-p', 'tsconfig.bundler.json'], consumer));
   await check('package.node-logging-isolation', async () => {
     const result = buildSync({ entryPoints: ['node-logging-types.ts'], absWorkingDir: consumer, bundle: true,

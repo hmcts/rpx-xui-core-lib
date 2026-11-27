@@ -7,6 +7,8 @@
   "assets": [
     { "input": "ui/service-messages", "glob": "LICENCE", "output": "ui/service-messages" },
     { "input": "ui/hmcts-error-summary", "glob": "LICENCE", "output": "ui/hmcts-error-summary" },
+    { "input": "ui/hmcts-main-wrapper", "glob": "LICENCE", "output": "ui/hmcts-main-wrapper" },
+    { "input": "ui/hmcts-primary-navigation", "glob": "LICENCE", "output": "ui/hmcts-primary-navigation" },
     { "input": "ui/hmcts-sub-navigation", "glob": "LICENCE", "output": "ui/hmcts-sub-navigation" },
     { "input": "ui/google-analytics", "glob": "LICENCE", "output": "ui/google-analytics" },
     { "input": "ui/google-tag-manager", "glob": "LICENCE", "output": "ui/google-tag-manager" },

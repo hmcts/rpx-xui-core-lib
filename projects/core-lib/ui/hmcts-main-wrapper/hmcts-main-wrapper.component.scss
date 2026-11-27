@@ -1,0 +1,24 @@
+@use "govuk-frontend/dist/govuk/base" as *;
+
+.hmcts-main-wrapper__back-button {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 16px;
+  padding-bottom: 0;
+  padding-right: 0;
+  padding-top: 0;
+}
+
+.hmcts-page-heading__actions-wrapper {
+  .govuk-button {
+    display: block;
+    margin-bottom: govuk-spacing(3);
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}

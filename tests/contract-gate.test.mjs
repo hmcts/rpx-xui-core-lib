@@ -549,6 +549,16 @@ addedBrowserJourneys.push(
 );
 packageIds.push('package.terms-confirmation-graph', 'package.editor-source-case-viewer-api-and-loading');
 packageIds.push('package.case-logging-identity', 'package.session-guard-types', 'package.session-guard-graph');
+const shellBrowserJourneys = [
+  'primary navigation is login-gated, labelled, translated and route-aware',
+  'event-only Back is keyboard-operable and emits the unchanged void event',
+  'route Back remains a link and still emits its event',
+  'main wrapper preserves content, title, banner, error and action contracts',
+  'main wrapper warning state replaces the error summary and passes an Axe scan',
+  'a wrapper without a route or event listener does not render a Back control',
+];
+addedBrowserJourneys.push(...shellBrowserJourneys);
+packageIds.push('package.commonlib-shell-selective-entries', 'package.strict-commonlib-shell-types');
 const filterFeatureContracts = [
   { feature: "Filter state", contracts: {
     unit: [
@@ -655,6 +665,15 @@ test('registers each new filter feature against the independently required contr
       : contracts;
     assert.deepEqual(map.features.find(row => row.feature === feature)?.contracts, expected, feature);
   }
+});
+
+test('CommonLib shell required checks are assigned to the shell feature report', () => {
+  const map = JSON.parse(readFileSync(new URL('./feature-evidence-map.json', import.meta.url), 'utf8'));
+  const shell = map.features.find(row => row.feature === 'CommonLib shell');
+  assert.deepEqual(shell?.contracts, {
+    browser: shellBrowserJourneys.map(title => ({ projectName: 'chromium', title, feature: 'commonlib-shell' })),
+    package: ['package.commonlib-shell-selective-entries', 'package.strict-commonlib-shell-types'],
+  });
 });
 
 unitNames.push(...[

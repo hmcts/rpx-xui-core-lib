@@ -20,6 +20,7 @@ class ValidationGallery {
 const galleries: Array<{ matches: (path: string) => boolean; start: () => Promise<unknown> }> = [
   { matches: path => path === '/service-messages', start: () => import('./service-messages').then(({ startServiceMessagesGallery }) => startServiceMessagesGallery()) },
   { matches: path => path === '/hmcts-shell', start: () => import('./hmcts-shell').then(({ startHmctsShellGallery }) => startHmctsShellGallery()) },
+  { matches: path => path === '/commonlib-shell' || path === '/commonlib-shell-no-back', start: () => import('./commonlib-shell').then(({ startCommonlibShellGallery }) => startCommonlibShellGallery()) },
   { matches: path => path === '/runtime-services', start: () => import('./runtime-services').then(({ startRuntimeServicesGallery }) => startRuntimeServicesGallery()) },
   { matches: path => path === '/page-wrapper', start: () => import('./page-wrapper').then(({ startPageWrapperGallery }) => startPageWrapperGallery()) },
   { matches: path => path === '/terms-confirmation', start: () => import('./terms-confirmation').then(({ startTermsConfirmationGallery }) => startTermsConfirmationGallery()) },
