@@ -3,7 +3,7 @@ import { Component, Input, Pipe, PipeTransform } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { AbstractAppConfig } from '../../projects/core-lib/case/editor-source/lib/app.config';
 import { WriteDocumentFieldComponent } from '../../projects/core-lib/case/editor-source/lib/shared/components/palette/document/write-document-field.component';
 import { FileUploadStateService } from '../../projects/core-lib/case/editor-source/lib/shared/components/palette/document/file-upload-state.service';
@@ -11,6 +11,7 @@ import { CaseNotifier } from '../../projects/core-lib/case/editor-source/lib/sha
 import { DocumentManagementService } from '../../projects/core-lib/case/editor-source/lib/shared/services/document-management/document-management.service';
 import { JurisdictionService } from '../../projects/core-lib/case/editor-source/lib/shared/services/jurisdiction/jurisdiction.service';
 import { SessionStorageService } from '../../projects/core-lib/case/editor-source/lib/shared/services/session';
+import { DocumentData } from '../../projects/core-lib/case/editor-source/lib/shared/domain/document/document-data.model';
 
 @Pipe({ name: 'ccdFieldLabel', standalone: false })
 class FieldLabelStub implements PipeTransform {
@@ -29,14 +30,16 @@ class ReadDocumentStub {
 
 let fixture: ReturnType<typeof TestBed.createComponent<WriteDocumentFieldComponent>>;
 let uploadCount = 0;
-let uploadInProgress = false;
+let uploadState = new FileUploadStateService();
 let uploadPayload: FormData | null = null;
+let controlledUploads: Subject<DocumentData>[] = [];
 
-export async function createDocumentUploadHost() {
+export async function createDocumentUploadHost(controlled = false) {
   TestBed.resetTestingModule();
   uploadCount = 0;
-  uploadInProgress = false;
+  uploadState = new FileUploadStateService();
   uploadPayload = null;
+  controlledUploads = [];
 
   const documentManagement = {
     parseCaseInfo: () => ({ caseType: 'civil', jurisdiction: 'family', caseId: 'CASE-123' }),
@@ -44,17 +47,17 @@ export async function createDocumentUploadHost() {
     uploadFile: (data: FormData) => {
       uploadCount += 1;
       uploadPayload = data;
+      if (controlled) {
+        const upload = new Subject<DocumentData>();
+        controlledUploads.push(upload);
+        return upload;
+      }
       return of({ _embedded: { documents: [{
         originalDocumentName: 'notice.pdf',
         _links: { self: { href: '/documents/1' }, binary: { href: '/documents/1/binary' } }
       }] } });
     }
   };
-  const uploadState = {
-    isUploadInProgress: () => uploadInProgress,
-    setUploadInProgress: (value: boolean) => { uploadInProgress = value; }
-  };
-
   await TestBed.configureTestingModule({
     imports: [CommonModule],
     declarations: [WriteDocumentFieldComponent, FieldLabelStub, TranslateStub, ReadDocumentStub],
@@ -82,12 +85,24 @@ export async function createDocumentUploadHost() {
   fixture.autoDetectChanges();
 }
 
+export function resolveDocumentUpload(uploadIndex: number, url: string, fileName: string) {
+  controlledUploads[uploadIndex].next({
+    documents: [],
+    _embedded: { documents: [{
+      originalDocumentName: fileName,
+      _links: { self: { href: url }, binary: { href: `${url}/binary` } }
+    }] }
+  });
+  controlledUploads[uploadIndex].complete();
+}
+
 export function readDocumentUploadState() {
   const file = uploadPayload?.get('files');
   const document = fixture.componentInstance.formGroup.get('supportingDocument');
   return {
     uploadCount,
-    uploadInProgress,
+    uploadInProgress: uploadState.isUploadInProgress(),
+    activeUploadObservers: controlledUploads.map(upload => upload.observed),
     formErrors: fixture.componentInstance.formGroup.errors,
     documentValue: document?.value,
     caseFieldValue: fixture.componentInstance.caseField.value,
