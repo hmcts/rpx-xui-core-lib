@@ -1,5 +1,5 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": { "types": [] },
-  "include": ["main.ts", "rich-text-host.ts", "datetime-toggle-host.ts", "collection-dialog-host.ts"]
+  "include": ["main.ts", "rich-text-host.ts", "datetime-toggle-host.ts", "collection-dialog-host.ts", "error-summary-host.ts"]
 }

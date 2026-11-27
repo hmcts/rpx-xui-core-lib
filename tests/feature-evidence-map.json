@@ -2050,6 +2050,17 @@
       }
     },
     {
+      "feature": "Case editor: error-summary navigation",
+      "contracts": {
+        "editorDrivers": [
+          {
+            "projectName": "chromium",
+            "title": "error-summary navigation keeps the editor route and unsaved form values"
+          }
+        ]
+      }
+    },
+    {
       "feature": "Case editor: payment bindings",
       "contracts": {
         "editorUnit": [
