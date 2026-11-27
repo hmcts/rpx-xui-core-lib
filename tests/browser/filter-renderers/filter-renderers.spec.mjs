@@ -101,6 +101,8 @@ test('Work Allocation lookup uses scalar and positional codes with booking conte
     url: 'api/locations/getLocations', serviceIds: 'A', type: 'case-management', term: 'court',
     booking: [{ service: 'A', locations: [] }]
   });
+  await input.press('Escape');
+  await expect(page.getByRole('listbox')).toHaveCount(0);
   await page.getByRole('button', { name: 'Use checkbox services' }).click();
   await input.fill('COURT');
   await expectValue(page, 'location-lookup', {
@@ -118,6 +120,9 @@ test('Work Allocation lookup uses scalar and positional codes with booking conte
     await expect(input).toHaveValue('');
   }
   await expect(tags).toHaveText(['Court Alpha', 'Court Beta', 'Court Gamma']);
+  await input.fill('draft');
+  await input.press('Escape');
+  await expect(input).toHaveValue('draft');
   await input.fill('draft');
   await page.getByRole('button', { name: 'Toggle location reset' }).click();
   await page.getByRole('button', { name: 'Toggle location reset' }).click();

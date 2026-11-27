@@ -13,11 +13,20 @@
             "index": "apps/test-host/index.html",
             "tsConfig": "apps/test-host/tsconfig.app.json",
             "outputPath": "dist/test-host",
-            "styles": [],
+            "styles": [
+              "node_modules/govuk-frontend/dist/govuk/govuk-frontend.min.css"
+            ],
             "polyfills": [
               "zone.js"
             ],
-            "preserveSymlinks": true
+            "preserveSymlinks": true,
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "node_modules/govuk-frontend/dist/govuk/assets",
+                "output": "assets"
+              }
+            ]
           },
           "configurations": {
             "development": {
@@ -82,11 +91,20 @@
             "buildTarget": "translation-tests:build:zoneless",
             "tsConfig": "tests/i18n/tsconfig.vitest.json",
             "runner": "vitest",
-            "browsers": ["ChromiumHeadless"],
-            "include": ["**/*.spec.ts"],
+            "browsers": [
+              "ChromiumHeadless"
+            ],
+            "include": [
+              "**/*.spec.ts"
+            ],
             "providersFile": "tests/vitest-zoneless.providers.ts",
-            "setupFiles": ["tests/vitest-setup.ts"],
-            "reporters": ["default", "./tests/reporters/vitest-evidence-reporter.mjs"]
+            "setupFiles": [
+              "tests/vitest-setup.ts"
+            ],
+            "reporters": [
+              "default",
+              "./tests/reporters/vitest-evidence-reporter.mjs"
+            ]
           }
         }
       }
@@ -105,7 +123,9 @@
             "outputPath": "dist/editor-tests",
             "aot": false,
             "styles": [],
-            "polyfills": ["reflect-metadata"],
+            "polyfills": [
+              "reflect-metadata"
+            ],
             "assets": [],
             "optimization": false,
             "sourceMap": true,
@@ -119,7 +139,9 @@
           },
           "configurations": {
             "zoneless": {
-              "polyfills": ["reflect-metadata"]
+              "polyfills": [
+                "reflect-metadata"
+              ]
             }
           }
         },
@@ -135,11 +157,21 @@
             "buildTarget": "editor-tests:build:zoneless",
             "tsConfig": "tests/editor/tsconfig.vitest.json",
             "runner": "vitest",
-            "browsers": ["ChromiumHeadless"],
-            "include": ["**/*.spec.ts", "../../projects/core-lib/case/editor-source/**/*.spec.ts"],
+            "browsers": [
+              "ChromiumHeadless"
+            ],
+            "include": [
+              "**/*.spec.ts",
+              "../../projects/core-lib/case/editor-source/**/*.spec.ts"
+            ],
             "providersFile": "tests/vitest-zoneless.providers.ts",
-            "setupFiles": ["tests/vitest-setup.ts"],
-            "reporters": ["default", "./tests/reporters/vitest-evidence-reporter.mjs"]
+            "setupFiles": [
+              "tests/vitest-setup.ts"
+            ],
+            "reporters": [
+              "default",
+              "./tests/reporters/vitest-evidence-reporter.mjs"
+            ]
           }
         }
       }

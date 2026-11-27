@@ -708,6 +708,8 @@ packageIds.push(...[
   "package.common-shell-graphs"
 ]);
 
+addedBrowserJourneys.push("local shell host loads GOV.UK styling and real font assets");
+
 const expectedContracts = addedBrowserJourneys.length + Object.values(addedLaneNames).reduce((sum, names) => sum + names.length, 0) + unitNames.length + nodeNames.length + i18nNames.length + i18nJourneys.length + dueDateJourneys.length + accessibilityJourneys.length + sessionDialogJourneys.length + primitiveJourneys.length + cacheJourneys.length + validationJourneys.length + packageIds.length + 1 + contractInventory.nodeServerUnit.required.length + contractInventory.editorUnit.required.length + contractInventory.editorDrivers.required.length;
 
 function nativeTap(names) {

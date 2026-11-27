@@ -3025,6 +3025,18 @@
           "package.common-shell-graphs"
         ]
       }
+    },
+    {
+      "feature": "Local GOV.UK rendering fidelity",
+      "contracts": {
+        "browser": [
+          {
+            "projectName": "chromium",
+            "title": "local shell host loads GOV.UK styling and real font assets",
+            "feature": "host-rendering"
+          }
+        ]
+      }
     }
   ],
   "suiteGroups": [

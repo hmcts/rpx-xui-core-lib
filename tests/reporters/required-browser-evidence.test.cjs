@@ -258,7 +258,8 @@ common-shell|routed Back remains a native link and emits its existing event once
 primary-navigation|primary navigation keeps routed links, login visibility and sanitized formatted labels
 gov-table|table date cells render exactly one formatted value in data and row-header columns
 let|Let retains its rendered view and updates falsy values without hiding the content
-common-shell|CommonLib shell and table have no scoped automated accessibility violations`.split('\n').map(row => {
+common-shell|CommonLib shell and table have no scoped automated accessibility violations
+host-rendering|local shell host loads GOV.UK styling and real font assets`.split('\n').map(row => {
   const [feature, title] = row.split('|');
   return ['chromium', title, feature];
 });

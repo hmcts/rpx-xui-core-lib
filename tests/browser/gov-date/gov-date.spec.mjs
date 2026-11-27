@@ -53,12 +53,13 @@ test('date errors describe the correct fieldset without duplicate or missing tar
  await page.getByRole('button',{name:'Show date errors'}).click();
  const first=page.getByRole('group',{name:'Synthetic date'});
  const second=page.getByRole('group',{name:'Other date'});
- await expect(first).toHaveAccessibleDescription('Synthetic hint Error:First date error');
- await expect(second).toHaveAccessibleDescription('Other hint Error:Second date error');
+ // GOV.UK visually-hidden prefixes add nonbreaking spaces around the exact error text.
+ await expect(first).toHaveAccessibleDescription(/^\s*Synthetic hint\s+Error:\s+First date error\s*$/);
+ await expect(second).toHaveAccessibleDescription(/^\s*Other hint\s+Error:\s+Second date error\s*$/);
  await expect(page.locator('#date-error')).toHaveCount(1);
  await expect(page.locator('#other-error')).toHaveCount(1);
  const select=page.getByRole('combobox',{name:'Synthetic service'});
- await expect(select).toHaveAccessibleDescription('Error:Select error');
+ await expect(select).toHaveAccessibleDescription(/^\s*Error:\s+Select error\s*$/);
 });
 
 test('empty date and select messages never reference absent error elements', async ({page})=>{

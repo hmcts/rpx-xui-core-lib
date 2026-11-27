@@ -89,3 +89,37 @@ test('CommonLib shell and table have no scoped automated accessibility violation
   const { default: AxeBuilder } = await import('@axe-core/playwright');
   expect((await new AxeBuilder({ page }).include('core-test-host').analyze()).violations).toEqual([]);
 });
+
+test('local shell host loads GOV.UK styling and real font assets', async ({ page }) => {
+  const fonts = /** @type {import('@playwright/test').Response[]} */ ([]);
+  const failedFonts = /** @type {string[]} */ ([]);
+  page.on('requestfailed', request => {
+    if (request.resourceType() === 'font') failedFonts.push(request.url());
+  });
+  page.on('response', response => {
+    if (response.request().resourceType() === 'font') fonts.push(response);
+  });
+  await page.goto('/common-shell');
+  await expect(page.getByRole('heading', { name: 'CommonLib shell migration' })).toBeVisible();
+  await expect.poll(() => fonts.length).toBeGreaterThan(0);
+  await page.evaluate(() => document.fonts.ready.then(() => undefined));
+  expect(failedFonts).toEqual([]);
+  const woff2 = fonts.filter(font => new URL(font.url()).pathname.endsWith('.woff2'));
+  expect(woff2.length).toBeGreaterThan(0);
+  for (const font of woff2) {
+    expect(font.status()).toBe(200);
+    expect((await font.body()).subarray(0, 4).toString()).toBe('wOF2');
+  }
+  await expect(page.getByRole('heading', { name: 'CommonLib shell migration' })).toHaveCSS('font-family', /GDS Transport/);
+  const headingFaces = await page.getByRole('heading', { name: 'CommonLib shell migration' }).evaluate(async heading => {
+    const style = getComputedStyle(heading);
+    const faces = await document.fonts.load(`${style.fontWeight} ${style.fontSize} "GDS Transport"`);
+    return faces.map(face => face.status);
+  });
+  expect(headingFaces.length).toBeGreaterThan(0);
+  for (const status of headingFaces) expect(status).toBe('loaded');
+  expect(await page.evaluate(async () => {
+    await document.fonts.load('19px "GDS Transport"');
+    return document.fonts.check('19px "GDS Transport"');
+  })).toBe(true);
+});

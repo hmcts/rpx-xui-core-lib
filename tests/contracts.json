@@ -1345,6 +1345,11 @@
         "projectName": "chromium",
         "title": "CommonLib shell and table have no scoped automated accessibility violations",
         "feature": "common-shell"
+      },
+      {
+        "projectName": "chromium",
+        "title": "local shell host loads GOV.UK styling and real font assets",
+        "feature": "host-rendering"
       }
     ]
   },
