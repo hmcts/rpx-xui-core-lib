@@ -64,6 +64,7 @@ const WORD_COLUMN_SPACING = 12;
 const MAX_INDENT = 6;
 const DEFAULT_HEADING_LEVEL: RichTextHeadingLevel = 3;
 const CSS_LENGTH_UNITS = ['rem', 'px', 'pt', 'in', 'cm', 'mm', 'em'];
+const controlsWithRichTextSanitiser = new WeakSet<FormControl>();
 const BLOCK_NODE_NAMES = new Set([
   'address', 'article', 'aside', 'blockquote', 'div', 'dl', 'fieldset', 'figcaption', 'figure', 'footer', 'form',
   'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'hr', 'li', 'main', 'nav', 'ol', 'p', 'pre', 'section', 'table', 'ul'
@@ -1184,7 +1185,6 @@ export class WriteRichTextAreaFieldComponent extends AbstractFieldWriteComponent
     this.normaliseSupportedInlineFormatting(documentElement);
     this.normaliseBlockFormatting(documentElement);
     this.removeUnsupportedMarkup(documentElement);
-    this.normaliseDateRangeSpacing(documentElement);
     this.removeUnsupportedAttributes(documentElement);
     this.normaliseDocmosisInlineFormatting(documentElement);
     const hasMeaningfulContent = this.hasMeaningfulRichTextContent(documentElement);
@@ -1192,9 +1192,7 @@ export class WriteRichTextAreaFieldComponent extends AbstractFieldWriteComponent
       this.preserveDocmosisBlankParagraphs(documentElement);
     }
     const sanitisedValue = sanitiseRichTextDocument(documentElement);
-    return hasMeaningfulContent
-      ? this.normalisePlainTextValue(sanitisedValue)
-      : '';
+    return hasMeaningfulContent ? sanitisedValue : '';
   }
 
   /**
@@ -1381,11 +1379,16 @@ export class WriteRichTextAreaFieldComponent extends AbstractFieldWriteComponent
   }
 
   private installRichTextValueSanitiser(control: FormControl): void {
+    if (controlsWithRichTextSanitiser.has(control)) {
+      return;
+    }
+
     const setValue = control.setValue.bind(control);
     control.setValue = (value, options) => setValue(
       typeof value === 'string' ? sanitiseRichTextValue(value) : value,
       options
     );
+    controlsWithRichTextSanitiser.add(control);
   }
 
   private differsOnlyByDocmosisBlankParagraphs(value: string, normalisedValue: string): boolean {

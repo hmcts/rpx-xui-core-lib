@@ -20,6 +20,26 @@
           {
             "projectName": "chromium",
             "title": "mid-event callback HTML does not execute or persist active markup"
+          },
+          {
+            "projectName": "chromium",
+            "title": "does not stack the rich-text sanitizer when a parent control is reused"
+          },
+          {
+            "projectName": "chromium",
+            "title": "preserves legal citations when entered as ordinary text"
+          },
+          {
+            "projectName": "chromium",
+            "title": "does not apply Word date-range spacing to text typed into the editor"
+          },
+          {
+            "projectName": "chromium",
+            "title": "keeps the caret before formatted text when a typed date range becomes complete"
+          },
+          {
+            "projectName": "chromium",
+            "title": "keeps Word date-range spacing when the formatted content is pasted"
           }
         ],
         "editorUnit": [

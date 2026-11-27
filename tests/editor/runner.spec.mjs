@@ -131,6 +131,91 @@ test('mid-event callback HTML does not execute or persist active markup', async 
   await expect.poll(() => page.evaluate(() => globalThis.readRichTextValue())).toContain('remains editable');
 });
 
+test('does not stack the rich-text sanitizer when a parent control is reused', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => globalThis.createRichTextHost(true, '', true));
+  const firstSetValueId = await page.evaluate(() => globalThis.readRichTextSetValueId());
+
+  await page.evaluate(() => globalThis.createRichTextHost(true, '', true));
+
+  expect(await page.evaluate(() => globalThis.readRichTextSetValueId())).toBe(firstSetValueId);
+});
+
+test('preserves legal citations when entered as ordinary text', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => globalThis.createRichTextHost());
+  const editor = page.getByRole('textbox', { name: 'Notes' });
+  await editor.click();
+  await page.keyboard.type('[12](b) [2023][EWCA]');
+
+  await expect(editor).toHaveText('[12](b) [2023][EWCA]');
+  await expect.poll(() => page.evaluate(() => globalThis.readRichTextValue())).toContain('[12](b) [2023][EWCA]');
+});
+
+test('does not apply Word date-range spacing to text typed into the editor', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => globalThis.createRichTextHost());
+  const editor = page.getByRole('textbox', { name: 'Notes' });
+  await editor.click();
+  await page.keyboard.type('1990-2020');
+  await page.getByRole('button', { name: 'Bold', exact: true }).click();
+  await page.keyboard.type('Citation');
+
+  await expect(editor).toHaveText('1990-2020Citation');
+  const storedValue = await page.evaluate(() => globalThis.readRichTextValue());
+  expect(storedValue).toContain('1990-2020');
+  expect(storedValue).not.toContain('&nbsp;');
+  await expect.poll(() => page.evaluate(() => {
+    const editorElement = document.querySelector('.ProseMirror');
+    const selection = window.getSelection();
+    if (!editorElement || !selection?.anchorNode || !editorElement.contains(selection.anchorNode)) return '';
+    const range = document.createRange();
+    range.selectNodeContents(editorElement);
+    range.setEnd(selection.anchorNode, selection.anchorOffset);
+    return range.toString();
+  })).toBe('1990-2020Citation');
+});
+
+test('keeps the caret before formatted text when a typed date range becomes complete', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => globalThis.createRichTextHost());
+  const editor = page.getByRole('textbox', { name: 'Notes' });
+  await editor.click();
+  await page.keyboard.type('1990-20');
+  await page.getByRole('button', { name: 'Bold', exact: true }).click();
+  await page.keyboard.type('Citation');
+  await editor.evaluate(element => {
+    const text = element.querySelector('p').firstChild;
+    const range = document.createRange();
+    range.setStart(text, text.textContent.length);
+    range.collapse(true);
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+  });
+  await page.keyboard.type('20X');
+
+  await expect(editor).toHaveText('1990-2020XCitation');
+});
+
+test('keeps Word date-range spacing when the formatted content is pasted', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => globalThis.createRichTextHost());
+  const editor = page.getByRole('textbox', { name: 'Notes' });
+  await editor.click();
+  await page.evaluate(() => {
+    const target = document.querySelector('[contenteditable="true"]');
+    const clipboardData = new DataTransfer();
+    clipboardData.setData('text/html', '<p>1990-2020<strong>Citation</strong></p>');
+    target.dispatchEvent(new ClipboardEvent('paste', { bubbles: true, cancelable: true, clipboardData }));
+  });
+
+  await expect(editor).toHaveText(`1990-2020${'\u00a0'.repeat(12)}Citation`);
+  const storedValue = await page.evaluate(() => globalThis.readRichTextValue());
+  expect(storedValue.match(/&nbsp;/g)).toHaveLength(12);
+  expect(storedValue).toContain('<b>Citation</b>');
+});
+
 test('closes each editor dialog using Enter and Space', async ({ page }) => {
   for (let index = 0; index < 4; index++) {
     for (const key of ['Enter', 'Space']) {

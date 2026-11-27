@@ -10,13 +10,22 @@ import { WriteRichTextAreaFieldComponent } from '../../projects/core-lib/case/ed
 @Pipe({ name: 'ccdFirstError', standalone: false }) class ErrorPipe implements PipeTransform { transform(value: unknown) { return value; } }
 
 let fixture: ReturnType<typeof TestBed.createComponent<WriteRichTextAreaFieldComponent>>;
+let retainedParentFormGroup: FormGroup;
+const setValueIds = new WeakMap<FormControl['setValue'], number>();
+let nextSetValueId = 1;
 
-export async function createRichTextHost(preexistingControl = false, initialValue = '') {
+export async function createRichTextHost(preexistingControl = false, initialValue = '', reuseParentFormGroup = false) {
   TestBed.resetTestingModule();
   await TestBed.configureTestingModule({ imports: [CommonModule, ReactiveFormsModule, NgxEditorModule], declarations: [WriteRichTextAreaFieldComponent, TranslatePipe, FieldLabelPipe, ErrorPipe] }).compileComponents();
   fixture = TestBed.createComponent(WriteRichTextAreaFieldComponent);
   fixture.componentInstance.caseField = { id: 'notes', label: 'Notes', field_type: { type: 'RichTextArea' }, value: initialValue } as unknown as typeof fixture.componentInstance.caseField;
-  fixture.componentInstance.formGroup = new FormGroup(preexistingControl ? { notes: new FormControl(null) } : {});
+  const formGroup = reuseParentFormGroup && retainedParentFormGroup
+    ? retainedParentFormGroup
+    : new FormGroup(preexistingControl ? { notes: new FormControl(null) } : {});
+  fixture.componentInstance.formGroup = formGroup;
+  if (reuseParentFormGroup) {
+    retainedParentFormGroup = formGroup;
+  }
   document.body.appendChild(fixture.nativeElement);
   fixture.autoDetectChanges();
   return fixture;
@@ -24,6 +33,14 @@ export async function createRichTextHost(preexistingControl = false, initialValu
 
 export function readRichTextValue() {
   return fixture.componentInstance.formGroup.get('notes').value;
+}
+
+export function readRichTextSetValueId() {
+  const setValue = fixture.componentInstance.formGroup.get('notes').setValue;
+  if (!setValueIds.has(setValue)) {
+    setValueIds.set(setValue, nextSetValueId++);
+  }
+  return setValueIds.get(setValue);
 }
 
 export function setRichTextValue(value: string) {

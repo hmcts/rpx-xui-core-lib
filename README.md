@@ -386,7 +386,7 @@ The `@hmcts/rpx-xui-core-lib/ui/page-wrapper` entry preserves CommonLib's `exui-
 
 ### Rich-text editor migration coverage
 
-Core sanitizes rich-text field values, including values supplied through a parent-owned form control, before Angular delivers them to the editor callback. The existing paste sanitization remains in place. Chromium coverage verifies unsafe callback markup cannot execute or persist, safe text remains editable, and the stored form value is sanitized. This is a security hardening of the callback boundary, not a change to the supported formatting. Word/Docmosis document variants, full source-library parity, application integration, and assistive-technology review remain open.
+Core sanitizes rich-text field values, including values supplied through a parent-owned form control, before Angular delivers them to the editor callback. Chromium coverage verifies unsafe callback markup cannot execute or persist, safe text remains editable, and the stored form value is sanitized. Ordinary typing preserves citation-like text and does not apply Word-specific date-range spacing; that spacing remains part of the paste-normalization path. The checks cover rendered editor state and the stored form payload. Word/Docmosis variants, full source-library parity, application integration, and assistive-technology review remain open.
 
 ### Case editor migration candidate: interpreter language display
 
