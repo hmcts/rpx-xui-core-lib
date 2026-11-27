@@ -122,9 +122,7 @@ describe('RpxTranslationService language changes', () => {
     reply.error(new HttpErrorResponse({ status: 500, statusText: 'Synthetic failure' }));
     expect(values.length).toBe(englishEmissions);
     expect(values.at(-1)).toBe(phrase);
-    expect(writes).toHaveBeenCalledWith([
-      expect.objectContaining({ phrase, lang: 'cy', translation: { translation: phrase } })
-    ]);
+    expect(writes).not.toHaveBeenCalled();
   });
 
   it('returns English for phrases matching inherited Object property names', () => {
