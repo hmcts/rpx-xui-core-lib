@@ -415,6 +415,11 @@ The Core rich-text editor has Chromium journeys for text entry and ordered-list 
 ### Case editor activity polling
 
 Activity requests remain batched by case ID, while each rendered activity row now owns its own completion subject. Removing one row stops only the batch with no remaining rows; it cannot cancel another page's polling, and duplicate rows for one case remain independent. The migration contract covers batch teardown, same-case subscribers, timer cleanup and recovery after terminal polling errors. Consumer-side activity rendering and polling load still need integration verification.
+### Rich-text editor dependency compatibility
+
+Core retains `ngx-editor` **19.0.0-beta.1** for its Angular 20 cohort. Version **19.1.1** declares `@angular/common`, `@angular/core`, `@angular/forms` and `@angular/platform-browser` peers at `>=22.0.0`, which does not match Core or the frozen Web App, Manage Organisations and Approve Org profiles at Angular 20.3.31. Approve Org's existing `19.1.1` selection with Angular 20 is recorded as an unresolved peer mismatch; it is not evidence that Core supports that combination. Revisit the editor upgrade after the host Angular cohort and package peer metadata agree, then rerun the packed compatibility matrix and rich-text browser journeys.
+
+Core declares its direct ProseMirror imports (`prosemirror-commands`, `prosemirror-history`, `prosemirror-model`, `prosemirror-schema-list` and `prosemirror-state`) as optional peers. This lets the host share one ProseMirror package graph with `ngx-editor`, avoiding duplicate model classes that can break editor transactions. The accepted peer ranges are `^1.7.1`, `^1.5.0`, `^1.25.0`, `^1.5.1` and `^1.4.3`, respectively, and match the Web App and Manage Organisations lock selections inspected for this decision. Core's root development lock remains pinned for reproducible local builds; those exact versions are not published runtime dependencies. A synthetic consumer-resolution contract now verifies Core and `ngx-editor` resolve the same `prosemirror-model` path. Application packed-install and browser checks remain required before consumer adoption.
 
 ### Case editor migration status
 
