@@ -162,7 +162,13 @@ class GenericFilterGallery {
     };
     this.seed = setting(id, validation ? { name: ['Seed name'], email: ['seed@example.com'] } : defaults);
     if (this.config.persistence === 'local') {
-      window.sessionStorage.setItem('userDetails', JSON.stringify({ filterOwnerHash: 'a'.repeat(64) }));
+      const query = new URLSearchParams(window.location.search);
+      if (query.get('identity') === 'missing') {
+        window.sessionStorage.removeItem('userDetails');
+      } else {
+        const ownerHash = query.get('owner') === 'second' ? 'b'.repeat(64) : 'a'.repeat(64);
+        window.sessionStorage.setItem('userDetails', JSON.stringify({ filterOwnerHash: ownerHash }));
+      }
     }
     window.genericFilterFixture = () => ({ form: this.widget.form.value, submitted: this.widget.submitted });
     filters.getStream(id).pipe(takeUntilDestroyed()).subscribe(value => this.persisted.set(value));
