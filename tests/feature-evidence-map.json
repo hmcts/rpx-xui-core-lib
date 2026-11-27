@@ -2571,8 +2571,8 @@
           "a mismatched local owner is removed and the session setting survives",
           "cached local settings become unavailable when the owner changes",
           "a second user can save their own filter after rejecting the first owner",
-          "local restore removes settings with a legacy raw ID or no ownership metadata",
-          "an owned local selection is removed if no current owner is available",
+          "local restore removes raw-ID records but keeps unowned filters unavailable",
+          "an owned local selection survives an unavailable owner and restores once identity arrives",
           "local writes fall back to session without a supplied owner hash",
           "session writes remove colliding local data and survive only during that session",
           "streams replay restored state, publish changes per ID and emit null on clear",
@@ -2673,6 +2673,14 @@
           {
             "projectName": "chromium",
             "title": "invalid Apply exposes template errors and Reset rebinds edits to the active form"
+          },
+          {
+            "projectName": "chromium",
+            "title": "a local filter survives unavailable identity and restores after the same owner returns"
+          },
+          {
+            "projectName": "chromium",
+            "title": "a local filter is not exposed to another known owner"
           }
         ],
         "package": [
@@ -2789,7 +2797,15 @@
       "feature": "Node authentication strategy",
       "lane": "nodeServerUnit",
       "suiteTokens": [
-        "projects/core-lib/node/server/auth/models/strategy.class.spec.ts"
+        "projects/core-lib/node/server/auth/models/strategy.class.spec.ts",
+        "projects/core-lib/node/server/auth/models/csrf-provenance.spec.ts"
+      ]
+    },
+    {
+      "feature": "Node login handler failure completion",
+      "lane": "nodeServerUnit",
+      "suiteTokens": [
+        "projects/core-lib/node/server/auth/models/login-handler-failures.integration.spec.ts"
       ]
     },
     {
@@ -2850,6 +2866,6 @@
     "Filter state and Generic Filter have Core-only evidence. Each consuming application still needs to validate token identity, owner-hash delivery, storage lifecycle and its cutover.",
     "Find person retains identity without user details. Selection cancels pending and active lookups. Instances sharing a default or identical idValue still have duplicate input, hint and error IDs; the accessible name uses a translated phrase with an English fallback; pending names include an English translation-in-progress marker; real Welsh content and screen-reader acceptance are unverified. Multiple instances sharing one parent FormGroup still share a control and can issue duplicate lookups; replacing the parent group after initialization is unverified. Hint and error DOM IDs now include the supplied idValue, so external references require cutover verification. Consumer adoption requires application identity, accessibility and provider integration validation.",
     "Task and work-type lookup default IDs can collide; task-name hint and error IDs are scoped when consumers provide distinct idValue values. Incompatible task-name cache data causes subsequent searches for that service to bypass cache without writing until picker recreation, increasing requests; recreation can encounter the same cache again. Real consumer dependency injection, Welsh error copy and assistive-technology acceptance remain unverified.",
-    "Filter state is deferred until the owner reference, identity lifecycle, cross-owner storage and legacy migration contracts are agreed and validated with consumers."
+    "Core filter state now preserves an owned local setting while current identity is missing and restores it on a later read for the same owner. Known different owners and legacy raw-ID records remain isolated. Unowned legacy settings are kept inaccessible because their owner cannot be proven. Checked consumers still lack a filterOwnerHash producer, so local writes remain session-scoped until owner-hash and legacy-migration contracts receive consumer acceptance."
   ]
 }
