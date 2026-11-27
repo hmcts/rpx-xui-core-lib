@@ -1,0 +1,13 @@
+{
+  "rawBranch": "master",
+  "runKey": "46044010399-attempt-1",
+  "runId": "46044010399",
+  "runAttempt": "1",
+  "sha": "fd410e5bab51ea990329b0d5970c89b03c76eca8",
+  "runUrl": "https://github.com/hmcts/rpx-xui-core-lib/actions/runs/46044010399/attempts/1",
+  "sourceDigest": "44acdacd6e0b6eea37fd359fff754d545ccf27f81d7351e82cfadf52b5df80d2",
+  "available": [
+    "browser",
+    "cache-upgrade"
+  ]
+}
