@@ -58,7 +58,7 @@ test('rendered lookup report exposes inherited accessibility and cache limitatio
 });
 
 test('all migrated Node server cases have named feature groups', () => {
-  assert.equal(inventory.nodeServerUnit.required.length, 157);
+  assert.equal(inventory.nodeServerUnit.required.length, 158);
   assert.equal(mapping.suiteGroups.filter(group => group.lane === 'nodeServerUnit').length, 8);
   const html = renderMatrix('verified', mapping, {}, inventory);
   for (const feature of ['Node logger namespaces', 'Node HTTP session middleware', 'Node content security policy', 'Node authentication strategy', 'Node OIDC authentication', 'Node token refresh integration',
