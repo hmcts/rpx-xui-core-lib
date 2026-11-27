@@ -691,6 +691,12 @@ try {
   await check('package.user-list-behavior', () => run('user-list-behavior', ['--test', 'user-list.test.mjs'], consumer));
   await cp(join(root, 'tests/pagination/pagination.test.mjs'), join(consumer, 'pagination.test.mjs'));
   await check('package.pagination-behavior', () => run('pagination-behavior', ['--test', 'pagination.test.mjs'], consumer));
+  await cp(join(root, 'tests/package/pagination-types.ts'), join(consumer, 'pagination-types.ts'));
+  await check('package.pagination-types', async () => {
+    const options = [compiler, '--strict', '--skipLibCheck', 'false', '--noEmit', '--target', 'ES2022', '--module', 'ESNext'];
+    await run('pagination-types-node', [...options, '--moduleResolution', 'node', 'pagination-types.ts'], consumer);
+    await run('pagination-types-bundler', [...options, '--moduleResolution', 'bundler', 'pagination-types.ts'], consumer);
+  });
   await cp(join(root, 'tests/address/address.test.mjs'), join(consumer, 'address.test.mjs'));
   await cp(join(root, 'tests/address/normalization.test.mjs'), join(consumer, 'address-normalization.test.mjs'));
   await check('package.address-behavior', () => run('address-behavior', ['--test', 'address.test.mjs', 'address-normalization.test.mjs'], consumer));

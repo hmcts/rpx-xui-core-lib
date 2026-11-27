@@ -1353,6 +1353,7 @@
       "package.user-list-behavior",
       "package.user-list-graph",
       "package.pagination-behavior",
+      "package.pagination-types",
       "package.pagination-graph",
       "package.hmcts-pagination-graph",
       "package.address-behavior",

@@ -2291,6 +2291,7 @@
         ],
         "package": [
           "package.pagination-behavior",
+          "package.pagination-types",
           "package.pagination-graph",
           "package.hmcts-pagination-graph"
         ]
