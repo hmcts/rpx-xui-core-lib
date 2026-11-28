@@ -12,6 +12,13 @@ test('rejects Node-only package names and their subpaths as bare externals', () 
   );
 });
 
+test('rejects Node built-in module imports from browser entries', () => {
+  assert.deepEqual(
+    findForbiddenExternalImports(['@angular/core', 'node:fs/promises', 'fs'], nodeOnlyPackages, unrelatedPackages),
+    ['node:fs/promises', 'fs'],
+  );
+});
+
 test('rejects unrelated editor and application package imports', () => {
   assert.deepEqual(
     findForbiddenExternalImports(['@angular/core', '@hmcts/media-viewer/player'], nodeOnlyPackages, unrelatedPackages),
