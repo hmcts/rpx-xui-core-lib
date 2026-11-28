@@ -36,9 +36,20 @@ test('rejects split dependency and Docker-image bumps from separate Renovate upd
   assert.throws(() => assertPlaywrightVersionAlignment(mixedPackages, newImage), /one version/);
 });
 
-test('requires explicit editor browser drivers in the aggregate inventory', () => {
+test('requires each editor dialog and keyboard interaction in the aggregate inventory', () => {
   assert.equal(contractInventory.editorDrivers?.report, 'test-results/editor/driver.json');
-  assert.ok(contractInventory.editorDrivers.required.some(item => item.projectName === 'chromium' && item.title === 'closes each editor dialog using Enter and Space'));
+  for (const title of [
+    'closes the delete-or-cancel dialog using Enter',
+    'closes the delete-or-cancel dialog using Space',
+    'closes the document dialog using Enter',
+    'closes the document dialog using Space',
+    'closes the remove dialog using Enter',
+    'closes the remove dialog using Space',
+    'closes the save-or-discard dialog using Enter',
+    'closes the save-or-discard dialog using Space'
+  ]) {
+    assert.ok(contractInventory.editorDrivers.required.some(item => item.projectName === 'chromium' && item.title === title));
+  }
 });
 
 const identity = { sourceSha: 'a'.repeat(40), runId: 'fixture', attempt: '1', invocationId: '12345678-1234-4123-8123-123456789abc', sourceSnapshot: 'b'.repeat(64) };
@@ -65,6 +76,21 @@ const unitNames = [
   'accepts the exact configured minimum',
   'accepts zero when zero is explicitly required',
   'rejects use on a non-group control with a clear error',
+  'date validator accepts an ordinary valid calendar date',
+  'date validator accepts leap day in a leap year',
+  'date validator rejects a day that would roll into the next month',
+  'date validator rejects a leap day in a non-leap year',
+  'date validator rejects blank date parts',
+  'date validator rejects non-numeric date parts',
+  'date validator rejects non-decimal numeric notation',
+  'date validator rejects a day outside the calendar range',
+  'date validator rejects a month outside the calendar range',
+  'date validator rejects missing date controls',
+  'date validator rejects use on a non-group control with a clear error',
+  'radio group validator reports invalid children with its legacy error key',
+  'radio group validator accepts a group whose children are valid',
+  'radio group validator accepts an empty group as CommonLib does',
+  'radio group validator rejects use on a non-group control with a clear error',
   "case sharing initializes and copies selected cases while preserving nested references",
   "case sharing emits deduplicated pending shares and host must synchronize emitted state",
   "case sharing unshares and cancels only the selected case",
