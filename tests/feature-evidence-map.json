@@ -2,6 +2,17 @@
   "schemaVersion": 1,
   "features": [
     {
+      "feature": "Toolkit safe JSON parsing",
+      "contracts": {
+        "unit": [
+          "safeJsonParse preserves valid JSON values including primitives",
+          "safeJsonParse returns the supplied fallback for missing and invalid input",
+          "safeJsonParse logs a safe error name without the malformed input"
+        ],
+        "package": ["package.json-graph"]
+      }
+    },
+    {
       "feature": "Case editor: rich text",
       "contracts": {
         "editorDrivers": [

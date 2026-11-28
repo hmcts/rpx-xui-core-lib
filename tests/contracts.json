@@ -2,6 +2,9 @@
   "unit": {
     "report": "test-results/validation.tap",
     "required": [
+      "safeJsonParse preserves valid JSON values including primitives",
+      "safeJsonParse returns the supplied fallback for missing and invalid input",
+      "safeJsonParse logs a safe error name without the malformed input",
       "Google Analytics shim queues Arguments objects for initialization, events and navigation",
       "a single public message can display before roles load, but multiple messages require a role match",
       "future and invalid dates are not displayed and invalid dates produce a warning",
@@ -1446,6 +1449,7 @@
       "package.terms-graph",
       "package.window-behavior",
       "package.window-graph",
+      "package.json-graph",
       "package.locations-behavior",
       "package.locations-graph",
       "package.ref-data-behavior",

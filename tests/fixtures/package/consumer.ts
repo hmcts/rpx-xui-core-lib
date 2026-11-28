@@ -40,8 +40,10 @@ import { CaseReferencePipe, CaseReferenceModule } from '@hmcts/rpx-xui-core-lib/
 const caseReference = new CaseReferencePipe().transform('1234567890123456');
 
 import { Draft, CaseDetails, DRAFT_PREFIX, DRAFT_QUERY_PARAM } from '@hmcts/rpx-xui-core-lib/case/models';
+import { safeJsonParse } from '@hmcts/rpx-xui-core-lib/util/json';
 const draft = new Draft();
 const details = new CaseDetails();
+const parsedJson: { enabled: boolean } | null = safeJsonParse<{ enabled: boolean }>('{"enabled":true}', null);
 
 // Named exports keep every imported capability in this compile-only consumer.
 export {
@@ -50,7 +52,7 @@ export {
   LoadingSpinnerComponent, LoadingSpinnerModule,
   contact, ContactDetailsComponent, ContactDetailsModule,
   caseReference, CaseReferenceModule,
-  draft, details, DRAFT_PREFIX, DRAFT_QUERY_PARAM,
+  draft, details, DRAFT_PREFIX, DRAFT_QUERY_PARAM, parsedJson,
 };
 
 import { SharedCaseErrorMessages, type SharedCase, type UserDetails, type UserAccessType } from '@hmcts/rpx-xui-core-lib/case/sharing';

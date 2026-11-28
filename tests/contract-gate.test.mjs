@@ -186,6 +186,11 @@ const addedLaneNames = {
 unitNames.push("date input reports mandatory and partial values through the legacy validator", "date input write and callback preserve the legacy padded value", "date input retains legacy touched callback and destruction behavior");
 unitNames.push('date revalidates on month and year changes and stops after destruction');
 unitNames.push('date preserves legacy required and optional empty-value validation');
+unitNames.push(
+  'safeJsonParse preserves valid JSON values including primitives',
+  'safeJsonParse returns the supplied fallback for missing and invalid input',
+  'safeJsonParse logs a safe error name without the malformed input',
+);
 unitNames.push('Google Analytics shim queues Arguments objects for initialization, events and navigation');
 
 const nodeNames = [
@@ -528,7 +533,7 @@ unitNames.push("filters messages by role and date, and persists a dismissal", "r
 addedBrowserJourneys.push("a corrupt dismissal cookie does not hide service messages");
 addedBrowserJourneys.push("renders sanitized message and dismisses it with the keyboard across reloads", "service messages have no automated accessibility violations");
 
-packageIds.push('package.selected-case-behavior', 'package.share-case-behavior', 'package.selected-case-graph', 'package.share-case-graph');
+packageIds.push('package.selected-case-behavior', 'package.share-case-behavior', 'package.selected-case-graph', 'package.share-case-graph', 'package.json-graph');
 addedBrowserJourneys.push('selected case removal can be cancelled and reflected in confirmation',
   'selected case accordion references its own content', 'selected case accordion can be operated with the keyboard',
   'selected case controls have no automated accessibility violations', 'sharing requires a change and adds a selected user',

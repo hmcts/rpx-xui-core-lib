@@ -25,6 +25,9 @@
       "@hmcts/rpx-xui-core-lib/case/logging": [
         "../../projects/core-lib/case/logging/public-api.ts"
       ],
+      "@hmcts/rpx-xui-core-lib/util/json": [
+        "../../projects/core-lib/util/json/public-api.ts"
+      ],
       "@hmcts/rpx-xui-core-lib/case/models": [
         "../../projects/core-lib/case/models/public-api.ts"
       ],

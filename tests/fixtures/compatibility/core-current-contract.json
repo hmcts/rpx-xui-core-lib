@@ -236,6 +236,11 @@
     },
     "assets": [
       {
+        "input": "util/json",
+        "glob": "LICENCE",
+        "output": "util/json"
+      },
+      {
         "input": "ui/service-messages",
         "glob": "LICENCE",
         "output": "ui/service-messages"

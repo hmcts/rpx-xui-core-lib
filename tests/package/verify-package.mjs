@@ -86,7 +86,7 @@ try {
     'ui/gov-date', 'ui/gov-select', 'ui/search-location', 'ui/search-judicials', 'ui/search-venue',
     'ui/pagination', 'ui/hmcts-pagination', 'terms/display', 'terms/confirmation', 'ui/gov-input',
     'case/session-error', 'case/session-guard', 'case/logging', 'case/editor-date',
-    'browser/window', 'browser/session-storage', 'reference/locations', 'reference/ref-data', 'terms/models',
+    'browser/window', 'browser/session-storage', 'reference/locations', 'reference/ref-data', 'terms/models', 'util/json',
     'ui/cookie', 'ui/cookie-banner', 'ui/feature-toggle', 'ui/feature-toggle-directive', 'ui/feature-toggle-guard',
     'ui/role-state', 'ui/role-guard', 'ui/task-data', 'case/sharing-state', 'ui/contact-details', 'ui/page-wrapper',
     'ui/hmcts-main-wrapper', 'ui/hmcts-primary-navigation',
@@ -884,6 +884,7 @@ try {
     ['find-person', 'find-person-graph.mjs', ['ui-find-person', 'browser-session-storage', 'i18n']],
     ['cookie', 'cookie-graph.mjs', ['ui-cookie']],
     ['window', 'window-graph.mjs', ['browser-window']],
+    ['json', 'json-graph.mjs', ['util-json', 'case-logging']],
     ['search-location', 'search-location-graph.mjs', ['ui-search-location', 'reference-locations', 'reference-ref-data', 'browser-session-storage', 'i18n']],
     ['search-judicials', 'search-judicials-graph.mjs', ['ui-search-judicials', 'ui-find-person', 'browser-session-storage', 'i18n']],
     ['search-venue', 'search-venue-graph.mjs', ['ui-search-venue', 'reference-locations', 'i18n']],
@@ -924,6 +925,7 @@ try {
         if (id === 'gov-input') assert.ok(!used.some(input => input.includes('@angular/router')));
         if (id === 'address') assert.ok(!used.some(input => /(?:hmcts-rpx-xui-core-lib-(?:case-editor-source|ui-search-location|ui-find-person)|@angular\/router|@hmcts\/(?:media-viewer|ccpay-web-component)|(?:^|\/)node(?:\/|$)|^node:)/.test(input)), 'Address UI must not pull the editor, routing, heavy peers or Node code');
         if (id === 'feature-toggle') assert.ok(!used.some(input => input.includes('@angular/router')), 'Feature service must not pull Angular Router');
+        if (id === 'json') assert.ok(!used.some(input => /hmcts-rpx-xui-core-lib-(?:case-notifier|case-editor-source|node)|@hmcts\/(?:media-viewer|ccpay-web-component)/.test(input)), 'The JSON utility must not pull the case editor, notifier, Node or heavy peers');
         if (id === 'feature-toggle-guard') assert.ok(used.some(input => input.includes('@angular/router')), 'Feature guard must carry its Angular Router dependency');
         if (id === 'role-guard') {
           assert.ok(used.some(input => input.includes('@angular/router')), 'Role guard must carry its Angular Router dependency');
