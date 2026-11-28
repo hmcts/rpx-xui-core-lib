@@ -7,17 +7,17 @@ import { Component, Input } from '@angular/core';
   standalone: false,
 })
 export class HmctsPrimaryNavigationComponent {
-  @Input() public set userLoggedIn(value: boolean | null | undefined) {
+  @Input() set userLoggedIn(value: boolean | null | undefined) {
     this.isUserLoggedIn = value;
   }
 
-  @Input() public label: string;
-  @Input() public items: {active: boolean, href: string, text: string}[];
-  @Input() public isBrandedHeader: boolean;
+  @Input() label: string | undefined;
+  @Input() items: { active: boolean; href: string; text: string }[] | null | undefined;
+  @Input() isBrandedHeader = false;
 
-  public isUserLoggedIn: boolean | null | undefined;
+  isUserLoggedIn: boolean | null | undefined;
 
-  public get navigationLabel(): string {
+  get navigationLabel(): string {
     return this.label?.trim() || 'Primary navigation';
   }
 }

@@ -1,6 +1,20 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import type { HmctsBannerInfo } from './hmcts-banner-info.interface';
 
+export interface HmctsMainWrapperSummaryErrors {
+  header: string;
+  /** Retains the CommonLib public spelling used by existing consumers. */
+  isFromValid: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Keep CommonLib's public error-message type compatible.
+  items: { id: string; message: any }[];
+}
+
+export interface HmctsMainWrapperActionButton {
+  name: string;
+  class: string;
+  action(): void;
+}
+
 @Component({
   selector: 'xuilib-hmcts-main-wrapper',
   templateUrl: './hmcts-main-wrapper.component.html',
@@ -8,28 +22,28 @@ import type { HmctsBannerInfo } from './hmcts-banner-info.interface';
   standalone: false,
 })
 export class HmctsMainWrapperComponent {
-  public bannerData: HmctsBannerInfo;
-
-  @Input() public backLink: string | undefined;
-  @Input() public title: string;
-  @Input() public summaryErrors: {header: string; isFromValid: boolean; items: { id: string;
-    // CommonLib exposed this input as any; preserve consumer compatibility at this public boundary.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    message: any;
-  }[]};
-  @Input() public set banner(value: HmctsBannerInfo) {
+  @Input() backLink: string | undefined;
+  @Input() title: string | undefined;
+  @Input() summaryErrors: HmctsMainWrapperSummaryErrors | null | undefined;
+  @Input() actionButtons: HmctsMainWrapperActionButton[] | null | undefined;
+  @Input() showWarningMessage = false;
+  @Input() set banner(value: HmctsBannerInfo | undefined) {
     this.bannerData = value;
   }
-  @Input() public actionButtons: {name: string, class: string, action(): void}[];
-  @Input() public showWarningMessage: boolean;
 
-  @Output() public backEvent = new EventEmitter<void>();
+  @Output() backEvent = new EventEmitter<void>();
 
-  public get hasBackLink(): boolean {
+  bannerData: HmctsBannerInfo | undefined;
+
+  get hasBackLink(): boolean {
     return this.backLink !== undefined || this.backEvent.observers.length > 0;
   }
 
-  public onGoBack(): void {
+  get showEventBackButton(): boolean {
+    return this.backLink === undefined && this.backEvent.observers.length > 0;
+  }
+
+  onGoBack(): void {
     this.backEvent.emit();
   }
 }

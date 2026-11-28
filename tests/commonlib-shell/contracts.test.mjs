@@ -22,10 +22,11 @@ test('main wrapper has an independent public entry and preserves its CommonLib i
     assert.match(entry, new RegExp(`\\b${symbol}\\b`), `The wrapper public entry must export ${symbol}`);
   }
   for (const input of ['backLink', 'title', 'summaryErrors', 'banner', 'actionButtons', 'showWarningMessage']) {
-    assert.match(implementation, new RegExp(`@Input\\(\\) public (?:set )?${input}\\b`), `Missing public input ${input}`);
+    assert.match(implementation, new RegExp(`@Input\\(\\)\\s*(?:public\\s+)?(?:set\\s+)?${input}\\b`), `Missing public input ${input}`);
   }
   assert.match(implementation, /selector:\s*'xuilib-hmcts-main-wrapper'/);
-  assert.match(implementation, /@Output\(\) public backEvent = new EventEmitter<void>\(\)/);
+  assert.match(implementation, /@Output\(\)\s*(?:public\s+)?backEvent = new EventEmitter<void>\(\)/);
+  assert.match(implementation, /action\(\): void/);
   assert.match(implementation, /isFromValid/);
   assert.match(template, /<ng-content><\/ng-content>/);
   assert.match(module, /HmctsErrorSummaryModule/);

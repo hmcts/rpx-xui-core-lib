@@ -776,6 +776,12 @@ try {
     await run('pagination-types-node', [...options, '--moduleResolution', 'node', 'pagination-types.ts'], consumer);
     await run('pagination-types-bundler', [...options, '--moduleResolution', 'bundler', 'pagination-types.ts'], consumer);
   });
+  await cp(join(root, 'tests/package/hmcts-shell-types.ts'), join(consumer, 'hmcts-shell-types.ts'));
+  await check('package.hmcts-shell-types', async () => {
+    const options = [compiler, '--strict', '--skipLibCheck', 'false', '--noEmit', '--target', 'ES2022', '--module', 'ESNext'];
+    await run('hmcts-shell-types-node', [...options, '--moduleResolution', 'node', 'hmcts-shell-types.ts'], consumer);
+    await run('hmcts-shell-types-bundler', [...options, '--moduleResolution', 'bundler', 'hmcts-shell-types.ts'], consumer);
+  });
   await cp(join(root, 'tests/address/address.test.mjs'), join(consumer, 'address.test.mjs'));
   await cp(join(root, 'tests/address/normalization.test.mjs'), join(consumer, 'address-normalization.test.mjs'));
   await check('package.address-behavior', () => run('address-behavior', ['--test', 'address.test.mjs', 'address-normalization.test.mjs'], consumer));
@@ -828,6 +834,8 @@ try {
     ['user-agent', 'user-agent-graph.mjs', ['browser-user-agent']],
     ['invitation', 'invitation-graph.mjs', ['ui-invitation', 'ui-gov-input', 'ui-gov-checkbox', 'ui-form-group', 'i18n']],
     ['page-wrapper', 'page-wrapper-graph.mjs', ['ui-page-wrapper', 'i18n']],
+    ['hmcts-main-wrapper', 'hmcts-main-wrapper-graph.mjs', ['ui-hmcts-main-wrapper', 'ui-hmcts-error-summary', 'ui-banner', 'i18n']],
+    ['hmcts-primary-navigation', 'hmcts-primary-navigation-graph.mjs', ['ui-hmcts-primary-navigation', 'i18n']],
     ['selected-case', 'selected-case-graph.mjs', ['case-selected-case', 'case-sharing-state', 'i18n']],
     ['share-case', 'share-case-graph.mjs', ['case-share-case', 'case-selected-case', 'case-sharing-state', 'case-sharing', 'ui-gov-input', 'i18n']],
     ['find-task-name', 'find-task-name-graph.mjs', ['ui-find-task-name', 'ui-task-data', 'browser-session-storage', 'i18n']],
@@ -865,7 +873,7 @@ try {
         for (const entry of entries) assert.ok(core.some(input => input.endsWith('/fesm2022/hmcts-rpx-xui-core-lib-' + entry + '.mjs')));
         assert.ok(!used.some(input => /(?:^|\/)node(?:\/|$)|^node:/.test(input)));
         if (['selected-case', 'share-case', 'user-details', 'user-list', 'invitation'].includes(id)) assert.ok(!used.some(input => /@hmcts\/(media-viewer|ccpay-web-component)/.test(input)));
-        if (id === 'hmcts-error-summary' || id === 'hmcts-sub-navigation') {
+        if (id === 'hmcts-error-summary' || id === 'hmcts-sub-navigation' || id === 'hmcts-primary-navigation' || id === 'hmcts-main-wrapper') {
           assert.ok(used.some(input => input.includes('@angular/router')), 'HMCTS navigation controls must retain their RouterLink contract');
           assert.ok(!used.some(input => /@hmcts\/(?:media-viewer|ccpay-web-component)|hmcts-rpx-xui-core-lib-(?:case-editor-source|case-notifier)/.test(input)), 'HMCTS shell entries must not pull editor, Media Viewer or payment code');
         }
