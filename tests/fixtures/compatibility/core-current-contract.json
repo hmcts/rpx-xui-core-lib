@@ -241,6 +241,26 @@
         "output": "ui/service-messages"
       },
       {
+        "input": "ui/let",
+        "glob": "LICENCE",
+        "output": "ui/let"
+      },
+      {
+        "input": "ui/tabs",
+        "glob": "LICENCE",
+        "output": "ui/tabs"
+      },
+      {
+        "input": "ui/gov-uk-table",
+        "glob": "LICENCE",
+        "output": "ui/gov-uk-table"
+      },
+      {
+        "input": "ui/hmcts-identity-bar",
+        "glob": "LICENCE",
+        "output": "ui/hmcts-identity-bar"
+      },
+      {
         "input": "ui/hmcts-error-summary",
         "glob": "LICENCE",
         "output": "ui/hmcts-error-summary"

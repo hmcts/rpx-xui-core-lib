@@ -3069,6 +3069,48 @@
           "package.strict-commonlib-checkbox-types"
         ]
       }
+    },
+    {
+      "feature": "CommonLib UI primitives",
+      "contracts": {
+        "browser": [
+          {
+            "projectName": "chromium",
+            "title": "let directive updates both template variables without recreating its view",
+            "feature": "commonlib-primitives"
+          },
+          {
+            "projectName": "chromium",
+            "title": "let directive renders false and zero values rather than treating them as conditions",
+            "feature": "commonlib-primitives"
+          },
+          {
+            "projectName": "chromium",
+            "title": "tabs translate labels and emit the selected index and tab on keyboard navigation",
+            "feature": "commonlib-primitives"
+          },
+          {
+            "projectName": "chromium",
+            "title": "identity bar translates the supplied name and disappears when the identity is cleared",
+            "feature": "commonlib-primitives"
+          },
+          {
+            "projectName": "chromium",
+            "title": "GOV.UK table translates its labels, formats date cells once and keeps row links",
+            "feature": "commonlib-primitives"
+          },
+          {
+            "projectName": "chromium",
+            "title": "GOV.UK table preserves custom classes and renders data cells when row headers are disabled",
+            "feature": "commonlib-primitives"
+          }
+        ],
+        "package": [
+          "package.commonlib-primitives-types",
+          "package.commonlib-primitives-graphs",
+          "package.commonlib-primitives-packed-browser"
+        ]
+      }
     }
   ],
   "suiteGroups": [

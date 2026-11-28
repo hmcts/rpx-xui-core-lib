@@ -36,7 +36,7 @@ try {
   if (manifest.name !== '@hmcts/rpx-xui-core-lib') throw new Error('Unexpected packed library identity');
   const config = {
     testDir: join(root, 'tests/browser'),
-    testMatch: ['**/gov-controls/*.spec.mjs', '**/invitation/*.spec.mjs'],
+    testMatch: ['**/gov-controls/*.spec.mjs', '**/invitation/*.spec.mjs', '**/commonlib-primitives/*.spec.mjs'],
     outputDir: join(output, 'artifacts'),
     fullyParallel: true, workers: 4, retries: 0,
     reporter: [['list'], ['json', { outputFile: join(output, 'browser.json') }]],
@@ -51,7 +51,7 @@ try {
   run(process.execPath, [join(root, 'node_modules/@playwright/test/cli.js'), 'test', '-c', join(workspace, 'packed-controls.config.mjs')]);
   const report = JSON.parse(await readFile(join(output, 'browser.json'), 'utf8'));
   const inventory = JSON.parse(await readFile(join(root, 'tests/contracts.json'), 'utf8'));
-  const expected = inventory.browser.required.filter(row => ['gov-controls', 'invitation'].includes(row.feature)).map(row => row.title).sort((a, b) => a.localeCompare(b));
+  const expected = inventory.browser.required.filter(row => ['gov-controls', 'invitation', 'commonlib-primitives'].includes(row.feature)).map(row => row.title).sort((a, b) => a.localeCompare(b));
   function titles(suite) { return [...(suite.specs ?? []).map(spec => spec.title), ...(suite.suites ?? []).flatMap(titles)]; }
   assert.deepEqual(titles(report).sort((a, b) => a.localeCompare(b)), expected, 'Packed browser cases differ from required feature inventory');
   assert.equal(report.stats.expected, expected.length);
