@@ -536,5 +536,6 @@ test('writes a new case flag through the real wizard while preserving persisted 
   await host.getByRole('button', { name: 'Return callback success' }).click();
   expect((await evidence()).submission.snapshotRetained).toBe(false);
   expect((await evidence()).submission).not.toHaveProperty('snapshotDetails');
+  expect((await evidence()).submission.caseCacheRemovals).toBe(1);
   expect(errors).toEqual([]);
 });

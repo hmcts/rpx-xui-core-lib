@@ -989,3 +989,65 @@ body#body-content {
   outline: 3px solid #0b0c0c;
   outline-offset: 2px;
 }
+
+#body-content .required-browser-evidence-card {
+  margin: 0 20px 20px;
+  border: 1px solid var(--report-line);
+  border-radius: 16px;
+  background: var(--report-surface);
+  box-shadow: 0 3px 14px #16213a08;
+  overflow: hidden;
+}
+#body-content .required-browser-evidence-card .info-box-header {
+  min-height: 58px;
+}
+#body-content .required-browser-evidence-card .info-box-header h2 {
+  margin: 0;
+  color: var(--report-ink);
+  font: inherit;
+}
+#body-content .required-browser-evidence-content {
+  padding: 14px 20px 20px;
+}
+#body-content .required-browser-evidence-content > p {
+  margin: 0 0 12px;
+  color: var(--report-muted);
+}
+#body-content .required-browser-evidence-content .required-browser-evidence-run {
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+#body-content .required-browser-evidence-run code {
+  color: var(--report-ink);
+}
+#body-content .required-browser-evidence-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  border: 1px solid var(--report-line);
+  border-radius: 10px;
+}
+#body-content .required-browser-evidence-scroll:focus-visible {
+  outline: 3px solid var(--report-accent);
+  outline-offset: 3px;
+}
+#body-content .required-browser-evidence-scroll table {
+  min-width: 720px;
+  margin: 0;
+}
+#body-content .required-browser-evidence-scroll th:not(:first-child),
+#body-content .required-browser-evidence-scroll td:not(:first-child) {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+#body-content .required-browser-evidence-scroll tbody tr:last-child > * {
+  border-bottom: 0;
+}
+@media (max-width: 600px) {
+  #body-content .required-browser-evidence-card {
+    margin: 0 8px 14px;
+  }
+  #body-content .required-browser-evidence-content {
+    padding: 12px;
+  }
+}

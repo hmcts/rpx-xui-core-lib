@@ -21,6 +21,24 @@ async function main() {
     });
     page.on('pageerror', (error) => errors.push(error.message));
     await page.goto(pathToFileURL(report).href);
+    const testListLength = page.locator('#test-list-table_length select');
+    await testListLength.waitFor({ state: 'attached' });
+    assert.equal(await testListLength.inputValue(), '100', 'test pagination defaults to 100 rows');
+    assert.equal(await page.evaluate("jQuery('#test-list-table').DataTable().page.len()"), 100, 'the active DataTable defaults to 100 rows');
+    const requiredEvidence = page.locator('#required-browser-evidence');
+    if (await requiredEvidence.count()) {
+      assert.equal(await requiredEvidence.evaluate((section) => Boolean(section.closest('#TabDashboard'))), true, 'required browser evidence appears on the Dashboard');
+      assert.equal(await requiredEvidence.evaluate((section) => Boolean(section.closest('#TabTests'))), false, 'required browser evidence is not hidden in the Tests tab');
+      assert.equal(await requiredEvidence.evaluate((section) => section.parentElement?.classList.contains('container-fluid')), true, 'required browser evidence uses the main dashboard container');
+      assert.equal(await page.evaluate(() => {
+        const metrics = document.querySelector('#TabDashboard .report-metrics');
+        const evidence = document.querySelector('#required-browser-evidence');
+        const dashboardRow = document.querySelector('#TabDashboard > .container-fluid > .row');
+        return Boolean(metrics && evidence && dashboardRow && metrics.compareDocumentPosition(evidence) & Node.DOCUMENT_POSITION_FOLLOWING && evidence.compareDocumentPosition(dashboardRow) & Node.DOCUMENT_POSITION_FOLLOWING);
+      }), true, 'required browser evidence follows the test summary and precedes dashboard feature cards');
+      assert.equal(await requiredEvidence.evaluate((section) => section.classList.contains('required-browser-evidence-card')), true, 'required browser evidence uses the report card layout');
+      assert.equal(await requiredEvidence.evaluate((section) => getComputedStyle(section).borderRadius !== '0px'), true, 'required browser evidence has the report card styling');
+    }
     const diagnosticMatrix = process.argv.includes('--diagnostic-matrix');
     if (process.argv.includes('--feature-matrix') || diagnosticMatrix) {
       const matrix = page.locator('#feature-evidence-matrix');

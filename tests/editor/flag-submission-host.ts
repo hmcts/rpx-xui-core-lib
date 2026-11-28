@@ -13,9 +13,10 @@ export function createFlagSubmission(host: Awaited<ReturnType<typeof createFlagW
   const payloads: object[] = [];
   const responses: Subject<object>[] = [];
   const linkedCases = { resetLinkedCaseData: (): void => undefined };
+  let cacheRemovals = 0;
   // Services unrelated to this submission path are empty boundaries; the production submission methods run unchanged.
   const editor = new CaseEditComponent(...[
-    new FormBuilder(), {}, {}, {}, {}, {}, {}, {}, storage, {},
+    new FormBuilder(), { removeCachedCase: () => { cacheRemovals += 1; } }, {}, {}, {}, {}, {}, {}, storage, {},
     new FormValueService(new FieldTypeSanitiser()), {},
     { register: () => 'spinner', unregister: (): void => undefined },
     { deleteNonValidatedFields: (): void => undefined, validPageListCaseFields: (): never[] => [] },
@@ -39,5 +40,6 @@ export function createFlagSubmission(host: Awaited<ReturnType<typeof createFlagW
   submitter.description = new FormControl('');
   return { submit: () => submitter.submit(), fail: () => responses.at(-1)?.error(new Error('Synthetic callback failure')),
     succeed: () => { responses.at(-1)?.next({ id: 'case-1' }); responses.at(-1)?.complete(); },
-    evidence: () => ({ payloads, snapshotRetained: host.state.initialCaseFlags === snapshot, snapshotDetails: host.state.initialCaseFlags?.data.partyFlags.details }) };
+    evidence: () => ({ payloads, snapshotRetained: host.state.initialCaseFlags === snapshot,
+      snapshotDetails: host.state.initialCaseFlags?.data.partyFlags.details, caseCacheRemovals: cacheRemovals }) };
 }
