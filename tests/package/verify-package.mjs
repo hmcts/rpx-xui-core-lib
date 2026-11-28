@@ -177,21 +177,24 @@ try {
   await check('package.commonlib-shell-selective-entries', async () => {
     const manifest = JSON.parse(await readFile(join(dist, 'package.json'), 'utf8'));
     const nodeWorkspace = JSON.parse(await readFile(join(root, 'projects/core-lib/node/package.json'), 'utf8'));
-    const nodeOnlyPackages = Object.keys({
+    const nodeOnlyPackages = new Set(Object.keys({
       ...nodeWorkspace.dependencies,
       ...nodeWorkspace.devDependencies,
       ...nodeWorkspace.peerDependencies,
-    });
+    }));
     const unrelatedPackages = ['ngx-editor', 'prosemirror-commands', 'prosemirror-history', 'prosemirror-model', 'prosemirror-schema-list', 'prosemirror-state', '@hmcts/media-viewer', '@hmcts/ccpay-web-component'];
-    for (const [entry, symbol, bundle] of [
+    const shellEntries = await Promise.all([
       ['hmcts-main-wrapper', 'HmctsMainWrapperModule', 'hmcts-main-wrapper'],
       ['hmcts-primary-navigation', 'HmctsPrimaryNavigationModule', 'hmcts-primary-navigation'],
-    ]) {
+    ].map(async ([entry, symbol, bundle]) => {
       const key = `./ui/${entry}`;
       assert.ok(manifest.exports[key]?.types && manifest.exports[key]?.default, `Missing public selective entry ${key}`);
       const declaration = await readFile(join(dist, 'ui', entry, 'index.d.ts'), 'utf8');
-      assert.match(declaration, new RegExp(`\\b${symbol}\\b`), `${key} must publish ${symbol}`);
+      assert.match(declaration, new RegExp(String.raw`\b${symbol}\b`), `${key} must publish ${symbol}`);
       const loading = await probeLoading(dist, `fesm2022/hmcts-rpx-xui-core-lib-ui-${bundle}.mjs`, symbol);
+      return { key, loading };
+    }));
+    for (const { key, loading } of shellEntries) {
       assert.ok(loading.externalImports.includes('@angular/core'), `${key} must keep Angular external`);
       assert.ok(loading.externalImports.includes('@angular/router'), `${key} must keep Router external`);
       assert.equal(loading.mediaViewer, false, `${key} must not load Media Viewer`);
@@ -746,7 +749,7 @@ try {
       if (entry === 'gov-radios') allowed.add('ui-gov-radio');
       const core = used.filter(path => path.includes('/@hmcts/rpx-xui-core-lib/')).map(path => path.split('/').at(-1));
       assert.ok(core.includes(`hmcts-rpx-xui-core-lib-ui-${entry}.mjs`));
-      assert.ok(core.every(name => [...allowed].some(suffix => name === `hmcts-rpx-xui-core-lib-${suffix}.mjs`)), `Unrelated Core code in ${entry}`);
+      assert.ok(core.every(name => allowed.has(name.replace('hmcts-rpx-xui-core-lib-', '').replace('.mjs', ''))), `Unrelated Core code in ${entry}`);
     };
     const modules = ['GovRadioModule', 'GovRadiosModule', 'GovCheckboxesModule', 'GovTextareaModule', 'GovFileUploadModule', 'FormGroupModule'];
     for (const [index, entry] of entries.entries()) verify(graph(`import '@angular/compiler'; import { ${modules[index]} } from '@hmcts/rpx-xui-core-lib/ui/${entry}'; console.log(${modules[index]});`), entry);
@@ -757,9 +760,9 @@ try {
     const verify = result => {
       const used = Object.values(result.metafile.outputs).flatMap(output => Object.entries(output.inputs).filter(([, value]) => value.bytesInOutput > 0).map(([path]) => path.replaceAll('\\', '/')));
       const core = used.filter(path => path.includes('/@hmcts/rpx-xui-core-lib/')).map(path => path.split('/').at(-1));
-      const allowed = ['hmcts-rpx-xui-core-lib-i18n.mjs', 'hmcts-rpx-xui-core-lib-ui-gov-checkbox.mjs', 'hmcts-rpx-xui-core-lib-ui-gov-input.mjs', 'hmcts-rpx-xui-core-lib-ui-form-group.mjs'];
+      const allowed = new Set(['hmcts-rpx-xui-core-lib-i18n.mjs', 'hmcts-rpx-xui-core-lib-ui-gov-checkbox.mjs', 'hmcts-rpx-xui-core-lib-ui-gov-input.mjs', 'hmcts-rpx-xui-core-lib-ui-form-group.mjs']);
       assert.ok(core.includes('hmcts-rpx-xui-core-lib-ui-gov-checkbox.mjs'), 'Checkbox entry must be in the runtime graph');
-      assert.ok(core.every(name => allowed.includes(name)), `Checkbox entry must exclude unrelated Core entries: ${core.join(', ')}`);
+      assert.ok(core.every(name => allowed.has(name)), `Checkbox entry must exclude unrelated Core entries: ${core.join(', ')}`);
     };
     const source = "import '@angular/compiler'; import { GovCheckboxModule } from '@hmcts/rpx-xui-core-lib/ui/gov-checkbox'; console.log(GovCheckboxModule);";
     verify(graph(source));
