@@ -9,7 +9,7 @@ import { Component, Input } from '@angular/core';
 export class HmctsIdentityBarComponent {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Preserve the published CommonLib content input contract.
   @Input() public set content(value: any) {
-    this.value = value.name;
+    this.value = value?.name ?? '';
   }
 
   public value!: string;

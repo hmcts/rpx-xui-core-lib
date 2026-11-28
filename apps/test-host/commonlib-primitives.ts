@@ -27,6 +27,9 @@ import { TabItem, TabsModule } from '@hmcts/rpx-xui-core-lib/ui/tabs';
     <output data-testid="tab-change-label">{{ selectedLabel }}</output>
     <button type="button" (click)="identityContent = { name: 'Synthetic caseworker' }">Set identity</button>
     <button type="button" (click)="identityContent = { name: '' }">Clear identity</button>
+    <button type="button" (click)="identityContent = {}">Remove identity name</button>
+    <button type="button" (click)="identityContent = null">Clear identity content</button>
+    <button type="button" (click)="identityContent = undefined">Unset identity content</button>
     <xuilib-hmcts-identity-bar [content]="identityContent" />
     <xuilib-gov-uk-table
       caption="Synthetic cases"
@@ -47,7 +50,7 @@ class CommonLibPrimitivesGallery {
   value = 'first';
   selectedIndex = '';
   selectedLabel = '';
-  identityContent = { name: '' };
+  identityContent: { name?: string | null } | null | undefined = { name: '' };
   readonly tabItems: TabItem[] = [{ text: 'Overview' }, { text: 'History' }];
   readonly tableColumns: GovukTableColumnConfig[] = [
     { header: 'Case name', key: 'caseName', type: 'text' },

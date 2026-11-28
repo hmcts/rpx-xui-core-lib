@@ -42,11 +42,23 @@ test('tabs translate labels and emit the selected index and tab on keyboard navi
 test('identity bar translates the supplied name and disappears when the identity is cleared', async ({ page }) => {
   const identity = page.locator('.hmcts-identity-bar');
   await expect(identity).toHaveCount(0);
-  await page.getByRole('button', { name: 'Set identity' }).click();
+  await page.getByRole('button', { name: 'Set identity', exact: true }).click();
   await expect(identity).toContainText('Synthetic caseworker');
   await page.getByRole('button', { name: 'Cymraeg' }).click();
   await expect(identity).toContainText('Gweithiwr achos synthetig');
-  await page.getByRole('button', { name: 'Clear identity' }).click();
+  await page.getByRole('button', { name: 'Clear identity', exact: true }).click();
+  await expect(identity).toHaveCount(0);
+
+  await page.getByRole('button', { name: 'Set identity', exact: true }).click();
+  await page.getByRole('button', { name: 'Remove identity name', exact: true }).click();
+  await expect(identity).toHaveCount(0);
+
+  await page.getByRole('button', { name: 'Set identity', exact: true }).click();
+  await page.getByRole('button', { name: 'Clear identity content', exact: true }).click();
+  await expect(identity).toHaveCount(0);
+
+  await page.getByRole('button', { name: 'Set identity', exact: true }).click();
+  await page.getByRole('button', { name: 'Unset identity content', exact: true }).click();
   await expect(identity).toHaveCount(0);
 });
 
