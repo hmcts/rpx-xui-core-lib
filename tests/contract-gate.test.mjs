@@ -36,9 +36,20 @@ test('rejects split dependency and Docker-image bumps from separate Renovate upd
   assert.throws(() => assertPlaywrightVersionAlignment(mixedPackages, newImage), /one version/);
 });
 
-test('requires explicit editor browser drivers in the aggregate inventory', () => {
+test('requires each editor dialog and keyboard interaction in the aggregate inventory', () => {
   assert.equal(contractInventory.editorDrivers?.report, 'test-results/editor/driver.json');
-  assert.ok(contractInventory.editorDrivers.required.some(item => item.projectName === 'chromium' && item.title === 'closes each editor dialog using Enter and Space'));
+  for (const title of [
+    'closes the delete-or-cancel dialog using Enter',
+    'closes the delete-or-cancel dialog using Space',
+    'closes the document dialog using Enter',
+    'closes the document dialog using Space',
+    'closes the remove dialog using Enter',
+    'closes the remove dialog using Space',
+    'closes the save-or-discard dialog using Enter',
+    'closes the save-or-discard dialog using Space'
+  ]) {
+    assert.ok(contractInventory.editorDrivers.required.some(item => item.projectName === 'chromium' && item.title === title));
+  }
 });
 
 const identity = { sourceSha: 'a'.repeat(40), runId: 'fixture', attempt: '1', invocationId: '12345678-1234-4123-8123-123456789abc', sourceSnapshot: 'b'.repeat(64) };
@@ -65,6 +76,21 @@ const unitNames = [
   'accepts the exact configured minimum',
   'accepts zero when zero is explicitly required',
   'rejects use on a non-group control with a clear error',
+  'date validator accepts an ordinary valid calendar date',
+  'date validator accepts leap day in a leap year',
+  'date validator rejects a day that would roll into the next month',
+  'date validator rejects a leap day in a non-leap year',
+  'date validator rejects blank date parts',
+  'date validator rejects non-numeric date parts',
+  'date validator rejects non-decimal numeric notation',
+  'date validator rejects a day outside the calendar range',
+  'date validator rejects a month outside the calendar range',
+  'date validator rejects missing date controls',
+  'date validator rejects use on a non-group control with a clear error',
+  'radio group validator reports invalid children with its legacy error key',
+  'radio group validator accepts a group whose children are valid',
+  'radio group validator accepts an empty group as CommonLib does',
+  'radio group validator rejects use on a non-group control with a clear error',
   "case sharing initializes and copies selected cases while preserving nested references",
   "case sharing emits deduplicated pending shares and host must synchronize emitted state",
   "case sharing unshares and cancels only the selected case",
@@ -186,6 +212,11 @@ const addedLaneNames = {
 unitNames.push("date input reports mandatory and partial values through the legacy validator", "date input write and callback preserve the legacy padded value", "date input retains legacy touched callback and destruction behavior");
 unitNames.push('date revalidates on month and year changes and stops after destruction');
 unitNames.push('date preserves legacy required and optional empty-value validation');
+unitNames.push(
+  'safeJsonParse preserves valid JSON values including primitives',
+  'safeJsonParse returns the supplied fallback for missing and invalid input',
+  'safeJsonParse logs a safe error name without the malformed input',
+);
 unitNames.push('Google Analytics shim queues Arguments objects for initialization, events and navigation');
 
 const nodeNames = [
@@ -409,7 +440,20 @@ addedBrowserJourneys.push('blank opt-in preserves the external name and explicit
 packageIds.push('package.search-location-graph');
 packageIds.push('package.address-graph', 'package.address-behavior');
 packageIds.push('package.search-judicials-graph', 'package.search-venue-graph');
-packageIds.push('package.hmcts-error-summary-graph', 'package.hmcts-sub-navigation-graph');
+packageIds.push(
+  'package.hmcts-error-summary-graph',
+  'package.hmcts-sub-navigation-graph',
+  'package.hmcts-main-wrapper-graph',
+  'package.hmcts-primary-navigation-graph',
+  'package.hmcts-shell-types',
+);
+addedBrowserJourneys.push(
+  'main wrapper projects content, shows validation feedback and exposes event-only back as a button',
+  'main wrapper uses a route link when configured and still emits its back event',
+  'main wrapper renders its banner input and action buttons as keyboard-operable controls',
+  'primary navigation is limited to signed-in users and exposes active and inactive route links',
+  'main wrapper and primary navigation have no serious automated accessibility violations',
+);
 unitNames.push(
   'judicial search skips short terms, forwards service ID, cancels stale searches and excludes selected people',
   'judicial selection keeps the source object and emits the exact source events',
@@ -477,6 +521,15 @@ unitNames.push("task-name cancels an active request when its service changes");
 unitNames.push(...["radio preserves caller configuration identity and focus/class initialization", "checkbox columns and selection preserve legacy order without mutating the prior value", "textarea and file upload preserve configured hint and error descriptions", "file upload retains legacy label sizing and reload default", "radios preserves the caller-owned option model", "invitation and standalone form-group entries share their wrapper and fieldset classes", "the standalone host-removal directive preserves the existing selector"]);
 addedBrowserJourneys.push(...["remaining GOV.UK controls update their reactive form values through real browser input", "textarea instances have unique existing hint and error targets", "migrated controls expose errors and remove missing error descriptions when messages clear", "migrated controls support form reset and have no automated accessibility violations"]);
 packageIds.push(...["package.gov-controls-browser", "package.gov-controls-types", "package.gov-controls-behavior", "package.gov-controls-graphs"]);
+addedBrowserJourneys.push(...[
+  'let directive updates both template variables without recreating its view',
+  'let directive renders false and zero values rather than treating them as conditions',
+  'tabs translate labels and emit the selected index and tab on keyboard navigation',
+  'identity bar translates the supplied name and disappears when the identity is cleared',
+  'GOV.UK table translates its labels, formats date cells once and keeps row links',
+  'GOV.UK table preserves custom classes and renders data cells when row headers are disabled',
+]);
+packageIds.push('package.commonlib-primitives-types', 'package.commonlib-primitives-graphs', 'package.commonlib-primitives-packed-browser');
 
 unitNames.push("task-name retries corrupt cache without writing on a failed uncached request");
 
@@ -506,7 +559,7 @@ unitNames.push("filters messages by role and date, and persists a dismissal", "r
 addedBrowserJourneys.push("a corrupt dismissal cookie does not hide service messages");
 addedBrowserJourneys.push("renders sanitized message and dismisses it with the keyboard across reloads", "service messages have no automated accessibility violations");
 
-packageIds.push('package.selected-case-behavior', 'package.share-case-behavior', 'package.selected-case-graph', 'package.share-case-graph');
+packageIds.push('package.selected-case-behavior', 'package.share-case-behavior', 'package.selected-case-graph', 'package.share-case-graph', 'package.json-graph');
 addedBrowserJourneys.push('selected case removal can be cancelled and reflected in confirmation',
   'selected case accordion references its own content', 'selected case accordion can be operated with the keyboard',
   'selected case controls have no automated accessibility violations', 'sharing requires a change and adds a selected user',
@@ -529,6 +582,50 @@ addedBrowserJourneys.push(
   'case selection and select-all remain independent between list instances',
 );
 addedBrowserJourneys.push('page wrapper renders its translated shell and projected content', 'page wrapper omits unset shell elements and passes a scoped accessibility scan');
+const hmctsMainWrapperBrowserJourneys = [
+  'HMCTS main wrapper translates its shell, projects content, and follows its back link',
+  'event-only navigation and configured actions use keyboard-operable buttons',
+  'HMCTS main wrapper forwards summary errors and warning mode, and omits unset content accessibly',
+];
+unitNames.push('main wrapper shows a back action for a route or subscribed event and emits the event');
+addedBrowserJourneys.push(...hmctsMainWrapperBrowserJourneys);
+packageIds.push('package.hmcts-main-wrapper-types');
+test('registers HMCTS main wrapper tests across behavior, browser and selective package contracts', () => {
+  const map = JSON.parse(readFileSync(new URL('./feature-evidence-map.json', import.meta.url), 'utf8'));
+  const shellJourneys = [
+    'main wrapper projects content, shows validation feedback and exposes event-only back as a button',
+    'main wrapper uses a route link when configured and still emits its back event',
+    'main wrapper renders its banner input and action buttons as keyboard-operable controls',
+    'main wrapper and primary navigation have no serious automated accessibility violations',
+  ];
+  assert.deepEqual(map.features.find(row => row.feature === 'HMCTS main wrapper')?.contracts, {
+    unit: ['main wrapper shows a back action for a route or subscribed event and emits the event'],
+    browser: [
+      ...hmctsMainWrapperBrowserJourneys.map(title => ({ projectName: 'chromium', title, feature: 'hmcts-main-wrapper' })),
+      ...shellJourneys.map(title => ({ projectName: 'chromium', title, feature: 'hmcts-shell' })),
+    ],
+    package: ['package.hmcts-main-wrapper-types', 'package.hmcts-main-wrapper-graph', 'package.hmcts-shell-types'],
+  });
+});
+
+const hmctsPrimaryNavigationBrowserJourneys = [
+  'primary navigation is hidden from signed-out users and its links follow their routes',
+  'primary navigation translates links and renders the optional branded header accessibly',
+];
+unitNames.push('primary navigation preserves the logged-in visibility input');
+addedBrowserJourneys.push(...hmctsPrimaryNavigationBrowserJourneys);
+packageIds.push('package.hmcts-primary-navigation-types');
+test('registers HMCTS primary navigation across behavior, browser and selective package contracts', () => {
+  const map = JSON.parse(readFileSync(new URL('./feature-evidence-map.json', import.meta.url), 'utf8'));
+  assert.deepEqual(map.features.find(row => row.feature === 'HMCTS primary navigation')?.contracts, {
+    unit: ['primary navigation preserves the logged-in visibility input'],
+    browser: [
+      ...hmctsPrimaryNavigationBrowserJourneys.map(title => ({ projectName: 'chromium', title, feature: 'hmcts-primary-navigation' })),
+      { projectName: 'chromium', title: 'primary navigation is limited to signed-in users and exposes active and inactive route links', feature: 'hmcts-shell' },
+    ],
+    package: ['package.hmcts-primary-navigation-types', 'package.hmcts-primary-navigation-graph'],
+  });
+});
 packageIds.push('package.user-details-behavior', 'package.user-details-graph');
 packageIds.push('package.user-list-behavior', 'package.user-list-graph');
 packageIds.push('package.pagination-types', 'package.pagination-behavior', 'package.pagination-graph', 'package.hmcts-pagination-graph');
@@ -549,6 +646,27 @@ addedBrowserJourneys.push(
 );
 packageIds.push('package.terms-confirmation-graph', 'package.editor-source-case-viewer-api-and-loading');
 packageIds.push('package.case-logging-identity', 'package.session-guard-types', 'package.session-guard-graph');
+const shellBrowserJourneys = [
+  'primary navigation is login-gated, labelled, translated and route-aware',
+  'event-only Back is keyboard-operable and emits the unchanged void event',
+  'route Back remains a link and still emits its event',
+  'main wrapper preserves content, title, banner, error and action contracts',
+  'main wrapper warning state replaces the error summary and passes an Axe scan',
+  'a wrapper without a route or event listener does not render a Back control',
+];
+addedBrowserJourneys.push(...shellBrowserJourneys);
+packageIds.push('package.commonlib-shell-selective-entries', 'package.strict-commonlib-shell-types');
+const checkboxBrowserJourneys = [
+  'single permission checkbox updates the reactive FormGroup like Manage Org expects',
+  'preselected role checkbox follows its FormGroup and preserves the configured focus target',
+  'checkbox hints remain associated, translate and have no automated accessibility violations',
+];
+addedBrowserJourneys.push(...checkboxBrowserJourneys);
+unitNames.push(
+  'single checkbox has an independent entry and preserves its CommonLib form contract',
+  'Invitation preserves the checkbox public API by re-exporting the shared class',
+);
+packageIds.push('package.commonlib-checkbox-graphs', 'package.commonlib-checkbox-identity', 'package.strict-commonlib-checkbox-types');
 const filterFeatureContracts = [
   { feature: "Filter state", contracts: {
     unit: [
@@ -655,6 +773,28 @@ test('registers each new filter feature against the independently required contr
       : contracts;
     assert.deepEqual(map.features.find(row => row.feature === feature)?.contracts, expected, feature);
   }
+});
+
+test('CommonLib shell required checks are assigned to the shell feature report', () => {
+  const map = JSON.parse(readFileSync(new URL('./feature-evidence-map.json', import.meta.url), 'utf8'));
+  const shell = map.features.find(row => row.feature === 'CommonLib shell');
+  assert.deepEqual(shell?.contracts, {
+    browser: shellBrowserJourneys.map(title => ({ projectName: 'chromium', title, feature: 'commonlib-shell' })),
+    package: ['package.commonlib-shell-selective-entries', 'package.strict-commonlib-shell-types'],
+  });
+});
+
+test('CommonLib single checkbox required checks are assigned to the selective entry feature report', () => {
+  const map = JSON.parse(readFileSync(new URL('./feature-evidence-map.json', import.meta.url), 'utf8'));
+  const checkbox = map.features.find(row => row.feature === 'CommonLib single checkbox');
+  assert.deepEqual(checkbox?.contracts, {
+    browser: checkboxBrowserJourneys.map(title => ({ projectName: 'chromium', title, feature: 'commonlib-checkbox' })),
+    unit: [
+      'single checkbox has an independent entry and preserves its CommonLib form contract',
+      'Invitation preserves the checkbox public API by re-exporting the shared class',
+    ],
+    package: ['package.commonlib-checkbox-graphs', 'package.commonlib-checkbox-identity', 'package.strict-commonlib-checkbox-types'],
+  });
 });
 
 unitNames.push(...[

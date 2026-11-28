@@ -10,7 +10,7 @@ test('isolates the packed package and removes its source aliases', async () => {
   const root = await mkdtemp(join(tmpdir(), 'packed-workspace-test-'));
   let workspace;
   try {
-    for (const dir of ['projects', 'tests/editor', 'node_modules/@hmcts/rpx-xui-core-lib', 'node_modules/@hmcts/media-viewer', 'node_modules/example']) await mkdir(join(root, dir), { recursive: true });
+    for (const dir of ['projects', 'tests/editor', 'tests/browser', 'node_modules/@hmcts/rpx-xui-core-lib', 'node_modules/@hmcts/media-viewer', 'node_modules/example']) await mkdir(join(root, dir), { recursive: true });
     await mkdir(join(root, 'projects/core-lib'), { recursive: true });
     await writeFile(join(root, 'projects/core-lib/package.json'), JSON.stringify({ name: '@hmcts/rpx-xui-core-lib', exports: { './node': './node.js' } }));
     for (const file of ['angular.json', 'package.json', 'tsconfig.json']) await writeFile(join(root, file), '{}');
@@ -33,9 +33,11 @@ test('isolates the packed package and removes its source aliases', async () => {
       '@hmcts/rpx-xui-core-lib/case/logging': ['source']
     };
     await writeFile(join(root, 'tests/editor/tsconfig.json'), JSON.stringify({ compilerOptions: { paths } }));
+    await writeFile(join(root, 'tests/browser/worker-count.mjs'), 'export const configuredWorkerCount = () => 3;\n');
     workspace = await preparePackedWorkspace(root);
     const config = JSON.parse(await readFile(join(workspace, 'tests/editor/tsconfig.json'), 'utf8'));
     assert.deepEqual(config.compilerOptions.paths, {});
+    assert.equal(await readFile(join(workspace, 'tests/browser/worker-count.mjs'), 'utf8'), 'export const configuredWorkerCount = () => 3;\n');
     for (const file of ['tests/vitest-setup.ts', 'tests/vitest-zoneless.providers.ts', 'tests/reporters/vitest-evidence-reporter.mjs']) {
       assert.equal(await readFile(join(workspace, file), 'utf8'), '// packed browser support\n');
     }

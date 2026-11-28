@@ -2,6 +2,19 @@
   "schemaVersion": 1,
   "features": [
     {
+      "feature": "Toolkit safe JSON parsing",
+      "contracts": {
+        "unit": [
+          "safeJsonParse preserves valid JSON values including primitives",
+          "safeJsonParse returns the supplied fallback for missing and invalid input",
+          "safeJsonParse logs a safe error name without the malformed input"
+        ],
+        "package": [
+          "package.json-graph"
+        ]
+      }
+    },
+    {
       "feature": "Case editor: rich text",
       "contracts": {
         "editorDrivers": [
@@ -69,7 +82,25 @@
           "rejects fewer than the configured minimum",
           "accepts the exact configured minimum",
           "accepts zero when zero is explicitly required",
-          "rejects use on a non-group control with a clear error"
+          "rejects use on a non-group control with a clear error",
+          "date validator accepts an ordinary valid calendar date",
+          "date validator accepts leap day in a leap year",
+          "date validator rejects a day that would roll into the next month",
+          "date validator rejects a leap day in a non-leap year",
+          "date validator rejects blank date parts",
+          "date validator rejects non-numeric date parts",
+          "date validator rejects non-decimal numeric notation",
+          "date validator rejects a day outside the calendar range",
+          "date validator rejects a month outside the calendar range",
+          "date validator rejects missing date controls",
+          "date validator rejects use on a non-group control with a clear error",
+          "radio group validator reports invalid children with its legacy error key",
+          "radio group validator accepts a group whose children are valid",
+          "radio group validator accepts an empty group as CommonLib does",
+          "radio group validator rejects use on a non-group control with a clear error"
+        ],
+        "package": [
+          "package.validation-graph"
         ]
       }
     },
@@ -123,7 +154,7 @@
           "RpxTranslationService language changes does not replace English with a stale failed-request fallback",
           "RpxTranslationService language changes returns English for phrases matching inherited Object property names",
           "RpxTranslationService public API composition translates only static fragments and preserves repeated numeric replacements and spacing",
-          "RpxTranslationService public API composition selects Yes/No metadata and matches each input\u2019s initial letter case from one request",
+          "RpxTranslationService public API composition selects Yes/No metadata and matches each input’s initial letter case from one request",
           "RpxTranslationService public API composition restores original Yes/No inputs after a successful response without answer metadata",
           "RpxTranslationService request lifecycle batches distinct phrases and deduplicates repeated subscriptions and normalized aliases",
           "RpxTranslationService request lifecycle uses source fallback in production mode and allows a subsequent phrase to translate",
@@ -476,7 +507,6 @@
           "package.installed-runtime",
           "package.physical-i18n",
           "package.root-runtime-empty",
-          "package.validation-graph",
           "package.sharing-graph",
           "package.root-export-fault",
           "package.validation-i18n-fault",
@@ -1706,7 +1736,35 @@
         "editorDrivers": [
           {
             "projectName": "chromium",
-            "title": "closes each editor dialog using Enter and Space"
+            "title": "closes the delete-or-cancel dialog using Enter"
+          },
+          {
+            "projectName": "chromium",
+            "title": "closes the delete-or-cancel dialog using Space"
+          },
+          {
+            "projectName": "chromium",
+            "title": "closes the document dialog using Enter"
+          },
+          {
+            "projectName": "chromium",
+            "title": "closes the document dialog using Space"
+          },
+          {
+            "projectName": "chromium",
+            "title": "closes the remove dialog using Enter"
+          },
+          {
+            "projectName": "chromium",
+            "title": "closes the remove dialog using Space"
+          },
+          {
+            "projectName": "chromium",
+            "title": "closes the save-or-discard dialog using Enter"
+          },
+          {
+            "projectName": "chromium",
+            "title": "closes the save-or-discard dialog using Space"
           }
         ],
         "editorUnit": [
@@ -2958,6 +3016,199 @@
           "Manage Session emits existing modal, signout and keepalive state values",
           "Timeout Notifications converts milliseconds and retains its idle, keepalive and event contracts",
           "Timeout Notifications defaults keepalive, deduplicates countdowns and closes all sources"
+        ]
+      }
+    },
+    {
+      "feature": "CommonLib shell",
+      "contracts": {
+        "browser": [
+          {
+            "projectName": "chromium",
+            "title": "primary navigation is login-gated, labelled, translated and route-aware",
+            "feature": "commonlib-shell"
+          },
+          {
+            "projectName": "chromium",
+            "title": "event-only Back is keyboard-operable and emits the unchanged void event",
+            "feature": "commonlib-shell"
+          },
+          {
+            "projectName": "chromium",
+            "title": "route Back remains a link and still emits its event",
+            "feature": "commonlib-shell"
+          },
+          {
+            "projectName": "chromium",
+            "title": "main wrapper preserves content, title, banner, error and action contracts",
+            "feature": "commonlib-shell"
+          },
+          {
+            "projectName": "chromium",
+            "title": "main wrapper warning state replaces the error summary and passes an Axe scan",
+            "feature": "commonlib-shell"
+          },
+          {
+            "projectName": "chromium",
+            "title": "a wrapper without a route or event listener does not render a Back control",
+            "feature": "commonlib-shell"
+          }
+        ],
+        "package": [
+          "package.commonlib-shell-selective-entries",
+          "package.strict-commonlib-shell-types"
+        ]
+      }
+    },
+    {
+      "feature": "CommonLib single checkbox",
+      "contracts": {
+        "browser": [
+          {
+            "projectName": "chromium",
+            "title": "single permission checkbox updates the reactive FormGroup like Manage Org expects",
+            "feature": "commonlib-checkbox"
+          },
+          {
+            "projectName": "chromium",
+            "title": "preselected role checkbox follows its FormGroup and preserves the configured focus target",
+            "feature": "commonlib-checkbox"
+          },
+          {
+            "projectName": "chromium",
+            "title": "checkbox hints remain associated, translate and have no automated accessibility violations",
+            "feature": "commonlib-checkbox"
+          }
+        ],
+        "unit": [
+          "single checkbox has an independent entry and preserves its CommonLib form contract",
+          "Invitation preserves the checkbox public API by re-exporting the shared class"
+        ],
+        "package": [
+          "package.commonlib-checkbox-graphs",
+          "package.commonlib-checkbox-identity",
+          "package.strict-commonlib-checkbox-types"
+        ]
+      }
+    },
+    {
+      "feature": "CommonLib UI primitives",
+      "contracts": {
+        "browser": [
+          {
+            "projectName": "chromium",
+            "title": "let directive updates both template variables without recreating its view",
+            "feature": "commonlib-primitives"
+          },
+          {
+            "projectName": "chromium",
+            "title": "let directive renders false and zero values rather than treating them as conditions",
+            "feature": "commonlib-primitives"
+          },
+          {
+            "projectName": "chromium",
+            "title": "tabs translate labels and emit the selected index and tab on keyboard navigation",
+            "feature": "commonlib-primitives"
+          },
+          {
+            "projectName": "chromium",
+            "title": "identity bar translates the supplied name and disappears when the identity is cleared",
+            "feature": "commonlib-primitives"
+          },
+          {
+            "projectName": "chromium",
+            "title": "GOV.UK table translates its labels, formats date cells once and keeps row links",
+            "feature": "commonlib-primitives"
+          },
+          {
+            "projectName": "chromium",
+            "title": "GOV.UK table preserves custom classes and renders data cells when row headers are disabled",
+            "feature": "commonlib-primitives"
+          }
+        ],
+        "package": [
+          "package.commonlib-primitives-types",
+          "package.commonlib-primitives-graphs",
+          "package.commonlib-primitives-packed-browser"
+        ]
+      }
+    },
+    {
+      "feature": "HMCTS main wrapper",
+      "contracts": {
+        "unit": [
+          "main wrapper shows a back action for a route or subscribed event and emits the event"
+        ],
+        "browser": [
+          {
+            "projectName": "chromium",
+            "title": "HMCTS main wrapper translates its shell, projects content, and follows its back link",
+            "feature": "hmcts-main-wrapper"
+          },
+          {
+            "projectName": "chromium",
+            "title": "event-only navigation and configured actions use keyboard-operable buttons",
+            "feature": "hmcts-main-wrapper"
+          },
+          {
+            "projectName": "chromium",
+            "title": "HMCTS main wrapper forwards summary errors and warning mode, and omits unset content accessibly",
+            "feature": "hmcts-main-wrapper"
+          },
+          {
+            "projectName": "chromium",
+            "title": "main wrapper projects content, shows validation feedback and exposes event-only back as a button",
+            "feature": "hmcts-shell"
+          },
+          {
+            "projectName": "chromium",
+            "title": "main wrapper uses a route link when configured and still emits its back event",
+            "feature": "hmcts-shell"
+          },
+          {
+            "projectName": "chromium",
+            "title": "main wrapper renders its banner input and action buttons as keyboard-operable controls",
+            "feature": "hmcts-shell"
+          },
+          {
+            "projectName": "chromium",
+            "title": "main wrapper and primary navigation have no serious automated accessibility violations",
+            "feature": "hmcts-shell"
+          }
+        ],
+        "package": [
+          "package.hmcts-main-wrapper-types",
+          "package.hmcts-main-wrapper-graph",
+          "package.hmcts-shell-types"
+        ]
+      }
+    },
+    {
+      "feature": "HMCTS primary navigation",
+      "contracts": {
+        "unit": [
+          "primary navigation preserves the logged-in visibility input"
+        ],
+        "browser": [
+          {
+            "projectName": "chromium",
+            "title": "primary navigation is hidden from signed-out users and its links follow their routes",
+            "feature": "hmcts-primary-navigation"
+          },
+          {
+            "projectName": "chromium",
+            "title": "primary navigation translates links and renders the optional branded header accessibly",
+            "feature": "hmcts-primary-navigation"
+          },
+          {
+            "projectName": "chromium",
+            "title": "primary navigation is limited to signed-in users and exposes active and inactive route links",
+            "feature": "hmcts-shell"
+          }
+        ],
+        "package": [
+          "package.hmcts-primary-navigation-types",
+          "package.hmcts-primary-navigation-graph"
         ]
       }
     }

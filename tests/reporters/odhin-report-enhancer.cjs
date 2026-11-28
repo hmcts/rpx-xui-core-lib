@@ -668,6 +668,15 @@ function enhanceGeneratedReport(outputFolder, featureStats, testMetadata = []) {
     fs.writeFileSync(filePath, nextHtml, 'utf8');
   });
 
+  const testListScriptPath = path.join(outputFolder, 'js', 'datatable.js');
+  if (fs.existsSync(testListScriptPath)) {
+    const currentScript = fs.readFileSync(testListScriptPath, 'utf8');
+    const nextScript = defaultTestListRowsPerPage(currentScript);
+    if (nextScript !== currentScript) {
+      fs.writeFileSync(testListScriptPath, nextScript, 'utf8');
+    }
+  }
+
   for (const name of ['report.css', 'report.js']) {
     fs.copyFileSync(path.join(__dirname, 'presentation', name), path.join(presentationFolder, name));
   }

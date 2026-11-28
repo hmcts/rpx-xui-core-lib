@@ -58,3 +58,62 @@ test('HMCTS shell controls have no automated accessibility violations', async ({
   const results = await new AxeBuilder({ page }).include('main').analyze();
   expect(results.violations).toEqual([]);
 });
+
+test('main wrapper projects content, shows validation feedback and exposes event-only back as a button', async ({ page }) => {
+  const wrapper = page.locator('xuilib-hmcts-main-wrapper');
+  await expect(wrapper).toBeVisible();
+  await expect(wrapper.getByRole('heading', { level: 1, name: 'Case management' })).toBeVisible();
+  await expect(wrapper.getByText('Wrapper projected content')).toBeVisible();
+
+  await page.getByRole('button', { name: 'Show wrapper errors' }).click();
+  await expect(wrapper.getByRole('alert')).toContainText('Enter the organisation name');
+  await expect(wrapper.getByRole('alert')).toBeFocused();
+
+  const back = wrapper.getByRole('button', { name: 'Back' });
+  await expect(back).toBeVisible();
+  await back.focus();
+  await expect(back).toBeFocused();
+  await back.press('Enter');
+  await expect(page.getByText('Back events: 1')).toBeVisible();
+});
+
+test('main wrapper uses a route link when configured and still emits its back event', async ({ page }) => {
+  const wrapper = page.locator('xuilib-hmcts-main-wrapper');
+  await page.getByRole('button', { name: 'Enable route back link' }).click();
+  const back = wrapper.getByRole('link', { name: 'Back' });
+  await expect(back).toHaveAttribute('href', /\/hmcts-shell$/);
+  await back.click();
+  await expect(page).toHaveURL(/\/hmcts-shell$/);
+  await expect(page.getByText('Back events: 1')).toBeVisible();
+});
+
+test('main wrapper renders its banner input and action buttons as keyboard-operable controls', async ({ page }) => {
+  const wrapper = page.locator('xuilib-hmcts-main-wrapper');
+  await page.getByRole('button', { name: 'Show wrapper banner' }).click();
+  await expect(wrapper.getByText('Organisation updated')).toBeVisible();
+
+  const action = wrapper.getByRole('button', { name: 'Review details' });
+  await action.focus();
+  await expect(action).toBeFocused();
+  await action.press('Enter');
+  await expect(page.getByText('Action events: 1')).toBeVisible();
+});
+
+test('primary navigation is limited to signed-in users and exposes active and inactive route links', async ({ page }) => {
+  const navigation = page.getByRole('navigation', { name: 'Service navigation' });
+  await expect(navigation.getByRole('link', { name: 'Organisations' })).toHaveAttribute('aria-current', 'page');
+  await expect(navigation.getByRole('link', { name: 'Users' })).not.toHaveAttribute('aria-current');
+  await expect(navigation.getByRole('link', { name: 'Organisations' })).toHaveAttribute('href', /\/organisations$/);
+  await page.getByRole('button', { name: 'Toggle branded header' }).click();
+  await expect(navigation.locator('.govuk-header__logo')).toHaveCount(1);
+  await page.getByRole('button', { name: 'Clear navigation label' }).click();
+  await expect(page.getByRole('navigation', { name: 'Primary navigation' })).toBeVisible();
+
+  await page.getByRole('button', { name: 'Sign out' }).click();
+  await expect(page.locator('.hmcts-primary-navigation')).toHaveCount(0);
+});
+
+test('main wrapper and primary navigation have no serious automated accessibility violations', async ({ page }) => {
+  const results = await new AxeBuilder({ page }).include('core-hmcts-shell-host').analyze();
+  expect(results.violations.filter(item => item.impact === 'serious' || item.impact === 'critical')).toEqual([]);
+});

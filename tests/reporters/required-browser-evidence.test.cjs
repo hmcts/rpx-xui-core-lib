@@ -44,6 +44,11 @@ hmcts-shell|error summary focuses the summary, links to a present field and repo
 hmcts-shell|clearing errors hides the summary and removes only the error title prefix
 hmcts-shell|warning state does not expose an error summary or change the page title
 hmcts-shell|HMCTS shell controls have no automated accessibility violations
+hmcts-shell|main wrapper projects content, shows validation feedback and exposes event-only back as a button
+hmcts-shell|main wrapper uses a route link when configured and still emits its back event
+hmcts-shell|main wrapper renders its banner input and action buttons as keyboard-operable controls
+hmcts-shell|primary navigation is limited to signed-in users and exposes active and inactive route links
+hmcts-shell|main wrapper and primary navigation have no serious automated accessibility violations
 service-messages|a corrupt dismissal cookie does not hide service messages
 service-messages|renders sanitized message and dismisses it with the keyboard across reloads
 service-messages|service messages have no automated accessibility violations
@@ -250,7 +255,27 @@ gov-controls|migrated controls support form reset and have no automated accessib
 pagination|generic pagination disables next after the final result page
 pagination|HMCTS paginator reflects the final page and its visible result range
 pagination|HMCTS paginator hides page controls and result count for a single-page list
-runtime-services|runtime services load their own external tags once and retain browser event contracts`.split('\n').map(row => {
+runtime-services|runtime services load their own external tags once and retain browser event contracts
+commonlib-shell|primary navigation is login-gated, labelled, translated and route-aware
+commonlib-shell|event-only Back is keyboard-operable and emits the unchanged void event
+commonlib-shell|route Back remains a link and still emits its event
+commonlib-shell|main wrapper preserves content, title, banner, error and action contracts
+commonlib-shell|main wrapper warning state replaces the error summary and passes an Axe scan
+commonlib-shell|a wrapper without a route or event listener does not render a Back control
+commonlib-checkbox|single permission checkbox updates the reactive FormGroup like Manage Org expects
+commonlib-checkbox|preselected role checkbox follows its FormGroup and preserves the configured focus target
+commonlib-checkbox|checkbox hints remain associated, translate and have no automated accessibility violations
+commonlib-primitives|let directive updates both template variables without recreating its view
+commonlib-primitives|let directive renders false and zero values rather than treating them as conditions
+commonlib-primitives|tabs translate labels and emit the selected index and tab on keyboard navigation
+commonlib-primitives|identity bar translates the supplied name and disappears when the identity is cleared
+commonlib-primitives|GOV.UK table translates its labels, formats date cells once and keeps row links
+commonlib-primitives|GOV.UK table preserves custom classes and renders data cells when row headers are disabled
+hmcts-main-wrapper|HMCTS main wrapper translates its shell, projects content, and follows its back link
+hmcts-main-wrapper|event-only navigation and configured actions use keyboard-operable buttons
+hmcts-main-wrapper|HMCTS main wrapper forwards summary errors and warning mode, and omits unset content accessibly
+hmcts-primary-navigation|primary navigation is hidden from signed-out users and its links follow their routes
+hmcts-primary-navigation|primary navigation translates links and renders the optional branded header accessibly`.split('\n').map(row => {
   const [feature, title] = row.split('|');
   return ['chromium', title, feature];
 });

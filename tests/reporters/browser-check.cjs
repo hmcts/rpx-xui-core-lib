@@ -76,6 +76,7 @@ async function main() {
     assert.equal(await page.evaluate(() => Boolean(globalThis['__reportInjected'])), false, 'metadata cannot execute scripts');
     await page.locator('.report-metric').first().waitFor();
     assert.equal(await page.locator('.report-metric').count(), 4, 'four dashboard metrics render');
+    assert.equal(await page.evaluate("jQuery('#test-list-table').DataTable().page.len()"), 100, 'test results default to 100 rows per page');
     assert.deepEqual(await page.locator('.report-grid .report-panel .info-box-header').allTextContents().then((titles) => titles.map((title) => title.replace(/[⠿↗]/g, '').trim())),
       ['Feature Overview', 'Run info', 'Global Summary', 'Projects Summary', 'Status by project'], 'responsive dashboard panels render in order');
     assert.equal(await page.locator('.report-grid .report-panel').first().evaluate((element) => getComputedStyle(element).gridColumn), '1 / -1', 'feature overview spans the dashboard');

@@ -1,11 +1,15 @@
 // The structural APF root must resolve without exposing runtime capabilities.
 export type RootDeclarations = typeof import('@hmcts/rpx-xui-core-lib');
 import { FormControl, FormGroup, type ValidatorFn } from '@angular/forms';
-import { checkboxesBeCheckedValidator } from '@hmcts/rpx-xui-core-lib/forms/validation';
+import { checkboxesBeCheckedValidator, dateValidator, radioGroupValidator } from '@hmcts/rpx-xui-core-lib/forms/validation';
 
 const validator: ValidatorFn = checkboxesBeCheckedValidator(2);
+const dateValidatorType: ValidatorFn = dateValidator();
+const radioGroupValidatorType: ValidatorFn = radioGroupValidator();
 const form: FormGroup = new FormGroup({ first: new FormControl(true) }, validator);
 void form.errors;
+void dateValidatorType;
+void radioGroupValidatorType;
 
 import { arrayPatternMatch, isStringPatternMatch, getUserSessionTimeout, hasKey, sortArray, type RoleGroupSessionTimeout, type AuthOptions, type RouteCredential, type SessionMetadata, type FileSessionMetadata, type RedisSessionMetadata } from '@hmcts/rpx-xui-core-lib/node';
 const matches: boolean = arrayPatternMatch(['pui-user-manager'], 'user-manager');
@@ -40,8 +44,10 @@ import { CaseReferencePipe, CaseReferenceModule } from '@hmcts/rpx-xui-core-lib/
 const caseReference = new CaseReferencePipe().transform('1234567890123456');
 
 import { Draft, CaseDetails, DRAFT_PREFIX, DRAFT_QUERY_PARAM } from '@hmcts/rpx-xui-core-lib/case/models';
+import { safeJsonParse } from '@hmcts/rpx-xui-core-lib/util/json';
 const draft = new Draft();
 const details = new CaseDetails();
+const parsedJson: { enabled: boolean } | null = safeJsonParse<{ enabled: boolean }>('{"enabled":true}', null);
 
 // Named exports keep every imported capability in this compile-only consumer.
 export {
@@ -50,7 +56,7 @@ export {
   LoadingSpinnerComponent, LoadingSpinnerModule,
   contact, ContactDetailsComponent, ContactDetailsModule,
   caseReference, CaseReferenceModule,
-  draft, details, DRAFT_PREFIX, DRAFT_QUERY_PARAM,
+  draft, details, DRAFT_PREFIX, DRAFT_QUERY_PARAM, parsedJson,
 };
 
 import { SharedCaseErrorMessages, type SharedCase, type UserDetails, type UserAccessType } from '@hmcts/rpx-xui-core-lib/case/sharing';

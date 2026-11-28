@@ -236,14 +236,54 @@
     },
     "assets": [
       {
+        "input": "util/json",
+        "glob": "LICENCE",
+        "output": "util/json"
+      },
+      {
         "input": "ui/service-messages",
         "glob": "LICENCE",
         "output": "ui/service-messages"
       },
       {
+        "input": "ui/let",
+        "glob": "LICENCE",
+        "output": "ui/let"
+      },
+      {
+        "input": "ui/tabs",
+        "glob": "LICENCE",
+        "output": "ui/tabs"
+      },
+      {
+        "input": "ui/gov-uk-table",
+        "glob": "LICENCE",
+        "output": "ui/gov-uk-table"
+      },
+      {
+        "input": "ui/hmcts-identity-bar",
+        "glob": "LICENCE",
+        "output": "ui/hmcts-identity-bar"
+      },
+      {
         "input": "ui/hmcts-error-summary",
         "glob": "LICENCE",
         "output": "ui/hmcts-error-summary"
+      },
+      {
+        "input": "ui/hmcts-main-wrapper",
+        "glob": "LICENCE",
+        "output": "ui/hmcts-main-wrapper"
+      },
+      {
+        "input": "ui/hmcts-primary-navigation",
+        "glob": "LICENCE",
+        "output": "ui/hmcts-primary-navigation"
+      },
+      {
+        "input": "ui/gov-checkbox",
+        "glob": "LICENCE",
+        "output": "ui/gov-checkbox"
       },
       {
         "input": "ui/hmcts-sub-navigation",

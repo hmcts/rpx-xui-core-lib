@@ -6,6 +6,7 @@ import { browserOutcomes } from '../../scripts/check-contracts.mjs';
 import { buildSync } from 'esbuild';
 import { inspectLoadingGraph, assertPackedBytes, assertEagerDateFailure } from '../packed-loading/graph.mjs';
 import { probeLoading } from '../editor/selective-loading-lib.mjs';
+import { findForbiddenExternalImports } from './entry-graph-contract.mjs';
 import { createHash, randomUUID } from 'node:crypto';
 import { createServer } from 'node:net';
 import { gzipSync } from 'node:zlib';
@@ -85,9 +86,13 @@ try {
     'ui/gov-date', 'ui/gov-select', 'ui/search-location', 'ui/search-judicials', 'ui/search-venue',
     'ui/pagination', 'ui/hmcts-pagination', 'terms/display', 'terms/confirmation', 'ui/gov-input',
     'case/session-error', 'case/session-guard', 'case/logging', 'case/editor-date',
-    'browser/window', 'browser/session-storage', 'reference/locations', 'reference/ref-data', 'terms/models',
+    'browser/window', 'browser/session-storage', 'reference/locations', 'reference/ref-data', 'terms/models', 'util/json',
     'ui/cookie', 'ui/cookie-banner', 'ui/feature-toggle', 'ui/feature-toggle-directive', 'ui/feature-toggle-guard',
     'ui/role-state', 'ui/role-guard', 'ui/task-data', 'case/sharing-state', 'ui/contact-details', 'ui/page-wrapper',
+    'ui/hmcts-main-wrapper', 'ui/hmcts-primary-navigation',
+    'ui/gov-checkbox',
+    'ui/let', 'ui/tabs',
+    'ui/gov-uk-table', 'ui/hmcts-identity-bar',
     'ui/loading-spinner', 'ui/loading-state', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog',
     'ui/banner', 'ui/form-label', 'case/models', 'case/reference', 'case/sharing', 'browser/user-agent',
     'ui/ccd-pagination', 'ui/case-list', 'address/normalization', 'ui/address',
@@ -170,6 +175,34 @@ try {
     assert.ok(launchGraph.externalImports.includes('launchdarkly-js-client-sdk'), `${launchDarkly} must retain the SDK as an optional external peer`);
     assert.equal(launchGraph.mediaViewer, false);
     assert.equal(launchGraph.payment, false);
+  });
+  await check('package.commonlib-shell-selective-entries', async () => {
+    const manifest = JSON.parse(await readFile(join(dist, 'package.json'), 'utf8'));
+    const nodeWorkspace = JSON.parse(await readFile(join(root, 'projects/core-lib/node/package.json'), 'utf8'));
+    const nodeOnlyPackages = new Set(Object.keys({
+      ...nodeWorkspace.dependencies,
+      ...nodeWorkspace.devDependencies,
+      ...nodeWorkspace.peerDependencies,
+    }));
+    const unrelatedPackages = ['ngx-editor', 'prosemirror-commands', 'prosemirror-history', 'prosemirror-model', 'prosemirror-schema-list', 'prosemirror-state', '@hmcts/media-viewer', '@hmcts/ccpay-web-component'];
+    const shellEntries = await Promise.all([
+      ['hmcts-main-wrapper', 'HmctsMainWrapperModule', 'hmcts-main-wrapper'],
+      ['hmcts-primary-navigation', 'HmctsPrimaryNavigationModule', 'hmcts-primary-navigation'],
+    ].map(async ([entry, symbol, bundle]) => {
+      const key = `./ui/${entry}`;
+      assert.ok(manifest.exports[key]?.types && manifest.exports[key]?.default, `Missing public selective entry ${key}`);
+      const declaration = await readFile(join(dist, 'ui', entry, 'index.d.ts'), 'utf8');
+      assert.match(declaration, new RegExp(String.raw`\b${symbol}\b`), `${key} must publish ${symbol}`);
+      const loading = await probeLoading(dist, `fesm2022/hmcts-rpx-xui-core-lib-ui-${bundle}.mjs`, symbol);
+      return { key, loading };
+    }));
+    for (const { key, loading } of shellEntries) {
+      assert.ok(loading.externalImports.includes('@angular/core'), `${key} must keep Angular external`);
+      assert.ok(loading.externalImports.includes('@angular/router'), `${key} must keep Router external`);
+      assert.equal(loading.mediaViewer, false, `${key} must not load Media Viewer`);
+      assert.equal(loading.payment, false, `${key} must not load payment components`);
+      assert.deepEqual(findForbiddenExternalImports(loading.externalImports, nodeOnlyPackages, unrelatedPackages), [], `${key} must exclude Node-only and unrelated Core domains`);
+    }
   });
   await cp(dist, staged, { recursive: true });
   await writeFile(join(staged, 'yarn.lock'), '');
@@ -377,6 +410,13 @@ try {
       '--module', 'ES2022', '--moduleResolution', 'node', '--noEmit', ...(entry === 'node' ? ['--types', 'node'] : []), `node-${entry}-types.ts`,
     ], consumer));
   }
+  await check('package.strict-commonlib-shell-types', () => run('strict-commonlib-shell-types', [compiler, '--strict', '--skipLibCheck', 'false', '--esModuleInterop', '--target', 'ES2022', '--module', 'ES2022', '--moduleResolution', 'bundler', '--noEmit', 'commonlib-shell-types.ts'], consumer));
+  await cp(join(root, 'tests/fixtures/package/commonlib-checkbox-types.ts'), join(consumer, 'commonlib-checkbox-types.ts'));
+  await check('package.strict-commonlib-checkbox-types', async () => {
+    const options = [compiler, '--strict', '--skipLibCheck', 'false', '--esModuleInterop', '--target', 'ES2022', '--module', 'ES2022', '--noEmit'];
+    await run('commonlib-checkbox-types-node', [...options, '--moduleResolution', 'node', 'commonlib-checkbox-types.ts'], consumer);
+    await run('commonlib-checkbox-types-bundler', [...options, '--moduleResolution', 'bundler', 'commonlib-checkbox-types.ts'], consumer);
+  });
   await check('package.strict-bundler', () => run('strict-bundler', [compiler, '-p', 'tsconfig.bundler.json'], consumer));
   await check('package.node-logging-isolation', async () => {
     const result = buildSync({ entryPoints: ['node-logging-types.ts'], absWorkingDir: consumer, bundle: true,
@@ -695,6 +735,22 @@ try {
   await cp(join(root, 'tests/form-primitives/identity.test.mjs'), join(consumer, 'form-primitives.test.mjs'));
   await check('package.gov-controls-behavior', () => run('gov-controls-behavior', ['--test', 'gov-controls.test.mjs', 'form-primitives.test.mjs'], consumer));
   await check('package.gov-controls-browser', () => run('gov-controls-browser', [join(root, 'tests/form-primitives/packed-browser.mjs')], root));
+  await check('package.commonlib-primitives-packed-browser', async () => {
+    const packedReport = JSON.parse(await readFile(join(output, 'form-controls-packed/browser.json'), 'utf8'));
+    const inventory = JSON.parse(await readFile(join(root, 'tests/contracts.json'), 'utf8'));
+    const expected = inventory.browser.required.filter(row => row.feature === 'commonlib-primitives').map(row => row.title).sort((a, b) => a.localeCompare(b));
+    function titles(suite) { return [...(suite.specs ?? []).map(spec => spec.title), ...(suite.suites ?? []).flatMap(titles)]; }
+    assert.deepEqual(titles(packedReport).filter(title => expected.includes(title)).sort((a, b) => a.localeCompare(b)), expected);
+    assert.equal(packedReport.stats.unexpected, 0);
+    assert.equal(packedReport.stats.skipped, 0);
+    assert.equal(packedReport.stats.flaky, 0);
+  });
+  await cp(join(root, 'tests/package/commonlib-primitives-types.ts'), join(consumer, 'commonlib-primitives-types.ts'));
+  await check('package.commonlib-primitives-types', async () => {
+    const options = [compiler, '--strict', '--skipLibCheck', 'false', '--noEmit', '--target', 'ES2022', '--module', 'ESNext'];
+    await run('commonlib-primitives-types-node', [...options, '--moduleResolution', 'node', 'commonlib-primitives-types.ts'], consumer);
+    await run('commonlib-primitives-types-bundler', [...options, '--moduleResolution', 'bundler', 'commonlib-primitives-types.ts'], consumer);
+  });
   await cp(join(root, 'tests/package/gov-controls-types.ts'), join(consumer, 'gov-controls-types.ts'));
   await check('package.gov-controls-types', async () => {
     const options = [compiler, '--strict', '--skipLibCheck', 'false', '--noEmit', '--target', 'ES2022', '--module', 'ESNext'];
@@ -711,11 +767,47 @@ try {
       if (entry === 'gov-radios') allowed.add('ui-gov-radio');
       const core = used.filter(path => path.includes('/@hmcts/rpx-xui-core-lib/')).map(path => path.split('/').at(-1));
       assert.ok(core.includes(`hmcts-rpx-xui-core-lib-ui-${entry}.mjs`));
-      assert.ok(core.every(name => [...allowed].some(suffix => name === `hmcts-rpx-xui-core-lib-${suffix}.mjs`)), `Unrelated Core code in ${entry}`);
+      assert.ok(core.every(name => allowed.has(name.replace('hmcts-rpx-xui-core-lib-', '').replace('.mjs', ''))), `Unrelated Core code in ${entry}`);
     };
     const modules = ['GovRadioModule', 'GovRadiosModule', 'GovCheckboxesModule', 'GovTextareaModule', 'GovFileUploadModule', 'FormGroupModule'];
     for (const [index, entry] of entries.entries()) verify(graph(`import '@angular/compiler'; import { ${modules[index]} } from '@hmcts/rpx-xui-core-lib/ui/${entry}'; console.log(${modules[index]});`), entry);
     assert.throws(() => verify(graph("import '@angular/compiler'; import { GovTextareaModule } from '@hmcts/rpx-xui-core-lib/ui/gov-textarea'; import { InvitationModule } from '@hmcts/rpx-xui-core-lib/ui/invitation'; console.log(GovTextareaModule, InvitationModule);"), 'gov-textarea'), /Unrelated Core code/);
+  });
+  await check('package.commonlib-checkbox-graphs', async () => {
+    const graph = contents => buildSync({ stdin: { contents, resolveDir: consumer }, absWorkingDir: consumer, bundle: true, platform: 'browser', format: 'esm', metafile: true, write: false, logLevel: 'silent' });
+    const verify = result => {
+      const used = Object.values(result.metafile.outputs).flatMap(output => Object.entries(output.inputs).filter(([, value]) => value.bytesInOutput > 0).map(([path]) => path.replaceAll('\\', '/')));
+      const core = used.filter(path => path.includes('/@hmcts/rpx-xui-core-lib/')).map(path => path.split('/').at(-1));
+      const allowed = new Set(['hmcts-rpx-xui-core-lib-i18n.mjs', 'hmcts-rpx-xui-core-lib-ui-gov-checkbox.mjs', 'hmcts-rpx-xui-core-lib-ui-gov-input.mjs', 'hmcts-rpx-xui-core-lib-ui-form-group.mjs']);
+      assert.ok(core.includes('hmcts-rpx-xui-core-lib-ui-gov-checkbox.mjs'), 'Checkbox entry must be in the runtime graph');
+      assert.ok(core.every(name => allowed.has(name)), `Checkbox entry must exclude unrelated Core entries: ${core.join(', ')}`);
+    };
+    const source = "import '@angular/compiler'; import { GovCheckboxModule } from '@hmcts/rpx-xui-core-lib/ui/gov-checkbox'; console.log(GovCheckboxModule);";
+    verify(graph(source));
+    assert.throws(() => verify(graph(`${source} import { InvitationModule } from '@hmcts/rpx-xui-core-lib/ui/invitation'; console.log(InvitationModule);`)), /exclude unrelated Core entries/);
+  });
+  await check('package.commonlib-checkbox-identity', async () => {
+    await cp(join(root, 'tests/package/commonlib-checkbox-identity.mjs'), join(consumer, 'commonlib-checkbox-identity.mjs'));
+    await run('commonlib-checkbox-identity', ['commonlib-checkbox-identity.mjs'], consumer);
+  });
+  await check('package.commonlib-primitives-graphs', async () => {
+    const graph = contents => buildSync({ stdin: { contents, resolveDir: consumer }, absWorkingDir: consumer, bundle: true, platform: 'browser', format: 'esm', metafile: true, write: false, logLevel: 'silent' });
+    const verify = (result, entry, expected) => {
+      const used = Object.values(result.metafile.outputs).flatMap(output => Object.entries(output.inputs).filter(([, value]) => value.bytesInOutput > 0).map(([path]) => path.replaceAll('\\', '/')));
+      const core = used.filter(path => path.includes('/@hmcts/rpx-xui-core-lib/')).map(path => path.split('/').at(-1)).sort((left, right) => left.localeCompare(right));
+      assert.deepEqual(core, expected.map(name => `hmcts-rpx-xui-core-lib-${name}.mjs`).sort((left, right) => left.localeCompare(right)), `Unexpected Core entries in ${entry} graph`);
+    };
+    const letGraph = graph("import '@angular/compiler'; import { LetModule } from '@hmcts/rpx-xui-core-lib/ui/let'; console.log(LetModule);");
+    const tabsGraph = graph("import '@angular/compiler'; import { TabsModule } from '@hmcts/rpx-xui-core-lib/ui/tabs'; console.log(TabsModule);");
+    const tableGraph = graph("import '@angular/compiler'; import { GovukTableModule } from '@hmcts/rpx-xui-core-lib/ui/gov-uk-table'; console.log(GovukTableModule);");
+    const identityGraph = graph("import '@angular/compiler'; import { HmctsIdentityBarModule } from '@hmcts/rpx-xui-core-lib/ui/hmcts-identity-bar'; console.log(HmctsIdentityBarModule);");
+    verify(letGraph, 'let', ['ui-let']);
+    verify(tabsGraph, 'tabs', ['i18n', 'ui-tabs']);
+    verify(tableGraph, 'gov-uk-table', ['i18n', 'ui-gov-uk-table']);
+    verify(identityGraph, 'hmcts-identity-bar', ['i18n', 'ui-hmcts-identity-bar']);
+    assert.throws(() => verify(graph("import '@angular/compiler'; import { LetModule } from '@hmcts/rpx-xui-core-lib/ui/let'; import { TabsModule } from '@hmcts/rpx-xui-core-lib/ui/tabs'; console.log(LetModule, TabsModule);"), 'let', ['ui-let']), /Unexpected Core entries in let graph/);
+    assert.throws(() => verify(graph("import '@angular/compiler'; import { GovukTableModule } from '@hmcts/rpx-xui-core-lib/ui/gov-uk-table'; import { HmctsIdentityBarModule } from '@hmcts/rpx-xui-core-lib/ui/hmcts-identity-bar'; console.log(GovukTableModule, HmctsIdentityBarModule);"), 'gov-uk-table', ['i18n', 'ui-gov-uk-table']), /Unexpected Core entries in gov-uk-table graph/);
+    await writeFile(join(evidence, 'commonlib-primitives-graphs.json'), JSON.stringify({ let: letGraph.metafile, tabs: tabsGraph.metafile, govukTable: tableGraph.metafile, identityBar: identityGraph.metafile }, null, 2));
   });
 
   await cp(join(root, 'tests/package/pagination-types.ts'), join(consumer, 'pagination-types.ts'));
@@ -723,6 +815,26 @@ try {
     const options = [compiler, '--strict', '--skipLibCheck', 'false', '--noEmit', '--target', 'ES2022', '--module', 'ESNext'];
     await run('pagination-types-node', [...options, '--moduleResolution', 'node', 'pagination-types.ts'], consumer);
     await run('pagination-types-bundler', [...options, '--moduleResolution', 'bundler', 'pagination-types.ts'], consumer);
+  });
+  await cp(join(root, 'tests/package/hmcts-shell-types.ts'), join(consumer, 'hmcts-shell-types.ts'));
+  await check('package.hmcts-shell-types', async () => {
+    const options = [compiler, '--strict', '--skipLibCheck', 'false', '--noEmit', '--target', 'ES2022', '--module', 'ESNext'];
+    await run('hmcts-shell-types-node', [...options, '--moduleResolution', 'node', 'hmcts-shell-types.ts'], consumer);
+    await run('hmcts-shell-types-bundler', [...options, '--moduleResolution', 'bundler', 'hmcts-shell-types.ts'], consumer);
+  });
+
+  await cp(join(root, 'tests/package/hmcts-main-wrapper-types.ts'), join(consumer, 'hmcts-main-wrapper-types.ts'));
+  await check('package.hmcts-main-wrapper-types', async () => {
+    const options = [compiler, '--strict', '--skipLibCheck', 'false', '--noEmit', '--target', 'ES2022', '--module', 'ESNext'];
+    await run('hmcts-main-wrapper-types-node', [...options, '--moduleResolution', 'node', 'hmcts-main-wrapper-types.ts'], consumer);
+    await run('hmcts-main-wrapper-types-bundler', [...options, '--moduleResolution', 'bundler', 'hmcts-main-wrapper-types.ts'], consumer);
+  });
+
+  await cp(join(root, 'tests/package/hmcts-primary-navigation-types.ts'), join(consumer, 'hmcts-primary-navigation-types.ts'));
+  await check('package.hmcts-primary-navigation-types', async () => {
+    const options = [compiler, '--strict', '--skipLibCheck', 'false', '--noEmit', '--target', 'ES2022', '--module', 'ESNext'];
+    await run('hmcts-primary-navigation-types-node', [...options, '--moduleResolution', 'node', 'hmcts-primary-navigation-types.ts'], consumer);
+    await run('hmcts-primary-navigation-types-bundler', [...options, '--moduleResolution', 'bundler', 'hmcts-primary-navigation-types.ts'], consumer);
   });
   await cp(join(root, 'tests/address/address.test.mjs'), join(consumer, 'address.test.mjs'));
   await cp(join(root, 'tests/address/normalization.test.mjs'), join(consumer, 'address-normalization.test.mjs'));
@@ -774,8 +886,10 @@ try {
     ['case-list', 'case-list-graph.mjs', ['ui-case-list', 'ui-ccd-pagination', 'browser-user-agent', 'i18n']],
     ['ccd-pagination', 'ccd-pagination-graph.mjs', ['ui-ccd-pagination', 'i18n']],
     ['user-agent', 'user-agent-graph.mjs', ['browser-user-agent']],
-    ['invitation', 'invitation-graph.mjs', ['ui-invitation', 'ui-gov-input', 'ui-form-group', 'i18n']],
+    ['invitation', 'invitation-graph.mjs', ['ui-invitation', 'ui-gov-input', 'ui-gov-checkbox', 'ui-form-group', 'i18n']],
     ['page-wrapper', 'page-wrapper-graph.mjs', ['ui-page-wrapper', 'i18n']],
+    ['hmcts-main-wrapper', 'hmcts-main-wrapper-graph.mjs', ['ui-hmcts-main-wrapper', 'ui-hmcts-error-summary', 'ui-banner', 'i18n']],
+    ['hmcts-primary-navigation', 'hmcts-primary-navigation-graph.mjs', ['ui-hmcts-primary-navigation', 'i18n']],
     ['selected-case', 'selected-case-graph.mjs', ['case-selected-case', 'case-sharing-state', 'i18n']],
     ['share-case', 'share-case-graph.mjs', ['case-share-case', 'case-selected-case', 'case-sharing-state', 'case-sharing', 'ui-gov-input', 'i18n']],
     ['find-task-name', 'find-task-name-graph.mjs', ['ui-find-task-name', 'ui-task-data', 'browser-session-storage', 'i18n']],
@@ -784,6 +898,7 @@ try {
     ['find-person', 'find-person-graph.mjs', ['ui-find-person', 'browser-session-storage', 'i18n']],
     ['cookie', 'cookie-graph.mjs', ['ui-cookie']],
     ['window', 'window-graph.mjs', ['browser-window']],
+    ['json', 'json-graph.mjs', ['util-json', 'case-logging']],
     ['search-location', 'search-location-graph.mjs', ['ui-search-location', 'reference-locations', 'reference-ref-data', 'browser-session-storage', 'i18n']],
     ['search-judicials', 'search-judicials-graph.mjs', ['ui-search-judicials', 'ui-find-person', 'browser-session-storage', 'i18n']],
     ['search-venue', 'search-venue-graph.mjs', ['ui-search-venue', 'reference-locations', 'i18n']],
@@ -813,7 +928,7 @@ try {
         for (const entry of entries) assert.ok(core.some(input => input.endsWith('/fesm2022/hmcts-rpx-xui-core-lib-' + entry + '.mjs')));
         assert.ok(!used.some(input => /(?:^|\/)node(?:\/|$)|^node:/.test(input)));
         if (['selected-case', 'share-case', 'user-details', 'user-list', 'invitation'].includes(id)) assert.ok(!used.some(input => /@hmcts\/(media-viewer|ccpay-web-component)/.test(input)));
-        if (id === 'hmcts-error-summary' || id === 'hmcts-sub-navigation') {
+        if (id === 'hmcts-error-summary' || id === 'hmcts-sub-navigation' || id === 'hmcts-primary-navigation' || id === 'hmcts-main-wrapper') {
           assert.ok(used.some(input => input.includes('@angular/router')), 'HMCTS navigation controls must retain their RouterLink contract');
           assert.ok(!used.some(input => /@hmcts\/(?:media-viewer|ccpay-web-component)|hmcts-rpx-xui-core-lib-(?:case-editor-source|case-notifier)/.test(input)), 'HMCTS shell entries must not pull editor, Media Viewer or payment code');
         }
@@ -824,6 +939,7 @@ try {
         if (id === 'gov-input') assert.ok(!used.some(input => input.includes('@angular/router')));
         if (id === 'address') assert.ok(!used.some(input => /(?:hmcts-rpx-xui-core-lib-(?:case-editor-source|ui-search-location|ui-find-person)|@angular\/router|@hmcts\/(?:media-viewer|ccpay-web-component)|(?:^|\/)node(?:\/|$)|^node:)/.test(input)), 'Address UI must not pull the editor, routing, heavy peers or Node code');
         if (id === 'feature-toggle') assert.ok(!used.some(input => input.includes('@angular/router')), 'Feature service must not pull Angular Router');
+        if (id === 'json') assert.ok(!used.some(input => /hmcts-rpx-xui-core-lib-(?:case-notifier|case-editor-source|node)|@hmcts\/(?:media-viewer|ccpay-web-component)/.test(input)), 'The JSON utility must not pull the case editor, notifier, Node or heavy peers');
         if (id === 'feature-toggle-guard') assert.ok(used.some(input => input.includes('@angular/router')), 'Feature guard must carry its Angular Router dependency');
         if (id === 'role-guard') {
           assert.ok(used.some(input => input.includes('@angular/router')), 'Role guard must carry its Angular Router dependency');
