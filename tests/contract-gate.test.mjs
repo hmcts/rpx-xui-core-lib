@@ -409,7 +409,20 @@ addedBrowserJourneys.push('blank opt-in preserves the external name and explicit
 packageIds.push('package.search-location-graph');
 packageIds.push('package.address-graph', 'package.address-behavior');
 packageIds.push('package.search-judicials-graph', 'package.search-venue-graph');
-packageIds.push('package.hmcts-error-summary-graph', 'package.hmcts-sub-navigation-graph');
+packageIds.push(
+  'package.hmcts-error-summary-graph',
+  'package.hmcts-sub-navigation-graph',
+  'package.hmcts-main-wrapper-graph',
+  'package.hmcts-primary-navigation-graph',
+  'package.hmcts-shell-types',
+);
+addedBrowserJourneys.push(
+  'main wrapper projects content, shows validation feedback and exposes event-only back as a button',
+  'main wrapper uses a route link when configured and still emits its back event',
+  'main wrapper renders its banner input and action buttons as keyboard-operable controls',
+  'primary navigation is limited to signed-in users and exposes active and inactive route links',
+  'main wrapper and primary navigation have no serious automated accessibility violations',
+);
 unitNames.push(
   'judicial search skips short terms, forwards service ID, cancels stale searches and excludes selected people',
   'judicial selection keeps the source object and emits the exact source events',

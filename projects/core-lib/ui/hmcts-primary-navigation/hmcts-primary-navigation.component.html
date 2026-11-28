@@ -1,0 +1,16 @@
+@if (isUserLoggedIn) {
+  <nav class="hmcts-primary-navigation" [attr.aria-label]="label || null">
+    <div class="hmcts-primary-navigation__container">
+      @if (isBrandedHeader) {
+        <div class="govuk-header__logo"></div>
+      }
+      <ul class="hmcts-primary-navigation__list">
+        @for (item of items; track item) {
+          <li class="hmcts-primary-navigation__item">
+            <a class="hmcts-primary-navigation__link" [attr.aria-current]="item.active ? true : null" [routerLink]="item.href" [innerHTML]="item.text | rpxTranslate"></a>
+          </li>
+        }
+      </ul>
+    </div>
+  </nav>
+}

@@ -265,6 +265,31 @@
       },
       {
         "projectName": "chromium",
+        "title": "main wrapper projects content, shows validation feedback and exposes event-only back as a button",
+        "feature": "hmcts-shell"
+      },
+      {
+        "projectName": "chromium",
+        "title": "main wrapper uses a route link when configured and still emits its back event",
+        "feature": "hmcts-shell"
+      },
+      {
+        "projectName": "chromium",
+        "title": "main wrapper renders its banner input and action buttons as keyboard-operable controls",
+        "feature": "hmcts-shell"
+      },
+      {
+        "projectName": "chromium",
+        "title": "primary navigation is limited to signed-in users and exposes active and inactive route links",
+        "feature": "hmcts-shell"
+      },
+      {
+        "projectName": "chromium",
+        "title": "main wrapper and primary navigation have no serious automated accessibility violations",
+        "feature": "hmcts-shell"
+      },
+      {
+        "projectName": "chromium",
         "title": "a corrupt dismissal cookie does not hide service messages",
         "feature": "service-messages"
       },
@@ -1368,6 +1393,9 @@
       "package.search-location-graph",
       "package.hmcts-error-summary-graph",
       "package.hmcts-sub-navigation-graph",
+      "package.hmcts-main-wrapper-graph",
+      "package.hmcts-primary-navigation-graph",
+      "package.hmcts-shell-types",
       "package.terms-display-graph",
       "package.terms-confirmation-graph",
       "package.gov-input-graph",

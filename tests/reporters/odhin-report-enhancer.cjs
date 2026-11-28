@@ -576,20 +576,28 @@ function stripLegacyFileChartArtifacts(root) {
 function defaultTestListRowsPerPage(html) {
   return String(html)
     .replace(
+      /\$\("#test-list-table"\)\.DataTable\(\{pageLength:100,lengthMenu:\[10,25,50,100\],stateSave:true,stateDuration:-1\}\)/g,
+      '$("#test-list-table").DataTable({pageLength:100,lengthMenu:[10,25,50,100]})'
+    )
+    .replace(
+      /\$\('#test-list-table'\)\.DataTable\(\{pageLength:100,lengthMenu:\[10,25,50,100\],stateSave:true,stateDuration:-1\}\)/g,
+      "$('#test-list-table').DataTable({pageLength:100,lengthMenu:[10,25,50,100]})"
+    )
+    .replace(
       /\$\("#test-list-table"\)\.DataTable\(\{pageLength:100,lengthMenu:\[10,25,50,100\]\}\)/g,
-      '$("#test-list-table").DataTable({pageLength:100,lengthMenu:[10,25,50,100],stateSave:true,stateDuration:-1})'
+      '$("#test-list-table").DataTable({pageLength:100,lengthMenu:[10,25,50,100]})'
     )
     .replace(
       /\$\('#test-list-table'\)\.DataTable\(\{pageLength:100,lengthMenu:\[10,25,50,100\]\}\)/g,
-      "$('#test-list-table').DataTable({pageLength:100,lengthMenu:[10,25,50,100],stateSave:true,stateDuration:-1})"
+      "$('#test-list-table').DataTable({pageLength:100,lengthMenu:[10,25,50,100]})"
     )
     .replace(
       /\$\("#test-list-table"\)\.DataTable\(\{\}\)/g,
-      '$("#test-list-table").DataTable({pageLength:100,lengthMenu:[10,25,50,100],stateSave:true,stateDuration:-1})'
+      '$("#test-list-table").DataTable({pageLength:100,lengthMenu:[10,25,50,100]})'
     )
     .replace(
       /\$\('#test-list-table'\)\.DataTable\(\{\}\)/g,
-      "$('#test-list-table').DataTable({pageLength:100,lengthMenu:[10,25,50,100],stateSave:true,stateDuration:-1})"
+      "$('#test-list-table').DataTable({pageLength:100,lengthMenu:[10,25,50,100]})"
     );
 }
 
@@ -666,6 +674,15 @@ function enhanceGeneratedReport(outputFolder, featureStats, testMetadata = []) {
     });
     fs.writeFileSync(filePath, nextHtml, 'utf8');
   });
+
+  const testListScriptPath = path.join(outputFolder, 'js', 'datatable.js');
+  if (fs.existsSync(testListScriptPath)) {
+    const currentScript = fs.readFileSync(testListScriptPath, 'utf8');
+    const nextScript = defaultTestListRowsPerPage(currentScript);
+    if (nextScript !== currentScript) {
+      fs.writeFileSync(testListScriptPath, nextScript, 'utf8');
+    }
+  }
 
   for (const name of ['report.css', 'report.js']) {
     fs.copyFileSync(path.join(__dirname, 'presentation', name), path.join(presentationFolder, name));

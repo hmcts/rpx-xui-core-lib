@@ -44,6 +44,11 @@ hmcts-shell|error summary focuses the summary, links to a present field and repo
 hmcts-shell|clearing errors hides the summary and removes only the error title prefix
 hmcts-shell|warning state does not expose an error summary or change the page title
 hmcts-shell|HMCTS shell controls have no automated accessibility violations
+hmcts-shell|main wrapper projects content, shows validation feedback and exposes event-only back as a button
+hmcts-shell|main wrapper uses a route link when configured and still emits its back event
+hmcts-shell|main wrapper renders its banner input and action buttons as keyboard-operable controls
+hmcts-shell|primary navigation is limited to signed-in users and exposes active and inactive route links
+hmcts-shell|main wrapper and primary navigation have no serious automated accessibility violations
 service-messages|a corrupt dismissal cookie does not hide service messages
 service-messages|renders sanitized message and dismisses it with the keyboard across reloads
 service-messages|service messages have no automated accessibility violations

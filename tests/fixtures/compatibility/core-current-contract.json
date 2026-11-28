@@ -246,6 +246,16 @@
         "output": "ui/hmcts-error-summary"
       },
       {
+        "input": "ui/hmcts-main-wrapper",
+        "glob": "LICENCE",
+        "output": "ui/hmcts-main-wrapper"
+      },
+      {
+        "input": "ui/hmcts-primary-navigation",
+        "glob": "LICENCE",
+        "output": "ui/hmcts-primary-navigation"
+      },
+      {
         "input": "ui/hmcts-sub-navigation",
         "glob": "LICENCE",
         "output": "ui/hmcts-sub-navigation"
