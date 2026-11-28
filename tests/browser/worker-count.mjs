@@ -1,7 +1,7 @@
 import { availableParallelism } from 'node:os';
 
 export function ciWorkerCount(availableCpus = availableParallelism()) {
-  return Math.max(1, Math.min(6, availableCpus - 2));
+  return Math.max(1, Math.min(6, availableCpus - 1));
 }
 
 export function configuredWorkerCount({ explicit = process.env.PLAYWRIGHT_WORKERS, ci = Boolean(process.env.CI), availableCpus = availableParallelism() } = {}) {
