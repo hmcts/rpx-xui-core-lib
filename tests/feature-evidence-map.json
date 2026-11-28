@@ -2960,6 +2960,35 @@
           "Timeout Notifications defaults keepalive, deduplicates countdowns and closes all sources"
         ]
       }
+    },
+    {
+      "feature": "HMCTS main wrapper",
+      "contracts": {
+        "unit": [
+          "main wrapper shows a back action for a route or subscribed event and emits the event"
+        ],
+        "browser": [
+          {
+            "projectName": "chromium",
+            "title": "HMCTS main wrapper translates its shell, projects content, and follows its back link",
+            "feature": "hmcts-main-wrapper"
+          },
+          {
+            "projectName": "chromium",
+            "title": "event-only navigation and configured actions use keyboard-operable buttons",
+            "feature": "hmcts-main-wrapper"
+          },
+          {
+            "projectName": "chromium",
+            "title": "HMCTS main wrapper forwards summary errors and warning mode, and omits unset content accessibly",
+            "feature": "hmcts-main-wrapper"
+          }
+        ],
+        "package": [
+          "package.hmcts-main-wrapper-types",
+          "package.hmcts-main-wrapper-graph"
+        ]
+      }
     }
   ],
   "suiteGroups": [

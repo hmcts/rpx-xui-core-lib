@@ -529,6 +529,22 @@ addedBrowserJourneys.push(
   'case selection and select-all remain independent between list instances',
 );
 addedBrowserJourneys.push('page wrapper renders its translated shell and projected content', 'page wrapper omits unset shell elements and passes a scoped accessibility scan');
+const hmctsMainWrapperBrowserJourneys = [
+  'HMCTS main wrapper translates its shell, projects content, and follows its back link',
+  'event-only navigation and configured actions use keyboard-operable buttons',
+  'HMCTS main wrapper forwards summary errors and warning mode, and omits unset content accessibly',
+];
+unitNames.push('main wrapper shows a back action for a route or subscribed event and emits the event');
+addedBrowserJourneys.push(...hmctsMainWrapperBrowserJourneys);
+packageIds.push('package.hmcts-main-wrapper-types', 'package.hmcts-main-wrapper-graph');
+test('registers HMCTS main wrapper tests across behavior, browser and selective package contracts', () => {
+  const map = JSON.parse(readFileSync(new URL('./feature-evidence-map.json', import.meta.url), 'utf8'));
+  assert.deepEqual(map.features.find(row => row.feature === 'HMCTS main wrapper')?.contracts, {
+    unit: ['main wrapper shows a back action for a route or subscribed event and emits the event'],
+    browser: hmctsMainWrapperBrowserJourneys.map(title => ({ projectName: 'chromium', title, feature: 'hmcts-main-wrapper' })),
+    package: ['package.hmcts-main-wrapper-types', 'package.hmcts-main-wrapper-graph'],
+  });
+});
 packageIds.push('package.user-details-behavior', 'package.user-details-graph');
 packageIds.push('package.user-list-behavior', 'package.user-list-graph');
 packageIds.push('package.pagination-types', 'package.pagination-behavior', 'package.pagination-graph', 'package.hmcts-pagination-graph');
