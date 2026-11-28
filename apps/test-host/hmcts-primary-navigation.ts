@@ -34,11 +34,15 @@ class HmctsPrimaryNavigationGallery {
 @Component({ selector: 'core-primary-navigation-destination', standalone: true, template: '<p>Primary navigation destination</p>' })
 class PrimaryNavigationDestination {}
 
+@Component({ selector: 'core-gallery-route', standalone: true, template: '' })
+class GalleryRoute {}
+
 export function startHmctsPrimaryNavigationGallery() {
   return bootstrapApplication(HmctsPrimaryNavigationGallery, {
     providers: [
       importProvidersFrom(
         RouterModule.forRoot([
+          { path: 'hmcts-primary-navigation', component: GalleryRoute },
           { path: 'cases', component: PrimaryNavigationDestination },
           { path: 'profile', component: PrimaryNavigationDestination },
         ]),

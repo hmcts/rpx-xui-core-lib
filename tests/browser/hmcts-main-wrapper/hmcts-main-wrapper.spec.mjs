@@ -2,10 +2,15 @@ import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
 test('HMCTS main wrapper translates its shell, projects content, and follows its back link', async ({ page }) => {
+  const routeErrors = [];
+  page.on('console', message => {
+    if (message.type() === 'error' && message.text().includes('NG04002')) routeErrors.push(message.text());
+  });
   await page.goto('/hmcts-main-wrapper');
   const wrapper = page.locator('xuilib-hmcts-main-wrapper');
 
   await expect(wrapper.getByRole('heading', { level: 1, name: 'Case list' })).toBeVisible();
+  expect(routeErrors).toEqual([]);
   await expect(wrapper.getByText('Projected wrapper content')).toBeVisible();
   await expect(wrapper.getByRole('link', { name: 'Back' })).toHaveAttribute('href', '/cases');
   await expect(wrapper.getByText('Updates saved')).toBeVisible();

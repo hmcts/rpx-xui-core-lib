@@ -65,11 +65,17 @@ class HmctsMainWrapperGallery {
 @Component({ selector: 'core-cases-destination', standalone: true, template: '<p>Cases route destination</p>' })
 class CasesDestination {}
 
+@Component({ selector: 'core-gallery-route', standalone: true, template: '' })
+class GalleryRoute {}
+
 export function startHmctsMainWrapperGallery() {
   return bootstrapApplication(HmctsMainWrapperGallery, {
     providers: [
       importProvidersFrom(
-        RouterModule.forRoot([{ path: 'cases', component: CasesDestination }]),
+        RouterModule.forRoot([
+          { path: 'hmcts-main-wrapper', component: GalleryRoute },
+          { path: 'cases', component: CasesDestination },
+        ]),
         RpxTranslationModule.forRoot({ baseUrl: '/translations', debounceTimeMs: 20, validity: { days: 1 }, testMode: false }),
       ),
     ],

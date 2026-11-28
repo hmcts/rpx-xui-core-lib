@@ -2,10 +2,15 @@ import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
 test('primary navigation is hidden from signed-out users and its links follow their routes', async ({ page }) => {
+  const routeErrors = [];
+  page.on('console', message => {
+    if (message.type() === 'error' && message.text().includes('NG04002')) routeErrors.push(message.text());
+  });
   await page.goto('/hmcts-primary-navigation');
   const nav = page.getByRole('navigation', { name: 'Primary navigation' });
 
   await expect(nav).toBeVisible();
+  expect(routeErrors).toEqual([]);
   await expect(nav.getByRole('link', { name: 'Back' })).toHaveAttribute('aria-current', 'page');
   await expect(nav.getByRole('link', { name: 'Profile' })).not.toHaveAttribute('aria-current');
   await page.getByRole('button', { name: 'Toggle login' }).click();
