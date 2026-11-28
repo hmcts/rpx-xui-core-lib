@@ -572,3 +572,16 @@ document.querySelectorAll('[id^="TabTrace-"]').forEach((panel) => {
     : 'Download the trace, then select the downloaded file in the viewer.';
   download.parentElement.append(note);
 });
+
+// Keep required browser evidence with the dashboard summary instead of after the tabbed report.
+if (window.jQuery)
+  $(document).ready(() => {
+    const evidence = document.querySelector('#required-browser-evidence');
+    const dashboard = document.querySelector('#TabDashboard > .container-fluid');
+    const metrics = dashboard?.querySelector('.report-metrics');
+    const dashboardRow = dashboard?.querySelector(':scope > .row');
+    if (!evidence || !dashboard) return;
+    if (metrics) metrics.after(evidence);
+    else if (dashboardRow) dashboard.insertBefore(evidence, dashboardRow);
+    else dashboard.prepend(evidence);
+  });

@@ -7,11 +7,27 @@ const { test } = require('node:test');
 const { parse } = require('node-html-parser');
 const OdhinReporter = require('odhin-reports-playwright').default;
 const AdaptiveReporter = require('./odhin-adaptive.reporter.cjs');
-const { deriveFeatureName } = require('./odhin-report-enhancer.cjs');
+const { deriveFeatureName, enhanceGeneratedReport } = require('./odhin-report-enhancer.cjs');
 const { publishReport, slugifyBranch, validateSource } = require('./odhin-site-publisher.cjs');
 
 const root = path.resolve(__dirname, '../..');
 const workspace = fs.mkdtempSync(path.join(os.tmpdir(), 'core-odhin-self-check-'));
+
+test('generated Odhín test tables use 100 rows without restoring a saved smaller page size', () => {
+  const output = path.join(workspace, 'generated-page-size-report');
+  const script = path.join(output, 'js/datatable.js');
+  fs.mkdirSync(path.dirname(script), { recursive: true });
+  fs.writeFileSync(script, [
+    `$("#test-list-table").DataTable({pageLength:100,lengthMenu:[10,25,50,100],stateSave:true,stateDuration:-1});`,
+    `$('#test-list-table').DataTable({});`,
+  ].join('\n'));
+
+  enhanceGeneratedReport(output, []);
+
+  const generated = fs.readFileSync(script, 'utf8');
+  assert.equal((generated.match(/pageLength:100/g) ?? []).length, 2);
+  assert.doesNotMatch(generated, /stateSave|stateDuration/);
+});
 const hostileText = '</body><script id="report-injected">globalThis.__reportInjected=true;fetch("https://report-injection.invalid/")</script><label>axe label</label><input> $& $` $\'';
 
 test('core browser features use the feature directory while preserving other naming rules', () => {
@@ -69,6 +85,9 @@ test(${JSON.stringify('representative report case ' + hostileText)}, async ({}, 
     assert.ok(!html.includes('data:image/'));
     const evidence = parse(html).querySelector('#required-browser-evidence');
     assert.ok(evidence);
+    assert.equal(evidence.classList.contains('required-browser-evidence-card'), true, 'required browser evidence is rendered as a dashboard report card');
+    assert.equal(evidence.querySelector('.info-box-header h2')?.text.trim(), 'Required browser-contract evidence');
+    assert.ok(evidence.querySelector('.required-browser-evidence-content table.table'), 'required browser evidence uses the report table treatment');
     const validation = evidence.querySelectorAll('tbody tr').find(row => row.querySelector('th')?.text.trim() === 'validation').querySelectorAll('td').map(cell => Number(cell.text));
     assert.deepEqual(validation, [failing ? 0 : 1, failing ? 1 : 0, 0, 1, 0]);
     assert.equal(fs.readFileSync(path.join(fixture, 'native/browser.json'), 'utf8'), '{"stale":true}');
@@ -82,7 +101,7 @@ test(${JSON.stringify('representative report case ' + hostileText)}, async ({}, 
       assert.match(fs.readFileSync(path.join(fixture, 'report/browser/logs', logs[0]), 'utf8'), /self-check output/);
     }
     const browser = spawnSync(process.execPath, [path.join(__dirname, 'browser-check.cjs'), path.join(fixture, 'report/browser/index.html')], { cwd: root, encoding: 'utf8', timeout: 20_000 });
-    assert.equal(browser.status, 0, browser.stdout + browser.stderr);
+    assert.equal(browser.status, 0, browser.error ? String(browser.error) : browser.stdout + browser.stderr);
     console.log(`Retained ${failing ? 'failed' : 'passed'} reporter self-check at ${fixture}`);
   });
 }
