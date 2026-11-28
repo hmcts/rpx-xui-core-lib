@@ -12,7 +12,7 @@ test('primary navigation is login-gated, labelled, translated and route-aware', 
   let navigation = page.getByRole('navigation', { name: 'Primary navigation' });
   await expect(navigation).toBeVisible();
   await expect(navigation.locator('.govuk-header__logo')).toHaveCount(1);
-  await expect(navigation.getByRole('link', { name: 'Open applications' })).toHaveAttribute('aria-current', 'true');
+  await expect(navigation.getByRole('link', { name: 'Open applications' })).toHaveAttribute('aria-current', 'page');
   await expect(navigation.getByRole('link', { name: 'Closed applications' })).not.toHaveAttribute('aria-current');
   await expect(navigation.getByRole('link', { name: 'Open applications' })).toHaveAttribute('href', /\/open$/);
   await expect(navigation.locator('strong')).toHaveText('Open applications');

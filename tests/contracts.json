@@ -252,7 +252,9 @@
       "Manage Session retains the calculated idle schedule and interrupt contract",
       "Manage Session emits existing modal, signout and keepalive state values",
       "Timeout Notifications converts milliseconds and retains its idle, keepalive and event contracts",
-      "Timeout Notifications defaults keepalive, deduplicates countdowns and closes all sources"
+      "Timeout Notifications defaults keepalive, deduplicates countdowns and closes all sources",
+      "main wrapper shows a back action for a route or subscribed event and emits the event",
+      "primary navigation preserves the logged-in visibility input"
     ]
   },
   "browser": {
@@ -1417,6 +1419,31 @@
         "projectName": "chromium",
         "title": "GOV.UK table preserves custom classes and renders data cells when row headers are disabled",
         "feature": "commonlib-primitives"
+      },
+      {
+        "projectName": "chromium",
+        "title": "HMCTS main wrapper translates its shell, projects content, and follows its back link",
+        "feature": "hmcts-main-wrapper"
+      },
+      {
+        "projectName": "chromium",
+        "title": "event-only navigation and configured actions use keyboard-operable buttons",
+        "feature": "hmcts-main-wrapper"
+      },
+      {
+        "projectName": "chromium",
+        "title": "HMCTS main wrapper forwards summary errors and warning mode, and omits unset content accessibly",
+        "feature": "hmcts-main-wrapper"
+      },
+      {
+        "projectName": "chromium",
+        "title": "primary navigation is hidden from signed-out users and its links follow their routes",
+        "feature": "hmcts-primary-navigation"
+      },
+      {
+        "projectName": "chromium",
+        "title": "primary navigation translates links and renders the optional branded header accessibly",
+        "feature": "hmcts-primary-navigation"
       }
     ]
   },
@@ -1578,7 +1605,9 @@
       "package.strict-commonlib-checkbox-types",
       "package.commonlib-primitives-types",
       "package.commonlib-primitives-graphs",
-      "package.commonlib-primitives-packed-browser"
+      "package.commonlib-primitives-packed-browser",
+      "package.hmcts-main-wrapper-types",
+      "package.hmcts-primary-navigation-types"
     ]
   },
   "nodeUnit": {

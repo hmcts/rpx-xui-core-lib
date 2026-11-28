@@ -582,6 +582,50 @@ addedBrowserJourneys.push(
   'case selection and select-all remain independent between list instances',
 );
 addedBrowserJourneys.push('page wrapper renders its translated shell and projected content', 'page wrapper omits unset shell elements and passes a scoped accessibility scan');
+const hmctsMainWrapperBrowserJourneys = [
+  'HMCTS main wrapper translates its shell, projects content, and follows its back link',
+  'event-only navigation and configured actions use keyboard-operable buttons',
+  'HMCTS main wrapper forwards summary errors and warning mode, and omits unset content accessibly',
+];
+unitNames.push('main wrapper shows a back action for a route or subscribed event and emits the event');
+addedBrowserJourneys.push(...hmctsMainWrapperBrowserJourneys);
+packageIds.push('package.hmcts-main-wrapper-types');
+test('registers HMCTS main wrapper tests across behavior, browser and selective package contracts', () => {
+  const map = JSON.parse(readFileSync(new URL('./feature-evidence-map.json', import.meta.url), 'utf8'));
+  const shellJourneys = [
+    'main wrapper projects content, shows validation feedback and exposes event-only back as a button',
+    'main wrapper uses a route link when configured and still emits its back event',
+    'main wrapper renders its banner input and action buttons as keyboard-operable controls',
+    'main wrapper and primary navigation have no serious automated accessibility violations',
+  ];
+  assert.deepEqual(map.features.find(row => row.feature === 'HMCTS main wrapper')?.contracts, {
+    unit: ['main wrapper shows a back action for a route or subscribed event and emits the event'],
+    browser: [
+      ...hmctsMainWrapperBrowserJourneys.map(title => ({ projectName: 'chromium', title, feature: 'hmcts-main-wrapper' })),
+      ...shellJourneys.map(title => ({ projectName: 'chromium', title, feature: 'hmcts-shell' })),
+    ],
+    package: ['package.hmcts-main-wrapper-types', 'package.hmcts-main-wrapper-graph', 'package.hmcts-shell-types'],
+  });
+});
+
+const hmctsPrimaryNavigationBrowserJourneys = [
+  'primary navigation is hidden from signed-out users and its links follow their routes',
+  'primary navigation translates links and renders the optional branded header accessibly',
+];
+unitNames.push('primary navigation preserves the logged-in visibility input');
+addedBrowserJourneys.push(...hmctsPrimaryNavigationBrowserJourneys);
+packageIds.push('package.hmcts-primary-navigation-types');
+test('registers HMCTS primary navigation across behavior, browser and selective package contracts', () => {
+  const map = JSON.parse(readFileSync(new URL('./feature-evidence-map.json', import.meta.url), 'utf8'));
+  assert.deepEqual(map.features.find(row => row.feature === 'HMCTS primary navigation')?.contracts, {
+    unit: ['primary navigation preserves the logged-in visibility input'],
+    browser: [
+      ...hmctsPrimaryNavigationBrowserJourneys.map(title => ({ projectName: 'chromium', title, feature: 'hmcts-primary-navigation' })),
+      { projectName: 'chromium', title: 'primary navigation is limited to signed-in users and exposes active and inactive route links', feature: 'hmcts-shell' },
+    ],
+    package: ['package.hmcts-primary-navigation-types', 'package.hmcts-primary-navigation-graph'],
+  });
+});
 packageIds.push('package.user-details-behavior', 'package.user-details-graph');
 packageIds.push('package.user-list-behavior', 'package.user-list-graph');
 packageIds.push('package.pagination-types', 'package.pagination-behavior', 'package.pagination-graph', 'package.hmcts-pagination-graph');

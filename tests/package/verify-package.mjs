@@ -822,6 +822,20 @@ try {
     await run('hmcts-shell-types-node', [...options, '--moduleResolution', 'node', 'hmcts-shell-types.ts'], consumer);
     await run('hmcts-shell-types-bundler', [...options, '--moduleResolution', 'bundler', 'hmcts-shell-types.ts'], consumer);
   });
+
+  await cp(join(root, 'tests/package/hmcts-main-wrapper-types.ts'), join(consumer, 'hmcts-main-wrapper-types.ts'));
+  await check('package.hmcts-main-wrapper-types', async () => {
+    const options = [compiler, '--strict', '--skipLibCheck', 'false', '--noEmit', '--target', 'ES2022', '--module', 'ESNext'];
+    await run('hmcts-main-wrapper-types-node', [...options, '--moduleResolution', 'node', 'hmcts-main-wrapper-types.ts'], consumer);
+    await run('hmcts-main-wrapper-types-bundler', [...options, '--moduleResolution', 'bundler', 'hmcts-main-wrapper-types.ts'], consumer);
+  });
+
+  await cp(join(root, 'tests/package/hmcts-primary-navigation-types.ts'), join(consumer, 'hmcts-primary-navigation-types.ts'));
+  await check('package.hmcts-primary-navigation-types', async () => {
+    const options = [compiler, '--strict', '--skipLibCheck', 'false', '--noEmit', '--target', 'ES2022', '--module', 'ESNext'];
+    await run('hmcts-primary-navigation-types-node', [...options, '--moduleResolution', 'node', 'hmcts-primary-navigation-types.ts'], consumer);
+    await run('hmcts-primary-navigation-types-bundler', [...options, '--moduleResolution', 'bundler', 'hmcts-primary-navigation-types.ts'], consumer);
+  });
   await cp(join(root, 'tests/address/address.test.mjs'), join(consumer, 'address.test.mjs'));
   await cp(join(root, 'tests/address/normalization.test.mjs'), join(consumer, 'address-normalization.test.mjs'));
   await check('package.address-behavior', () => run('address-behavior', ['--test', 'address.test.mjs', 'address-normalization.test.mjs'], consumer));

@@ -9,7 +9,9 @@
           "safeJsonParse returns the supplied fallback for missing and invalid input",
           "safeJsonParse logs a safe error name without the malformed input"
         ],
-        "package": ["package.json-graph"]
+        "package": [
+          "package.json-graph"
+        ]
       }
     },
     {
@@ -1157,43 +1159,6 @@
         "package": [
           "package.hmcts-error-summary-graph",
           "package.hmcts-sub-navigation-graph"
-        ]
-      }
-    },
-    {
-      "feature": "CommonLib HMCTS main wrapper and primary navigation",
-      "contracts": {
-        "browser": [
-          {
-            "projectName": "chromium",
-            "title": "main wrapper projects content, shows validation feedback and exposes event-only back as a button",
-            "feature": "hmcts-shell"
-          },
-          {
-            "projectName": "chromium",
-            "title": "main wrapper uses a route link when configured and still emits its back event",
-            "feature": "hmcts-shell"
-          },
-          {
-            "projectName": "chromium",
-            "title": "main wrapper renders its banner input and action buttons as keyboard-operable controls",
-            "feature": "hmcts-shell"
-          },
-          {
-            "projectName": "chromium",
-            "title": "primary navigation is limited to signed-in users and exposes active and inactive route links",
-            "feature": "hmcts-shell"
-          },
-          {
-            "projectName": "chromium",
-            "title": "main wrapper and primary navigation have no serious automated accessibility violations",
-            "feature": "hmcts-shell"
-          }
-        ],
-        "package": [
-          "package.hmcts-main-wrapper-graph",
-          "package.hmcts-primary-navigation-graph",
-          "package.hmcts-shell-types"
         ]
       }
     },
@@ -3165,6 +3130,85 @@
           "package.commonlib-primitives-types",
           "package.commonlib-primitives-graphs",
           "package.commonlib-primitives-packed-browser"
+        ]
+      }
+    },
+    {
+      "feature": "HMCTS main wrapper",
+      "contracts": {
+        "unit": [
+          "main wrapper shows a back action for a route or subscribed event and emits the event"
+        ],
+        "browser": [
+          {
+            "projectName": "chromium",
+            "title": "HMCTS main wrapper translates its shell, projects content, and follows its back link",
+            "feature": "hmcts-main-wrapper"
+          },
+          {
+            "projectName": "chromium",
+            "title": "event-only navigation and configured actions use keyboard-operable buttons",
+            "feature": "hmcts-main-wrapper"
+          },
+          {
+            "projectName": "chromium",
+            "title": "HMCTS main wrapper forwards summary errors and warning mode, and omits unset content accessibly",
+            "feature": "hmcts-main-wrapper"
+          },
+          {
+            "projectName": "chromium",
+            "title": "main wrapper projects content, shows validation feedback and exposes event-only back as a button",
+            "feature": "hmcts-shell"
+          },
+          {
+            "projectName": "chromium",
+            "title": "main wrapper uses a route link when configured and still emits its back event",
+            "feature": "hmcts-shell"
+          },
+          {
+            "projectName": "chromium",
+            "title": "main wrapper renders its banner input and action buttons as keyboard-operable controls",
+            "feature": "hmcts-shell"
+          },
+          {
+            "projectName": "chromium",
+            "title": "main wrapper and primary navigation have no serious automated accessibility violations",
+            "feature": "hmcts-shell"
+          }
+        ],
+        "package": [
+          "package.hmcts-main-wrapper-types",
+          "package.hmcts-main-wrapper-graph",
+          "package.hmcts-shell-types"
+        ]
+      }
+    },
+    {
+      "feature": "HMCTS primary navigation",
+      "contracts": {
+        "unit": [
+          "primary navigation preserves the logged-in visibility input"
+        ],
+        "browser": [
+          {
+            "projectName": "chromium",
+            "title": "primary navigation is hidden from signed-out users and its links follow their routes",
+            "feature": "hmcts-primary-navigation"
+          },
+          {
+            "projectName": "chromium",
+            "title": "primary navigation translates links and renders the optional branded header accessibly",
+            "feature": "hmcts-primary-navigation"
+          },
+          {
+            "projectName": "chromium",
+            "title": "primary navigation is limited to signed-in users and exposes active and inactive route links",
+            "feature": "hmcts-shell"
+          }
+        ],
+        "package": [
+          "package.hmcts-primary-navigation-types",
+          "package.hmcts-primary-navigation-graph"
         ]
       }
     }

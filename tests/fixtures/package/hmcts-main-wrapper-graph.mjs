@@ -1,2 +1,6 @@
-import { HmctsMainWrapperModule } from '@hmcts/rpx-xui-core-lib/ui/hmcts-main-wrapper';
-console.log(HmctsMainWrapperModule);
+import {
+  HmctsMainWrapperComponent,
+  HmctsMainWrapperModule,
+} from '@hmcts/rpx-xui-core-lib/ui/hmcts-main-wrapper';
+
+console.log(HmctsMainWrapperComponent, HmctsMainWrapperModule);

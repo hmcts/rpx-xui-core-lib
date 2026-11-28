@@ -101,7 +101,7 @@ test('main wrapper renders its banner input and action buttons as keyboard-opera
 
 test('primary navigation is limited to signed-in users and exposes active and inactive route links', async ({ page }) => {
   const navigation = page.getByRole('navigation', { name: 'Service navigation' });
-  await expect(navigation.getByRole('link', { name: 'Organisations' })).toHaveAttribute('aria-current', 'true');
+  await expect(navigation.getByRole('link', { name: 'Organisations' })).toHaveAttribute('aria-current', 'page');
   await expect(navigation.getByRole('link', { name: 'Users' })).not.toHaveAttribute('aria-current');
   await expect(navigation.getByRole('link', { name: 'Organisations' })).toHaveAttribute('href', /\/organisations$/);
   await page.getByRole('button', { name: 'Toggle branded header' }).click();

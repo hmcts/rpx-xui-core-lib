@@ -270,7 +270,12 @@ commonlib-primitives|let directive renders false and zero values rather than tre
 commonlib-primitives|tabs translate labels and emit the selected index and tab on keyboard navigation
 commonlib-primitives|identity bar translates the supplied name and disappears when the identity is cleared
 commonlib-primitives|GOV.UK table translates its labels, formats date cells once and keeps row links
-commonlib-primitives|GOV.UK table preserves custom classes and renders data cells when row headers are disabled`.split('\n').map(row => {
+commonlib-primitives|GOV.UK table preserves custom classes and renders data cells when row headers are disabled
+hmcts-main-wrapper|HMCTS main wrapper translates its shell, projects content, and follows its back link
+hmcts-main-wrapper|event-only navigation and configured actions use keyboard-operable buttons
+hmcts-main-wrapper|HMCTS main wrapper forwards summary errors and warning mode, and omits unset content accessibly
+hmcts-primary-navigation|primary navigation is hidden from signed-out users and its links follow their routes
+hmcts-primary-navigation|primary navigation translates links and renders the optional branded header accessibly`.split('\n').map(row => {
   const [feature, title] = row.split('|');
   return ['chromium', title, feature];
 });
