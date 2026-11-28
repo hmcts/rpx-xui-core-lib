@@ -576,8 +576,12 @@ function stripLegacyFileChartArtifacts(root) {
 function defaultTestListRowsPerPage(html) {
   return String(html)
     .replace(
-      /(\$\(\s*["']#test-list-table["']\s*\)\.DataTable\()\s*\{\s*(?:pageLength\s*:\s*100\s*,\s*lengthMenu\s*:\s*\[\s*10\s*,\s*25\s*,\s*50\s*,\s*100\s*\]\s*)?\}\s*\)/g,
-      '$1{pageLength:100,lengthMenu:[10,25,50,100],stateSave:true,stateDuration:-1})'
+      /(\$\(\s*["']#test-list-table["']\s*\)\.DataTable\()\s*\{\s*pageLength\s*:\s*100\s*,\s*lengthMenu\s*:\s*\[\s*10\s*,\s*25\s*,\s*50\s*,\s*100\s*\]\s*(?:,\s*stateSave\s*:\s*true\s*,\s*stateDuration\s*:\s*-1\s*)?\}\s*\)/g,
+      '$1{pageLength:100,lengthMenu:[10,25,50,100]})'
+    )
+    .replace(
+      /(\$\(\s*["']#test-list-table["']\s*\)\.DataTable\()\s*\{\s*\}\s*\)/g,
+      '$1{pageLength:100,lengthMenu:[10,25,50,100]})'
     );
 }
 

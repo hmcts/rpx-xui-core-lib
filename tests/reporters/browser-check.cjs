@@ -24,6 +24,7 @@ async function main() {
     const testListLength = page.locator('#test-list-table_length select');
     await testListLength.waitFor({ state: 'attached' });
     assert.equal(await testListLength.inputValue(), '100', 'test pagination defaults to 100 rows');
+    assert.equal(await page.evaluate("jQuery('#test-list-table').DataTable().page.len()"), 100, 'the active DataTable defaults to 100 rows');
     const requiredEvidence = page.locator('#required-browser-evidence');
     if (await requiredEvidence.count()) {
       assert.equal(await requiredEvidence.evaluate((section) => Boolean(section.closest('#TabDashboard'))), true, 'required browser evidence appears on the Dashboard');

@@ -7,11 +7,27 @@ const { test } = require('node:test');
 const { parse } = require('node-html-parser');
 const OdhinReporter = require('odhin-reports-playwright').default;
 const AdaptiveReporter = require('./odhin-adaptive.reporter.cjs');
-const { deriveFeatureName } = require('./odhin-report-enhancer.cjs');
+const { deriveFeatureName, enhanceGeneratedReport } = require('./odhin-report-enhancer.cjs');
 const { publishReport, slugifyBranch, validateSource } = require('./odhin-site-publisher.cjs');
 
 const root = path.resolve(__dirname, '../..');
 const workspace = fs.mkdtempSync(path.join(os.tmpdir(), 'core-odhin-self-check-'));
+
+test('generated Odhín test tables use 100 rows without restoring a saved smaller page size', () => {
+  const output = path.join(workspace, 'generated-page-size-report');
+  const script = path.join(output, 'js/datatable.js');
+  fs.mkdirSync(path.dirname(script), { recursive: true });
+  fs.writeFileSync(script, [
+    `$("#test-list-table").DataTable({pageLength:100,lengthMenu:[10,25,50,100],stateSave:true,stateDuration:-1});`,
+    `$('#test-list-table').DataTable({});`,
+  ].join('\n'));
+
+  enhanceGeneratedReport(output, []);
+
+  const generated = fs.readFileSync(script, 'utf8');
+  assert.equal((generated.match(/pageLength:100/g) ?? []).length, 2);
+  assert.doesNotMatch(generated, /stateSave|stateDuration/);
+});
 const hostileText = '</body><script id="report-injected">globalThis.__reportInjected=true;fetch("https://report-injection.invalid/")</script><label>axe label</label><input> $& $` $\'';
 
 test('core browser features use the feature directory while preserving other naming rules', () => {
