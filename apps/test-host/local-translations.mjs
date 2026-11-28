@@ -16,6 +16,7 @@ const welsh = new Map([
   ['TODAY', 'HEDDIW'],
   ['This task is due to be completed today', 'Mae’r dasg hon i fod i gael ei chwblhau heddiw'],
   ['Back', 'Yn ôl'],
+  ['Primary navigation', 'Prif lywio'],
   ['Case list', 'Rhestr achosion'],
   ['Case management', 'Rheoli achosion'],
   ['Using this service', 'Defnyddio’r gwasanaeth hwn'],

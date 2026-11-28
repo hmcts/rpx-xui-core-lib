@@ -88,7 +88,7 @@ try {
     'case/session-error', 'case/session-guard', 'case/logging', 'case/editor-date',
     'browser/window', 'browser/session-storage', 'reference/locations', 'reference/ref-data', 'terms/models',
     'ui/cookie', 'ui/cookie-banner', 'ui/feature-toggle', 'ui/feature-toggle-directive', 'ui/feature-toggle-guard',
-    'ui/role-state', 'ui/role-guard', 'ui/task-data', 'case/sharing-state', 'ui/contact-details', 'ui/page-wrapper', 'ui/hmcts-main-wrapper',
+    'ui/role-state', 'ui/role-guard', 'ui/task-data', 'case/sharing-state', 'ui/contact-details', 'ui/page-wrapper', 'ui/hmcts-main-wrapper', 'ui/hmcts-primary-navigation',
     'ui/loading-spinner', 'ui/loading-state', 'ui/due-date', 'ui/accessibility', 'ui/session-dialog',
     'ui/banner', 'ui/form-label', 'case/models', 'case/reference', 'case/sharing', 'browser/user-agent',
     'ui/ccd-pagination', 'ui/case-list', 'address/normalization', 'ui/address',
@@ -726,6 +726,13 @@ try {
     await run('hmcts-main-wrapper-types-bundler', [...options, '--moduleResolution', 'bundler', 'hmcts-main-wrapper-types.ts'], consumer);
   });
 
+  await cp(join(root, 'tests/package/hmcts-primary-navigation-types.ts'), join(consumer, 'hmcts-primary-navigation-types.ts'));
+  await check('package.hmcts-primary-navigation-types', async () => {
+    const options = [compiler, '--strict', '--skipLibCheck', 'false', '--noEmit', '--target', 'ES2022', '--module', 'ESNext'];
+    await run('hmcts-primary-navigation-types-node', [...options, '--moduleResolution', 'node', 'hmcts-primary-navigation-types.ts'], consumer);
+    await run('hmcts-primary-navigation-types-bundler', [...options, '--moduleResolution', 'bundler', 'hmcts-primary-navigation-types.ts'], consumer);
+  });
+
   await cp(join(root, 'tests/package/pagination-types.ts'), join(consumer, 'pagination-types.ts'));
   await check('package.pagination-types', async () => {
     const options = [compiler, '--strict', '--skipLibCheck', 'false', '--noEmit', '--target', 'ES2022', '--module', 'ESNext'];
@@ -797,6 +804,7 @@ try {
     ['search-venue', 'search-venue-graph.mjs', ['ui-search-venue', 'reference-locations', 'i18n']],
     ['hmcts-error-summary', 'hmcts-error-summary-graph.mjs', ['ui-hmcts-error-summary', 'i18n']],
     ['hmcts-main-wrapper', 'hmcts-main-wrapper-graph.mjs', ['ui-hmcts-main-wrapper', 'ui-hmcts-error-summary', 'ui-banner', 'i18n']],
+    ['hmcts-primary-navigation', 'hmcts-primary-navigation-graph.mjs', ['ui-hmcts-primary-navigation', 'i18n']],
     ['hmcts-sub-navigation', 'hmcts-sub-navigation-graph.mjs', ['ui-hmcts-sub-navigation', 'i18n']],
     ['gov-input', 'gov-input-graph.mjs', ['ui-gov-input', 'i18n']],
     ['checkbox-list', 'checkbox-list-graph.mjs', ['ui-checkbox-list', 'i18n']],
@@ -822,7 +830,7 @@ try {
         for (const entry of entries) assert.ok(core.some(input => input.endsWith('/fesm2022/hmcts-rpx-xui-core-lib-' + entry + '.mjs')));
         assert.ok(!used.some(input => /(?:^|\/)node(?:\/|$)|^node:/.test(input)));
         if (['selected-case', 'share-case', 'user-details', 'user-list', 'invitation'].includes(id)) assert.ok(!used.some(input => /@hmcts\/(media-viewer|ccpay-web-component)/.test(input)));
-        if (id === 'hmcts-error-summary' || id === 'hmcts-sub-navigation' || id === 'hmcts-main-wrapper') {
+        if (id === 'hmcts-error-summary' || id === 'hmcts-sub-navigation' || id === 'hmcts-main-wrapper' || id === 'hmcts-primary-navigation') {
           assert.ok(used.some(input => input.includes('@angular/router')), 'HMCTS navigation controls must retain their RouterLink contract');
           assert.ok(!used.some(input => /@hmcts\/(?:media-viewer|ccpay-web-component)|hmcts-rpx-xui-core-lib-(?:case-editor-source|case-notifier)/.test(input)), 'HMCTS shell entries must not pull editor, Media Viewer or payment code');
         }
@@ -848,6 +856,15 @@ try {
         const loading = await probeLoading(dist, 'fesm2022/hmcts-rpx-xui-core-lib-ui-hmcts-main-wrapper.mjs', 'HmctsMainWrapperModule');
         const packageName = name => name.startsWith('@') ? name.split('/').slice(0, 2).join('/') : name.split('/')[0];
         assert.ok(!loading.externalImports.some(name => nodeBuiltins.has(name) || nodePackages.has(packageName(name))), 'HMCTS main wrapper must not load Node built-ins or Node workspace packages');
+      }
+      if (id === 'hmcts-primary-navigation') {
+        const nodeWorkspace = JSON.parse(await readFile(join(root, 'projects/core-lib/node/package.json'), 'utf8'));
+        const nodePackages = new Set(Object.keys(nodeWorkspace.devDependencies).filter(name => !name.startsWith('@types/') && !['@golevelup/ts-jest', 'jest', 'ts-jest', 'typescript'].includes(name)));
+        const nodeBuiltins = new Set(builtinModules.flatMap(name => [name, `node:${name}`]));
+        const loading = await probeLoading(dist, 'fesm2022/hmcts-rpx-xui-core-lib-ui-hmcts-primary-navigation.mjs', 'HmctsPrimaryNavigationModule');
+        const packageName = name => name.startsWith('@') ? name.split('/').slice(0, 2).join('/') : name.split('/')[0];
+        assert.ok(loading.externalImports.includes('@angular/router'), 'HMCTS primary navigation must retain its RouterLink dependency');
+        assert.ok(!loading.externalImports.some(name => nodeBuiltins.has(name) || nodePackages.has(packageName(name))), 'HMCTS primary navigation must not load Node built-ins or Node workspace packages');
       }
       const extra = id === 'window' ? "\nimport { CookieService } from '@hmcts/rpx-xui-core-lib/ui/cookie'; console.log(CookieService);" : "\nimport { windowToken } from '@hmcts/rpx-xui-core-lib/browser/window'; console.log(windowToken);";
       assert.throws(() => verify(graph(source + extra)), /Unexpected Core entries/);

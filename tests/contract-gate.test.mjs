@@ -545,6 +545,22 @@ test('registers HMCTS main wrapper tests across behavior, browser and selective 
     package: ['package.hmcts-main-wrapper-types', 'package.hmcts-main-wrapper-graph'],
   });
 });
+
+const hmctsPrimaryNavigationBrowserJourneys = [
+  'primary navigation is hidden from signed-out users and its links follow their routes',
+  'primary navigation translates links and renders the optional branded header accessibly',
+];
+unitNames.push('primary navigation preserves the logged-in visibility input');
+addedBrowserJourneys.push(...hmctsPrimaryNavigationBrowserJourneys);
+packageIds.push('package.hmcts-primary-navigation-types', 'package.hmcts-primary-navigation-graph');
+test('registers HMCTS primary navigation across behavior, browser and selective package contracts', () => {
+  const map = JSON.parse(readFileSync(new URL('./feature-evidence-map.json', import.meta.url), 'utf8'));
+  assert.deepEqual(map.features.find(row => row.feature === 'HMCTS primary navigation')?.contracts, {
+    unit: ['primary navigation preserves the logged-in visibility input'],
+    browser: hmctsPrimaryNavigationBrowserJourneys.map(title => ({ projectName: 'chromium', title, feature: 'hmcts-primary-navigation' })),
+    package: ['package.hmcts-primary-navigation-types', 'package.hmcts-primary-navigation-graph'],
+  });
+});
 packageIds.push('package.user-details-behavior', 'package.user-details-graph');
 packageIds.push('package.user-list-behavior', 'package.user-list-graph');
 packageIds.push('package.pagination-types', 'package.pagination-behavior', 'package.pagination-graph', 'package.hmcts-pagination-graph');

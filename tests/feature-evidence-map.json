@@ -2989,6 +2989,30 @@
           "package.hmcts-main-wrapper-graph"
         ]
       }
+    },
+    {
+      "feature": "HMCTS primary navigation",
+      "contracts": {
+        "unit": [
+          "primary navigation preserves the logged-in visibility input"
+        ],
+        "browser": [
+          {
+            "projectName": "chromium",
+            "title": "primary navigation is hidden from signed-out users and its links follow their routes",
+            "feature": "hmcts-primary-navigation"
+          },
+          {
+            "projectName": "chromium",
+            "title": "primary navigation translates links and renders the optional branded header accessibly",
+            "feature": "hmcts-primary-navigation"
+          }
+        ],
+        "package": [
+          "package.hmcts-primary-navigation-types",
+          "package.hmcts-primary-navigation-graph"
+        ]
+      }
     }
   ],
   "suiteGroups": [

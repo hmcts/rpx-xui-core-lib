@@ -233,7 +233,8 @@
       "Manage Session emits existing modal, signout and keepalive state values",
       "Timeout Notifications converts milliseconds and retains its idle, keepalive and event contracts",
       "Timeout Notifications defaults keepalive, deduplicates countdowns and closes all sources",
-      "main wrapper shows a back action for a route or subscribed event and emits the event"
+      "main wrapper shows a back action for a route or subscribed event and emits the event",
+      "primary navigation preserves the logged-in visibility input"
     ]
   },
   "browser": {
@@ -1313,6 +1314,16 @@
         "projectName": "chromium",
         "title": "HMCTS main wrapper forwards summary errors and warning mode, and omits unset content accessibly",
         "feature": "hmcts-main-wrapper"
+      },
+      {
+        "projectName": "chromium",
+        "title": "primary navigation is hidden from signed-out users and its links follow their routes",
+        "feature": "hmcts-primary-navigation"
+      },
+      {
+        "projectName": "chromium",
+        "title": "primary navigation translates links and renders the optional branded header accessibly",
+        "feature": "hmcts-primary-navigation"
       }
     ]
   },
@@ -1464,7 +1475,9 @@
       "package.gov-controls-types",
       "package.gov-controls-graphs",
       "package.hmcts-main-wrapper-types",
-      "package.hmcts-main-wrapper-graph"
+      "package.hmcts-main-wrapper-graph",
+      "package.hmcts-primary-navigation-types",
+      "package.hmcts-primary-navigation-graph"
     ]
   },
   "nodeUnit": {

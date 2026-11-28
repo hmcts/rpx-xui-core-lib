@@ -253,7 +253,9 @@ pagination|HMCTS paginator hides page controls and result count for a single-pag
 runtime-services|runtime services load their own external tags once and retain browser event contracts
 hmcts-main-wrapper|HMCTS main wrapper translates its shell, projects content, and follows its back link
 hmcts-main-wrapper|event-only navigation and configured actions use keyboard-operable buttons
-hmcts-main-wrapper|HMCTS main wrapper forwards summary errors and warning mode, and omits unset content accessibly`.split('\n').map(row => {
+hmcts-main-wrapper|HMCTS main wrapper forwards summary errors and warning mode, and omits unset content accessibly
+hmcts-primary-navigation|primary navigation is hidden from signed-out users and its links follow their routes
+hmcts-primary-navigation|primary navigation translates links and renders the optional branded header accessibly`.split('\n').map(row => {
   const [feature, title] = row.split('|');
   return ['chromium', title, feature];
 });
