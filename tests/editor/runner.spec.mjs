@@ -235,9 +235,9 @@ test('keeps Word date-range spacing when the formatted content is pasted', async
   expect(storedValue).toContain('<b>Citation</b>');
 });
 
-test('closes each editor dialog using Enter and Space', async ({ page }) => {
-  for (let index = 0; index < 4; index++) {
-    for (const key of ['Enter', 'Space']) {
+for (const [index, dialog] of ['delete-or-cancel', 'document', 'remove', 'save-or-discard'].entries()) {
+  for (const key of ['Enter', 'Space']) {
+    test(`closes the ${dialog} dialog using ${key}`, async ({ page }) => {
       await page.goto('/');
       await page.evaluate(index => globalThis.createDialogCloseHost(index), index);
       const close = page.getByRole('button', { name: 'Close', exact: true });
@@ -246,9 +246,9 @@ test('closes each editor dialog using Enter and Space', async ({ page }) => {
       await expect(close).toBeFocused();
       await page.keyboard.press(key);
       await expect.poll(() => page.evaluate(() => document.body.dataset.dialogResult)).toBe('Cancel');
-    }
+    });
   }
-});
+}
 
 test('keeps a new case flag selectable when no persisted detail exists', async ({ page }) => {
   const errors = [];

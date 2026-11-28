@@ -36,9 +36,20 @@ test('rejects split dependency and Docker-image bumps from separate Renovate upd
   assert.throws(() => assertPlaywrightVersionAlignment(mixedPackages, newImage), /one version/);
 });
 
-test('requires explicit editor browser drivers in the aggregate inventory', () => {
+test('requires each editor dialog and keyboard interaction in the aggregate inventory', () => {
   assert.equal(contractInventory.editorDrivers?.report, 'test-results/editor/driver.json');
-  assert.ok(contractInventory.editorDrivers.required.some(item => item.projectName === 'chromium' && item.title === 'closes each editor dialog using Enter and Space'));
+  for (const title of [
+    'closes the delete-or-cancel dialog using Enter',
+    'closes the delete-or-cancel dialog using Space',
+    'closes the document dialog using Enter',
+    'closes the document dialog using Space',
+    'closes the remove dialog using Enter',
+    'closes the remove dialog using Space',
+    'closes the save-or-discard dialog using Enter',
+    'closes the save-or-discard dialog using Space'
+  ]) {
+    assert.ok(contractInventory.editorDrivers.required.some(item => item.projectName === 'chromium' && item.title === title));
+  }
 });
 
 const identity = { sourceSha: 'a'.repeat(40), runId: 'fixture', attempt: '1', invocationId: '12345678-1234-4123-8123-123456789abc', sourceSnapshot: 'b'.repeat(64) };

@@ -1932,7 +1932,35 @@
       },
       {
         "projectName": "chromium",
-        "title": "closes each editor dialog using Enter and Space"
+        "title": "closes the delete-or-cancel dialog using Enter"
+      },
+      {
+        "projectName": "chromium",
+        "title": "closes the delete-or-cancel dialog using Space"
+      },
+      {
+        "projectName": "chromium",
+        "title": "closes the document dialog using Enter"
+      },
+      {
+        "projectName": "chromium",
+        "title": "closes the document dialog using Space"
+      },
+      {
+        "projectName": "chromium",
+        "title": "closes the remove dialog using Enter"
+      },
+      {
+        "projectName": "chromium",
+        "title": "closes the remove dialog using Space"
+      },
+      {
+        "projectName": "chromium",
+        "title": "closes the save-or-discard dialog using Enter"
+      },
+      {
+        "projectName": "chromium",
+        "title": "closes the save-or-discard dialog using Space"
       },
       {
         "projectName": "chromium",
