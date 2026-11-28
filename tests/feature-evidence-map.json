@@ -69,7 +69,25 @@
           "rejects fewer than the configured minimum",
           "accepts the exact configured minimum",
           "accepts zero when zero is explicitly required",
-          "rejects use on a non-group control with a clear error"
+          "rejects use on a non-group control with a clear error",
+          "date validator accepts an ordinary valid calendar date",
+          "date validator accepts leap day in a leap year",
+          "date validator rejects a day that would roll into the next month",
+          "date validator rejects a leap day in a non-leap year",
+          "date validator rejects blank date parts",
+          "date validator rejects non-numeric date parts",
+          "date validator rejects non-decimal numeric notation",
+          "date validator rejects a day outside the calendar range",
+          "date validator rejects a month outside the calendar range",
+          "date validator rejects missing date controls",
+          "date validator rejects use on a non-group control with a clear error",
+          "radio group validator reports invalid children with its legacy error key",
+          "radio group validator accepts a group whose children are valid",
+          "radio group validator accepts an empty group as CommonLib does",
+          "radio group validator rejects use on a non-group control with a clear error"
+        ],
+        "package": [
+          "package.validation-graph"
         ]
       }
     },
@@ -476,7 +494,6 @@
           "package.installed-runtime",
           "package.physical-i18n",
           "package.root-runtime-empty",
-          "package.validation-graph",
           "package.sharing-graph",
           "package.root-export-fault",
           "package.validation-i18n-fault",

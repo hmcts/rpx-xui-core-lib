@@ -1,11 +1,15 @@
 // The structural APF root must resolve without exposing runtime capabilities.
 export type RootDeclarations = typeof import('@hmcts/rpx-xui-core-lib');
 import { FormControl, FormGroup, type ValidatorFn } from '@angular/forms';
-import { checkboxesBeCheckedValidator } from '@hmcts/rpx-xui-core-lib/forms/validation';
+import { checkboxesBeCheckedValidator, dateValidator, radioGroupValidator } from '@hmcts/rpx-xui-core-lib/forms/validation';
 
 const validator: ValidatorFn = checkboxesBeCheckedValidator(2);
+const dateValidatorType: ValidatorFn = dateValidator();
+const radioGroupValidatorType: ValidatorFn = radioGroupValidator();
 const form: FormGroup = new FormGroup({ first: new FormControl(true) }, validator);
 void form.errors;
+void dateValidatorType;
+void radioGroupValidatorType;
 
 import { arrayPatternMatch, isStringPatternMatch, getUserSessionTimeout, hasKey, sortArray, type RoleGroupSessionTimeout, type AuthOptions, type RouteCredential, type SessionMetadata, type FileSessionMetadata, type RedisSessionMetadata } from '@hmcts/rpx-xui-core-lib/node';
 const matches: boolean = arrayPatternMatch(['pui-user-manager'], 'user-manager');
